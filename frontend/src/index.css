@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --surface-950: #08111f;
+  --surface-900: #0d1a2b;
+  --surface-800: #15263b;
+  --line: #263b53;
+  --muted: #a9b8ca;
+  --muted-soft: #8194aa;
+  --brand: #2dd4bf;
+  --brand-strong: #0f9f91;
+  --accent: #f2c66d;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--surface-950);
+  color: #eef4fa;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(45, 212, 191, 0.65);
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #159f91, #087f83);
+  color: #f4fffd;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 20px rgba(8, 127, 131, 0.2);
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  border-color: var(--brand);
+  background: linear-gradient(135deg, #20b6a6, #0b9295);
+  transform: translateY(-1px);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.input-field {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #38516b;
+  border-radius: 0.5rem;
+  background: #101f32;
+  color: #f3f7fb;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.input-field::placeholder {
+  color: #72869d;
+}
+
+.input-field:hover {
+  border-color: #58718b;
+}
+
+.input-field:focus {
+  border-color: var(--brand);
+  background: #12253b;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14);
+}
+
+/* Improve contrast for the existing utility classes used across the app. */
+.text-gray-400 { color: #b9c7d6 !important; }
+.text-gray-500 { color: #91a4ba !important; }
+.text-gray-600 { color: #7389a1 !important; }
+.text-gray-700 { color: #60758d !important; }
+.bg-gray-950 { background-color: var(--surface-950) !important; }
+.bg-gray-900 { background-color: var(--surface-900) !important; }
+.border-gray-800 { border-color: var(--line) !important; }
+.border-gray-700 { border-color: #38516b !important; }

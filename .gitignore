@@ -1,0 +1,25 @@
+# .NET
+**/bin/
+**/obj/
+**/*.user
+**/appsettings.Development.json
+**/.tmp-api-obj/
+**/.tmp-api-build/
+**/.vs/
+backend/hashtest.cs
+backend/src/LigaManager.APIrespaldo/
+backend/src/LigaManager.API/wwwroot/uploads/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Instalación accidental de npm en la raíz (el proyecto real está en frontend/)
+/node_modules/
+/package.json
+/package-lock.json
+/postcss.config.js
+
+# Entorno
+.env
+*.env.local
