@@ -16,4 +16,9 @@ public interface IJornadaService
     Task<ServiceResult<PartidoDetalleDto>> RegistrarEventoAsync(int idPartido, RegistrarEventoRequest req);
     Task<ServiceResult>                    EliminarEventoAsync(int idEvento);
     Task<ServiceResult>                    EliminarPartidoAsync(int idPartido);
+
+    Task<ServiceResult<PartidoDetalleDto>> AgregarAlineacionAsync(int idPartido, AgregarAlineacionRequest req);
+    Task<ServiceResult>                    EliminarAlineacionAsync(int idAlineacion);
+    Task<ServiceResult<PartidoDetalleDto>> RegistrarCambioAsync(int idPartido, RegistrarCambioRequest req);
+    Task<ServiceResult>                    EliminarCambioAsync(int idCambio);
 }

@@ -23,3 +23,30 @@ frontend/dist/
 # Entorno
 .env
 *.env.local
+# Respaldos locales de la base de datos
+backups/
+
+# .NET
+**/bin/
+**/obj/
+.vs/
+*.user
+
+# Secretos locales
+**/appsettings.Development.json
+.env
+.env.local
+.env.*.local
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# Copias de la base de datos
+database/*.sql
+
+# Configuracion de Claude Code
+.claude/
+
+# Logs
+*.log

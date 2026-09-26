@@ -31,8 +31,32 @@ public record PartidoDetalleDto(
     string? Estadio,
     string? Arbitro,
     List<DesignacionPartidoDto> Oficiales,
-    List<EventoPartidoDto> Eventos
+    List<EventoPartidoDto> Eventos,
+    List<AlineacionJugadorDto> AlineacionLocal,
+    List<AlineacionJugadorDto> AlineacionVisitante,
+    List<CambioPartidoDto> Cambios
 );
+
+public record AlineacionJugadorDto(
+    int     IdAlineacion,
+    int     IdJugador,
+    string  Jugador,
+    bool    Titular
+);
+
+public record CambioPartidoDto(
+    int    IdCambio,
+    int    IdEquipo,
+    int    IdJugadorSale,
+    string JugadorSale,
+    int    IdJugadorEntra,
+    string JugadorEntra,
+    int    Minuto
+);
+
+public record AgregarAlineacionRequest(int IdJugador, bool Titular);
+
+public record RegistrarCambioRequest(int IdJugadorSale, int IdJugadorEntra, int Minuto);
 
 public record DesignacionPartidoDto(
     int    IdCargo,

@@ -8,7 +8,8 @@ public record JornadaListDto(
     int    IdCampeonato,
     string Instancia,
     string? Grupo,
-    int    TotalPartidos
+    int    TotalPartidos,
+    string? EquipoLibre
 );
 
 public record JornadaDetalleDto(
@@ -19,6 +20,7 @@ public record JornadaDetalleDto(
     string Instancia,
     int?   IdGrupo,
     string? Grupo,
+    string? EquipoLibre,
     List<PartidoDetalleDto> Partidos
 );
 

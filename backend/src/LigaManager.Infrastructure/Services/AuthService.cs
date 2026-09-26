@@ -35,6 +35,52 @@ public class AuthService : IAuthService
         if (usuario is null || !BCrypt.Net.BCrypt.Verify(request.Password, usuario.PasswordHash))
             return ServiceResult<LoginResponse>.Fail("Credenciales incorrectas.");
 
+        return ServiceResult<LoginResponse>.Ok(GenerarRespuesta(usuario));
+    }
+
+    public async Task<ServiceResult<LoginResponse>> RegisterAsync(RegisterRequest request)
+    {
+        var nombre   = request.Nombre?.Trim() ?? "";
+        var email    = request.Email?.ToLower().Trim() ?? "";
+        var password = request.Password ?? "";
+
+        if (nombre.Length == 0 || email.Length == 0 || password.Length == 0)
+            return ServiceResult<LoginResponse>.Fail("Nombre, email y contraseña son requeridos.");
+        if (nombre.Length > 100 || email.Length > 150)
+            return ServiceResult<LoginResponse>.Fail("Nombre o email demasiado largos.");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return ServiceResult<LoginResponse>.Fail("El email no es válido.");
+        if (password.Length < 6)
+            return ServiceResult<LoginResponse>.Fail("La contraseña debe tener al menos 6 caracteres.");
+
+        if (await _db.Usuarios.AnyAsync(u => u.Email == email))
+            return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email.");
+
+        var usuario = new Usuario
+        {
+            Nombre       = nombre,
+            Email        = email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            Rol          = RolUsuario.Organizador,
+            Activo       = true,
+            CreatedAt    = DateTime.UtcNow,
+        };
+
+        try
+        {
+            _db.Usuarios.Add(usuario);
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email.");
+        }
+
+        return ServiceResult<LoginResponse>.Ok(GenerarRespuesta(usuario));
+    }
+
+    private LoginResponse GenerarRespuesta(Usuario usuario)
+    {
         var jwt    = _config.GetSection("JwtSettings");
         var key    = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["SecretKey"]!));
         var expira = DateTime.UtcNow.AddHours(int.Parse(jwt["ExpirationHours"]!));
@@ -55,11 +101,11 @@ public class AuthService : IAuthService
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 
-        return ServiceResult<LoginResponse>.Ok(new LoginResponse(
+        return new LoginResponse(
             new JwtSecurityTokenHandler().WriteToken(token),
             usuario.Nombre,
             usuario.Rol.ToString(),
             expira
-        ));
+        );
     }
 }

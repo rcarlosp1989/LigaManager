@@ -222,88 +222,262 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
   )
 }
 
-// ── Formulario registrar evento ───────────────────────────────────────────────
 
-function EventoForm({ onSubmit, loading, error, partido }) {
-  const [form, setForm] = useState({ idJugador: '', tipoEvento: 'GOL', minuto: '' })
+// ── Alineación (titulares/suplentes) y cambios de un partido ─────────────────
+
+function FilaJugadorPlanilla({ jugador, enCancha, onQuitar, onEvento }) {
+  return (
+    <div className="flex items-center justify-between gap-2 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
+      <span className="truncate">{jugador.jugador}</span>
+      <div className="flex items-center gap-2 shrink-0">
+        {enCancha ? (
+          <>
+            <button title="Gol" onClick={() => onEvento(jugador.idJugador, 'GOL')}
+              className="opacity-70 hover:opacity-100 transition-opacity">⚽</button>
+            <button title="Tarjeta amarilla" onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
+              className="opacity-70 hover:opacity-100 transition-opacity">🟨</button>
+            <button title="Tarjeta roja" onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
+              className="opacity-70 hover:opacity-100 transition-opacity">🟥</button>
+          </>
+        ) : (
+          <span className="text-gray-600 italic">banca</span>
+        )}
+        <button onClick={() => onQuitar(jugador.idAlineacion)} className="text-gray-600 hover:text-red-400 transition-colors">✕</button>
+      </div>
+    </div>
+  )
+}
+
+function AlineacionLado({ label, equipo, alineacion, enCanchaIds, onAgregar, onQuitar, onEvento, agregando }) {
+  const [idJugador, setIdJugador] = useState('')
+  const [titular, setTitular]     = useState(true)
+
+  const titulares = alineacion.filter(a => a.titular)
+  const suplentes = alineacion.filter(a => !a.titular)
+  const convocadosIds = new Set(alineacion.map(a => a.idJugador))
+  const disponibles = (equipo?.jugadores ?? []).filter(j => !convocadosIds.has(j.idJugador))
+
+  return (
+    <div className="border border-gray-800 rounded-lg p-3">
+      <p className="text-white text-sm font-medium mb-3">{label}</p>
+
+      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Titulares ({titulares.length})</p>
+      <div className="space-y-1 mb-3 min-h-[1.75rem]">
+        {titulares.length === 0 && <span className="text-gray-600 text-xs">Sin titulares aún.</span>}
+        {titulares.map(a => (
+          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)}
+            onQuitar={onQuitar} onEvento={onEvento} />
+        ))}
+      </div>
+
+      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Suplentes ({suplentes.length})</p>
+      <div className="space-y-1 mb-3 min-h-[1.75rem]">
+        {suplentes.length === 0 && <span className="text-gray-600 text-xs">Sin suplentes aún.</span>}
+        {suplentes.map(a => (
+          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)}
+            onQuitar={onQuitar} onEvento={onEvento} />
+        ))}
+      </div>
+
+      <div className="flex gap-1.5">
+        <select className="input-field flex-1 text-sm" value={idJugador} onChange={e => setIdJugador(e.target.value)}>
+          <option value="">Seleccionar jugador...</option>
+          {disponibles.map(j => <option key={j.idJugador} value={j.idJugador}>{j.apellido}, {j.nombre}</option>)}
+        </select>
+        <select className="input-field text-sm" value={titular ? 'titular' : 'suplente'}
+          onChange={e => setTitular(e.target.value === 'titular')}>
+          <option value="titular">Titular</option>
+          <option value="suplente">Suplente</option>
+        </select>
+        <button
+          onClick={() => { onAgregar(parseInt(idJugador), titular); setIdJugador('') }}
+          disabled={!idJugador || agregando}
+          className="text-xs px-3 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
+        >+ Agregar</button>
+      </div>
+    </div>
+  )
+}
+
+function pedirMinuto(tipoLabel) {
+  const minutoStr = window.prompt(`Minuto del evento (${tipoLabel}):`, '')
+  if (minutoStr === null) return null
+  const minuto = parseInt(minutoStr)
+  if (!minuto || minuto < 1 || minuto > 120) {
+    alert('Minuto inválido. Debe ser un número entre 1 y 120.')
+    return null
+  }
+  return minuto
+}
+
+function jugadoresEnCancha(alineacionEquipo, cambiosEquipo) {
+  const enCancha = new Set(alineacionEquipo.filter(a => a.titular).map(a => a.idJugador))
+  cambiosEquipo.forEach(c => enCancha.add(c.idJugadorEntra))
+  cambiosEquipo.forEach(c => enCancha.delete(c.idJugadorSale))
+  return alineacionEquipo.filter(a => enCancha.has(a.idJugador))
+}
+
+function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEvento }) {
+  const queryClient = useQueryClient()
   const fechaPartido = partido?.fecha?.slice(0, 10)
+  const [cambioForm, setCambioForm] = useState({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
+  const [error, setError] = useState('')
 
   const { data: equipoLocal } = useQuery({
     queryKey: ['equipo', partido?.idEquipoLocal, fechaPartido],
     queryFn:  () => api.get(`/equipos/${partido.idEquipoLocal}`, { params: { fecha: fechaPartido } }).then(r => r.data),
-    enabled:  !!partido?.idEquipoLocal,
+    enabled:  isOpen && !!partido?.idEquipoLocal,
   })
   const { data: equipoVisitante } = useQuery({
     queryKey: ['equipo', partido?.idEquipoVisitante, fechaPartido],
     queryFn:  () => api.get(`/equipos/${partido.idEquipoVisitante}`, { params: { fecha: fechaPartido } }).then(r => r.data),
-    enabled:  !!partido?.idEquipoVisitante,
+    enabled:  isOpen && !!partido?.idEquipoVisitante,
   })
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const tipos = [
-    { value: 'GOL',              label: '⚽ Gol' },
-    { value: 'TARJETA_AMARILLA', label: '🟨 Tarjeta Amarilla' },
-    { value: 'TARJETA_ROJA',     label: '🟥 Tarjeta Roja' },
-  ]
+  const alineacionLocal     = partido?.alineacionLocal ?? []
+  const alineacionVisitante = partido?.alineacionVisitante ?? []
+  const cambios             = partido?.cambios ?? []
+  const cambiosLocal        = cambios.filter(c => c.idEquipo === partido?.idEquipoLocal)
+  const cambiosVisitante    = cambios.filter(c => c.idEquipo === partido?.idEquipoVisitante)
 
-  const jugadoresLocal     = equipoLocal?.jugadores ?? []
-  const jugadoresVisitante = equipoVisitante?.jugadores ?? []
+  const invalidar = () => queryClient.invalidateQueries({ queryKey: ['jornada'] })
+
+  const agregarMutation = useMutation({
+    mutationFn: (data) => api.post(`/partidos/${partido.idPartido}/alineacion`, data),
+    onSuccess: () => { invalidar(); setError('') },
+    onError: (err) => setError(err.response?.data?.error || 'Error al agregar jugador.'),
+  })
+
+  const quitarMutation = useMutation({
+    mutationFn: (idAlineacion) => api.delete(`/alineacion/${idAlineacion}`),
+    onSuccess: invalidar,
+    onError: (err) => alert(err.response?.data?.error || 'No se puede quitar.'),
+  })
+
+  const cambioMutation = useMutation({
+    mutationFn: (data) => api.post(`/partidos/${partido.idPartido}/cambios`, data),
+    onSuccess: () => {
+      invalidar()
+      setCambioForm({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
+      setError('')
+    },
+    onError: (err) => setError(err.response?.data?.error || 'Error al registrar cambio.'),
+  })
+
+  const eliminarCambioMutation = useMutation({
+    mutationFn: (idCambio) => api.delete(`/cambios/${idCambio}`),
+    onSuccess: invalidar,
+    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
+  })
+
+  if (!isOpen || !partido) return null
+
+  const enCanchaLocal     = jugadoresEnCancha(alineacionLocal, cambiosLocal)
+  const enCanchaVisitante = jugadoresEnCancha(alineacionVisitante, cambiosVisitante)
+  const enCanchaLocalIds     = new Set(enCanchaLocal.map(a => a.idJugador))
+  const enCanchaVisitanteIds = new Set(enCanchaVisitante.map(a => a.idJugador))
+
+  const tiposEvento = { GOL: 'gol', TARJETA_AMARILLA: 'amarilla', TARJETA_ROJA: 'roja' }
+  const onEvento = (idJugador, tipoEvento) => {
+    const minuto = pedirMinuto(tiposEvento[tipoEvento])
+    if (minuto === null) return
+    onRegistrarEvento({ idJugador, tipoEvento, minuto })
+  }
+
+  const entradosLocal     = new Set(cambiosLocal.map(c => c.idJugadorEntra))
+  const entradosVisitante = new Set(cambiosVisitante.map(c => c.idJugadorEntra))
+  const suplentesDisponiblesLocal     = alineacionLocal.filter(a => !a.titular && !entradosLocal.has(a.idJugador))
+  const suplentesDisponiblesVisitante = alineacionVisitante.filter(a => !a.titular && !entradosVisitante.has(a.idJugador))
+
+  const saleEsLocal = enCanchaLocal.some(a => a.idJugador === parseInt(cambioForm.idJugadorSale))
+  const suplentesParaEntrar = cambioForm.idJugadorSale
+    ? (saleEsLocal ? suplentesDisponiblesLocal : suplentesDisponiblesVisitante)
+    : []
 
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Tipo de evento</label>
-        <select className="input-field" value={form.tipoEvento}
-          onChange={e => set('tipoEvento', e.target.value)}>
-          {tipos.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-        </select>
+    <Modal isOpen={isOpen} onClose={() => { onClose(); setError('') }} title="PLANILLA DEL PARTIDO" maxWidth="max-w-2xl">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <AlineacionLado
+            label={`🏠 ${partido.equipoLocal}`}
+            equipo={equipoLocal}
+            alineacion={alineacionLocal}
+            enCanchaIds={enCanchaLocalIds}
+            onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
+            onQuitar={(id) => quitarMutation.mutate(id)}
+            onEvento={onEvento}
+            agregando={agregarMutation.isPending}
+          />
+          <AlineacionLado
+            label={`✈️ ${partido.equipoVisitante}`}
+            equipo={equipoVisitante}
+            alineacion={alineacionVisitante}
+            enCanchaIds={enCanchaVisitanteIds}
+            onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
+            onQuitar={(id) => quitarMutation.mutate(id)}
+            onEvento={onEvento}
+            agregando={agregarMutation.isPending}
+          />
+        </div>
+
+        <div className="border-t border-gray-800 pt-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Cambios registrados</p>
+          <div className="space-y-1.5 mb-3">
+            {cambios.length === 0 && <p className="text-gray-600 text-xs">Sin cambios registrados.</p>}
+            {cambios.map(c => (
+              <div key={c.idCambio} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1.5">
+                <span>min. {c.minuto} — <span className="text-red-400">↓ {c.jugadorSale}</span> / <span className="text-green-400">↑ {c.jugadorEntra}</span></span>
+                <button onClick={() => eliminarCambioMutation.mutate(c.idCambio)} className="text-gray-600 hover:text-red-400 transition-colors ml-2">✕</button>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Sale</label>
+              <select className="input-field text-sm" value={cambioForm.idJugadorSale}
+                onChange={e => setCambioForm(f => ({ ...f, idJugadorSale: e.target.value, idJugadorEntra: '' }))}>
+                <option value="">Seleccionar...</option>
+                {enCanchaLocal.length > 0 && (
+                  <optgroup label={`🏠 ${partido.equipoLocal}`}>
+                    {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+                  </optgroup>
+                )}
+                {enCanchaVisitante.length > 0 && (
+                  <optgroup label={`✈️ ${partido.equipoVisitante}`}>
+                    {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+                  </optgroup>
+                )}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Entra</label>
+              <select className="input-field text-sm" value={cambioForm.idJugadorEntra}
+                disabled={!cambioForm.idJugadorSale}
+                onChange={e => setCambioForm(f => ({ ...f, idJugadorEntra: e.target.value }))}>
+                <option value="">Seleccionar...</option>
+                {suplentesParaEntrar.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input type="number" className="input-field text-sm flex-1" placeholder="Minuto" min="1" max="120"
+              value={cambioForm.minuto} onChange={e => setCambioForm(f => ({ ...f, minuto: e.target.value }))} />
+            <button
+              onClick={() => cambioMutation.mutate({
+                idJugadorSale:  parseInt(cambioForm.idJugadorSale),
+                idJugadorEntra: parseInt(cambioForm.idJugadorEntra),
+                minuto:         parseInt(cambioForm.minuto),
+              })}
+              disabled={cambioMutation.isPending || !cambioForm.idJugadorSale || !cambioForm.idJugadorEntra || !cambioForm.minuto}
+              className="text-xs px-4 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
+            >🔄 Registrar cambio</button>
+          </div>
+        </div>
+
+        {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
       </div>
-      <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Jugador</label>
-        <select className="input-field" value={form.idJugador}
-          onChange={e => set('idJugador', e.target.value)}>
-          <option value="">Seleccionar jugador...</option>
-          {jugadoresLocal.length > 0 && (
-            <optgroup label={`🏠 ${equipoLocal?.nombre}`}>
-              {jugadoresLocal.map(j => (
-                <option key={j.idJugador} value={j.idJugador}>
-                  {j.apellido}, {j.nombre}
-                </option>
-              ))}
-            </optgroup>
-          )}
-          {jugadoresVisitante.length > 0 && (
-            <optgroup label={`✈️ ${equipoVisitante?.nombre}`}>
-              {jugadoresVisitante.map(j => (
-                <option key={j.idJugador} value={j.idJugador}>
-                  {j.apellido}, {j.nombre}
-                </option>
-              ))}
-            </optgroup>
-          )}
-          {jugadoresLocal.length === 0 && jugadoresVisitante.length === 0 && (
-            <option disabled>No hay jugadores registrados</option>
-          )}
-        </select>
-      </div>
-      <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Minuto</label>
-        <input type="number" className="input-field" value={form.minuto} min="1" max="120"
-          onChange={e => set('minuto', e.target.value)} placeholder="45" />
-      </div>
-      {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
-      <button
-        onClick={() => onSubmit({
-          idJugador:  parseInt(form.idJugador),
-          tipoEvento: form.tipoEvento,
-          minuto:     parseInt(form.minuto),
-        })}
-        disabled={loading || !form.idJugador || !form.minuto || parseInt(form.minuto) < 1 || parseInt(form.minuto) > 120}
-        className="btn-primary w-full disabled:opacity-40"
-      >
-        {loading ? 'Guardando...' : 'Registrar Evento'}
-      </button>
-    </div>
+    </Modal>
   )
 }
 
@@ -328,9 +502,8 @@ function EquipoSelector({ idCampeonato, value, onChange, excluir }) {
 
 function PartidoCard({ partido, idCampeonato }) {
   const queryClient = useQueryClient()
-  const [showEventoModal, setShowEventoModal] = useState(false)
-  const [showEditModal, setShowEditModal]     = useState(false)
-  const [eventoError, setEventoError]         = useState('')
+  const [showEditModal, setShowEditModal]             = useState(false)
+  const [showAlineacionModal, setShowAlineacionModal] = useState(false)
   const [editError, setEditError]             = useState('')
   const [editForm, setEditForm] = useState({
     idEstadio:         partido.idEstadio ?? '',
@@ -338,8 +511,13 @@ function PartidoCard({ partido, idCampeonato }) {
     fecha:             partido.fecha ?? '',
     idEquipoLocal:     partido.idEquipoLocal ?? '',
     idEquipoVisitante: partido.idEquipoVisitante ?? '',
+    oficiales:         Object.fromEntries((partido.oficiales ?? []).map(o => [o.idCargo, o.idArbitro])),
   })
 
+  const { data: camp } = useQuery({
+    queryKey: ['campeonato', idCampeonato],
+    queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
+  })
   const { data: estadios = [] } = useQuery({
     queryKey: ['estadios'],
     queryFn:  () => api.get('/estadios').then(r => r.data),
@@ -350,6 +528,14 @@ function PartidoCard({ partido, idCampeonato }) {
     queryFn:  () => api.get('/arbitros').then(r => r.data),
     enabled:  showEditModal,
   })
+  const { data: cargos = [] } = useQuery({
+    queryKey: ['cargos-oficiales', camp?.idModalidad],
+    queryFn:  () => api.get(`/catalogos/cargos-oficiales?modalidadId=${camp.idModalidad}`).then(r => r.data),
+    enabled:  showEditModal && !!camp?.idModalidad,
+  })
+  const faltanCargosObligatorios = cargos.some(cargo =>
+    cargo.obligatorio && !editForm.oficiales[cargo.idCargo]
+  )
 
   const marcarMutation = useMutation({
     mutationFn: () => api.put(`/partidos/${partido.idPartido}/jugado`, { jugado: !partido.jugado }),
@@ -377,10 +563,8 @@ function PartidoCard({ partido, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornada'] })
       queryClient.invalidateQueries({ queryKey: ['grupo'] })
       queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
-      setShowEventoModal(false)
-      setEventoError('')
     },
-    onError: (err) => setEventoError(err.response?.data?.error || 'Error al registrar evento.'),
+    onError: (err) => alert(err.response?.data?.error || 'Error al registrar evento.'),
   })
 
   const eliminarEventoMutation = useMutation({
@@ -393,6 +577,17 @@ function PartidoCard({ partido, idCampeonato }) {
     onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
   })
 
+  const eliminarPartidoMutation = useMutation({
+    mutationFn: () => api.delete(`/partidos/${partido.idPartido}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jornada', partido.idJornada] })
+      queryClient.invalidateQueries({ queryKey: ['jornadas', idCampeonato] })
+      queryClient.invalidateQueries({ queryKey: ['grupo'] })
+      queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+    },
+    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar el partido.'),
+  })
+
   const iconoEvento = {
     'GOL':              '⚽',
     'TARJETA_AMARILLA': '🟨',
@@ -400,6 +595,11 @@ function PartidoCard({ partido, idCampeonato }) {
   }
 
   const setE = (k, v) => setEditForm(f => ({ ...f, [k]: v }))
+  const setEOficial = (idCargo, idArbitro) => setEditForm(f => ({
+    ...f,
+    oficiales: { ...f.oficiales, [idCargo]: idArbitro },
+  }))
+  const puedeEditarEquipos = partido.eventos?.length === 0 && !partido.jugado
 
   return (
     <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
@@ -464,9 +664,9 @@ function PartidoCard({ partido, idCampeonato }) {
           {partido.jugado ? '↩ Desmarcar jugado' : '✓ Marcar jugado'}
         </button>
         <button
-          onClick={() => setShowEventoModal(true)}
+          onClick={() => setShowAlineacionModal(true)}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors"
-        >+ Evento</button>
+        >📋 Planilla</button>
         <button
           onClick={() => {
             setEditForm({
@@ -475,11 +675,20 @@ function PartidoCard({ partido, idCampeonato }) {
               fecha:             partido.fecha ?? '',
               idEquipoLocal:     partido.idEquipoLocal ?? '',
               idEquipoVisitante: partido.idEquipoVisitante ?? '',
+              oficiales:         Object.fromEntries((partido.oficiales ?? []).map(o => [o.idCargo, o.idArbitro])),
             })
             setShowEditModal(true)
           }}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-blue-700 hover:text-blue-400 transition-colors"
         >✏️ Editar</button>
+        <button
+          onClick={() => {
+            if (confirm(`¿Eliminar el partido ${partido.equipoLocal} vs ${partido.equipoVisitante}? Esto también borrará sus eventos registrados.`))
+              eliminarPartidoMutation.mutate()
+          }}
+          disabled={eliminarPartidoMutation.isPending}
+          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500 hover:border-red-800 hover:text-red-400 transition-colors"
+        >🗑️ Eliminar</button>
       </div>
 
       {/* Modal editar partido */}
@@ -491,7 +700,7 @@ function PartidoCard({ partido, idCampeonato }) {
             {partido.equipoLocal} vs {partido.equipoVisitante}
           </div>
           {/* Cambio de equipos solo si no hay eventos registrados */}
-          {partido.eventos?.length === 0 && !partido.jugado && (
+          {puedeEditarEquipos && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo local</label>
@@ -520,45 +729,65 @@ function PartidoCard({ partido, idCampeonato }) {
           </div>
           <div>
             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
-            <select className="input-field" value={editForm.idEstadio}
+            <select className="input-field" value={editForm.idEstadio} required
               onChange={e => setE('idEstadio', e.target.value)}>
-              <option value="">Sin asignar</option>
+              <option value="">Seleccionar...</option>
               {estadios.map(e => <option key={e.idEstadio} value={e.idEstadio}>{e.nombre}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro</label>
-            <select className="input-field" value={editForm.idArbitro}
-              onChange={e => setE('idArbitro', e.target.value)}>
-              <option value="">Sin asignar</option>
-              {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
-            </select>
-          </div>
+          {cargos.length > 0 ? (
+            <div className="space-y-3 border-t border-gray-800 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido</p>
+              {cargos.map(cargo => (
+                <div key={cargo.idCargo}>
+                  <label className="block text-xs text-gray-400 mb-1.5">
+                    {cargo.cargo} {cargo.obligatorio && <span className="text-amber-300">*</span>}
+                  </label>
+                  <select className="input-field" value={editForm.oficiales[cargo.idCargo] ?? ''}
+                    onChange={e => setEOficial(cargo.idCargo, e.target.value)}>
+                    <option value="">Sin asignar</option>
+                    {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro</label>
+              <select className="input-field" value={editForm.idArbitro} required
+                onChange={e => setE('idArbitro', e.target.value)}>
+                <option value="">Seleccionar...</option>
+                {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
+              </select>
+            </div>
+          )}
           {editError && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{editError}</div>}
           <button
             onClick={() => editarMutation.mutate({
               idEstadio:         editForm.idEstadio ? parseInt(editForm.idEstadio) : null,
-              idArbitro:         editForm.idArbitro ? parseInt(editForm.idArbitro) : null,
+              idArbitro:         parseInt(editForm.idArbitro || Object.values(editForm.oficiales).find(Boolean)),
               fecha:             editForm.fecha,
-              idEquipoLocal:     editForm.idEquipoLocal ? parseInt(editForm.idEquipoLocal) : null,
-              idEquipoVisitante: editForm.idEquipoVisitante ? parseInt(editForm.idEquipoVisitante) : null,
+              idEquipoLocal:     puedeEditarEquipos && editForm.idEquipoLocal ? parseInt(editForm.idEquipoLocal) : null,
+              idEquipoVisitante: puedeEditarEquipos && editForm.idEquipoVisitante ? parseInt(editForm.idEquipoVisitante) : null,
+              oficiales:         Object.entries(editForm.oficiales)
+                .filter(([, idArbitro]) => idArbitro)
+                .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
             })}
-            disabled={editarMutation.isPending}
+            disabled={editarMutation.isPending || !editForm.idEstadio
+              || (!editForm.idArbitro && !Object.values(editForm.oficiales).some(Boolean))
+              || faltanCargosObligatorios}
             className="btn-primary w-full disabled:opacity-40"
           >{editarMutation.isPending ? 'Guardando...' : 'Guardar cambios'}</button>
         </div>
       </Modal>
 
-      <Modal isOpen={showEventoModal}
-             onClose={() => { setShowEventoModal(false); setEventoError('') }}
-             title="REGISTRAR EVENTO">
-        <EventoForm
-          onSubmit={eventoMutation.mutate}
-          loading={eventoMutation.isPending}
-          error={eventoError}
-          partido={partido}
-        />
-      </Modal>
+      <AlineacionModal
+        isOpen={showAlineacionModal}
+        onClose={() => setShowAlineacionModal(false)}
+        partido={partido}
+        idCampeonato={idCampeonato}
+        onRegistrarEvento={eventoMutation.mutate}
+      />
     </div>
   )
 }
@@ -607,6 +836,11 @@ function JornadaCard({ jornada, idCampeonato }) {
           <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{jornada.instancia}</span>
           {jornada.grupo && <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">Grupo {jornada.grupo}</span>}
           <span className="text-xs text-gray-600">{jornada.totalPartidos} partido{jornada.totalPartidos !== 1 ? 's' : ''}</span>
+          {jornada.equipoLibre && (
+            <span className="text-xs text-amber-400 bg-amber-900/20 border border-amber-800/50 px-2 py-0.5 rounded">
+              🛋️ Libre: {jornada.equipoLibre}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -623,6 +857,11 @@ function JornadaCard({ jornada, idCampeonato }) {
 
       {expanded && (
         <div className="border-t border-gray-800 p-4 space-y-3">
+          {jornadaDetalle?.equipoLibre && (
+            <p className="text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
+              🛋️ {jornadaDetalle.equipoLibre} queda libre en esta jornada.
+            </p>
+          )}
           {partidos.length === 0 ? (
             <p className="text-gray-500 text-sm text-center py-4">No hay partidos en esta jornada.</p>
           ) : (
@@ -651,19 +890,92 @@ function JornadaCard({ jornada, idCampeonato }) {
   )
 }
 
+// ── Modal genérico para generar calendario automático ────────────────────────
+// Reutilizable tanto a nivel de grupo (postUrl = /grupos/{id}/calendario) como
+// a nivel de campeonato sin grupos (postUrl = /campeonatos/{id}/calendario).
+
+function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, maxFecha, onGenerated }) {
+  const [form, setForm] = useState({
+    idInstancia: '', fechaInicio: '', diasEntreJornadas: 7, idaYVuelta: false
+  })
+  const [error, setError] = useState('')
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const { data: instancias = [] } = useQuery({
+    queryKey: ['instancias'],
+    queryFn:  () => api.get('/catalogos/instancias').then(r => r.data),
+    enabled:  isOpen,
+  })
+
+  const calendarioMutation = useMutation({
+    mutationFn: (data) => api.post(postUrl, data),
+    onSuccess: (res) => { setError(''); onGenerated(res.data.mensaje) },
+    onError: (err) => setError(err.response?.data?.error || 'Error al generar calendario.'),
+  })
+
+  return (
+    <Modal isOpen={isOpen} onClose={() => { onClose(); setError('') }} title={title}>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
+          <select className="input-field" value={form.idInstancia}
+            onChange={e => set('idInstancia', e.target.value)}>
+            <option value="">Seleccionar...</option>
+            {instancias.map(i => <option key={i.idInstancia} value={i.idInstancia}>{i.nombre}</option>)}
+          </select>
+        </div>
+        <p className="text-gray-500 text-xs -mt-2">
+          El estadio y el árbitro se asignan después, al editar cada partido individualmente.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha inicio</label>
+            <input type="date" className="input-field" value={form.fechaInicio}
+              min={minFecha} max={maxFecha}
+              onChange={e => set('fechaInicio', e.target.value)} />
+            {minFecha && maxFecha && (
+              <p className="text-gray-600 text-xs mt-1">Debe estar entre {minFecha} y {maxFecha}.</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Días entre jornadas</label>
+            <input type="number" className="input-field" value={form.diasEntreJornadas}
+              min="1" max="30" onChange={e => set('diasEntreJornadas', parseInt(e.target.value))} />
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-3 bg-gray-800/40 rounded-lg">
+          <input type="checkbox" id="idaYVuelta" checked={form.idaYVuelta ?? false}
+            onChange={e => set('idaYVuelta', e.target.checked)}
+            className="w-4 h-4 accent-brand-400" />
+          <div>
+            <label htmlFor="idaYVuelta" className="text-white text-sm cursor-pointer">Ida y vuelta</label>
+            <p className="text-gray-500 text-xs">Genera dos rondas: en la segunda se invierten local y visitante.</p>
+          </div>
+        </div>
+        {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
+        <button
+          onClick={() => calendarioMutation.mutate({
+            idInstancia:       parseInt(form.idInstancia),
+            fechaInicio:       form.fechaInicio,
+            diasEntreJornadas: form.diasEntreJornadas,
+            idaYVuelta:        form.idaYVuelta ?? false,
+          })}
+          disabled={calendarioMutation.isPending || !form.idInstancia || !form.fechaInicio}
+          className="btn-primary w-full disabled:opacity-40"
+        >{calendarioMutation.isPending ? 'Generando...' : '📅 Generar calendario completo'}</button>
+      </div>
+    </Modal>
+  )
+}
+
 // ── Tabla de posiciones de un grupo ──────────────────────────────────────────
 
 function TablaPosiciones({ idGrupo, idCampeonato }) {
   const queryClient = useQueryClient()
   const [showCalendarioModal, setShowCalendarioModal] = useState(false)
   const [showAsignarModal, setShowAsignarModal]       = useState(false)
-  const [calendarioError, setCalendarioError]         = useState('')
   const [asignarError, setAsignarError]               = useState('')
   const [equipoSel, setEquipoSel]                     = useState('')
-  const [calendarioForm, setCalendarioForm] = useState({
-    idInstancia: '', idArbitro: '', idEstadio: '',
-    fechaInicio: '', diasEntreJornadas: 7, idaYVuelta: false
-  })
 
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['grupo', idGrupo],
@@ -672,21 +984,6 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
   const { data: camp } = useQuery({
     queryKey: ['campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
-  })
-  const { data: instancias = [] } = useQuery({
-    queryKey: ['instancias'],
-    queryFn:  () => api.get('/catalogos/instancias').then(r => r.data),
-    enabled:  showCalendarioModal,
-  })
-  const { data: estadios = [] } = useQuery({
-    queryKey: ['estadios'],
-    queryFn:  () => api.get('/estadios').then(r => r.data),
-    enabled:  showCalendarioModal,
-  })
-  const { data: arbitros = [] } = useQuery({
-    queryKey: ['arbitros'],
-    queryFn:  () => api.get('/arbitros').then(r => r.data),
-    enabled:  showCalendarioModal,
   })
 
   const equiposInscritos   = camp?.equipos ?? []
@@ -707,19 +1004,6 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] }),
     onError: (err) => alert(err.response?.data?.error || 'No se puede remover.'),
   })
-
-  const calendarioMutation = useMutation({
-    mutationFn: (data) => api.post(`/grupos/${idGrupo}/calendario`, data),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['jornadas', String(idCampeonato)] })
-      setShowCalendarioModal(false)
-      setCalendarioError('')
-      alert(res.data.mensaje)
-    },
-    onError: (err) => setCalendarioError(err.response?.data?.error || 'Error al generar calendario.'),
-  })
-
-  const setC = (k, v) => setCalendarioForm(f => ({ ...f, [k]: v }))
 
   if (isLoading) return <div className="text-gray-500 text-sm text-center py-4">Cargando grupo...</div>
   if (!grupo) return null
@@ -823,73 +1107,20 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
         </div>
       </Modal>
 
-      {/* Modal generar calendario */}
-      <Modal isOpen={showCalendarioModal}
-             onClose={() => { setShowCalendarioModal(false); setCalendarioError('') }}
-             title={`GENERAR CALENDARIO — GRUPO ${grupo.nombre}`}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
-            <select className="input-field" value={calendarioForm.idInstancia}
-              onChange={e => setC('idInstancia', e.target.value)}>
-              <option value="">Seleccionar...</option>
-              {instancias.map(i => <option key={i.idInstancia} value={i.idInstancia}>{i.nombre}</option>)}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio <span className="text-gray-600">(opcional)</span></label>
-              <select className="input-field" value={calendarioForm.idEstadio}
-                onChange={e => setC('idEstadio', e.target.value)}>
-                <option value="">Sin asignar</option>
-                {estadios.map(e => <option key={e.idEstadio} value={e.idEstadio}>{e.nombre}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro <span className="text-gray-600">(opcional)</span></label>
-              <select className="input-field" value={calendarioForm.idArbitro}
-                onChange={e => setC('idArbitro', e.target.value)}>
-                <option value="">Sin asignar</option>
-                {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha inicio</label>
-              <input type="date" className="input-field" value={calendarioForm.fechaInicio}
-                onChange={e => setC('fechaInicio', e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Días entre jornadas</label>
-              <input type="number" className="input-field" value={calendarioForm.diasEntreJornadas}
-                min="1" max="30" onChange={e => setC('diasEntreJornadas', parseInt(e.target.value))} />
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-800/40 rounded-lg">
-            <input type="checkbox" id="idaYVuelta" checked={calendarioForm.idaYVuelta ?? false}
-              onChange={e => setC('idaYVuelta', e.target.checked)}
-              className="w-4 h-4 accent-brand-400" />
-            <div>
-              <label htmlFor="idaYVuelta" className="text-white text-sm cursor-pointer">Ida y vuelta</label>
-              <p className="text-gray-500 text-xs">Genera dos rondas: en la segunda se invierten local y visitante.</p>
-            </div>
-          </div>
-          {calendarioError && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{calendarioError}</div>}
-          <button
-            onClick={() => calendarioMutation.mutate({
-              idInstancia:       parseInt(calendarioForm.idInstancia),
-              idArbitro:         calendarioForm.idArbitro ? parseInt(calendarioForm.idArbitro) : null,
-              idEstadio:         calendarioForm.idEstadio ? parseInt(calendarioForm.idEstadio) : null,
-              fechaInicio:       calendarioForm.fechaInicio,
-              diasEntreJornadas: calendarioForm.diasEntreJornadas,
-              idaYVuelta:        calendarioForm.idaYVuelta ?? false,
-            })}
-            disabled={calendarioMutation.isPending || !calendarioForm.idInstancia || !calendarioForm.fechaInicio}
-            className="btn-primary w-full disabled:opacity-40"
-          >{calendarioMutation.isPending ? 'Generando...' : '📅 Generar calendario completo'}</button>
-        </div>
-      </Modal>
+      <GenerarCalendarioModal
+        isOpen={showCalendarioModal}
+        onClose={() => setShowCalendarioModal(false)}
+        title={`GENERAR CALENDARIO — GRUPO ${grupo.nombre}`}
+        postUrl={`/grupos/${idGrupo}/calendario`}
+        minFecha={camp?.fechaInicio}
+        maxFecha={camp?.fechaFin}
+        onGenerated={(mensaje) => {
+          queryClient.invalidateQueries({ queryKey: ['jornadas', String(idCampeonato)] })
+          queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] })
+          setShowCalendarioModal(false)
+          alert(mensaje)
+        }}
+      />
     </div>
   )
 }
@@ -954,6 +1185,7 @@ export default function CampeonatoDetalle() {
   const [showGrupoModal, setShowGrupoModal]     = useState(false)
   const [grupoNombre, setGrupoNombre]           = useState('')
   const [grupoError, setGrupoError]             = useState('')
+  const [showCalendarioCampeonatoModal, setShowCalendarioCampeonatoModal] = useState(false)
 
   const { data: camp, isLoading, isError } = useQuery({
     queryKey: ['campeonato', id],
@@ -1174,7 +1406,14 @@ export default function CampeonatoDetalle() {
             <div className="card text-center py-12">
               <p className="text-4xl mb-3">🏅</p>
               <p className="text-gray-400 text-sm">No hay grupos creados.</p>
-              <p className="text-gray-600 text-xs mt-1">Crea grupos para dividir los equipos y generar el calendario.</p>
+              <p className="text-gray-600 text-xs mt-1">
+                Crea grupos si vas a dividir por fases, o genera directamente el calendario de todos contra todos sin grupos.
+              </p>
+              <button
+                onClick={() => setShowCalendarioCampeonatoModal(true)}
+                disabled={(camp.equipos?.length ?? 0) < 2}
+                className="mt-4 text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors disabled:opacity-40"
+              >📅 Generar calendario (todos contra todos)</button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1242,6 +1481,21 @@ export default function CampeonatoDetalle() {
           >{crearGrupoMutation.isPending ? 'Creando...' : 'Crear Grupo'}</button>
         </div>
       </Modal>
+
+      <GenerarCalendarioModal
+        isOpen={showCalendarioCampeonatoModal}
+        onClose={() => setShowCalendarioCampeonatoModal(false)}
+        title="GENERAR CALENDARIO — TODOS CONTRA TODOS"
+        postUrl={`/campeonatos/${id}/calendario`}
+        minFecha={camp.fechaInicio}
+        maxFecha={camp.fechaFin}
+        onGenerated={(mensaje) => {
+          queryClient.invalidateQueries({ queryKey: ['jornadas', id] })
+          queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', id] })
+          setShowCalendarioCampeonatoModal(false)
+          alert(mensaje)
+        }}
+      />
     </div>
   )
 }

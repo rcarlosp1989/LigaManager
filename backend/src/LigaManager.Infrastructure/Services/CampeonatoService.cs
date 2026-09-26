@@ -17,11 +17,16 @@ public class CampeonatoService : ICampeonatoService
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
+    private bool EsAdmin => string.Equals(
+        _http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Admin", StringComparison.OrdinalIgnoreCase);
+
+    private IQueryable<Campeonato> CampeonatosVisibles()
+        => EsAdmin ? _db.Campeonatos : _db.Campeonatos.Where(c => c.IdUsuarioCreador == UsuarioActualId);
+
     public async Task<List<CampeonatoListDto>> GetAllAsync()
-        => await _db.Campeonatos
+        => await CampeonatosVisibles()
             .Include(c => c.TipoPartido)
             .Include(c => c.Equipos)
-            .Where(c => c.IdUsuarioCreador == UsuarioActualId)
             .OrderByDescending(c => c.Anio)
             .Select(c => new CampeonatoListDto(
                 c.IdCampeonato,
@@ -37,11 +42,11 @@ public class CampeonatoService : ICampeonatoService
 
     public async Task<ServiceResult<CampeonatoDetalleDto>> GetByIdAsync(int id)
     {
-        var c = await _db.Campeonatos
+        var c = await CampeonatosVisibles()
             .Include(c => c.TipoPartido)
             .Include(c => c.ModalidadDeportiva)
             .Include(c => c.Equipos).ThenInclude(ce => ce.Equipo).ThenInclude(e => e.Pais)
-            .FirstOrDefaultAsync(c => c.IdCampeonato == id && c.IdUsuarioCreador == UsuarioActualId);
+            .FirstOrDefaultAsync(c => c.IdCampeonato == id);
 
         if (c is null) return ServiceResult<CampeonatoDetalleDto>.Fail("Campeonato no encontrado.");
 
@@ -94,7 +99,7 @@ public class CampeonatoService : ICampeonatoService
 
     public async Task<ServiceResult<CampeonatoDetalleDto>> UpdateAsync(int id, UpdateCampeonatoRequest req)
     {
-        var c = await _db.Campeonatos.FirstOrDefaultAsync(c => c.IdCampeonato == id && c.IdUsuarioCreador == UsuarioActualId);
+        var c = await CampeonatosVisibles().FirstOrDefaultAsync(c => c.IdCampeonato == id);
         if (c is null) return ServiceResult<CampeonatoDetalleDto>.Fail("Campeonato no encontrado.");
 
         if (!DateOnly.TryParse(req.FechaInicio, out var fi) ||
@@ -121,7 +126,7 @@ public class CampeonatoService : ICampeonatoService
 
     public async Task<ServiceResult> DeleteAsync(int id)
     {
-        var c = await _db.Campeonatos.FirstOrDefaultAsync(c => c.IdCampeonato == id && c.IdUsuarioCreador == UsuarioActualId);
+        var c = await CampeonatosVisibles().FirstOrDefaultAsync(c => c.IdCampeonato == id);
         if (c is null) return ServiceResult.Fail("Campeonato no encontrado.");
 
         var tieneJornadas = await _db.Jornadas.AnyAsync(j => j.IdCampeonato == id);

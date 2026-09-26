@@ -92,4 +92,36 @@ public class JornadasController : ControllerBase
         var result = await _service.EliminarEventoAsync(idEvento);
         return result.Success ? NoContent() : BadRequest(new { error = result.Error });
     }
+
+    // ── Alineaciones ─────────────────────────────────────────────────────────
+
+    [HttpPost("api/partidos/{idPartido:int}/alineacion")]
+    public async Task<IActionResult> AgregarAlineacion(int idPartido, [FromBody] AgregarAlineacionRequest req)
+    {
+        var result = await _service.AgregarAlineacionAsync(idPartido, req);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpDelete("api/alineacion/{idAlineacion:int}")]
+    public async Task<IActionResult> EliminarAlineacion(int idAlineacion)
+    {
+        var result = await _service.EliminarAlineacionAsync(idAlineacion);
+        return result.Success ? NoContent() : BadRequest(new { error = result.Error });
+    }
+
+    // ── Cambios (sustituciones) ──────────────────────────────────────────────
+
+    [HttpPost("api/partidos/{idPartido:int}/cambios")]
+    public async Task<IActionResult> RegistrarCambio(int idPartido, [FromBody] RegistrarCambioRequest req)
+    {
+        var result = await _service.RegistrarCambioAsync(idPartido, req);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpDelete("api/cambios/{idCambio:int}")]
+    public async Task<IActionResult> EliminarCambio(int idCambio)
+    {
+        var result = await _service.EliminarCambioAsync(idCambio);
+        return result.Success ? NoContent() : BadRequest(new { error = result.Error });
+    }
 }

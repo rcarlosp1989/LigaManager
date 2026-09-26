@@ -75,6 +75,13 @@ public class GruposController : ControllerBase
         return result.Success ? Ok(new { mensaje = result.Data }) : BadRequest(new { error = result.Error });
     }
 
+    [HttpPost("api/campeonatos/{idCampeonato:int}/calendario")]
+    public async Task<IActionResult> GenerarCalendarioCampeonato(int idCampeonato, [FromBody] GenerarCalendarioRequest req)
+    {
+        var result = await _service.GenerarCalendarioCampeonatoAsync(idCampeonato, req);
+        return result.Success ? Ok(new { mensaje = result.Data }) : BadRequest(new { error = result.Error });
+    }
+
     // ── Fases del campeonato ─────────────────────────────────────────────────
 
     [HttpGet("api/campeonatos/{idCampeonato:int}/fases")]

@@ -9,8 +9,7 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null
   })
 
-  const login = useCallback(async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password })
+  const guardarSesion = useCallback((data) => {
     localStorage.setItem('lm_token', data.token)
     localStorage.setItem('lm_user', JSON.stringify({
       nombre: data.nombre,
@@ -20,6 +19,16 @@ export function AuthProvider({ children }) {
     return data
   }, [])
 
+  const login = useCallback(async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password })
+    return guardarSesion(data)
+  }, [guardarSesion])
+
+  const register = useCallback(async (nombre, email, password) => {
+    const { data } = await api.post('/auth/register', { nombre, email, password })
+    return guardarSesion(data)
+  }, [guardarSesion])
+
   const logout = useCallback(() => {
     localStorage.removeItem('lm_token')
     localStorage.removeItem('lm_user')
@@ -27,7 +36,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

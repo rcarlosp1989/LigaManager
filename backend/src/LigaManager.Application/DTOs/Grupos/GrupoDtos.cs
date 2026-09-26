@@ -50,8 +50,6 @@ public record AsignarEquipoGrupoRequest(
 
 public record GenerarCalendarioRequest(
     int     IdInstancia,
-    int?    IdArbitro,
-    int?    IdEstadio,
     string  FechaInicio,
     int     DiasEntreJornadas,
     bool    IdaYVuelta

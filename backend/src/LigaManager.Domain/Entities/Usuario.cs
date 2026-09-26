@@ -17,5 +17,6 @@ public enum RolUsuario
     Admin,
     Arbitro,
     Veedor,
-    Delegado
+    Delegado,
+    Organizador
 }

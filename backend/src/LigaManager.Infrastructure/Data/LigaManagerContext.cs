@@ -28,6 +28,8 @@ public class LigaManagerContext : DbContext
     public DbSet<Jornada>            Jornadas              { get; set; }
     public DbSet<Partido>            Partidos              { get; set; }
     public DbSet<EventoPartido>      EventosPartido        { get; set; }
+    public DbSet<AlineacionJugador>  Alineaciones          { get; set; }
+    public DbSet<CambioPartido>      CambiosPartido        { get; set; }
     public DbSet<CargoOficial>       CargosOficiales       { get; set; }
     public DbSet<ModalidadCargo>     ModalidadCargos       { get; set; }
     public DbSet<PartidoOficial>     PartidosOficiales     { get; set; }
@@ -61,6 +63,8 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Jornada>()           .ToTable("jornada");
         modelBuilder.Entity<Partido>()           .ToTable("partido");
         modelBuilder.Entity<EventoPartido>()     .ToTable("eventopartido");
+        modelBuilder.Entity<AlineacionJugador>() .ToTable("alineacion_jugador");
+        modelBuilder.Entity<CambioPartido>()     .ToTable("cambio_partido");
         modelBuilder.Entity<CargoOficial>()      .ToTable("cargo_oficial");
         modelBuilder.Entity<ModalidadCargo>()    .ToTable("modalidad_cargo");
         modelBuilder.Entity<PartidoOficial>()    .ToTable("partido_oficial");
@@ -98,6 +102,8 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Jornada>()           .HasKey(j  => j.IdJornada);
         modelBuilder.Entity<Partido>()           .HasKey(p  => p.IdPartido);
         modelBuilder.Entity<EventoPartido>()     .HasKey(e  => e.IdEvento);
+        modelBuilder.Entity<AlineacionJugador>() .HasKey(a  => a.IdAlineacion);
+        modelBuilder.Entity<CambioPartido>()     .HasKey(c  => c.IdCambio);
         modelBuilder.Entity<CargoOficial>()      .HasKey(c  => c.IdCargo);
         modelBuilder.Entity<ModalidadCargo>()    .HasKey(mc => new { mc.IdModalidad, mc.IdCargo });
         modelBuilder.Entity<PartidoOficial>()    .HasKey(po => new { po.IdPartido, po.IdCargo });
@@ -369,6 +375,66 @@ public class LigaManagerContext : DbContext
             e.HasOne(ev => ev.Jugador)
                 .WithMany(j => j.Eventos)
                 .HasForeignKey(ev => ev.IdJugador);
+        });
+
+        // ── Relaciones AlineacionJugador ─────────────────────────────────────
+        modelBuilder.Entity<AlineacionJugador>(e =>
+        {
+            e.Property(a => a.IdAlineacion).HasColumnName("id_alineacion");
+            e.Property(a => a.IdPartido)   .HasColumnName("id_partido");
+            e.Property(a => a.IdEquipo)    .HasColumnName("id_equipo");
+            e.Property(a => a.IdJugador)   .HasColumnName("id_jugador");
+            e.Property(a => a.Titular)     .HasColumnName("titular");
+            e.Property(a => a.CreatedAt)   .HasColumnName("created_at")
+                                           .ValueGeneratedOnAdd();
+
+            e.HasOne(a => a.Partido)
+                .WithMany(p => p.Alineaciones)
+                .HasForeignKey(a => a.IdPartido);
+
+            e.HasOne(a => a.Equipo)
+                .WithMany()
+                .HasForeignKey(a => a.IdEquipo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(a => a.Jugador)
+                .WithMany()
+                .HasForeignKey(a => a.IdJugador)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(a => new { a.IdPartido, a.IdJugador }).IsUnique();
+        });
+
+        // ── Relaciones CambioPartido ─────────────────────────────────────────
+        modelBuilder.Entity<CambioPartido>(e =>
+        {
+            e.Property(c => c.IdCambio)      .HasColumnName("id_cambio");
+            e.Property(c => c.IdPartido)     .HasColumnName("id_partido");
+            e.Property(c => c.IdEquipo)      .HasColumnName("id_equipo");
+            e.Property(c => c.IdJugadorSale) .HasColumnName("id_jugador_sale");
+            e.Property(c => c.IdJugadorEntra).HasColumnName("id_jugador_entra");
+            e.Property(c => c.Minuto)        .HasColumnName("minuto");
+            e.Property(c => c.CreatedAt)     .HasColumnName("created_at")
+                                             .ValueGeneratedOnAdd();
+
+            e.HasOne(c => c.Partido)
+                .WithMany(p => p.Cambios)
+                .HasForeignKey(c => c.IdPartido);
+
+            e.HasOne(c => c.Equipo)
+                .WithMany()
+                .HasForeignKey(c => c.IdEquipo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(c => c.JugadorSale)
+                .WithMany()
+                .HasForeignKey(c => c.IdJugadorSale)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(c => c.JugadorEntra)
+                .WithMany()
+                .HasForeignKey(c => c.IdJugadorEntra)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── Relaciones Grupo ─────────────────────────────────────────────────

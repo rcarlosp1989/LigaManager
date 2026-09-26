@@ -17,6 +17,7 @@ public interface IGrupoService
 
     // Calendario automático
     Task<ServiceResult<string>>          GenerarCalendarioAsync(int idGrupo, GenerarCalendarioRequest req);
+    Task<ServiceResult<string>>          GenerarCalendarioCampeonatoAsync(int idCampeonato, GenerarCalendarioRequest req);
 
     // Fases del campeonato
     Task<List<FaseCampeonatoDto>>        GetFasesByCampeonatoAsync(int idCampeonato);

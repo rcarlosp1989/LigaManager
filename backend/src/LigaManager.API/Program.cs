@@ -19,6 +19,7 @@ builder.Services.AddDbContext<LigaManagerContext>(options =>
 );
 
 // ── Inyección de dependencias ─────────────────────────────────────────────────
+builder.Services.AddScoped<AccesoCampeonato>();
 builder.Services.AddScoped<IAuthService,       AuthService>();
 builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
 builder.Services.AddScoped<IEquipoService,     EquipoService>();
@@ -109,13 +110,23 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-builder.Services.AddCors(opt =>
+// Origenes permitidos: localhost + los de la variable Cors__AllowedOrigins
+var corsOrigins = new List<string> { "http://localhost:5173" };
+var extraOrigins = builder.Configuration["Cors:AllowedOrigins"];
+if (!string.IsNullOrWhiteSpace(extraOrigins))
 {
-    opt.AddPolicy("FrontendPolicy", policy =>
-        policy.AllowAnyOrigin()
+    corsOrigins.AddRange(extraOrigins.Split(',',
+        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+}
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins(corsOrigins.ToArray())
               .AllowAnyHeader()
-              .AllowAnyMethod()
-    );
+              .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();

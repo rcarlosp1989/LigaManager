@@ -1,0 +1,30 @@
+============================================================
+EXPORTAR LA BASE LOCAL (estructura + triggers + datos)
+============================================================
+
+Desde CMD (ajusta usuario y nombre de la BD si son distintos):
+
+  cd C:\proyectos\LigaManager\database
+  mysqldump -u root -p --routines --triggers --single-transaction --no-tablespaces --set-gtid-purged=OFF ligamanager > ligamanager_dump.sql
+
+Si "mysqldump" no se reconoce, usa la ruta completa, por ejemplo:
+
+  "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe" -u root -p --routines --triggers --single-transaction --no-tablespaces --set-gtid-purged=OFF ligamanager > ligamanager_dump.sql
+
+Notas:
+- --triggers es CLAVE: la tabla de posiciones depende de los triggers.
+- Si el dump tiene lineas "DEFINER=`root`@`localhost`", abre el .sql y
+  borra ese "DEFINER=..." de cada trigger, o Railway puede rechazarlo.
+  Comando rapido en PowerShell:
+    (Get-Content ligamanager_dump.sql) -replace 'DEFINER=`[^`]+`@`[^`]+`', '' | Set-Content ligamanager_clean.sql
+- NO subas este .sql a GitHub (tiene el hash del admin). Ya esta en el .gitignore sugerido.
+
+------------------------------------------------------------
+IMPORTAR EN RAILWAY (despues de crear el servicio MySQL)
+------------------------------------------------------------
+En Railway -> servicio MySQL -> pestaña "Connect" -> copia el
+"Public Network" (host, puerto, usuario, password). Luego:
+
+  mysql -h HOST_PUBLICO -P PUERTO -u root -p railway < ligamanager_clean.sql
+
+(La base en Railway se llama "railway" por defecto.)

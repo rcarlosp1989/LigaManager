@@ -19,5 +19,7 @@ public class Partido
     public Estadio? Estadio           { get; set; }
     public Arbitro? Arbitro           { get; set; }
     public ICollection<EventoPartido> Eventos { get; set; } = [];
+    public ICollection<AlineacionJugador> Alineaciones { get; set; } = [];
+    public ICollection<CambioPartido> Cambios { get; set; } = [];
     public ICollection<PartidoOficial> Oficiales { get; set; } = [];
 }
