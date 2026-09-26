@@ -615,6 +615,11 @@ function PartidoCard({ partido, idCampeonato }) {
           <span className="text-white font-medium text-sm">{partido.equipoVisitante}</span>
         </div>
         <div className="flex items-center gap-3">
+          {partido.grupo && (
+            <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+              {/^grupo\b/i.test(partido.grupo) ? partido.grupo : `Grupo ${partido.grupo}`}
+            </span>
+          )}
           <PartidoBadge estado={partido.estado} />
           <span className="text-gray-500 text-xs">{partido.fecha}</span>
         </div>

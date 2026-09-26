@@ -66,7 +66,8 @@ public class JornadaService : IJornadaService
             c.IdJugadorSale, $"{c.JugadorSale.Persona.Nombre} {c.JugadorSale.Persona.Apellido}",
             c.IdJugadorEntra, $"{c.JugadorEntra.Persona.Nombre} {c.JugadorEntra.Persona.Apellido}",
             c.Minuto
-        )).ToList()
+        )).ToList(),
+        p.Grupo?.Nombre ?? p.Jornada?.Grupo?.Nombre
     );
 
     private static string ResolverEstado(Partido p)
@@ -78,26 +79,66 @@ public class JornadaService : IJornadaService
 
     // ── Jornadas ─────────────────────────────────────────────────────────────
 
-    // Si el conjunto de equipos (del grupo, o del campeonato si la jornada no tiene grupo)
-    // tiene un número impar, identifica cuál de ellos no juega en esta jornada.
+    // Si el conjunto de equipos tiene un número impar, identifica cuál de ellos no juega en
+    // esta jornada. El conjunto es el grupo de la jornada; si la jornada mezcla grupos se evalúa
+    // cada grupo por separado; y si el campeonato no tiene grupos, todos los inscritos.
     private async Task<string?> ObtenerEquipoLibreAsync(int idCampeonato, int? idGrupo, IEnumerable<int> idsEquiposJugando)
     {
-        var roster = idGrupo.HasValue
-            ? await _db.GrupoEquipos
+        var jugando = idsEquiposJugando.ToHashSet();
+
+        if (idGrupo.HasValue)
+        {
+            var rosterGrupo = await _db.GrupoEquipos
                 .Where(ge => ge.IdGrupo == idGrupo.Value)
                 .Select(ge => new { ge.IdEquipo, Nombre = ge.Equipo.Nombre })
-                .ToListAsync()
-            : await _db.CampeonatoEquipos
-                .Where(ce => ce.IdCampeonato == idCampeonato)
-                .Select(ce => new { ce.IdEquipo, Nombre = ce.Equipo.Nombre })
                 .ToListAsync();
+            return EquipoLibre(rosterGrupo.Select(r => (r.IdEquipo, r.Nombre)).ToList(), jugando);
+        }
 
+        var grupos = await _db.Grupos
+            .Where(g => g.IdCampeonato == idCampeonato)
+            .OrderBy(g => g.Nombre)
+            .Select(g => new
+            {
+                g.Nombre,
+                Roster = g.Equipos.Select(ge => new { ge.IdEquipo, Nombre = ge.Equipo.Nombre }).ToList()
+            })
+            .ToListAsync();
+
+        if (grupos.Count > 0)
+        {
+            var libres = new List<string>();
+            foreach (var g in grupos)
+            {
+                var libre = EquipoLibre(g.Roster.Select(r => (r.IdEquipo, r.Nombre)).ToList(), jugando);
+                if (libre != null) libres.Add($"{libre} ({g.Nombre})");
+            }
+            return libres.Count > 0 ? string.Join(" · ", libres) : null;
+        }
+
+        var inscritos = await _db.CampeonatoEquipos
+            .Where(ce => ce.IdCampeonato == idCampeonato)
+            .Select(ce => new { ce.IdEquipo, Nombre = ce.Equipo.Nombre })
+            .ToListAsync();
+        return EquipoLibre(inscritos.Select(r => (r.IdEquipo, r.Nombre)).ToList(), jugando);
+    }
+
+    private static string? EquipoLibre(List<(int IdEquipo, string Nombre)> roster, HashSet<int> jugando)
+    {
         if (roster.Count % 2 == 0) return null;
-
-        var jugando = idsEquiposJugando.ToHashSet();
         var libres = roster.Where(r => !jugando.Contains(r.IdEquipo)).ToList();
         return libres.Count == 1 ? libres[0].Nombre : null;
     }
+
+    // Grupo al que pertenece un partido cuando la jornada no lo fija: el grupo que contiene a ambos equipos.
+    private async Task<int?> ResolverGrupoPartidoAsync(int idCampeonato, int idLocal, int idVisitante)
+        => await _db.GrupoEquipos
+            .Where(ge => ge.Grupo.IdCampeonato == idCampeonato
+                      && (ge.IdEquipo == idLocal || ge.IdEquipo == idVisitante))
+            .GroupBy(ge => ge.IdGrupo)
+            .Where(x => x.Count() == 2)
+            .Select(x => (int?)x.Key)
+            .FirstOrDefaultAsync();
 
     public async Task<List<JornadaListDto>> GetByCampeonatoAsync(int idCampeonato)
     {
@@ -137,6 +178,7 @@ public class JornadaService : IJornadaService
             .Include(j => j.Partidos).ThenInclude(p => p.EquipoLocal)
             .Include(j => j.Partidos).ThenInclude(p => p.EquipoVisitante)
             .Include(j => j.Partidos).ThenInclude(p => p.Estadio)
+            .Include(j => j.Partidos).ThenInclude(p => p.Grupo)
             .Include(j => j.Partidos).ThenInclude(p => p.Arbitro).ThenInclude(a => a.Persona)
             .Include(j => j.Partidos).ThenInclude(p => p.Oficiales).ThenInclude(o => o.Cargo)
             .Include(j => j.Partidos).ThenInclude(p => p.Oficiales).ThenInclude(o => o.Arbitro).ThenInclude(a => a.Persona)
@@ -273,6 +315,8 @@ public class JornadaService : IJornadaService
             Fecha             = fecha,
             IdEstadio         = req.IdEstadio,
             IdArbitro         = req.IdArbitro,
+            IdGrupo           = jornada.IdGrupo
+                                ?? await ResolverGrupoPartidoAsync(jornada.IdCampeonato, req.IdEquipoLocal, req.IdEquipoVisitante),
             Jugado            = false,
         };
 
@@ -347,6 +391,10 @@ public class JornadaService : IJornadaService
                         "Los dos equipos del partido deben pertenecer al grupo asignado a la jornada.");
             }
         }
+
+        if (cambiaEquipoLocal || cambiaEquipoVisitante)
+            p.IdGrupo = p.Jornada.IdGrupo
+                        ?? await ResolverGrupoPartidoAsync(p.Jornada.IdCampeonato, p.IdEquipoLocal, p.IdEquipoVisitante);
 
         p.Fecha     = fecha;
         p.IdEstadio = req.IdEstadio;
@@ -687,20 +735,33 @@ public class JornadaService : IJornadaService
         partido.GolesVisitante = goles.Count(e => jugadoresVisitante.Contains(e.IdJugador));
     }
 
+    // Recalcula la tabla de cada grupo que tenga partidos en la jornada (una jornada puede mezclar grupos).
     private async Task RecalcularPosicionesAsync(int idJornada)
     {
-        var jornada = await _db.Jornadas
-            .Include(j => j.Grupo)
-            .FirstOrDefaultAsync(j => j.IdJornada == idJornada);
-        if (jornada?.IdGrupo is null) return;
+        var jornada = await _db.Jornadas.FirstOrDefaultAsync(j => j.IdJornada == idJornada);
+        if (jornada is null) return;
 
-        var idGrupo = jornada.IdGrupo.Value;
+        var gruposJornada = await _db.Partidos
+            .Where(p => p.IdJornada == idJornada)
+            .Select(p => p.IdGrupo)
+            .Distinct()
+            .ToListAsync();
+
+        var idsGrupo = gruposJornada.Where(g => g.HasValue).Select(g => g!.Value).ToHashSet();
+        if (jornada.IdGrupo.HasValue) idsGrupo.Add(jornada.IdGrupo.Value);
+
+        foreach (var idGrupo in idsGrupo)
+            await RecalcularPosicionesGrupoAsync(idGrupo);
+    }
+
+    private async Task RecalcularPosicionesGrupoAsync(int idGrupo)
+    {
         var equipos = await _db.GrupoEquipos
             .Where(ge => ge.IdGrupo == idGrupo)
             .Select(ge => ge.IdEquipo)
             .ToListAsync();
         var partidos = await _db.Partidos
-            .Where(p => p.Jornada.IdGrupo == idGrupo && p.Jugado)
+            .Where(p => (p.IdGrupo == idGrupo || (p.IdGrupo == null && p.Jornada.IdGrupo == idGrupo)) && p.Jugado)
             .ToListAsync();
 
         var posiciones = equipos.ToDictionary(id => id, _ => new PosicionGrupo { IdGrupo = idGrupo });
@@ -745,7 +806,8 @@ public class JornadaService : IJornadaService
             .Include(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(j => j.Persona)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorSale).ThenInclude(j => j.Persona)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorEntra).ThenInclude(j => j.Persona)
-            .Include(p => p.Jornada)
+            .Include(p => p.Grupo)
+            .Include(p => p.Jornada).ThenInclude(j => j.Grupo)
             .FirstOrDefaultAsync(p => p.IdPartido == idPartido);
 
         if (p is null) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");

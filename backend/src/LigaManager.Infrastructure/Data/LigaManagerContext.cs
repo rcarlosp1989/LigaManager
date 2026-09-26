@@ -329,6 +329,12 @@ public class LigaManagerContext : DbContext
             e.HasOne(p => p.Arbitro)
                 .WithMany(a => a.Partidos)
                 .HasForeignKey(p => p.IdArbitro);
+
+            e.Property(p => p.IdGrupo).HasColumnName("id_grupo");
+            e.HasOne(p => p.Grupo)
+                .WithMany()
+                .HasForeignKey(p => p.IdGrupo)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<CargoOficial>(e =>

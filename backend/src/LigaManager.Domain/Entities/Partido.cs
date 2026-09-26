@@ -8,6 +8,7 @@ public class Partido
     public DateTime Fecha             { get; set; }
     public int?     IdEstadio         { get; set; }
     public int?     IdArbitro         { get; set; }
+    public int?     IdGrupo           { get; set; }
     public bool     Jugado            { get; set; } = false;
     public int?     GolesLocal        { get; set; }
     public int?     GolesVisitante    { get; set; }
@@ -18,6 +19,7 @@ public class Partido
     public Equipo   EquipoVisitante   { get; set; } = null!;
     public Estadio? Estadio           { get; set; }
     public Arbitro? Arbitro           { get; set; }
+    public Grupo?   Grupo             { get; set; }
     public ICollection<EventoPartido> Eventos { get; set; } = [];
     public ICollection<AlineacionJugador> Alineaciones { get; set; } = [];
     public ICollection<CambioPartido> Cambios { get; set; } = [];

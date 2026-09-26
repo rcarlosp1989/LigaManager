@@ -158,7 +158,8 @@ public class GrupoService : IGrupoService
         if (!await _acceso.GrupoAsync(id)) return ServiceResult.Fail("Grupo no encontrado.");
         var grupo = await _db.Grupos.Include(g => g.Jornadas).FirstOrDefaultAsync(g => g.IdGrupo == id);
         if (grupo is null) return ServiceResult.Fail("Grupo no encontrado.");
-        if (grupo.Jornadas.Any()) return ServiceResult.Fail("No se puede eliminar: el grupo tiene jornadas asignadas.");
+        if (grupo.Jornadas.Any() || await _db.Partidos.AnyAsync(p => p.IdGrupo == id))
+            return ServiceResult.Fail("No se puede eliminar: el grupo tiene jornadas o partidos asignados.");
 
         _db.Grupos.Remove(grupo);
         await _db.SaveChangesAsync();
@@ -223,7 +224,8 @@ public class GrupoService : IGrupoService
 
         if (grupo is null) return ServiceResult<string>.Fail("Grupo no encontrado.");
         if (grupo.Equipos.Count < 2) return ServiceResult<string>.Fail("El grupo debe tener al menos 2 equipos.");
-        if (grupo.Jornadas.Any()) return ServiceResult<string>.Fail("El grupo ya tiene jornadas creadas. Elimínalas primero.");
+        var yaTieneCalendario = grupo.Jornadas.Any() || await _db.Partidos.AnyAsync(p => p.IdGrupo == idGrupo);
+        if (yaTieneCalendario) return ServiceResult<string>.Fail("El grupo ya tiene un calendario generado. Elimina sus partidos primero.");
 
         var equipoIds = grupo.Equipos.Select(ge => ge.IdEquipo).ToList();
         return await GenerarCalendarioInternoAsync(grupo.Campeonato, idGrupo, equipoIds, req);
@@ -278,27 +280,48 @@ public class GrupoService : IGrupoService
 
         int totalPartidos = 0;
 
+        // Las jornadas se comparten entre grupos: la ronda N de cada grupo cae en la misma jornada N.
+        // Al generar el calendario de un grupo se reutilizan las jornadas ya creadas por otro grupo.
+        var reutilizables = idGrupo.HasValue
+            ? await _db.Jornadas
+                .Where(j => j.IdCampeonato == campeonato.IdCampeonato
+                         && j.IdInstancia == req.IdInstancia
+                         && j.IdGrupo == null)
+                .OrderBy(j => j.Numero)
+                .ToListAsync()
+            : new List<Jornada>();
+
         for (int vuelta = 0; vuelta < vueltas; vuelta++)
         {
             var equiposVuelta = new List<int>(equipos); // copia para rotar independiente
 
             for (int ronda = 0; ronda < totalRondas; ronda++)
             {
-                var fechaJornada = fechaInicio.AddDays((vuelta * totalRondas + ronda) * req.DiasEntreJornadas);
-                int numeroJornada = await _db.Jornadas
-                    .Where(j => j.IdCampeonato == campeonato.IdCampeonato)
-                    .MaxAsync(j => (int?)j.Numero) ?? 0;
-                numeroJornada++;
+                int indiceRonda = vuelta * totalRondas + ronda;
+                var fechaJornada = fechaInicio.AddDays(indiceRonda * req.DiasEntreJornadas);
 
-                var jornada = new Jornada
+                Jornada jornada;
+                if (indiceRonda < reutilizables.Count)
                 {
-                    Numero       = numeroJornada,
-                    IdCampeonato = campeonato.IdCampeonato,
-                    IdInstancia  = req.IdInstancia,
-                    IdGrupo      = idGrupo,
-                };
-                _db.Jornadas.Add(jornada);
-                await _db.SaveChangesAsync();
+                    jornada = reutilizables[indiceRonda];
+                }
+                else
+                {
+                    int numeroJornada = await _db.Jornadas
+                        .Where(j => j.IdCampeonato == campeonato.IdCampeonato)
+                        .MaxAsync(j => (int?)j.Numero) ?? 0;
+                    numeroJornada++;
+
+                    jornada = new Jornada
+                    {
+                        Numero       = numeroJornada,
+                        IdCampeonato = campeonato.IdCampeonato,
+                        IdInstancia  = req.IdInstancia,
+                        IdGrupo      = null,
+                    };
+                    _db.Jornadas.Add(jornada);
+                    await _db.SaveChangesAsync();
+                }
 
                 for (int i = 0; i < mitad; i++)
                 {
@@ -317,6 +340,7 @@ public class GrupoService : IGrupoService
                         IdEquipoLocal     = local,
                         IdEquipoVisitante = visitante,
                         Fecha             = fechaJornada,
+                        IdGrupo           = idGrupo,
                         Jugado            = false,
                     });
                     totalPartidos++;

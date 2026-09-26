@@ -34,7 +34,8 @@ public record PartidoDetalleDto(
     List<EventoPartidoDto> Eventos,
     List<AlineacionJugadorDto> AlineacionLocal,
     List<AlineacionJugadorDto> AlineacionVisitante,
-    List<CambioPartidoDto> Cambios
+    List<CambioPartidoDto> Cambios,
+    string? Grupo
 );
 
 public record AlineacionJugadorDto(
