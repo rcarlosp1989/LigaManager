@@ -78,6 +78,13 @@ public class JornadasController : ControllerBase
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
     }
 
+    [HttpPut("api/partidos/{idPartido:int}/planilla")]
+    public async Task<IActionResult> ActualizarPlanilla(int idPartido, [FromBody] ActualizarPlanillaRequest req)
+    {
+        var result = await _service.ActualizarPlanillaAsync(idPartido, req);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
     [HttpPost("api/partidos/{idPartido:int}/eventos")]
     public async Task<IActionResult> RegistrarEvento(int idPartido, [FromBody] RegistrarEventoRequest req)
     {

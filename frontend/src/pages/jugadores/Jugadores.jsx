@@ -4,6 +4,7 @@ import api        from '../../services/api'
 import PageHeader from '../../components/PageHeader'
 import Modal      from '../../components/Modal'
 import EmptyState from '../../components/EmptyState'
+import UbicacionSelector from '../../components/UbicacionSelector'
 
 const posiciones = [
   'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
@@ -27,20 +28,10 @@ function calcularEdad(fechaNac) {
 function JugadorForm({ onSubmit, loading, error }) {
   const [form, setForm] = useState({
     nombre: '', apellido: '', cedula: '', fechaNac: '', posicion: '', foto: null,
-    idCiudad: '', idEquipo: '', fechaDesde: new Date().toISOString().split('T')[0],
+    idPais: '', idProvincia: '', idCanton: '', idEquipo: '', fechaDesde: new Date().toISOString().split('T')[0],
     dorsal: ''
   })
 
-  const { data: paises = [] } = useQuery({
-    queryKey: ['paises'],
-    queryFn:  () => api.get('/catalogos/paises').then(r => r.data),
-  })
-  const [idPais, setIdPais] = useState('')
-  const { data: ciudades = [] } = useQuery({
-    queryKey: ['ciudades', idPais],
-    queryFn:  () => api.get(`/catalogos/ciudades?paisId=${idPais}`).then(r => r.data),
-    enabled: !!idPais,
-  })
   const { data: equipos = [] } = useQuery({
     queryKey: ['equipos'],
     queryFn:  () => api.get('/equipos').then(r => r.data),
@@ -90,25 +81,10 @@ function JugadorForm({ onSubmit, loading, error }) {
             onChange={e => set('dorsal', e.target.value)} placeholder="10" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">País</label>
-          <select className="input-field" value={idPais} required
-            onChange={e => { setIdPais(e.target.value); set('idCiudad', '') }}>
-            <option value="">Seleccionar...</option>
-            {paises.map(p => <option key={p.idPais} value={p.idPais}>{p.nombre}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Ciudad</label>
-          <select className="input-field" value={form.idCiudad} required
-            onChange={e => set('idCiudad', parseInt(e.target.value))}
-            disabled={!idPais}>
-            <option value="">Seleccionar...</option>
-            {ciudades.map(c => <option key={c.idCiudad} value={c.idCiudad}>{c.nombre}</option>)}
-          </select>
-        </div>
-      </div>
+      <UbicacionSelector
+        value={{ idPais: form.idPais, idProvincia: form.idProvincia, idCanton: form.idCanton }}
+        onChange={u => setForm(f => ({ ...f, ...u }))}
+      />
       <div>
         <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo inicial</label>
         <select className="input-field" value={form.idEquipo} required
@@ -148,20 +124,10 @@ function EditarJugadorForm({ jugador, onSubmit, onUpdateDorsal, loading, error }
       posicion:  jugador.historial?.find(h => !h.fechaHasta)?.posicion ?? '',
     foto:      null,
     fechaNac: jugador.fechaNac,
-    idCiudad: jugador.idCiudad,
+    idPais:      jugador.idPais,
+    idProvincia: jugador.idProvincia ?? '',
+    idCanton:    jugador.idCanton ?? '',
     dorsal:   jugador.historial?.find(h => !h.fechaHasta)?.dorsal ?? '',
-  })
-
-  const { data: paises = [] } = useQuery({
-    queryKey: ['paises'],
-    queryFn:  () => api.get('/catalogos/paises').then(r => r.data),
-  })
-  const [idPais, setIdPais] = useState('')
-  const { data: ciudades = [] } = useQuery({
-    queryKey: ['ciudades', idPais || 'all'],
-    queryFn:  () => idPais
-      ? api.get(`/catalogos/ciudades?paisId=${idPais}`).then(r => r.data)
-      : api.get('/catalogos/ciudades').then(r => r.data),
   })
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -222,24 +188,10 @@ function EditarJugadorForm({ jugador, onSubmit, onUpdateDorsal, loading, error }
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">País</label>
-          <select className="input-field" value={idPais}
-            onChange={e => { setIdPais(e.target.value); set('idCiudad', '') }}>
-            <option value="">Todos los países</option>
-            {paises.map(p => <option key={p.idPais} value={p.idPais}>{p.nombre}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Ciudad</label>
-          <select className="input-field" value={form.idCiudad}
-            onChange={e => set('idCiudad', parseInt(e.target.value))}>
-            <option value="">Seleccionar...</option>
-            {ciudades.map(c => <option key={c.idCiudad} value={c.idCiudad}>{c.nombre}</option>)}
-          </select>
-        </div>
-      </div>
+      <UbicacionSelector
+        value={{ idPais: form.idPais, idProvincia: form.idProvincia, idCanton: form.idCanton }}
+        onChange={u => setForm(f => ({ ...f, ...u }))}
+      />
       {error && (
         <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
       )}
@@ -277,7 +229,8 @@ export default function Jugadores() {
   const createMutation = useMutation({
     mutationFn: (data) => {
       const body = new FormData()
-      Object.entries({ ...data, idCiudad: data.idCiudad, idEquipo: data.idEquipo, dorsal: data.dorsal ? parseInt(data.dorsal) : '' })
+      const { idProvincia, ...resto } = data
+      Object.entries({ ...resto, dorsal: data.dorsal ? parseInt(data.dorsal) : '' })
         .filter(([, value]) => value !== null && value !== undefined && value !== '')
         .forEach(([key, value]) => key !== 'foto' && body.append(key, value))
       if (data.foto) body.append('foto', data.foto)
@@ -293,7 +246,7 @@ export default function Jugadores() {
   const updateMutation = useMutation({
     mutationFn: (data) => {
       const body = new FormData()
-      Object.entries(data).forEach(([key, value]) => key !== 'foto' && body.append(key, value ?? ''))
+      Object.entries(data).forEach(([key, value]) => key !== 'foto' && key !== 'idProvincia' && body.append(key, value ?? ''))
       if (data.foto) body.append('foto', data.foto)
       return api.put(`/jugadores/${jugadorEdit.idJugador}`, body)
     },
@@ -360,7 +313,7 @@ export default function Jugadores() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-800">
-                {['#', 'Jugador', 'Ciudad', 'Edad', 'Posición', 'Equipo Actual', ''].map(h => (
+                {['#', 'Jugador', 'Ubicación', 'Edad', 'Posición', 'Equipo Actual', ''].map(h => (
                   <th key={h} className="text-left text-xs text-gray-400 uppercase tracking-wider px-5 py-3">{h}</th>
                 ))}
               </tr>
@@ -374,7 +327,7 @@ export default function Jugadores() {
                   <td className="px-5 py-4">
                     <p className="text-white font-medium">{j.apellido}, {j.nombre}</p>
                   </td>
-                  <td className="px-5 py-4 text-gray-400 text-sm">{j.ciudad}</td>
+                  <td className="px-5 py-4 text-gray-400 text-sm">{j.ubicacion}</td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.edad} años</td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.posicion || 'Sin posición'}</td>
                   <td className="px-5 py-4">

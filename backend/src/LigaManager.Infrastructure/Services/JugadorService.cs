@@ -12,7 +12,8 @@ public class JugadorService : IJugadorService
 {
     private readonly LigaManagerContext _db;
     private readonly IHttpContextAccessor _http;
-    public JugadorService(LigaManagerContext db, IHttpContextAccessor http) { _db = db; _http = http; }
+    private readonly Ubicaciones _ubicaciones;
+    public JugadorService(LigaManagerContext db, IHttpContextAccessor http, Ubicaciones ubicaciones) { _db = db; _http = http; _ubicaciones = ubicaciones; }
 
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
@@ -28,7 +29,6 @@ public class JugadorService : IJugadorService
     public async Task<List<JugadorListDto>> GetAllAsync(int? equipoId)
     {
         var query = _db.Jugadores
-            .Include(j => j.Persona).ThenInclude(p => p.Ciudad)
             .Include(j => j.JugadorEquipos).ThenInclude(je => je.Equipo)
             .Where(j => j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == UsuarioActualId))
             .AsQueryable();
@@ -47,7 +47,9 @@ public class JugadorService : IJugadorService
                 j.Persona.Apellido,
                 j.Persona.Cedula,
                 j.Persona.FechaNac,
-                Ciudad = j.Persona.Ciudad.Nombre,
+                Canton = j.Persona.Canton != null ? j.Persona.Canton.Nombre : null,
+                Provincia = j.Persona.Canton != null ? j.Persona.Canton.Provincia.Nombre : null,
+                Pais = j.Persona.Pais.Nombre,
                 EquipoActual = j.JugadorEquipos
                     .Where(je => je.FechaHasta == null)
                     .Select(je => je.Equipo.Nombre)
@@ -64,13 +66,15 @@ public class JugadorService : IJugadorService
         return registros.Select(j => new JugadorListDto(
             j.IdJugador, j.Nombre, j.Apellido, j.Cedula,
             j.FechaNac.ToString("yyyy-MM-dd"), CalcularEdad(j.FechaNac),
-            j.Ciudad, j.EquipoActual, j.Dorsal, j.Posicion, j.FotoUrl)).ToList();
+            j.Canton != null ? $"{j.Canton}, {j.Provincia}" : j.Pais,
+            j.EquipoActual, j.Dorsal, j.Posicion, j.FotoUrl)).ToList();
     }
 
     public async Task<ServiceResult<JugadorDetalleDto>> GetByIdAsync(int id)
     {
         var j = await _db.Jugadores
-            .Include(j => j.Persona).ThenInclude(p => p.Ciudad).ThenInclude(c => c.Pais)
+            .Include(j => j.Persona).ThenInclude(p => p.Pais)
+            .Include(j => j.Persona).ThenInclude(p => p.Canton).ThenInclude(c => c!.Provincia)
             .Include(j => j.JugadorEquipos).ThenInclude(je => je.Equipo)
             .FirstOrDefaultAsync(j => j.IdJugador == id
                                    && j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == UsuarioActualId));
@@ -83,9 +87,12 @@ public class JugadorService : IJugadorService
             j.Persona.Cedula,
             j.Persona.FechaNac.ToString("yyyy-MM-dd"),
             CalcularEdad(j.Persona.FechaNac),
-            j.Persona.IdCiudad,
-            j.Persona.Ciudad.Nombre,
-            j.Persona.Ciudad.Pais.Nombre,
+            j.Persona.IdPais,
+            j.Persona.Pais.Nombre,
+            j.Persona.Canton?.IdProvincia,
+            j.Persona.Canton?.Provincia.Nombre,
+            j.Persona.IdCanton,
+            j.Persona.Canton?.Nombre,
             j.Persona.FotoUrl,
             j.JugadorEquipos
                 .Where(je => je.Equipo.IdUsuarioCreador == UsuarioActualId)
@@ -107,8 +114,8 @@ public class JugadorService : IJugadorService
             !DateOnly.TryParse(req.FechaDesde, out var fechaDesde))
             return ServiceResult<JugadorDetalleDto>.Fail("Formato de fecha inválido. Use yyyy-MM-dd.");
 
-        var ciudadExiste = await _db.Ciudades.AnyAsync(c => c.IdCiudad == req.IdCiudad);
-        if (!ciudadExiste) return ServiceResult<JugadorDetalleDto>.Fail("Ciudad no encontrada.");
+        var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
+        if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
 
         if (string.IsNullOrWhiteSpace(req.Cedula))
             return ServiceResult<JugadorDetalleDto>.Fail("La cédula es obligatoria.");
@@ -126,7 +133,8 @@ public class JugadorService : IJugadorService
             Apellido = req.Apellido.Trim(),
             Cedula   = req.Cedula.Trim(),
             FechaNac = fechaNac,
-            IdCiudad = req.IdCiudad,
+            IdPais   = req.IdPais,
+            IdCanton = ubicacion.IdCanton,
             FotoUrl  = req.FotoUrl
         };
         _db.Personas.Add(persona);
@@ -171,11 +179,15 @@ public class JugadorService : IJugadorService
                                                         && p.IdPersona != jugador.IdPersona);
         if (cedulaExiste) return ServiceResult<JugadorDetalleDto>.Fail("Ya existe otro jugador con esa cédula.");
 
+        var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
+        if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
+
         jugador.Persona.Nombre   = req.Nombre.Trim();
         jugador.Persona.Apellido = req.Apellido.Trim();
         jugador.Persona.Cedula   = req.Cedula.Trim();
         jugador.Persona.FechaNac = fechaNac;
-        jugador.Persona.IdCiudad = req.IdCiudad;
+        jugador.Persona.IdPais   = req.IdPais;
+        jugador.Persona.IdCanton = ubicacion.IdCanton;
         if (req.FotoUrl is not null) jugador.Persona.FotoUrl = req.FotoUrl;
 
         var vinculoActual = await _db.JugadorEquipos

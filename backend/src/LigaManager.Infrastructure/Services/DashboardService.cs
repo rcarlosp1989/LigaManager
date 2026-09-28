@@ -61,8 +61,14 @@ public class DashboardService
             var jugadoresLocal     = jugadorEquipos.Where(je => je.IdEquipo == p.IdEquipoLocal).Select(je => je.IdJugador).ToHashSet();
             var jugadoresVisitante = jugadorEquipos.Where(je => je.IdEquipo == p.IdEquipoVisitante).Select(je => je.IdJugador).ToHashSet();
 
-            var golesLocal     = p.Eventos.Count(e => e.TipoEvento == "GOL" && jugadoresLocal.Contains(e.IdJugador));
-            var golesVisitante = p.Eventos.Count(e => e.TipoEvento == "GOL" && jugadoresVisitante.Contains(e.IdJugador));
+            // El marcador guardado es la fuente (incluye el 3-0 por reglamento); si falta, se cuenta desde los eventos.
+            // Un gol en contra suma al equipo contrario del jugador.
+            var golesLocal = p.GolesLocal ?? p.Eventos.Count(e =>
+                (e.TipoEvento == "GOL" && jugadoresLocal.Contains(e.IdJugador))
+                || (e.TipoEvento == "GOL_EN_CONTRA" && jugadoresVisitante.Contains(e.IdJugador)));
+            var golesVisitante = p.GolesVisitante ?? p.Eventos.Count(e =>
+                (e.TipoEvento == "GOL" && jugadoresVisitante.Contains(e.IdJugador))
+                || (e.TipoEvento == "GOL_EN_CONTRA" && jugadoresLocal.Contains(e.IdJugador)));
 
             return new UltimoResultadoDto(
                 p.IdPartido,

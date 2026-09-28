@@ -20,6 +20,7 @@ builder.Services.AddDbContext<LigaManagerContext>(options =>
 
 // ── Inyección de dependencias ─────────────────────────────────────────────────
 builder.Services.AddScoped<AccesoCampeonato>();
+builder.Services.AddScoped<Ubicaciones>();
 builder.Services.AddScoped<IAuthService,       AuthService>();
 builder.Services.AddScoped<ICampeonatoService, CampeonatoService>();
 builder.Services.AddScoped<IEquipoService,     EquipoService>();

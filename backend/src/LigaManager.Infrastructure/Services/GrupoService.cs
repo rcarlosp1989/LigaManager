@@ -87,6 +87,14 @@ public class GrupoService : IGrupoService
                 || !posiciones.TryGetValue(partido.IdEquipoVisitante, out var visitante))
                 continue;
 
+            // Partido desierto: suma un partido jugado a cada equipo, sin puntos ni goles.
+            if (partido.Desierto)
+            {
+                local.Pj++;
+                visitante.Pj++;
+                continue;
+            }
+
             var golesLocal = partido.GolesLocal ?? 0;
             var golesVisitante = partido.GolesVisitante ?? 0;
             local.Pj++;

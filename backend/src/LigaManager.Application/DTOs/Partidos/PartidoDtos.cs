@@ -35,7 +35,11 @@ public record PartidoDetalleDto(
     List<AlineacionJugadorDto> AlineacionLocal,
     List<AlineacionJugadorDto> AlineacionVisitante,
     List<CambioPartidoDto> Cambios,
-    string? Grupo
+    string? Grupo,
+    bool    Desierto,
+    string? Observaciones,
+    bool    PerdidaReglamento,
+    int?    IdEquipoSancionado
 );
 
 public record AlineacionJugadorDto(
@@ -96,7 +100,9 @@ public record DesignacionPartidoRequest(int IdCargo, int IdArbitro);
 
 public record RegistrarEventoRequest(
     int    IdJugador,
-    string TipoEvento,     // GOL, TARJETA_AMARILLA, TARJETA_ROJA
+    string TipoEvento,     // GOL, GOL_EN_CONTRA, TARJETA_AMARILLA, TARJETA_ROJA
     int    Minuto
 );
-public record MarcarJugadoRequest(bool Jugado); 
+public record MarcarJugadoRequest(bool Jugado);
+
+public record ActualizarPlanillaRequest(string? Observaciones, bool Desierto, bool PerdidaReglamento = false, int? IdEquipoSancionado = null);

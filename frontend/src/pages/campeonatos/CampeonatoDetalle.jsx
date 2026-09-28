@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
@@ -25,6 +25,7 @@ function PartidoBadge({ estado }) {
     Programado: 'bg-blue-900/30 text-blue-400',
     Pendiente:  'bg-yellow-900/30 text-yellow-400',
     Finalizado: 'bg-green-900/30 text-green-400',
+    Desierto:   'bg-gray-700/40 text-gray-300',
   }
   return (
     <span className={`text-xs px-2 py-0.5 rounded font-medium ${styles[estado] ?? styles.Programado}`}>
@@ -225,15 +226,19 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 
 // ── Alineación (titulares/suplentes) y cambios de un partido ─────────────────
 
-function FilaJugadorPlanilla({ jugador, enCancha, onQuitar, onEvento }) {
+function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
     <div className="flex items-center justify-between gap-2 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
       <span className="truncate">{jugador.jugador}</span>
       <div className="flex items-center gap-2 shrink-0">
         {enCancha ? (
           <>
-            <button title="Gol" onClick={() => onEvento(jugador.idJugador, 'GOL')}
-              className="opacity-70 hover:opacity-100 transition-opacity">⚽</button>
+            <button title={sinGoles ? 'Este partido no admite goles' : 'Gol'} disabled={sinGoles}
+              onClick={() => onEvento(jugador.idJugador, 'GOL')}
+              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">⚽</button>
+            <button title={sinGoles ? 'Este partido no admite goles' : 'Gol en contra (suma al equipo rival, no cuenta como gol del jugador)'} disabled={sinGoles}
+              onClick={() => onEvento(jugador.idJugador, 'GOL_EN_CONTRA')}
+              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">🥅</button>
             <button title="Tarjeta amarilla" onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
               className="opacity-70 hover:opacity-100 transition-opacity">🟨</button>
             <button title="Tarjeta roja" onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
@@ -248,7 +253,7 @@ function FilaJugadorPlanilla({ jugador, enCancha, onQuitar, onEvento }) {
   )
 }
 
-function AlineacionLado({ label, equipo, alineacion, enCanchaIds, onAgregar, onQuitar, onEvento, agregando }) {
+function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAgregar, onQuitar, onEvento, agregando }) {
   const [idJugador, setIdJugador] = useState('')
   const [titular, setTitular]     = useState(true)
 
@@ -265,7 +270,7 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, onAgregar, onQ
       <div className="space-y-1 mb-3 min-h-[1.75rem]">
         {titulares.length === 0 && <span className="text-gray-600 text-xs">Sin titulares aún.</span>}
         {titulares.map(a => (
-          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)}
+          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)} sinGoles={sinGoles}
             onQuitar={onQuitar} onEvento={onEvento} />
         ))}
       </div>
@@ -274,7 +279,7 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, onAgregar, onQ
       <div className="space-y-1 mb-3 min-h-[1.75rem]">
         {suplentes.length === 0 && <span className="text-gray-600 text-xs">Sin suplentes aún.</span>}
         {suplentes.map(a => (
-          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)}
+          <FilaJugadorPlanilla key={a.idAlineacion} jugador={a} enCancha={enCanchaIds.has(a.idJugador)} sinGoles={sinGoles}
             onQuitar={onQuitar} onEvento={onEvento} />
         ))}
       </div>
@@ -322,6 +327,22 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
   const fechaPartido = partido?.fecha?.slice(0, 10)
   const [cambioForm, setCambioForm] = useState({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
   const [error, setError] = useState('')
+  const [observaciones, setObservaciones] = useState('')
+  const [desierto, setDesierto]           = useState(false)
+  const [perdidaReglamento, setPerdidaReglamento] = useState(false)
+  const [idSancionado, setIdSancionado]   = useState('')
+  const [guardadoOk, setGuardadoOk]       = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      setObservaciones(partido?.observaciones ?? '')
+      setDesierto(!!partido?.desierto)
+      setPerdidaReglamento(!!partido?.perdidaReglamento)
+      setIdSancionado(partido?.idEquipoSancionado ? String(partido.idEquipoSancionado) : '')
+    } else {
+      setGuardadoOk(false)
+    }
+  }, [isOpen, partido?.observaciones, partido?.desierto, partido?.perdidaReglamento, partido?.idEquipoSancionado])
 
   const { data: equipoLocal } = useQuery({
     queryKey: ['equipo', partido?.idEquipoLocal, fechaPartido],
@@ -370,6 +391,21 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
     onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
   })
 
+  const planillaMutation = useMutation({
+    mutationFn: (data) => api.put(`/partidos/${partido.idPartido}/planilla`, data),
+    onSuccess: () => {
+      invalidar()
+      queryClient.invalidateQueries({ queryKey: ['grupo'] })
+      queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+      setError('')
+      setGuardadoOk(true)
+    },
+    onError: (err) => {
+      setGuardadoOk(false)
+      setError(err.response?.data?.error || 'Error al guardar la planilla.')
+    },
+  })
+
   if (!isOpen || !partido) return null
 
   const enCanchaLocal     = jugadoresEnCancha(alineacionLocal, cambiosLocal)
@@ -377,7 +413,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
   const enCanchaLocalIds     = new Set(enCanchaLocal.map(a => a.idJugador))
   const enCanchaVisitanteIds = new Set(enCanchaVisitante.map(a => a.idJugador))
 
-  const tiposEvento = { GOL: 'gol', TARJETA_AMARILLA: 'amarilla', TARJETA_ROJA: 'roja' }
+  const tiposEvento = { GOL: 'gol', GOL_EN_CONTRA: 'gol en contra', TARJETA_AMARILLA: 'amarilla', TARJETA_ROJA: 'roja' }
   const onEvento = (idJugador, tipoEvento) => {
     const minuto = pedirMinuto(tiposEvento[tipoEvento])
     if (minuto === null) return
@@ -403,6 +439,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             equipo={equipoLocal}
             alineacion={alineacionLocal}
             enCanchaIds={enCanchaLocalIds}
+            sinGoles={partido.desierto || partido.perdidaReglamento}
             onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
             onQuitar={(id) => quitarMutation.mutate(id)}
             onEvento={onEvento}
@@ -413,6 +450,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             equipo={equipoVisitante}
             alineacion={alineacionVisitante}
             enCanchaIds={enCanchaVisitanteIds}
+            sinGoles={partido.desierto || partido.perdidaReglamento}
             onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
             onQuitar={(id) => quitarMutation.mutate(id)}
             onEvento={onEvento}
@@ -473,6 +511,72 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
               className="text-xs px-4 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
             >🔄 Registrar cambio</button>
           </div>
+        </div>
+
+        <div className="border-t border-gray-800 pt-4 space-y-3">
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
+              Observaciones <span className="text-gray-600">(opcional)</span>
+            </label>
+            <textarea className="input-field text-sm" rows={3} maxLength={2000}
+              placeholder="Novedades o comentarios sobre el partido..."
+              value={observaciones} onChange={e => { setObservaciones(e.target.value); setGuardadoOk(false) }} />
+          </div>
+          <label className="flex items-start gap-3 p-3 bg-gray-800/40 rounded-lg cursor-pointer">
+            <input type="checkbox" checked={desierto} className="w-4 h-4 mt-0.5 accent-brand-400"
+              onChange={e => {
+                setDesierto(e.target.checked)
+                if (e.target.checked) setPerdidaReglamento(false)
+                setGuardadoOk(false)
+              }} />
+            <span>
+              <span className="block text-white text-sm">Partido desierto</span>
+              <span className="block text-gray-500 text-xs">
+                Ningún equipo suma puntos. En la tabla de posiciones cada equipo suma 1 partido jugado,
+                sin goles a favor ni en contra.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 p-3 bg-gray-800/40 rounded-lg cursor-pointer">
+            <input type="checkbox" checked={perdidaReglamento} className="w-4 h-4 mt-0.5 accent-brand-400"
+              onChange={e => {
+                setPerdidaReglamento(e.target.checked)
+                if (e.target.checked) setDesierto(false)
+                setGuardadoOk(false)
+              }} />
+            <span>
+              <span className="block text-white text-sm">Partido perdido por reglamento (3-0)</span>
+              <span className="block text-gray-500 text-xs">
+                El equipo que infringió el reglamento pierde 0-3. El rival suma 3 puntos y 3 goles a favor; el sancionado
+                suma 3 goles en contra. Estos goles no se atribuyen a ningún jugador.
+              </span>
+            </span>
+          </label>
+          {perdidaReglamento && (
+            <div className="ml-7">
+              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo que pierde por reglamento</label>
+              <select className="input-field text-sm" value={idSancionado}
+                onChange={e => { setIdSancionado(e.target.value); setGuardadoOk(false) }}>
+                <option value="">Selecciona el equipo...</option>
+                <option value={partido.idEquipoLocal}>{partido.equipoLocal}</option>
+                <option value={partido.idEquipoVisitante}>{partido.equipoVisitante}</option>
+              </select>
+            </div>
+          )}
+          <button
+            onClick={() => {
+              if (perdidaReglamento && !idSancionado) { setError('Selecciona el equipo que pierde por reglamento.'); return }
+              planillaMutation.mutate({
+                observaciones: observaciones.trim() || null,
+                desierto,
+                perdidaReglamento,
+                idEquipoSancionado: perdidaReglamento ? parseInt(idSancionado) : null,
+              })
+            }}
+            disabled={planillaMutation.isPending}
+            className="btn-primary w-full disabled:opacity-40"
+          >{planillaMutation.isPending ? 'Guardando...' : 'Guardar observaciones y estado'}</button>
+          {guardadoOk && <p className="text-green-400 text-xs text-center">✓ Guardado</p>}
         </div>
 
         {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
@@ -590,6 +694,7 @@ function PartidoCard({ partido, idCampeonato }) {
 
   const iconoEvento = {
     'GOL':              '⚽',
+    'GOL_EN_CONTRA':    '🥅',
     'TARJETA_AMARILLA': '🟨',
     'TARJETA_ROJA':     '🟥',
   }
@@ -606,11 +711,13 @@ function PartidoCard({ partido, idCampeonato }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-4 flex-1">
           <span className="text-white font-medium text-sm">{partido.equipoLocal}</span>
-          {partido.jugado && (
+          {partido.jugado && !partido.desierto && (
             <span className="text-white font-display text-sm">
               {partido.golesLocal ?? 0} - {partido.golesVisitante ?? 0}
             </span>
           )}
+          {partido.perdidaReglamento && <span className="text-amber-400 text-xs italic">por reglamento</span>}
+          {partido.desierto && <span className="text-gray-500 text-xs italic">desierto</span>}
           {!partido.jugado && <span className="text-gray-600 text-xs">vs</span>}
           <span className="text-white font-medium text-sm">{partido.equipoVisitante}</span>
         </div>
@@ -634,6 +741,10 @@ function PartidoCard({ partido, idCampeonato }) {
           : <span className="text-gray-700">👤 Sin árbitro</span>}
       </div>
 
+      {partido.observaciones && (
+        <p className="mb-3 text-xs text-gray-400 italic whitespace-pre-line">📝 {partido.observaciones}</p>
+      )}
+
       {partido.oficiales?.length > 0 && (
         <div className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-400">
           {partido.oficiales.map(oficial => (
@@ -646,7 +757,7 @@ function PartidoCard({ partido, idCampeonato }) {
         <div className="mb-3 space-y-1">
           {partido.eventos.map(ev => (
             <div key={ev.idEvento} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1">
-              <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} <span className="text-gray-600">min. {ev.minuto}</span></span>
+              <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span></span>
               <button
                 onClick={() => { if (confirm('¿Eliminar este evento?')) eliminarEventoMutation.mutate(ev.idEvento) }}
                 className="text-gray-600 hover:text-red-400 transition-colors ml-2"

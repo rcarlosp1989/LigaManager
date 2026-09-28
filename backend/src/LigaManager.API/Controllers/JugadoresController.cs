@@ -33,7 +33,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new CreateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdCiudad,
+            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton,
             form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.CreateAsync(request);
@@ -46,7 +46,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new UpdateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdCiudad, fotoUrl, form.Posicion);
+            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.UpdateAsync(id, request);
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
@@ -108,7 +108,8 @@ public sealed class CreateJugadorForm
     public string Apellido { get; set; } = "";
     public string Cedula { get; set; } = "";
     public string FechaNac { get; set; } = "";
-    public int IdCiudad { get; set; }
+    public int IdPais { get; set; }
+    public int? IdCanton { get; set; }
     public int IdEquipo { get; set; }
     public string FechaDesde { get; set; } = "";
     public int? Dorsal { get; set; }
@@ -122,7 +123,8 @@ public sealed class UpdateJugadorForm
     public string Apellido { get; set; } = "";
     public string Cedula { get; set; } = "";
     public string FechaNac { get; set; } = "";
-    public int IdCiudad { get; set; }
+    public int IdPais { get; set; }
+    public int? IdCanton { get; set; }
     public IFormFile? Foto { get; set; }
     public string? Posicion { get; set; }
 }

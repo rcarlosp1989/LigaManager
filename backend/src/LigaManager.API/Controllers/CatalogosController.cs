@@ -59,14 +59,19 @@ public class CatalogosController : ControllerBase
             .Select(e => new { e.IdEstadio, e.Nombre })
             .ToListAsync());
 
-    [HttpGet("ciudades")]
-    public async Task<IActionResult> GetCiudades([FromQuery] int? paisId)
-    {
-        var query = _db.Ciudades.Include(c => c.Pais).AsQueryable();
-        if (paisId.HasValue) query = query.Where(c => c.IdPais == paisId);
-        return Ok(await query
-            .OrderBy(c => c.Nombre)
-            .Select(c => new { c.IdCiudad, c.Nombre, Pais = c.Pais.Nombre })
+    [HttpGet("provincias")]
+    public async Task<IActionResult> GetProvincias([FromQuery] int paisId)
+        => Ok(await _db.Provincias
+            .Where(p => p.IdPais == paisId)
+            .OrderBy(p => p.Nombre)
+            .Select(p => new { p.IdProvincia, p.Nombre })
             .ToListAsync());
-    }
+
+    [HttpGet("cantones")]
+    public async Task<IActionResult> GetCantones([FromQuery] int provinciaId)
+        => Ok(await _db.Cantones
+            .Where(c => c.IdProvincia == provinciaId)
+            .OrderBy(c => c.Nombre)
+            .Select(c => new { c.IdCanton, c.Nombre })
+            .ToListAsync());
 }

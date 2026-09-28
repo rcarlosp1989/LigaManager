@@ -9,7 +9,8 @@ public class LigaManagerContext : DbContext
 
     public DbSet<Usuario>            Usuarios              { get; set; }
     public DbSet<Pais>               Paises                { get; set; }
-    public DbSet<Ciudad>             Ciudades              { get; set; }
+    public DbSet<Provincia>          Provincias            { get; set; }
+    public DbSet<Canton>             Cantones              { get; set; }
     public DbSet<Persona>            Personas              { get; set; }
     public DbSet<Equipo>             Equipos               { get; set; }
     public DbSet<Jugador>            Jugadores             { get; set; }
@@ -44,7 +45,8 @@ public class LigaManagerContext : DbContext
         // ── Nombres de tablas ────────────────────────────────────────────────
         modelBuilder.Entity<Usuario>()           .ToTable("usuario");
         modelBuilder.Entity<Pais>()              .ToTable("pais");
-        modelBuilder.Entity<Ciudad>()            .ToTable("ciudad");
+        modelBuilder.Entity<Provincia>()         .ToTable("provincia");
+        modelBuilder.Entity<Canton>()            .ToTable("canton");
         modelBuilder.Entity<Persona>()           .ToTable("persona");
         modelBuilder.Entity<Equipo>()            .ToTable("equipo");
         modelBuilder.Entity<Jugador>()           .ToTable("jugador");
@@ -84,7 +86,8 @@ public class LigaManagerContext : DbContext
         // ── Claves primarias explícitas ──────────────────────────────────────
         modelBuilder.Entity<Usuario>()           .HasKey(u  => u.IdUsuario);
         modelBuilder.Entity<Pais>()              .HasKey(p  => p.IdPais);
-        modelBuilder.Entity<Ciudad>()            .HasKey(c  => c.IdCiudad);
+        modelBuilder.Entity<Provincia>()         .HasKey(p  => p.IdProvincia);
+        modelBuilder.Entity<Canton>()            .HasKey(c  => c.IdCanton);
         modelBuilder.Entity<Persona>()           .HasKey(p  => p.IdPersona);
         modelBuilder.Entity<Equipo>()            .HasKey(e  => e.IdEquipo);
         modelBuilder.Entity<Jugador>()           .HasKey(j  => j.IdJugador);
@@ -131,16 +134,27 @@ public class LigaManagerContext : DbContext
             e.HasOne(a => a.UsuarioCreador).WithMany().HasForeignKey(a => a.IdUsuarioCreador).OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ── Relaciones Ciudad ────────────────────────────────────────────────
-        modelBuilder.Entity<Ciudad>(e =>
+        // ── Relaciones Provincia / Canton ────────────────────────────────────
+        modelBuilder.Entity<Provincia>(e =>
         {
-            e.Property(c => c.IdCiudad).HasColumnName("id_ciudad");
-            e.Property(c => c.Nombre)  .HasColumnName("nombre");
-            e.Property(c => c.IdPais)  .HasColumnName("id_pais");
+            e.Property(p => p.IdProvincia).HasColumnName("id_provincia");
+            e.Property(p => p.Nombre)     .HasColumnName("nombre");
+            e.Property(p => p.IdPais)     .HasColumnName("id_pais");
 
-            e.HasOne(c => c.Pais)
-                .WithMany(p => p.Ciudades)
-                .HasForeignKey(c => c.IdPais);
+            e.HasOne(p => p.Pais)
+                .WithMany(pa => pa.Provincias)
+                .HasForeignKey(p => p.IdPais);
+        });
+
+        modelBuilder.Entity<Canton>(e =>
+        {
+            e.Property(c => c.IdCanton)   .HasColumnName("id_canton");
+            e.Property(c => c.Nombre)     .HasColumnName("nombre");
+            e.Property(c => c.IdProvincia).HasColumnName("id_provincia");
+
+            e.HasOne(c => c.Provincia)
+                .WithMany(p => p.Cantones)
+                .HasForeignKey(c => c.IdProvincia);
         });
 
         // ── Relaciones Equipo ────────────────────────────────────────────────
@@ -169,12 +183,19 @@ public class LigaManagerContext : DbContext
             e.Property(p => p.Apellido) .HasColumnName("apellido");
             e.Property(p => p.Cedula)   .HasColumnName("cedula");
             e.Property(p => p.FechaNac) .HasColumnName("fecha_nac");
-            e.Property(p => p.IdCiudad) .HasColumnName("id_ciudad");
+            e.Property(p => p.IdPais)   .HasColumnName("id_pais");
+            e.Property(p => p.IdCanton) .HasColumnName("id_canton");
             e.Property(p => p.FotoUrl)  .HasColumnName("foto_url");
 
-            e.HasOne(p => p.Ciudad)
-                .WithMany(c => c.Personas)
-                .HasForeignKey(p => p.IdCiudad);
+            e.HasOne(p => p.Pais)
+                .WithMany()
+                .HasForeignKey(p => p.IdPais)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(p => p.Canton)
+                .WithMany()
+                .HasForeignKey(p => p.IdCanton)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // ── Relaciones JugadorEquipo ─────────────────────────────────────────
@@ -243,7 +264,8 @@ public class LigaManagerContext : DbContext
         {
             e.Property(es => es.IdEstadio).HasColumnName("id_estadio");
             e.Property(es => es.Nombre)   .HasColumnName("nombre");
-            e.Property(es => es.IdCiudad) .HasColumnName("id_ciudad");
+            e.Property(es => es.IdPais)   .HasColumnName("id_pais");
+            e.Property(es => es.IdCanton) .HasColumnName("id_canton");
             e.Property(es => es.IdUsuarioCreador).HasColumnName("id_usuario_creador");
 
             e.HasOne(es => es.UsuarioCreador)
@@ -251,9 +273,15 @@ public class LigaManagerContext : DbContext
                 .HasForeignKey(es => es.IdUsuarioCreador)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            e.HasOne(es => es.Ciudad)
-                .WithMany(c => c.Estadios)
-                .HasForeignKey(es => es.IdCiudad);
+            e.HasOne(es => es.Pais)
+                .WithMany()
+                .HasForeignKey(es => es.IdPais)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(es => es.Canton)
+                .WithMany()
+                .HasForeignKey(es => es.IdCanton)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // ── Relaciones Grupo ─────────────────────────────────────────────────
@@ -301,6 +329,10 @@ public class LigaManagerContext : DbContext
             e.Property(p => p.IdEstadio)        .HasColumnName("id_estadio");
             e.Property(p => p.IdArbitro)        .HasColumnName("id_arbitro");
             e.Property(p => p.Jugado)           .HasColumnName("jugado");
+            e.Property(p => p.Desierto)         .HasColumnName("desierto");
+            e.Property(p => p.Observaciones)    .HasColumnName("observaciones");
+            e.Property(p => p.PerdidaReglamento).HasColumnName("perdida_reglamento");
+            e.Property(p => p.IdEquipoSancionado).HasColumnName("id_equipo_sancionado");
             e.Property(p => p.GolesLocal)       .HasColumnName("goles_local");
             e.Property(p => p.GolesVisitante)   .HasColumnName("goles_visitante");
             e.Property(p => p.CreatedAt)        .HasColumnName("created_at")

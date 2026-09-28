@@ -10,6 +10,10 @@ public class Partido
     public int?     IdArbitro         { get; set; }
     public int?     IdGrupo           { get; set; }
     public bool     Jugado            { get; set; } = false;
+    public bool     Desierto          { get; set; } = false;
+    public string?  Observaciones     { get; set; }
+    public bool     PerdidaReglamento { get; set; } = false;
+    public int?     IdEquipoSancionado { get; set; }
     public int?     GolesLocal        { get; set; }
     public int?     GolesVisitante    { get; set; }
     public DateTime CreatedAt         { get; set; }

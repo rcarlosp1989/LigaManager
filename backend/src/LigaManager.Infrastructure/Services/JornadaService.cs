@@ -67,11 +67,19 @@ public class JornadaService : IJornadaService
             c.IdJugadorEntra, $"{c.JugadorEntra.Persona.Nombre} {c.JugadorEntra.Persona.Apellido}",
             c.Minuto
         )).ToList(),
-        p.Grupo?.Nombre ?? p.Jornada?.Grupo?.Nombre
+        p.Grupo?.Nombre ?? p.Jornada?.Grupo?.Nombre,
+        p.Desierto,
+        p.Observaciones,
+        p.PerdidaReglamento,
+        p.IdEquipoSancionado
     );
+
+    // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
+    private static bool EsGol(string tipoEvento) => tipoEvento is "GOL" or "GOL_EN_CONTRA";
 
     private static string ResolverEstado(Partido p)
     {
+        if (p.Desierto)                  return "Desierto";
         if (p.Jugado)                    return "Finalizado";
         if (p.Fecha < DateTime.Today)    return "Pendiente";
         return "Programado";
@@ -422,32 +430,18 @@ public class JornadaService : IJornadaService
         var p = await _db.Partidos.FindAsync(idPartido);
         if (p is null) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
 
-        // Al marcar como jugado, los goles registrados son la fuente del marcador.
-        if (req.Jugado)
+        // Al marcar como jugado, los goles registrados son la fuente del marcador
+        // (en un partido desierto o perdido por reglamento el marcador es fijo y no depende de los eventos).
+        if (req.Jugado && !p.Desierto && !p.PerdidaReglamento)
+            await ActualizarMarcadorDesdeEventosAsync(p);
+
+        if (!req.Jugado && (p.Desierto || p.PerdidaReglamento))
         {
-            // Obtener jugadores de cada equipo en la fecha del partido
-            var fecha = DateOnly.FromDateTime(p.Fecha);
-
-            var jugadoresLocal = await _db.JugadorEquipos
-                .Where(je => je.IdEquipo == p.IdEquipoLocal
-                    && je.FechaDesde <= fecha
-                    && (je.FechaHasta == null || je.FechaHasta >= fecha))
-                .Select(je => je.IdJugador)
-                .ToListAsync();
-
-            var jugadoresVisitante = await _db.JugadorEquipos
-                .Where(je => je.IdEquipo == p.IdEquipoVisitante
-                    && je.FechaDesde <= fecha
-                    && (je.FechaHasta == null || je.FechaHasta >= fecha))
-                .Select(je => je.IdJugador)
-                .ToListAsync();
-
-            var eventos = await _db.EventosPartido
-                .Where(e => e.IdPartido == idPartido && e.TipoEvento == "GOL")
-                .ToListAsync();
-
-            p.GolesLocal     = eventos.Count(e => jugadoresLocal.Contains(e.IdJugador));
-            p.GolesVisitante = eventos.Count(e => jugadoresVisitante.Contains(e.IdJugador));
+            p.Desierto           = false;
+            p.PerdidaReglamento  = false;
+            p.IdEquipoSancionado = null;
+            p.GolesLocal         = null;
+            p.GolesVisitante     = null;
         }
 
         p.Jugado = req.Jugado;
@@ -456,10 +450,68 @@ public class JornadaService : IJornadaService
         return await GetPartidoDetalleAsync(idPartido);
     }
 
+    public async Task<ServiceResult<PartidoDetalleDto>> ActualizarPlanillaAsync(int idPartido, ActualizarPlanillaRequest req)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+
+        var observaciones = string.IsNullOrWhiteSpace(req.Observaciones) ? null : req.Observaciones.Trim();
+        if (observaciones is { Length: > 2000 })
+            return ServiceResult<PartidoDetalleDto>.Fail("Las observaciones no pueden superar los 2000 caracteres.");
+
+        var p = await _db.Partidos.Include(x => x.Eventos).FirstOrDefaultAsync(x => x.IdPartido == idPartido);
+        if (p is null) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+
+        if (req.Desierto && req.PerdidaReglamento)
+            return ServiceResult<PartidoDetalleDto>.Fail("Un partido no puede ser desierto y perdido por reglamento a la vez.");
+
+        if (req.PerdidaReglamento && req.IdEquipoSancionado != p.IdEquipoLocal && req.IdEquipoSancionado != p.IdEquipoVisitante)
+            return ServiceResult<PartidoDetalleDto>.Fail("Indica cuál de los dos equipos pierde el partido por reglamento.");
+
+        if ((req.Desierto || req.PerdidaReglamento) && p.Eventos.Any(e => EsGol(e.TipoEvento)))
+            return ServiceResult<PartidoDetalleDto>.Fail(req.Desierto
+                ? "No se puede marcar como desierto: el partido tiene goles registrados. Elimínalos primero."
+                : "No se puede marcar como perdido por reglamento: el partido tiene goles registrados. Elimínalos primero.");
+
+        int? sancionado = req.PerdidaReglamento ? req.IdEquipoSancionado : null;
+        var cambiaEstado = req.Desierto != p.Desierto
+            || req.PerdidaReglamento != p.PerdidaReglamento
+            || sancionado != p.IdEquipoSancionado;
+
+        p.Observaciones = observaciones;
+        if (cambiaEstado)
+        {
+            p.Desierto           = req.Desierto;
+            p.PerdidaReglamento  = req.PerdidaReglamento;
+            p.IdEquipoSancionado = sancionado;
+
+            if (req.Desierto)
+            {
+                // Desierto: cuenta como jugado, sin goles.
+                p.Jugado = true; p.GolesLocal = 0; p.GolesVisitante = 0;
+            }
+            else if (req.PerdidaReglamento)
+            {
+                // Perdido por reglamento: 3-0 a favor del rival, sin goles atribuidos a ningún jugador.
+                p.Jugado         = true;
+                p.GolesLocal     = sancionado == p.IdEquipoLocal ? 0 : 3;
+                p.GolesVisitante = sancionado == p.IdEquipoLocal ? 3 : 0;
+            }
+            else
+            {
+                // Al quitar la marca el partido vuelve a estar pendiente.
+                p.Jugado = false; p.GolesLocal = null; p.GolesVisitante = null;
+            }
+        }
+
+        await _db.SaveChangesAsync();
+        if (cambiaEstado) await RecalcularPosicionesAsync(p.IdJornada);
+        return await GetPartidoDetalleAsync(idPartido);
+    }
+
     public async Task<ServiceResult<PartidoDetalleDto>> RegistrarEventoAsync(int idPartido, RegistrarEventoRequest req)
     {
         if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
-        var tiposValidos = new[] { "GOL", "TARJETA_AMARILLA", "TARJETA_ROJA" };
+        var tiposValidos = new[] { "GOL", "GOL_EN_CONTRA", "TARJETA_AMARILLA", "TARJETA_ROJA" };
         var tipoEvento = req.TipoEvento.Trim().ToUpperInvariant();
         if (!tiposValidos.Contains(tipoEvento))
             return ServiceResult<PartidoDetalleDto>.Fail($"Tipo de evento inválido. Use: {string.Join(", ", tiposValidos)}");
@@ -472,6 +524,11 @@ public class JornadaService : IJornadaService
                 .ThenInclude(j => j.Campeonato)
             .FirstOrDefaultAsync(p => p.IdPartido == idPartido);
         if (partido is null) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+
+        if (partido.Desierto && EsGol(tipoEvento))
+            return ServiceResult<PartidoDetalleDto>.Fail("El partido está marcado como desierto: no admite goles.");
+        if (partido.PerdidaReglamento && EsGol(tipoEvento))
+            return ServiceResult<PartidoDetalleDto>.Fail("El partido fue perdido por reglamento (3-0): no admite goles.");
 
         var fechaPartido = DateOnly.FromDateTime(partido.Fecha);
         var campeonato = partido.Jornada.Campeonato;
@@ -510,7 +567,7 @@ public class JornadaService : IJornadaService
             return ServiceResult<PartidoDetalleDto>.Fail($"No se pudo registrar el evento: {detalle}");
         }
 
-        if (partido.Jugado && tipoEvento == "GOL")
+        if (partido.Jugado && EsGol(tipoEvento))
         {
             await ActualizarMarcadorDesdeEventosAsync(partido);
             await _db.SaveChangesAsync();
@@ -528,7 +585,7 @@ public class JornadaService : IJornadaService
         if (partido is null) return ServiceResult.Fail("Partido no encontrado.");
         _db.EventosPartido.Remove(e);
         await _db.SaveChangesAsync();
-        if (partido.Jugado && e.TipoEvento == "GOL")
+        if (partido.Jugado && EsGol(e.TipoEvento))
         {
             await ActualizarMarcadorDesdeEventosAsync(partido);
             await _db.SaveChangesAsync();
@@ -728,11 +785,16 @@ public class JornadaService : IJornadaService
             .Select(je => je.IdJugador)
             .ToListAsync();
         var goles = await _db.EventosPartido
-            .Where(e => e.IdPartido == partido.IdPartido && e.TipoEvento == "GOL")
+            .Where(e => e.IdPartido == partido.IdPartido && (e.TipoEvento == "GOL" || e.TipoEvento == "GOL_EN_CONTRA"))
             .ToListAsync();
 
-        partido.GolesLocal = goles.Count(e => jugadoresLocal.Contains(e.IdJugador));
-        partido.GolesVisitante = goles.Count(e => jugadoresVisitante.Contains(e.IdJugador));
+        // Gol normal: suma al equipo del jugador. Gol en contra: suma al equipo contrario.
+        partido.GolesLocal = goles.Count(e => e.TipoEvento == "GOL"
+                ? jugadoresLocal.Contains(e.IdJugador)
+                : jugadoresVisitante.Contains(e.IdJugador));
+        partido.GolesVisitante = goles.Count(e => e.TipoEvento == "GOL"
+                ? jugadoresVisitante.Contains(e.IdJugador)
+                : jugadoresLocal.Contains(e.IdJugador));
     }
 
     // Recalcula la tabla de cada grupo que tenga partidos en la jornada (una jornada puede mezclar grupos).
@@ -772,6 +834,15 @@ public class JornadaService : IJornadaService
             if (!posiciones.TryGetValue(partido.IdEquipoLocal, out var local)
                 || !posiciones.TryGetValue(partido.IdEquipoVisitante, out var visitante))
                 continue;
+
+            // Partido desierto: suma un partido jugado a cada equipo, sin puntos ni goles.
+            if (partido.Desierto)
+            {
+                local.Pj++;
+                visitante.Pj++;
+                continue;
+            }
+
             var golesLocal = partido.GolesLocal ?? 0;
             var golesVisitante = partido.GolesVisitante ?? 0;
 
