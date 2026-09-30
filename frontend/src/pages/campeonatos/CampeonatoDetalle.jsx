@@ -226,11 +226,21 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 
 // ── Alineación (titulares/suplentes) y cambios de un partido ─────────────────
 
+// Jugadores con dorsal primero y en orden numérico; sin dorsal, al final.
+function ordenarPorDorsal(lista) {
+  return [...lista].sort((a, b) => {
+    if (a.dorsal == null && b.dorsal == null) return 0
+    if (a.dorsal == null) return 1
+    if (b.dorsal == null) return -1
+    return a.dorsal - b.dorsal
+  })
+}
+
 function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
     <div className="flex items-center justify-between gap-2 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
       <span className="truncate">
-        {jugador.dorsal != null && <span className="text-gray-500 mr-1">#{jugador.dorsal}</span>}
+        {jugador.dorsal != null && <span className="text-gray-500 mr-1.5">({jugador.dorsal})</span>}
         {jugador.jugador}
       </span>
       <div className="flex items-center gap-2 shrink-0">
@@ -260,10 +270,10 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
   const [jugadoresSel, setJugadoresSel] = useState([])
   const [titular, setTitular]           = useState(true)
 
-  const titulares = alineacion.filter(a => a.titular)
-  const suplentes = alineacion.filter(a => !a.titular)
+  const titulares = ordenarPorDorsal(alineacion.filter(a => a.titular))
+  const suplentes = ordenarPorDorsal(alineacion.filter(a => !a.titular))
   const convocadosIds = new Set(alineacion.map(a => a.idJugador))
-  const disponibles = (equipo?.jugadores ?? []).filter(j => !convocadosIds.has(j.idJugador))
+  const disponibles = ordenarPorDorsal((equipo?.jugadores ?? []).filter(j => !convocadosIds.has(j.idJugador)))
   const disponiblesIds = new Set(disponibles.map(j => String(j.idJugador)))
   // Si un jugador seleccionado deja de estar disponible (por ejemplo, ya fue convocado), se descarta.
   const seleccionados = jugadoresSel.filter(id => disponiblesIds.has(id))
@@ -304,7 +314,7 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
               }`}>
               <input type="checkbox" checked={marcado} className="h-3.5 w-3.5 accent-brand-500"
                 onChange={() => setJugadoresSel(actual => marcado ? actual.filter(x => x !== id) : [...actual, id])} />
-              <span>{j.dorsal != null && <span className="text-gray-500">#{j.dorsal} </span>}{j.apellido}, {j.nombre}</span>
+              <span>{j.dorsal != null && <span className="text-gray-500">({j.dorsal}) </span>}{j.apellido}, {j.nombre}</span>
             </label>
           )
         })}
@@ -449,8 +459,8 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
 
   if (!isOpen || !partido) return null
 
-  const enCanchaLocal     = jugadoresEnCancha(alineacionLocal, cambiosLocal)
-  const enCanchaVisitante = jugadoresEnCancha(alineacionVisitante, cambiosVisitante)
+  const enCanchaLocal     = ordenarPorDorsal(jugadoresEnCancha(alineacionLocal, cambiosLocal))
+  const enCanchaVisitante = ordenarPorDorsal(jugadoresEnCancha(alineacionVisitante, cambiosVisitante))
   const enCanchaLocalIds     = new Set(enCanchaLocal.map(a => a.idJugador))
   const enCanchaVisitanteIds = new Set(enCanchaVisitante.map(a => a.idJugador))
 
@@ -463,8 +473,8 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
 
   const entradosLocal     = new Set(cambiosLocal.map(c => c.idJugadorEntra))
   const entradosVisitante = new Set(cambiosVisitante.map(c => c.idJugadorEntra))
-  const suplentesDisponiblesLocal     = alineacionLocal.filter(a => !a.titular && !entradosLocal.has(a.idJugador))
-  const suplentesDisponiblesVisitante = alineacionVisitante.filter(a => !a.titular && !entradosVisitante.has(a.idJugador))
+  const suplentesDisponiblesLocal     = ordenarPorDorsal(alineacionLocal.filter(a => !a.titular && !entradosLocal.has(a.idJugador)))
+  const suplentesDisponiblesVisitante = ordenarPorDorsal(alineacionVisitante.filter(a => !a.titular && !entradosVisitante.has(a.idJugador)))
 
   const saleEsLocal = enCanchaLocal.some(a => a.idJugador === parseInt(cambioForm.idJugadorSale))
   const suplentesParaEntrar = cambioForm.idJugadorSale
@@ -519,12 +529,12 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 <option value="">Seleccionar...</option>
                 {enCanchaLocal.length > 0 && (
                   <optgroup label={`🏠 ${partido.equipoLocal}`}>
-                    {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
+                    {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `(${a.dorsal}) ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
                 {enCanchaVisitante.length > 0 && (
                   <optgroup label={`✈️ ${partido.equipoVisitante}`}>
-                    {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
+                    {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `(${a.dorsal}) ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
               </select>
@@ -535,7 +545,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 disabled={!cambioForm.idJugadorSale}
                 onChange={e => setCambioForm(f => ({ ...f, idJugadorEntra: e.target.value }))}>
                 <option value="">Seleccionar...</option>
-                {suplentesParaEntrar.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
+                {suplentesParaEntrar.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `(${a.dorsal}) ` : ''}{a.jugador}</option>)}
               </select>
             </div>
           </div>
