@@ -54,7 +54,8 @@ public class EquipoService : IEquipoService
                     je.Jugador.Persona.Nombre,
                     je.Jugador.Persona.Apellido,
                     je.FechaDesde.ToString("yyyy-MM-dd"),
-                    je.FechaHasta?.ToString("yyyy-MM-dd")
+                    je.FechaHasta?.ToString("yyyy-MM-dd"),
+                    je.Dorsal
                 )).ToList()
         ));
     }

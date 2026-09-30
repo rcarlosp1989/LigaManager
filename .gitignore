@@ -50,3 +50,6 @@ database/*.sql
 
 # Logs
 *.log
+
+# Plantillas/scripts de carga masiva con datos reales de jugadores (nombres, cédulas)
+plantillas/

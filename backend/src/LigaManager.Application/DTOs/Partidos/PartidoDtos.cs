@@ -46,7 +46,8 @@ public record AlineacionJugadorDto(
     int     IdAlineacion,
     int     IdJugador,
     string  Jugador,
-    bool    Titular
+    bool    Titular,
+    int?    Dorsal
 );
 
 public record CambioPartidoDto(

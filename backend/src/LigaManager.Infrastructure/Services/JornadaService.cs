@@ -52,14 +52,14 @@ public class JornadaService : IJornadaService
             .Select(a => new AlineacionJugadorDto(
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
-                a.Titular
+                a.Titular, DorsalVigente(a, p.Fecha)
             )).ToList(),
         p.Alineaciones
             .Where(a => a.IdEquipo == p.IdEquipoVisitante)
             .Select(a => new AlineacionJugadorDto(
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
-                a.Titular
+                a.Titular, DorsalVigente(a, p.Fecha)
             )).ToList(),
         p.Cambios.Select(c => new CambioPartidoDto(
             c.IdCambio, c.IdEquipo,
@@ -76,6 +76,18 @@ public class JornadaService : IJornadaService
 
     // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
     private static bool EsGol(string tipoEvento) => tipoEvento is "GOL" or "GOL_EN_CONTRA";
+
+    // Dorsal del jugador vigente en su equipo a la fecha del partido (puede variar entre temporadas).
+    private static int? DorsalVigente(AlineacionJugador a, DateTime fechaPartido)
+    {
+        var fecha = DateOnly.FromDateTime(fechaPartido);
+        return a.Jugador.JugadorEquipos
+            .Where(je => je.IdEquipo == a.IdEquipo
+                && je.FechaDesde <= fecha
+                && (je.FechaHasta == null || je.FechaHasta >= fecha))
+            .Select(je => je.Dorsal)
+            .FirstOrDefault();
+    }
 
     private static string ResolverEstado(Partido p)
     {
@@ -192,6 +204,7 @@ public class JornadaService : IJornadaService
             .Include(j => j.Partidos).ThenInclude(p => p.Oficiales).ThenInclude(o => o.Arbitro).ThenInclude(a => a.Persona)
             .Include(j => j.Partidos).ThenInclude(p => p.Eventos).ThenInclude(e => e.Jugador).ThenInclude(ju => ju.Persona)
             .Include(j => j.Partidos).ThenInclude(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(ju => ju.Persona)
+            .Include(j => j.Partidos).ThenInclude(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(ju => ju.JugadorEquipos)
             .Include(j => j.Partidos).ThenInclude(p => p.Cambios).ThenInclude(c => c.JugadorSale).ThenInclude(ju => ju.Persona)
             .Include(j => j.Partidos).ThenInclude(p => p.Cambios).ThenInclude(c => c.JugadorEntra).ThenInclude(ju => ju.Persona)
             .FirstOrDefaultAsync(j => j.IdJornada == id);
@@ -875,6 +888,7 @@ public class JornadaService : IJornadaService
             .Include(p => p.Oficiales).ThenInclude(o => o.Arbitro).ThenInclude(a => a.Persona)
             .Include(p => p.Eventos).ThenInclude(e => e.Jugador).ThenInclude(j => j.Persona)
             .Include(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(j => j.Persona)
+            .Include(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(j => j.JugadorEquipos)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorSale).ThenInclude(j => j.Persona)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorEntra).ThenInclude(j => j.Persona)
             .Include(p => p.Grupo)

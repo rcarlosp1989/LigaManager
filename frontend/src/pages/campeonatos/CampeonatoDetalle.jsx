@@ -229,7 +229,10 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
     <div className="flex items-center justify-between gap-2 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
-      <span className="truncate">{jugador.jugador}</span>
+      <span className="truncate">
+        {jugador.dorsal != null && <span className="text-gray-500 mr-1">#{jugador.dorsal}</span>}
+        {jugador.jugador}
+      </span>
       <div className="flex items-center gap-2 shrink-0">
         {enCancha ? (
           <>
@@ -254,13 +257,16 @@ function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }
 }
 
 function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAgregar, onQuitar, onEvento, agregando }) {
-  const [idJugador, setIdJugador] = useState('')
-  const [titular, setTitular]     = useState(true)
+  const [jugadoresSel, setJugadoresSel] = useState([])
+  const [titular, setTitular]           = useState(true)
 
   const titulares = alineacion.filter(a => a.titular)
   const suplentes = alineacion.filter(a => !a.titular)
   const convocadosIds = new Set(alineacion.map(a => a.idJugador))
   const disponibles = (equipo?.jugadores ?? []).filter(j => !convocadosIds.has(j.idJugador))
+  const disponiblesIds = new Set(disponibles.map(j => String(j.idJugador)))
+  // Si un jugador seleccionado deja de estar disponible (por ejemplo, ya fue convocado), se descarta.
+  const seleccionados = jugadoresSel.filter(id => disponiblesIds.has(id))
 
   return (
     <div className="border border-gray-800 rounded-lg p-3">
@@ -284,21 +290,43 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
         ))}
       </div>
 
-      <div className="flex gap-1.5">
-        <select className="input-field flex-1 text-sm" value={idJugador} onChange={e => setIdJugador(e.target.value)}>
-          <option value="">Seleccionar jugador...</option>
-          {disponibles.map(j => <option key={j.idJugador} value={j.idJugador}>{j.apellido}, {j.nombre}</option>)}
-        </select>
-        <select className="input-field text-sm" value={titular ? 'titular' : 'suplente'}
-          onChange={e => setTitular(e.target.value === 'titular')}>
-          <option value="titular">Titular</option>
-          <option value="suplente">Suplente</option>
-        </select>
-        <button
-          onClick={() => { onAgregar(parseInt(idJugador), titular); setIdJugador('') }}
-          disabled={!idJugador || agregando}
-          className="text-xs px-3 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
-        >+ Agregar</button>
+      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Convocar jugadores</p>
+      <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/60 p-2 mb-2">
+        {disponibles.map(j => {
+          const id = String(j.idJugador)
+          const marcado = seleccionados.includes(id)
+          return (
+            <label key={j.idJugador}
+              className={`flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs cursor-pointer transition-colors ${
+                marcado
+                  ? 'border-brand-500/70 bg-brand-900/30 text-white'
+                  : 'border-transparent text-gray-300 hover:border-gray-600 hover:bg-gray-800'
+              }`}>
+              <input type="checkbox" checked={marcado} className="h-3.5 w-3.5 accent-brand-500"
+                onChange={() => setJugadoresSel(actual => marcado ? actual.filter(x => x !== id) : [...actual, id])} />
+              <span>{j.dorsal != null && <span className="text-gray-500">#{j.dorsal} </span>}{j.apellido}, {j.nombre}</span>
+            </label>
+          )
+        })}
+        {disponibles.length === 0 && <span className="text-gray-600 text-xs px-1">No hay más jugadores disponibles.</span>}
+      </div>
+      <div className="flex items-center justify-between gap-1.5 flex-wrap">
+        <p className="text-brand-400 text-xs">{seleccionados.length > 0 ? `${seleccionados.length} seleccionado(s)` : ' '}</p>
+        <div className="flex gap-1.5 shrink-0">
+          {/* .input-field fuerza width:100%; se envuelve en un contenedor de ancho fijo para no pelear con esa clase. */}
+          <div className="w-24 shrink-0">
+            <select className="input-field text-sm" value={titular ? 'titular' : 'suplente'}
+              onChange={e => setTitular(e.target.value === 'titular')}>
+              <option value="titular">Titular</option>
+              <option value="suplente">Suplente</option>
+            </select>
+          </div>
+          <button
+            onClick={() => { onAgregar(seleccionados.map(Number), titular); setJugadoresSel([]) }}
+            disabled={seleccionados.length === 0 || agregando}
+            className="shrink-0 text-xs px-3 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
+          >+ Agregar</button>
+        </div>
       </div>
     </div>
   )
@@ -364,9 +392,22 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
   const invalidar = () => queryClient.invalidateQueries({ queryKey: ['jornada'] })
 
   const agregarMutation = useMutation({
-    mutationFn: (data) => api.post(`/partidos/${partido.idPartido}/alineacion`, data),
-    onSuccess: () => { invalidar(); setError('') },
-    onError: (err) => setError(err.response?.data?.error || 'Error al agregar jugador.'),
+    mutationFn: async ({ idsJugador, titular }) => {
+      const resultados = await Promise.allSettled(
+        idsJugador.map(idJugador => api.post(`/partidos/${partido.idPartido}/alineacion`, { idJugador, titular }))
+      )
+      return {
+        agregados: resultados.filter(r => r.status === 'fulfilled').length,
+        fallidos: resultados.filter(r => r.status === 'rejected').map(r => r.reason?.response?.data?.error || 'Error al agregar jugador.'),
+      }
+    },
+    onSuccess: (resultado) => {
+      invalidar()
+      setError(resultado.fallidos.length > 0
+        ? `${resultado.agregados} jugador(es) agregado(s). ${resultado.fallidos.join(' ')}`
+        : '')
+    },
+    onError: (err) => setError(err.response?.data?.error || 'Error al agregar jugadores.'),
   })
 
   const quitarMutation = useMutation({
@@ -440,7 +481,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             alineacion={alineacionLocal}
             enCanchaIds={enCanchaLocalIds}
             sinGoles={partido.desierto || partido.perdidaReglamento}
-            onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
+            onAgregar={(idsJugador, titular) => agregarMutation.mutate({ idsJugador, titular })}
             onQuitar={(id) => quitarMutation.mutate(id)}
             onEvento={onEvento}
             agregando={agregarMutation.isPending}
@@ -451,7 +492,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             alineacion={alineacionVisitante}
             enCanchaIds={enCanchaVisitanteIds}
             sinGoles={partido.desierto || partido.perdidaReglamento}
-            onAgregar={(idJugador, titular) => agregarMutation.mutate({ idJugador, titular })}
+            onAgregar={(idsJugador, titular) => agregarMutation.mutate({ idsJugador, titular })}
             onQuitar={(id) => quitarMutation.mutate(id)}
             onEvento={onEvento}
             agregando={agregarMutation.isPending}
@@ -478,12 +519,12 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 <option value="">Seleccionar...</option>
                 {enCanchaLocal.length > 0 && (
                   <optgroup label={`🏠 ${partido.equipoLocal}`}>
-                    {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+                    {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
                 {enCanchaVisitante.length > 0 && (
                   <optgroup label={`✈️ ${partido.equipoVisitante}`}>
-                    {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+                    {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
               </select>
@@ -494,7 +535,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 disabled={!cambioForm.idJugadorSale}
                 onChange={e => setCambioForm(f => ({ ...f, idJugadorEntra: e.target.value }))}>
                 <option value="">Seleccionar...</option>
-                {suplentesParaEntrar.map(a => <option key={a.idJugador} value={a.idJugador}>{a.jugador}</option>)}
+                {suplentesParaEntrar.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `#${a.dorsal} ` : ''}{a.jugador}</option>)}
               </select>
             </div>
           </div>

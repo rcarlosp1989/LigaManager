@@ -20,7 +20,8 @@ public record JugadorEnEquipoDto(
     string Nombre,
     string Apellido,
     string FechaDesde,
-    string? FechaHasta
+    string? FechaHasta,
+    int?   Dorsal
 );
 
 public record CreateEquipoRequest(string Nombre, int IdPais);
