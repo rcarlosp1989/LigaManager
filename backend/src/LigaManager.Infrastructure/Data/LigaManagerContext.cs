@@ -37,6 +37,7 @@ public class LigaManagerContext : DbContext
     public DbSet<Abono>              Abonos                { get; set; }
     public DbSet<ConceptoPago>       ConceptosPago         { get; set; }
     public DbSet<Pago>               Pagos                 { get; set; }
+    public DbSet<SancionManual>      SancionesManuales     { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +74,7 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Abono>()             .ToTable("abono");
         modelBuilder.Entity<ConceptoPago>()      .ToTable("conceptopago");
         modelBuilder.Entity<Pago>()              .ToTable("pago");
+        modelBuilder.Entity<SancionManual>()     .ToTable("sancion_manual");
 
         // ── Enums como string ────────────────────────────────────────────────
         modelBuilder.Entity<Usuario>()
@@ -113,6 +115,7 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Abono>()             .HasKey(a  => a.IdAbono);
         modelBuilder.Entity<ConceptoPago>()      .HasKey(c  => c.IdConcepto);
         modelBuilder.Entity<Pago>()              .HasKey(p  => p.IdPago);
+        modelBuilder.Entity<SancionManual>()     .HasKey(s  => s.IdSancion);
 
         modelBuilder.Entity<CampeonatoEquipo>()
             .HasKey(ce => new { ce.IdCampeonato, ce.IdEquipo });
@@ -543,6 +546,28 @@ public class LigaManagerContext : DbContext
             e.HasOne(p => p.Equipo)
                 .WithMany()
                 .HasForeignKey(p => p.IdEquipo);
+        });
+
+        modelBuilder.Entity<SancionManual>(e =>
+        {
+            e.Property(s => s.IdSancion)       .HasColumnName("id_sancion");
+            e.Property(s => s.IdCampeonato)    .HasColumnName("id_campeonato");
+            e.Property(s => s.IdJugador)       .HasColumnName("id_jugador");
+            e.Property(s => s.Motivo)          .HasColumnName("motivo");
+            e.Property(s => s.PartidosSancion) .HasColumnName("partidos_sancion");
+            e.Property(s => s.FechaDecision)   .HasColumnName("fecha_decision");
+            e.Property(s => s.CreatedAt)       .HasColumnName("created_at")
+                                                .ValueGeneratedOnAdd();
+
+            e.HasOne(s => s.Campeonato)
+                .WithMany()
+                .HasForeignKey(s => s.IdCampeonato)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(s => s.Jugador)
+                .WithMany()
+                .HasForeignKey(s => s.IdJugador)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Convención snake_case (SIEMPRE AL FINAL) ─────────────────────────

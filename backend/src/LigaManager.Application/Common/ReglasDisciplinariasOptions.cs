@@ -8,9 +8,8 @@ public class ReglasDisciplinariasOptions
     // Amarillas acumuladas (sin contar las que ya generaron sancion por doble amarilla) que generan 1 sancion.
     public int AmarillasParaSuspension { get; set; } = 5;
 
-    // Partidos de suspension segun el motivo. Hoy los 3 valen 1, pero quedan separados para poder
-    // ajustarlos de forma independiente sin tocar codigo.
-    public int PartidosSuspensionPorRoja             { get; set; } = 1;
+    // Partidos de suspension segun el motivo, independientes entre si.
+    public int PartidosSuspensionPorRoja             { get; set; } = 2;
     public int PartidosSuspensionPorAcumulacion       { get; set; } = 1;
     public int PartidosSuspensionPorDobleAmarilla     { get; set; } = 1;
 }

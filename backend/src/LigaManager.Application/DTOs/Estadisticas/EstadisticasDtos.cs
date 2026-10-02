@@ -70,11 +70,14 @@ public record SuspensionDto(
     int     IdJugador,
     string  Jugador,
     string  Equipo,
-    string  Motivo,              // "5 amarillas acumuladas" | "Roja directa" | "Doble amarilla"
-    int     IdPartidoSancion,
+    string  Motivo,              // "5 amarillas acumuladas" | "Roja directa" | "Doble amarilla" | manual (texto libre)
+    int?    IdPartidoSancion,    // null en una sanción manual sin partido de origen
     string  FechaPartidoSancion,
     int     PartidosSancion,
-    string  Estado               // "Suspendido" | "Cumplida"
+    int     PartidosCumplidos,   // cuántos de los PartidosSancion ya los jugó el equipo
+    string  Estado,              // "Suspendido" | "Cumplida"
+    bool    Manual,               // true si la agregó la comisión disciplinaria, no una tarjeta
+    int?    IdSancion = null      // solo en una sanción manual: id para poder eliminarla
 );
 
 public record JugadorEnRiesgoDto(
@@ -87,4 +90,12 @@ public record JugadorEnRiesgoDto(
 public record SuspensionesDto(
     List<SuspensionDto>      Sanciones,
     List<JugadorEnRiesgoDto> EnRiesgo
+);
+
+// Sanción agregada a mano por la comisión disciplinaria (sin partido de origen).
+public record AgregarSancionManualRequest(
+    int     IdJugador,
+    string  Motivo,
+    int     PartidosSancion,
+    string? FechaDecision   // yyyy-MM-dd; si no se envía, se usa hoy
 );

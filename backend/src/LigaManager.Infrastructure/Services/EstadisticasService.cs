@@ -306,9 +306,16 @@ public class EstadisticasService : IEstadisticasService
             .Select(e => new { e.IdJugador, e.TipoEvento, e.Minuto, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante })
             .ToListAsync();
 
-        if (eventos.Count == 0) return new SuspensionesDto([], []);
+        var sancionesManuales = await _db.SancionesManuales
+            .AsNoTracking()
+            .Where(s => s.IdCampeonato == idCampeonato)
+            .ToListAsync();
 
-        var idsJugadores = eventos.Select(e => e.IdJugador).Distinct().ToList();
+        if (eventos.Count == 0 && sancionesManuales.Count == 0) return new SuspensionesDto([], []);
+
+        var idsJugadores = eventos.Select(e => e.IdJugador)
+            .Concat(sancionesManuales.Select(s => s.IdJugador))
+            .Distinct().ToList();
         var jugadoresInfo = await _db.Jugadores
             .AsNoTracking()
             .Where(j => idsJugadores.Contains(j.IdJugador))
@@ -317,7 +324,14 @@ public class EstadisticasService : IEstadisticasService
             .ToListAsync();
         var infoPorJugador = jugadoresInfo.ToDictionary(j => j.IdJugador);
 
-        // Partidos jugados del campeonato, para saber cuándo el equipo sancionado "cumple" la sanción.
+        var idsEquipoCampeonato = await _db.CampeonatoEquipos
+            .AsNoTracking()
+            .Where(ce => ce.IdCampeonato == idCampeonato)
+            .Select(ce => ce.IdEquipo)
+            .ToListAsync();
+
+        // Partidos jugados del campeonato, para saber cuántos de ellos el equipo sancionado ya
+        // disputó después de la sanción (y así saber si ya "cumplió" los partidos de castigo).
         var partidosCampeonato = await _db.Partidos
             .AsNoTracking()
             .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado)
@@ -325,11 +339,23 @@ public class EstadisticasService : IEstadisticasService
             .OrderBy(p => p.Fecha)
             .ToListAsync();
 
-        (string Nombre, int IdEquipo) EquipoALaFecha(Jugador jugador, DateTime fechaPartido, int idEquipoLocal, int idEquipoVisitante)
+        int PartidosJugadosDespues(int idEquipo, DateOnly fecha) => partidosCampeonato.Count(p =>
+            DateOnly.FromDateTime(p.Fecha) > fecha && (p.IdEquipoLocal == idEquipo || p.IdEquipoVisitante == idEquipo));
+
+        (string Nombre, int IdEquipo) EquipoALaFecha(Jugador jugador, DateOnly fecha, int idEquipoLocal, int idEquipoVisitante)
         {
-            var fecha = DateOnly.FromDateTime(fechaPartido);
             var vinculo = jugador.JugadorEquipos.FirstOrDefault(je =>
                 (je.IdEquipo == idEquipoLocal || je.IdEquipo == idEquipoVisitante)
+                && je.FechaDesde <= fecha && (je.FechaHasta == null || je.FechaHasta >= fecha));
+            return vinculo is null ? ("—", 0) : (vinculo.Equipo.Nombre, vinculo.IdEquipo);
+        }
+
+        // Para una sanción manual no hay un partido de origen con dos equipos conocidos: se busca
+        // el equipo del jugador entre los inscritos en ESTE campeonato, vigente a la fecha de la decisión.
+        (string Nombre, int IdEquipo) EquipoEnCampeonatoALaFecha(Jugador jugador, DateOnly fecha)
+        {
+            var vinculo = jugador.JugadorEquipos.FirstOrDefault(je =>
+                idsEquipoCampeonato.Contains(je.IdEquipo)
                 && je.FechaDesde <= fecha && (je.FechaHasta == null || je.FechaHasta >= fecha));
             return vinculo is null ? ("—", 0) : (vinculo.Equipo.Nombre, vinculo.IdEquipo);
         }
@@ -383,15 +409,15 @@ public class EstadisticasService : IEstadisticasService
 
                 if (motivo is null) continue;
 
-                var (equipoNombre, idEquipoSancion) = EquipoALaFecha(jugador, partidoGrupo.Key.Fecha, partidoGrupo.Key.IdEquipoLocal, partidoGrupo.Key.IdEquipoVisitante);
-                var siguientePartido = partidosCampeonato.FirstOrDefault(p =>
-                    p.Fecha > partidoGrupo.Key.Fecha && (p.IdEquipoLocal == idEquipoSancion || p.IdEquipoVisitante == idEquipoSancion));
-                var estado = siguientePartido is not null ? "Cumplida" : "Suspendido";
+                var fechaSancion = DateOnly.FromDateTime(partidoGrupo.Key.Fecha);
+                var (equipoNombre, idEquipoSancion) = EquipoALaFecha(jugador, fechaSancion, partidoGrupo.Key.IdEquipoLocal, partidoGrupo.Key.IdEquipoVisitante);
+                var partidosCumplidos = Math.Min(PartidosJugadosDespues(idEquipoSancion, fechaSancion), partidosSancion);
+                var estado = partidosCumplidos >= partidosSancion ? "Cumplida" : "Suspendido";
 
                 sancionesDeEsteJugador.Add(new SuspensionDto(
                     grupoJugador.Key, nombreJugador, equipoNombre, motivo,
-                    partidoGrupo.Key.IdPartido, partidoGrupo.Key.Fecha.ToString("yyyy-MM-dd"),
-                    partidosSancion, estado));
+                    partidoGrupo.Key.IdPartido, fechaSancion.ToString("yyyy-MM-dd"),
+                    partidosSancion, partidosCumplidos, estado, Manual: false));
             }
 
             sanciones.AddRange(sancionesDeEsteJugador);
@@ -403,9 +429,96 @@ public class EstadisticasService : IEstadisticasService
             }
         }
 
+        foreach (var s in sancionesManuales)
+        {
+            var jugador = infoPorJugador[s.IdJugador];
+            var nombreJugador = $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}";
+            var (equipoNombre, idEquipoSancion) = EquipoEnCampeonatoALaFecha(jugador, s.FechaDecision);
+            var partidosCumplidos = Math.Min(PartidosJugadosDespues(idEquipoSancion, s.FechaDecision), s.PartidosSancion);
+            var estado = partidosCumplidos >= s.PartidosSancion ? "Cumplida" : "Suspendido";
+
+            sanciones.Add(new SuspensionDto(
+                s.IdJugador, nombreJugador, equipoNombre, s.Motivo,
+                null, s.FechaDecision.ToString("yyyy-MM-dd"),
+                s.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: s.IdSancion));
+        }
+
         return new SuspensionesDto(
             sanciones.OrderByDescending(s => s.FechaPartidoSancion).ToList(),
             enRiesgo.OrderByDescending(r => r.AmarillasAcumuladas).ToList()
         );
+    }
+
+    public async Task<ServiceResult<SuspensionDto>> AgregarSancionManualAsync(int idCampeonato, AgregarSancionManualRequest req)
+    {
+        if (!await _acceso.CampeonatoAsync(idCampeonato)) return ServiceResult<SuspensionDto>.Fail("Campeonato no encontrado.");
+
+        var motivo = req.Motivo?.Trim();
+        if (string.IsNullOrWhiteSpace(motivo))
+            return ServiceResult<SuspensionDto>.Fail("El motivo es obligatorio.");
+        if (motivo.Length > 200)
+            return ServiceResult<SuspensionDto>.Fail("El motivo no puede superar los 200 caracteres.");
+        if (req.PartidosSancion <= 0)
+            return ServiceResult<SuspensionDto>.Fail("Los partidos de sanción deben ser un número mayor a 0.");
+
+        DateOnly fechaDecision;
+        if (string.IsNullOrWhiteSpace(req.FechaDecision))
+            fechaDecision = DateOnly.FromDateTime(DateTime.Today);
+        else if (!DateOnly.TryParse(req.FechaDecision, out fechaDecision))
+            return ServiceResult<SuspensionDto>.Fail("Formato de fecha inválido. Use yyyy-MM-dd.");
+
+        var idsEquipoCampeonato = await _db.CampeonatoEquipos
+            .Where(ce => ce.IdCampeonato == idCampeonato)
+            .Select(ce => ce.IdEquipo)
+            .ToListAsync();
+
+        var jugador = await _db.Jugadores
+            .Include(j => j.Persona)
+            .Include(j => j.JugadorEquipos).ThenInclude(je => je.Equipo)
+            .FirstOrDefaultAsync(j => j.IdJugador == req.IdJugador);
+        if (jugador is null) return ServiceResult<SuspensionDto>.Fail("Jugador no encontrado.");
+        if (!jugador.JugadorEquipos.Any(je => idsEquipoCampeonato.Contains(je.IdEquipo)))
+            return ServiceResult<SuspensionDto>.Fail("El jugador no pertenece a ningún equipo de este campeonato.");
+
+        var sancion = new SancionManual
+        {
+            IdCampeonato    = idCampeonato,
+            IdJugador       = req.IdJugador,
+            Motivo          = motivo,
+            PartidosSancion = req.PartidosSancion,
+            FechaDecision   = fechaDecision,
+            CreatedAt       = DateTime.UtcNow,
+        };
+        _db.SancionesManuales.Add(sancion);
+        await _db.SaveChangesAsync();
+
+        var vinculo = jugador.JugadorEquipos.FirstOrDefault(je =>
+            idsEquipoCampeonato.Contains(je.IdEquipo)
+            && je.FechaDesde <= fechaDecision && (je.FechaHasta == null || je.FechaHasta >= fechaDecision));
+        var equipoNombre = vinculo?.Equipo.Nombre ?? "—";
+        var idEquipoSancion = vinculo?.IdEquipo ?? 0;
+
+        var partidosJugadosDespues = await _db.Partidos
+            .CountAsync(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && p.Fecha > fechaDecision.ToDateTime(TimeOnly.MinValue)
+                && (p.IdEquipoLocal == idEquipoSancion || p.IdEquipoVisitante == idEquipoSancion));
+        var partidosCumplidos = Math.Min(partidosJugadosDespues, sancion.PartidosSancion);
+        var estado = partidosCumplidos >= sancion.PartidosSancion ? "Cumplida" : "Suspendido";
+
+        return ServiceResult<SuspensionDto>.Ok(new SuspensionDto(
+            jugador.IdJugador, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", equipoNombre, sancion.Motivo,
+            null, sancion.FechaDecision.ToString("yyyy-MM-dd"), sancion.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: sancion.IdSancion));
+    }
+
+    public async Task<ServiceResult> EliminarSancionManualAsync(int idCampeonato, int idSancion)
+    {
+        if (!await _acceso.CampeonatoAsync(idCampeonato)) return ServiceResult.Fail("Campeonato no encontrado.");
+
+        var sancion = await _db.SancionesManuales
+            .FirstOrDefaultAsync(s => s.IdSancion == idSancion && s.IdCampeonato == idCampeonato);
+        if (sancion is null) return ServiceResult.Fail("Sanción no encontrada.");
+
+        _db.SancionesManuales.Remove(sancion);
+        await _db.SaveChangesAsync();
+        return ServiceResult.Ok();
     }
 }
