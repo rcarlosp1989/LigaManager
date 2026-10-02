@@ -29,7 +29,11 @@ builder.Services.AddScoped<IJornadaService,    JornadaService>();
 builder.Services.AddScoped<IArbitroService,    ArbitroService>();
 builder.Services.AddScoped<IEstadioService,    EstadioService>();
 builder.Services.AddScoped<IGrupoService,      GrupoService>();
+builder.Services.AddScoped<IEstadisticasService, EstadisticasService>();
 builder.Services.AddScoped<DashboardService>();
+
+builder.Services.Configure<LigaManager.Application.Common.ReglasDisciplinariasOptions>(
+    builder.Configuration.GetSection("ReglasDisciplinarias"));
 
 // ── JWT ───────────────────────────────────────────────────────────────────────
 var secretKey = builder.Configuration["JwtSettings:SecretKey"] 

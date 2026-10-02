@@ -8,6 +8,8 @@ const navItems = [
   { to: '/jugadores',   label: 'Jugadores',   icon: '👤' },
   { to: '/oficiales',   label: 'Oficiales',   icon: '🧑‍⚖️' },
   { to: '/estadios',    label: 'Estadios',    icon: '🏟️' },
+  { to: '/posiciones',    label: 'Posiciones',    icon: '📊' },
+  { to: '/estadisticas',  label: 'Estadísticas',  icon: '📈' },
 ]
 
 export default function Layout() {

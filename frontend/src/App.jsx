@@ -10,6 +10,8 @@ import Equipos           from './pages/equipos/Equipos'
 import Jugadores         from './pages/jugadores/Jugadores'
 import Arbitros          from './pages/Arbitros'
 import Estadios          from './pages/Estadios'
+import Posiciones        from './pages/Posiciones'
+import Estadisticas      from './pages/estadisticas/Estadisticas'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -35,6 +37,8 @@ export default function App() {
           <Route path="jugadores"           element={<Jugadores />} />
           <Route path="oficiales"            element={<Arbitros />} />
           <Route path="estadios"             element={<Estadios />} />
+          <Route path="posiciones"           element={<Posiciones />} />
+          <Route path="estadisticas"         element={<Estadisticas />} />
         </Route>
       </Routes>
     </AuthProvider>
