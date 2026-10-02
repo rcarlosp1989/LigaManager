@@ -386,12 +386,14 @@ public class EstadisticasService : IEstadisticasService
                 string? motivo = null;
                 var partidosSancion = 0;
 
-                // Si en el mismo partido hubo alguna amarilla junto con la roja (2 amarillas, o
-                // 1 amarilla + la roja que la sigue, como suele registrarse en la práctica), es una
-                // expulsión por doble amarilla, no una roja directa, aunque también se haya
-                // registrado el evento TARJETA_ROJA. Solo es "roja directa" cuando no hubo ninguna
-                // amarilla de por medio en ese partido.
-                if (amarillas >= 2 || (amarillas >= 1 && rojas >= 1))
+                // Lo que define el motivo es cuántas amarillas hubo en ESE partido:
+                //  - 2 amarillas (haya o no, además, un evento de roja registrado junto con ellas
+                //    por la expulsión que provocan) = doble amarilla. Esas amarillas no se suman
+                //    al acumulado de la temporada; ya generaron su propia sanción.
+                //  - 1 amarilla + 1 roja (dos incidentes distintos en el mismo partido) = roja
+                //    directa, y la amarilla sí cuenta para el acumulado de la temporada.
+                //  - Solo roja, sin ninguna amarilla = roja directa.
+                if (amarillas >= 2)
                 {
                     motivo = "Doble amarilla";
                     partidosSancion = _reglas.PartidosSuspensionPorDobleAmarilla;
@@ -400,6 +402,12 @@ public class EstadisticasService : IEstadisticasService
                 {
                     motivo = "Roja directa";
                     partidosSancion = _reglas.PartidosSuspensionPorRoja;
+                    if (amarillas == 1)
+                    {
+                        acumuladasEnCiclo++;
+                        if (acumuladasEnCiclo >= _reglas.AmarillasParaSuspension)
+                            acumuladasEnCiclo = 0; // ya se sancionó este partido por la roja; el ciclo no queda a medias
+                    }
                 }
                 else if (amarillas == 1)
                 {
