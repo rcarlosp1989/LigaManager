@@ -386,15 +386,20 @@ public class EstadisticasService : IEstadisticasService
                 string? motivo = null;
                 var partidosSancion = 0;
 
-                if (rojas >= 1)
-                {
-                    motivo = "Roja directa";
-                    partidosSancion = _reglas.PartidosSuspensionPorRoja;
-                }
-                else if (amarillas >= 2)
+                // Si en el mismo partido hubo alguna amarilla junto con la roja (2 amarillas, o
+                // 1 amarilla + la roja que la sigue, como suele registrarse en la práctica), es una
+                // expulsión por doble amarilla, no una roja directa, aunque también se haya
+                // registrado el evento TARJETA_ROJA. Solo es "roja directa" cuando no hubo ninguna
+                // amarilla de por medio en ese partido.
+                if (amarillas >= 2 || (amarillas >= 1 && rojas >= 1))
                 {
                     motivo = "Doble amarilla";
                     partidosSancion = _reglas.PartidosSuspensionPorDobleAmarilla;
+                }
+                else if (rojas >= 1)
+                {
+                    motivo = "Roja directa";
+                    partidosSancion = _reglas.PartidosSuspensionPorRoja;
                 }
                 else if (amarillas == 1)
                 {
