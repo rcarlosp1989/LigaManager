@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
-import PageHeader from '../components/PageHeader'
 import Modal from '../components/Modal'
 import UbicacionSelector from '../components/UbicacionSelector'
 
-export default function Arbitros() {
+// standalone: true agrega su propio encabezado y padding (uso como página suelta);
+// en false (por defecto) asume que el contenedor (ej. Mantenimiento) ya los provee.
+export default function Arbitros({ standalone = false }) {
   const queryClient = useQueryClient()
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState({ nombre: '', apellido: '', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' })
@@ -16,8 +17,11 @@ export default function Arbitros() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['arbitros'] }); setModal(false); setForm({ nombre: '', apellido: '', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' }); setError('') },
     onError: err => setError(err.response?.data?.error || 'Error al registrar oficial.'),
   })
-  return <div className="p-8">
-    <PageHeader title="OFICIALES" subtitle={`${arbitros.length} registrados`} action={<button className="btn-primary" onClick={() => setModal(true)}>+ Nuevo oficial</button>} />
+  return <div className={standalone ? 'p-8' : ''}>
+    <div className="flex items-center justify-between mb-5">
+      <p className="text-gray-400 text-sm">{arbitros.length} registrados</p>
+      <button className="btn-primary" onClick={() => setModal(true)}>+ Nuevo oficial</button>
+    </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {arbitros.map(a => <div className="card" key={a.idArbitro}><h3 className="text-white font-semibold">{a.nombre} {a.apellido}</h3><p className="text-gray-400 text-sm mt-1">Cédula: {a.cedula}</p><p className="text-gray-400 text-sm mt-1">{[a.canton, a.provincia, a.pais].filter(Boolean).join(', ')}</p></div>)}
     </div>

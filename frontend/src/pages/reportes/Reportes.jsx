@@ -3,28 +3,34 @@ import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
 import PageHeader from '../../components/PageHeader'
 import EmptyState from '../../components/EmptyState'
+import TabPosiciones from './TabPosiciones'
+import TabNomina from './TabNomina'
 import TabGoleadores from './TabGoleadores'
 import TabTarjetas from './TabTarjetas'
 import TabSuspensiones from './TabSuspensiones'
 
 const TABS = [
+  { key: 'posiciones', label: '📊 Posiciones' },
+  { key: 'nomina', label: '📋 Nómina' },
   { key: 'goleadores', label: '⚽ Goleadores' },
   { key: 'tarjetas', label: '🟨 Tarjetas' },
   { key: 'suspensiones', label: '🚫 Suspensiones' },
 ]
 
-export default function Estadisticas() {
+export default function Reportes() {
   const [idCampeonato, setIdCampeonato] = useState('')
-  const [tab, setTab] = useState('goleadores')
+  const [tab, setTab] = useState('posiciones')
 
   const { data: campeonatos = [] } = useQuery({
     queryKey: ['campeonatos'],
     queryFn: () => api.get('/campeonatos').then(r => r.data),
   })
 
+  const campeonato = campeonatos.find(c => c.idCampeonato === Number(idCampeonato))
+
   return (
     <div className="p-8">
-      <PageHeader title="ESTADÍSTICAS" subtitle="Goleadores, tarjetas y suspensiones por campeonato" />
+      <PageHeader title="REPORTES" subtitle="Posiciones, nómina y estadísticas por campeonato, con exportación a Excel y PDF" />
 
       <div className="max-w-xl mb-6">
         <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
@@ -35,7 +41,7 @@ export default function Estadisticas() {
       </div>
 
       {!idCampeonato ? (
-        <EmptyState icon="📈" title="Elige un campeonato" description="Selecciona un campeonato para ver sus estadísticas." />
+        <EmptyState icon="📁" title="Elige un campeonato" description="Selecciona un campeonato para ver sus reportes." />
       ) : (
         <>
           <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
@@ -49,6 +55,8 @@ export default function Estadisticas() {
             ))}
           </div>
 
+          {tab === 'posiciones' && <TabPosiciones idCampeonato={idCampeonato} campeonato={campeonato} />}
+          {tab === 'nomina' && <TabNomina idCampeonato={idCampeonato} campeonato={campeonato} />}
           {tab === 'goleadores' && <TabGoleadores idCampeonato={idCampeonato} />}
           {tab === 'tarjetas' && <TabTarjetas idCampeonato={idCampeonato} />}
           {tab === 'suspensiones' && <TabSuspensiones idCampeonato={idCampeonato} />}

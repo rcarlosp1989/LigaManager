@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import api from '../services/api'
-import PageHeader from '../components/PageHeader'
-import EmptyState from '../components/EmptyState'
+import api from '../../services/api'
+import EmptyState from '../../components/EmptyState'
+import BotonExportar from '../../components/BotonExportar'
 
 const COLOR_FORMA = {
   V: 'bg-green-500 text-green-950',
@@ -72,14 +72,15 @@ function TablaGrupo({ grupo }) {
   )
 }
 
-export default function Posiciones() {
-  const [idCampeonato, setIdCampeonato] = useState('')
-  const [idGrupo, setIdGrupo] = useState('')
+const COLUMNAS_EXPORT = [
+  { titulo: 'Grupo', ancho: 12 }, { titulo: '#', ancho: 6 }, { titulo: 'Equipo', ancho: 24 },
+  { titulo: 'PJ', ancho: 6 }, { titulo: 'PG', ancho: 6 }, { titulo: 'PE', ancho: 6 }, { titulo: 'PP', ancho: 6 },
+  { titulo: 'GF', ancho: 6 }, { titulo: 'GC', ancho: 6 }, { titulo: 'DG', ancho: 6 }, { titulo: 'PTS', ancho: 6 },
+  { titulo: 'Clasificado', ancho: 12 }, { titulo: 'Forma (reciente → antiguo)', ancho: 20 },
+]
 
-  const { data: campeonatos = [] } = useQuery({
-    queryKey: ['campeonatos'],
-    queryFn: () => api.get('/campeonatos').then(r => r.data),
-  })
+export default function TabPosiciones({ idCampeonato, campeonato }) {
+  const [idGrupo, setIdGrupo] = useState('')
 
   const { data: grupos = [] } = useQuery({
     queryKey: ['grupos', idCampeonato],
@@ -95,50 +96,41 @@ export default function Posiciones() {
     enabled: !!idCampeonato,
   })
 
-  const handleCampeonato = (v) => { setIdCampeonato(v); setIdGrupo('') }
+  const gruposConDatos = tabla?.grupos?.filter(g => g.posiciones.length > 0) ?? []
+  const filasExport = gruposConDatos.flatMap(g => g.posiciones.map(p => ([
+    g.grupo ?? '—', p.posicion, p.equipo, p.pj, p.pg, p.pe, p.pp, p.gf, p.gc, p.dg, p.pts,
+    p.clasificado ? 'Sí' : 'No', (p.forma ?? []).join(', '),
+  ])))
+
+  if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando posiciones...</p>
+  if (isError) return <p className="text-red-400 text-sm text-center py-10">No se pudo cargar la tabla de posiciones.</p>
 
   return (
-    <div className="p-8">
-      <PageHeader title="TABLA DE POSICIONES" subtitle="Posiciones por campeonato, con la forma de los últimos 5 partidos" />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 max-w-xl">
-        <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
-          <select className="input-field" value={idCampeonato} onChange={e => handleCampeonato(e.target.value)}>
-            <option value="">Selecciona un campeonato...</option>
-            {campeonatos.map(c => <option key={c.idCampeonato} value={c.idCampeonato}>{c.nombre} ({c.anio})</option>)}
-          </select>
-        </div>
-        {grupos.length > 0 && (
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+        {grupos.length > 0 ? (
           <div>
             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Grupo</label>
-            <select className="input-field" value={idGrupo} onChange={e => setIdGrupo(e.target.value)}>
+            <select className="input-field w-48" value={idGrupo} onChange={e => setIdGrupo(e.target.value)}>
               <option value="">Todos los grupos</option>
               {grupos.map(g => <option key={g.idGrupo} value={g.idGrupo}>Grupo {g.nombre}</option>)}
             </select>
           </div>
-        )}
+        ) : <div />}
+        <BotonExportar
+          titulo={`Tabla de posiciones — ${campeonato?.nombre ?? ''}`}
+          subtitulo={new Date().toLocaleDateString('es-EC')}
+          columnas={COLUMNAS_EXPORT}
+          filas={filasExport}
+          archivoBase={`posiciones_${(campeonato?.nombre ?? 'campeonato').replace(/\s+/g, '_')}`}
+        />
       </div>
 
-      {!idCampeonato && (
-        <EmptyState icon="📊" title="Elige un campeonato" description="Selecciona un campeonato para ver su tabla de posiciones." />
-      )}
-
-      {idCampeonato && isLoading && (
-        <p className="text-gray-500 text-sm text-center py-10">Cargando posiciones...</p>
-      )}
-
-      {idCampeonato && isError && (
-        <p className="text-red-400 text-sm text-center py-10">No se pudo cargar la tabla de posiciones.</p>
-      )}
-
-      {idCampeonato && !isLoading && !isError && (!tabla?.grupos?.length || tabla.grupos.every(g => g.posiciones.length === 0)) && (
+      {gruposConDatos.length === 0 ? (
         <EmptyState icon="⚽" title="Aún no hay partidos jugados" description="La tabla aparecerá cuando se registren resultados en este campeonato." />
-      )}
-
-      {idCampeonato && !isLoading && !isError && tabla?.grupos?.some(g => g.posiciones.length > 0) && (
+      ) : (
         <>
-          {tabla.grupos.filter(g => g.posiciones.length > 0).map(g => (
+          {gruposConDatos.map(g => (
             <TablaGrupo key={g.idGrupo ?? 'sin-grupo'} grupo={g} />
           ))}
 

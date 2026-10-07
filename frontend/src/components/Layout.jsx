@@ -6,10 +6,8 @@ const navItems = [
   { to: '/campeonatos', label: 'Campeonatos', icon: '🏆' },
   { to: '/equipos',     label: 'Equipos',     icon: '🛡️' },
   { to: '/jugadores',   label: 'Jugadores',   icon: '👤' },
-  { to: '/oficiales',   label: 'Oficiales',   icon: '🧑‍⚖️' },
-  { to: '/estadios',    label: 'Estadios',    icon: '🏟️' },
-  { to: '/posiciones',    label: 'Posiciones',    icon: '📊' },
-  { to: '/estadisticas',  label: 'Estadísticas',  icon: '📈' },
+  { to: '/reportes',     label: 'Reportes',      icon: '📈' },
+  { to: '/mantenimiento', label: 'Mantenimiento', icon: '🔧' },
 ]
 
 export default function Layout() {

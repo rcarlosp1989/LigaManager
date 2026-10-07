@@ -17,6 +17,14 @@ public class EquipoService : IEquipoService
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
+    private static int CalcularEdad(DateOnly fechaNacimiento)
+    {
+        var hoy = DateOnly.FromDateTime(DateTime.Today);
+        var edad = hoy.Year - fechaNacimiento.Year;
+        if (fechaNacimiento > hoy.AddYears(-edad)) edad--;
+        return edad;
+    }
+
     public async Task<List<EquipoListDto>> GetAllAsync()
         => await _db.Equipos
             .Include(e => e.Pais)
@@ -55,7 +63,10 @@ public class EquipoService : IEquipoService
                     je.Jugador.Persona.Apellido,
                     je.FechaDesde.ToString("yyyy-MM-dd"),
                     je.FechaHasta?.ToString("yyyy-MM-dd"),
-                    je.Dorsal
+                    je.Dorsal,
+                    je.Jugador.Persona.Cedula,
+                    je.Posicion,
+                    CalcularEdad(je.Jugador.Persona.FechaNac)
                 )).ToList()
         ));
     }

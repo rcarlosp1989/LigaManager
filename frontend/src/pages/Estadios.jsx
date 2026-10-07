@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
-import PageHeader from '../components/PageHeader'
 import Modal from '../components/Modal'
 import UbicacionSelector from '../components/UbicacionSelector'
 
-export default function Estadios() {
+// standalone: true agrega su propio encabezado y padding (uso como página suelta);
+// en false (por defecto) asume que el contenedor (ej. Mantenimiento) ya los provee.
+export default function Estadios({ standalone = false }) {
   const queryClient = useQueryClient()
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState({ nombre: '', idPais: '', idProvincia: '', idCanton: '' })
@@ -16,8 +17,11 @@ export default function Estadios() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['estadios'] }); setModal(false); setForm({ nombre: '', idPais: '', idProvincia: '', idCanton: '' }); setError('') },
     onError: err => setError(err.response?.data?.error || 'Error al registrar estadio.'),
   })
-  return <div className="p-8">
-    <PageHeader title="ESTADIOS" subtitle={`${estadios.length} disponibles`} action={<button className="btn-primary" onClick={() => setModal(true)}>+ Nuevo estadio</button>} />
+  return <div className={standalone ? 'p-8' : ''}>
+    <div className="flex items-center justify-between mb-5">
+      <p className="text-gray-400 text-sm">{estadios.length} disponibles</p>
+      <button className="btn-primary" onClick={() => setModal(true)}>+ Nuevo estadio</button>
+    </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {estadios.map(e => <div className="card" key={e.idEstadio}><h3 className="text-white font-semibold">{e.nombre}</h3><p className="text-gray-400 text-sm mt-1">{[e.canton, e.provincia, e.pais].filter(Boolean).join(', ')}</p></div>)}
     </div>
