@@ -7,7 +7,7 @@ Cada fase agrega una entrada con fecha. Léela antes de empezar la fase siguient
 
 ## 2026-10-07 — Fase 1: Estilos base
 
-**Estado:** aplicada en la rama `ux/fase-1-estilos`. Pendiente de que Roberto la pruebe y la apruebe. No se fusionó ni se publicó.
+**Estado:** aprobada por Roberto el 7 de octubre de 2026. Aplicada en la rama `ux/fase-1-estilos`. Falta fusionarla a `main`, que es lo que la publica; eso lo hace Roberto.
 
 **Base:** `main` en el commit `c1958c6` (6 de octubre de 2026). Todos los hallazgos de la fase seguían vigentes.
 
@@ -52,4 +52,4 @@ No se tocó `backend/` ni la base de datos. No hizo falta crear `PENDIENTES_BACK
 
 ### Siguiente paso
 
-Probar la Fase 1 y, si se aprueba, fusionar la rama. Después, Fase 2 en una rama nueva `ux/fase-2-celular`.
+Fusionar `ux/fase-1-estilos` a `main`. Después, Fase 2 en una rama nueva `ux/fase-2-celular`, creada a partir de la Fase 1.
