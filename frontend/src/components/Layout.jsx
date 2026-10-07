@@ -1,13 +1,14 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Trophy, Shield, Users, TrendingUp, Wrench } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const navItems = [
-  { to: '/dashboard',   label: 'Dashboard',  icon: '⚡' },
-  { to: '/campeonatos', label: 'Campeonatos', icon: '🏆' },
-  { to: '/equipos',     label: 'Equipos',     icon: '🛡️' },
-  { to: '/jugadores',   label: 'Jugadores',   icon: '👤' },
-  { to: '/reportes',     label: 'Reportes',      icon: '📈' },
-  { to: '/mantenimiento', label: 'Mantenimiento', icon: '🔧' },
+  { to: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
+  { to: '/campeonatos',   label: 'Campeonatos',   icon: Trophy },
+  { to: '/equipos',       label: 'Equipos',       icon: Shield },
+  { to: '/jugadores',     label: 'Jugadores',     icon: Users },
+  { to: '/reportes',      label: 'Reportes',      icon: TrendingUp },
+  { to: '/mantenimiento', label: 'Mantenimiento', icon: Wrench },
 ]
 
 export default function Layout() {
@@ -41,12 +42,12 @@ export default function Layout() {
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
                  font-medium transition-all duration-150
                  ${isActive
-                   ? 'bg-brand-600 text-white'
+                   ? 'bg-brand-700 text-white'
                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
                  }`
               }
             >
-              <span className="text-base">{item.icon}</span>
+              <item.icon size={18} strokeWidth={2} className="shrink-0" aria-hidden="true" />
               {item.label}
             </NavLink>
           ))}
