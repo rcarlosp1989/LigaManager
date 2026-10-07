@@ -194,6 +194,8 @@ public class JugadorService : IJugadorService
             .FirstOrDefaultAsync(je => je.IdJugador == id && je.FechaHasta == null);
         if (vinculoActual is not null && req.Posicion is not null)
             vinculoActual.Posicion = req.Posicion.Trim();
+        if (vinculoActual is not null)
+            vinculoActual.Dorsal = req.Dorsal;
 
         await _db.SaveChangesAsync();
         return await GetByIdAsync(id);

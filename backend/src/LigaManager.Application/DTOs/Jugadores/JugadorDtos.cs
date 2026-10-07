@@ -63,7 +63,8 @@ public record UpdateJugadorRequest(
     int    IdPais,
     int?   IdCanton,
     string? FotoUrl,
-    string? Posicion
+    string? Posicion,
+    int?    Dorsal
 );
 
 public record UpdateDorsalRequest(

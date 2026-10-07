@@ -116,12 +116,12 @@ function JugadorForm({ onSubmit, loading, error }) {
 
 // ── Formulario editar jugador ─────────────────────────────────────────────────
 
-function EditarJugadorForm({ jugador, onSubmit, onUpdateDorsal, loading, error }) {
+function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
   const [form, setForm] = useState({
     nombre:   jugador.nombre,
     apellido: jugador.apellido,
     cedula:    jugador.cedula,
-      posicion:  jugador.historial?.find(h => !h.fechaHasta)?.posicion ?? '',
+    posicion:  jugador.historial?.find(h => !h.fechaHasta)?.posicion ?? '',
     foto:      null,
     fechaNac: jugador.fechaNac,
     idPais:      jugador.idPais,
@@ -174,18 +174,9 @@ function EditarJugadorForm({ jugador, onSubmit, onUpdateDorsal, loading, error }
           <input className="input-field text-gray-400" value={calcularEdad(form.fechaNac) ?? '–'} disabled readOnly />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal actual</label>
-          <div className="flex gap-2">
-            <input type="number" className="input-field" value={form.dorsal} min="1" max="99"
-              onChange={e => set('dorsal', e.target.value)} placeholder="10" />
-            <button
-              type="button"
-              onClick={() => onUpdateDorsal(form.dorsal ? parseInt(form.dorsal) : null)}
-              className="text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors whitespace-nowrap"
-            >
-              Guardar #
-            </button>
-          </div>
+          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal</label>
+          <input type="number" className="input-field" value={form.dorsal} min="1" max="99"
+            onChange={e => set('dorsal', e.target.value)} placeholder="10" />
         </div>
       </div>
       <UbicacionSelector
@@ -222,9 +213,11 @@ export default function Jugadores() {
     queryFn:  () => api.get('/jugadores').then(r => r.data),
   })
 
-  const filtered = jugadores.filter(j =>
-    `${j.nombre} ${j.apellido}`.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = jugadores.filter(j => {
+    const texto = search.toLowerCase()
+    return `${j.nombre} ${j.apellido}`.toLowerCase().includes(texto)
+      || (j.equipoActual ?? '').toLowerCase().includes(texto)
+  })
 
   const createMutation = useMutation({
     mutationFn: (data) => {
@@ -257,12 +250,6 @@ export default function Jugadores() {
     onError: (err) => setEditError(err.response?.data?.error || 'Error al actualizar.'),
   })
 
-  const updateDorsalMutation = useMutation({
-    mutationFn: (dorsal) => api.patch(`/jugadores/${jugadorEdit.idJugador}/dorsal`, { dorsal }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jugadores'] }),
-    onError: (err) => alert(err.response?.data?.error || 'Error al actualizar dorsal.'),
-  })
-
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/jugadores/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jugadores'] }),
@@ -291,7 +278,7 @@ export default function Jugadores() {
       <div className="mb-5">
         <input
           className="input-field max-w-sm"
-          placeholder="Buscar por nombre o apellido..."
+          placeholder="Buscar por nombre, apellido o equipo..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -377,7 +364,6 @@ export default function Jugadores() {
           <EditarJugadorForm
             jugador={jugadorEdit}
             onSubmit={updateMutation.mutate}
-            onUpdateDorsal={updateDorsalMutation.mutate}
             loading={updateMutation.isPending}
             error={editError}
           />

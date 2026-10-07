@@ -46,7 +46,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new UpdateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion);
+            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.UpdateAsync(id, request);
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
@@ -127,4 +127,5 @@ public sealed class UpdateJugadorForm
     public int? IdCanton { get; set; }
     public IFormFile? Foto { get; set; }
     public string? Posicion { get; set; }
+    public int? Dorsal { get; set; }
 }
