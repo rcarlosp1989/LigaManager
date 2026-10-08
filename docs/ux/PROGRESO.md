@@ -7,7 +7,7 @@ Cada fase agrega una entrada con fecha. Léela antes de empezar la fase siguient
 
 ## 2026-10-07 — Fase 1: Estilos base
 
-**Estado:** aprobada por Roberto el 7 de octubre de 2026. Aplicada en la rama `ux/fase-1-estilos`. Falta fusionarla a `main`, que es lo que la publica; eso lo hace Roberto.
+**Estado:** aprobada por Roberto el 7 de octubre de 2026 y fusionada en `main` el 8 de octubre (pull request #1). Publicada en producción.
 
 **Base:** `main` en el commit `c1958c6` (6 de octubre de 2026). Todos los hallazgos de la fase seguían vigentes.
 
@@ -52,4 +52,55 @@ No se tocó `backend/` ni la base de datos. No hizo falta crear `PENDIENTES_BACK
 
 ### Siguiente paso
 
-Fusionar `ux/fase-1-estilos` a `main`. Después, Fase 2 en una rama nueva `ux/fase-2-celular`, creada a partir de la Fase 1.
+Hecho: fusionada en `main` el 8 de octubre. La Fase 2 sigue en `ux/fase-2-celular`.
+
+---
+
+## 2026-10-08 — Fase 2: Celular y tablet
+
+**Estado:** aplicada en la rama `ux/fase-2-celular`, creada desde `main` con la Fase 1 ya fusionada (`13bf5f6`). Pendiente de que Roberto la pruebe y la apruebe.
+
+Todos los hallazgos de la fase seguían vigentes: en 390 px el contenido quedaba en 134 px de ancho y había controles de hasta 10×16 px.
+
+### Qué se cambió
+
+| Archivo | Cambio |
+|---|---|
+| `frontend/src/components/Layout.jsx` | Por debajo de 1.024 px el menú lateral se oculta y se abre desde una barra superior con botón de menú. Se cierra al elegir una sección, con Esc o tocando fuera. Cerrado no recibe foco. Altura `h-dvh` para el navegador del celular. |
+| `frontend/src/components/Modal.jsx` | Por debajo de 640 px las ventanas ocupan toda la pantalla. Encabezado fijo y contenido desplazable, para que cerrar siempre esté visible. La × tiene nombre accesible («Cerrar»). |
+| `frontend/src/components/PageHeader.jsx` | Título y botón principal bajan a dos líneas si no caben; título algo menor en celular. |
+| `frontend/src/index.css` | Bloque `@media (pointer: coarse)`: botones, enlaces, listas y campos de al menos 44 px; casillas de 22 px con la fila completa como área táctil; letra de 16 px en campos para que el celular no haga zoom. No aplica con mouse. |
+| Páginas (`Dashboard`, `Campeonatos`, `CampeonatoDetalle`, `Equipos`, `Jugadores`, `Reportes`, `Mantenimiento`) | Margen de 16 px en celular, 24 px en tablet y 32 px en computadora. |
+| `Campeonatos.jsx`, `Jugadores.jsx`, `CampeonatoDetalle.jsx` | Tablas con desplazamiento lateral y ancho mínimo, igual que las de Reportes. Nombres en una línea. |
+| `CampeonatoDetalle.jsx` | Cabecera de jornada, tarjeta de partido y panel de agregar equipos pasan a varias líneas cuando no caben. Pestañas con desplazamiento lateral. En pantallas táctiles, los botones de evento de la planilla bajan a una segunda línea bajo el nombre del jugador. |
+| `Reportes.jsx`, `Mantenimiento.jsx` | Las pestañas ya no se encogen ni se superponen. |
+| `Equipos.jsx` | El botón de eliminar se ve siempre, no solo al pasar el mouse. |
+| `LoginPage.jsx`, `RegisterPage.jsx` | Logo algo menor en celular para que no toque los bordes. |
+
+No se tocó `backend/` ni la base de datos. No hizo falta `PENDIENTES_BACKEND.md`.
+
+### Decisiones
+
+- **Tablas: desplazamiento lateral, no tarjetas.** Reportes ya usaba ese patrón, así que se aplicó igual a todas las tablas. Las tarjetas obligaban a rediseñar cada tabla.
+- **Tamaño táctil por tipo de puntero.** El mínimo de 44 px aplica solo a pantallas táctiles. En computadora la interfaz queda igual.
+- **Planilla sin rediseño.** Solo se abre a pantalla completa en celular y sus botones cumplen 44 px. El rediseño para la cancha es la Fase 5.
+- **Menú hasta 1.024 px.** En una tablet vertical el menú fijo dejaba 512 px al contenido; por eso se colapsa también ahí.
+
+### Cómo se verificó
+
+- `npm run build` sin errores. `npm run lint`: los mismos 5 errores previos, ninguno nuevo.
+- Medición automática de 15 vistas en 390 y 768 px, simulando pantalla táctil: 0 controles menores de 44 px (antes, hasta 132 en la planilla), 0 desplazamiento lateral de la página y nada cortado fuera de la pantalla. Excepciones: el enlace «Regístrate», que va dentro de una frase, y los círculos decorativos del fondo del Login, que ya estaban recortados a propósito.
+- Menú probado: abre, se cierra al elegir sección, con Esc y tocando fuera, y cerrado no es alcanzable con el teclado.
+- En 1.440 px las pantallas quedan iguales que antes, salvo la × de Equipos, que ahora se ve siempre.
+- **Límite:** Chromium sobre Linux con datos de ejemplo. Falta probar en un celular real, sobre todo Safari en iPhone.
+
+### Anotado para otras fases
+
+- **Fase 3:** la ventana todavía no cierra con Esc ni tiene botón Cancelar.
+- **Fase 4:** el botón de eliminar de Equipos debe pasar a un menú de acciones. Las fechas de los partidos se muestran en formato técnico («2026-10-10T10:00»).
+- **Fase 5:** la planilla en celular ahora es más larga, porque cada jugador ocupa dos líneas para que los botones midan 44 px. El modo en vivo la reemplaza para la cancha.
+- **Sin fase:** en las tablas con desplazamiento lateral no hay una señal visual de que hay más columnas a la derecha.
+
+### Siguiente paso
+
+Probar en un celular real y, si se aprueba, fusionar `ux/fase-2-celular` a `main`. Después, Fase 3 en `ux/fase-3-ventanas`.

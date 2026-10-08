@@ -131,3 +131,40 @@ select {
 .bg-gray-900 { background-color: var(--surface-900) !important; }
 .border-gray-800 { border-color: var(--line) !important; }
 .border-gray-700 { border-color: #38516b !important; }
+/* Pantallas táctiles (celular y tablet): todo lo que se toca mide al menos 44 px.
+   Los campos usan 16 px de letra para que el celular no haga zoom al escribir.
+   En computadora (puntero fino) nada de esto aplica. */
+@media (pointer: coarse) {
+  button,
+  a[href],
+  select,
+  summary,
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  button,
+  [role="button"] {
+    min-width: 44px;
+  }
+
+  .input-field,
+  select,
+  textarea,
+  input:not([type="checkbox"]):not([type="radio"]) {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* La fila completa de una casilla es el área táctil. */
+  label:has(> input[type="checkbox"]),
+  label:has(> input[type="radio"]) {
+    min-height: 44px;
+  }
+}

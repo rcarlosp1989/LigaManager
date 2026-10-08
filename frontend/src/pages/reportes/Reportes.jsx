@@ -29,7 +29,7 @@ export default function Reportes() {
   const campeonato = campeonatos.find(c => c.idCampeonato === Number(idCampeonato))
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader title="REPORTES" subtitle="Posiciones, nómina y estadísticas por campeonato, con exportación a Excel y PDF" />
 
       <div className="max-w-xl mb-6">
@@ -47,7 +47,7 @@ export default function Reportes() {
           <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
             {TABS.map(t => (
               <button key={t.key} onClick={() => setTab(t.key)}
-                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 ${
                   tab === t.key ? 'border-brand-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}>
                 {t.label}
