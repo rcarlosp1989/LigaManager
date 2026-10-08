@@ -71,8 +71,8 @@ function JugadorForm({ onSubmit, loading, error }) {
         <input id={`${fid}-c4`} className="input-field" value={form.cedula} required maxLength="20"
           onChange={e => set('cedula', e.target.value)} placeholder="0102030405" />
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
           <label htmlFor={`${fid}-c5`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
           <input id={`${fid}-c5`} type="date" className="input-field" value={form.fechaNac} required
             onChange={e => set('fechaNac', e.target.value)} />
@@ -172,8 +172,8 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
         <input id={`${fid}-c15`} type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
           onChange={e => set('foto', e.target.files?.[0] ?? null)} />
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
           <label htmlFor={`${fid}-c16`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
           <input id={`${fid}-c16`} type="date" className="input-field" value={form.fechaNac}
             onChange={e => set('fechaNac', e.target.value)} />
@@ -220,6 +220,7 @@ export default function Jugadores() {
     queryFn:  () => api.get('/jugadores').then(r => r.data),
   })
 
+  const sinJugadores = !isLoading && !isError && jugadores.length === 0
   const filtered = jugadores.filter(j => {
     const texto = search.toLowerCase()
     return `${j.nombre} ${j.apellido}`.toLowerCase().includes(texto)
@@ -296,15 +297,15 @@ export default function Jugadores() {
     <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="JUGADORES"
-        subtitle={!isLoading && !isError ? `${jugadores.length} registrados` : undefined}
-        action={
+        subtitle={!isLoading && !isError && jugadores.length > 0 ? `${jugadores.length} registrados` : undefined}
+        action={!sinJugadores && (
           <button onClick={() => setModal(true)} className="btn-primary">
             + Nuevo Jugador
           </button>
-        }
+        )}
       />
 
-      <div className="mb-5">
+      {!sinJugadores && <div className="mb-5">
         <input
           type="search"
           aria-label="Buscar jugadores"
@@ -313,18 +314,27 @@ export default function Jugadores() {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-      </div>
+      </div>}
 
       {isLoading ? (
         <div className="text-gray-500 text-center py-16">Cargando...</div>
       ) : isError ? (
         <EstadoError mensaje="No se pudieron cargar los jugadores." onReintentar={refetch} reintentando={isFetching} />
-      ) : filtered.length === 0 ? (
+      ) : sinJugadores ? (
         <EmptyState icon="👤" title="Sin jugadores"
           description="Registra el primer jugador del sistema."
           action={
             <button onClick={() => setModal(true)} className="btn-primary">
-              Registrar Jugador
+              Registrar jugador
+            </button>
+          }
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState icon="🔍" title="Sin resultados para esa búsqueda"
+          description={`Ningún jugador ni equipo coincide con «${search.trim()}».`}
+          action={
+            <button onClick={() => setSearch('')} className="btn-secundario">
+              Limpiar búsqueda
             </button>
           }
         />

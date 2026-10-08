@@ -109,7 +109,7 @@ Hecho: fusionada en `main` el 8 de octubre. La Fase 3 sigue en `ux/fase-3-ventan
 
 ## 2026-10-08 — Fase 3: Ventanas, errores y avisos
 
-**Estado:** aplicada en la rama `ux/fase-3-ventanas`, creada desde `main` con las fases 1 y 2 fusionadas (`62a1a9a`). Pendiente de que Roberto la pruebe y la apruebe.
+**Estado:** aprobada por Roberto y fusionada en `main` el 8 de octubre de 2026 (pull request #3). Publicada en producción.
 
 Los hallazgos seguían vigentes: 27 ventanas del navegador (17 `alert`, 9 `confirm` y 1 `prompt`), 41 consultas de datos de las que solo 5 manejaban el error, y unas 70 etiquetas sin asociar a su campo.
 
@@ -166,3 +166,67 @@ No se tocó `backend/` ni la base de datos. No hizo falta `PENDIENTES_BACKEND.md
 ### Siguiente paso
 
 Probar y, si se aprueba, fusionar `ux/fase-3-ventanas` a `main`. Después, Fase 4 en `ux/fase-4-pantallas`.
+
+---
+
+## 2026-10-08 — Fase 4: Ajustes por pantalla
+
+**Estado:** aplicada en la rama `ux/fase-4-pantallas`, creada desde `main` con las fases 1 a 3 fusionadas (`db8d76a`). Pendiente de que Roberto la pruebe y la apruebe.
+
+Los hallazgos seguían vigentes, con dos matices: el servidor ya permite editar campeonatos y equipos (`PUT /api/campeonatos/{id}` y `PUT /api/equipos/{id}`), y la confirmación al eliminar un campeonato ya nombraba el campeonato desde la Fase 3.
+
+### Piezas compartidas nuevas
+
+| Archivo | Qué hace |
+|---|---|
+| `frontend/src/components/MenuAcciones.jsx` | Menú «⋮» siempre visible. Se abre con toque, clic o teclado (flechas, Esc, Inicio, Fin), devuelve el foco al botón y puede mostrar una acción desactivada con su motivo. Se dibuja con posición fija para que no lo recorte una tabla con desplazamiento y sigue al botón si se desplaza la página. |
+| `frontend/src/utils/fechas.js` | `formatearFecha` («sáb 10 oct 2026 · 10:00»), `formatearRango` («1 sep – 20 dic 2026») y `anioDe`. Se arman a mano para no depender del idioma del navegador. |
+
+### Qué cambió en las pantallas
+
+| Pantalla | Archivo | Cambio |
+|---|---|---|
+| Campeonatos | `pages/campeonatos/Campeonatos.jsx` | Toda la fila lleva al detalle; el nombre es un enlace con subrayado al pasar el cursor. Menú con «Ver campeonato», «Editar» y «Eliminar». «Editar» abre el mismo formulario de creación con los datos cargados y agrega el estado (Planificado, En curso, Finalizado). Columna «Fechas» en lugar de «Año». El formulario ya no pide el año: lo toma de la fecha de inicio y lo muestra debajo. Valida que Fin sea posterior a Inicio con un mensaje junto al campo. Con la lista vacía: sin contador y un solo botón, «Crear campeonato». |
+| Detalle del campeonato | `pages/campeonatos/CampeonatoDetalle.jsx` | La pestaña y la jornada abierta quedan en la dirección (`?tab=jornadas&jornada=12`); al recargar o volver atrás se abre en el mismo lugar y la jornada se lleva a la vista. La cabecera de cada jornada ahora es un botón: se abre con el teclado y anuncia si está abierta. Fechas legibles en Inicio, Fin y en cada partido. |
+| Equipos | `pages/equipos/Equipos.jsx` | La ✕ pasa a un menú con «Editar» y «Eliminar». «Editar» usa el mismo formulario de creación. Al renombrar un equipo se refrescan todas las pantallas que lo muestran. Lista vacía: sin contador y un solo botón. |
+| Jugadores | `pages/jugadores/Jugadores.jsx` | Búsqueda sin resultados: «Sin resultados para esa búsqueda», con el texto buscado y un botón «Limpiar búsqueda». La fila Fecha de nacimiento, Edad y Dorsal queda en dos filas (la fecha ocupa todo el ancho), en los formularios de crear y editar. Lista vacía: sin contador, sin buscador y un solo botón. |
+| Reportes | `pages/reportes/Reportes.jsx` | Recuerda el último campeonato elegido en ese navegador. Si no hay uno guardado y solo existe un campeonato, lo elige solo. |
+
+### Pendientes de servidor
+
+Anotados en `docs/ux/PENDIENTES_BACKEND.md`: la lista de campeonatos no devuelve la modalidad ni el número de jornadas. Por eso:
+
+- La columna «Modalidad» todavía no aparece; la pantalla la muestra sola cuando la API envíe `modalidad`.
+- «Eliminar» se desactiva cuando la API envíe `totalJornadas`. Mientras tanto queda activo y, si el campeonato tiene jornadas, el servidor lo rechaza y la pantalla muestra su mensaje: «No se puede eliminar: el campeonato tiene jornadas registradas.».
+
+### Decisiones
+
+- **Menú en la lista de campeonatos también.** El plan lo pedía en Equipos; se usó el mismo menú en Campeonatos para que «Eliminar desactivado» pueda mostrar su motivo y para no llenar la fila de botones en celular.
+- **Una sola jornada abierta a la vez.** Antes se podían abrir varias. Como la jornada abierta ahora vive en la dirección, se guarda una; abrir otra cierra la anterior.
+- **Los cambios de pestaña y de jornada reemplazan la dirección, no agregan pasos al historial.** Así «Atrás» sale del campeonato en lugar de recorrer las pestañas.
+- **El año se sigue enviando al servidor**, calculado desde la fecha de inicio, porque la API lo pide.
+- **El Dashboard no se tocó**, aunque también muestra fechas técnicas: el plan deja su ajuste para la Fase 5.
+
+### Cómo se verificó
+
+- `npm run build` sin errores. `npm run lint`: los mismos 5 errores previos, ninguno nuevo.
+- Prueba automática en 1.440, 768 y 390 px con datos de ejemplo, con el mismo resultado en los tres tamaños:
+  - Campeonatos: tocar la fila abre el detalle; el menú se abre, empieza en la primera opción, Esc lo cierra y devuelve el foco; «Eliminar» desactivado con su motivo cuando hay jornadas; «Eliminar» pide confirmación con el nombre; «Editar» carga los seis campos; una fecha de fin anterior muestra el error; al guardar se envía el año 2027 deducido de «2027-01-10» y aparece «Cambios guardados.». La lista vacía tiene un solo botón y no muestra contador.
+  - Detalle: `?tab=jornadas&jornada=2` se escribe al abrir con Enter; tras recargar y tras ir a Equipos y volver, la jornada 2 sigue abierta con sus partidos. Fechas «mar 1 sep 2026» y «sáb 10 oct 2026 · 10:00».
+  - Equipos: menú con «Editar» y «Eliminar»; «Editar» carga nombre y país y envía el `PUT` correcto; «Eliminar» pide confirmación.
+  - Jugadores: la búsqueda «zzzz» muestra «Sin resultados para esa búsqueda» y «Limpiar búsqueda» devuelve las 12 filas.
+  - Reportes: sin nada guardado no elige; tras elegir el campeonato 2 y recargar, sigue elegido; con un solo campeonato lo elige solo.
+- En 390 px: 0 controles menores de 44 px y 0 desplazamiento lateral en Campeonatos, detalle (tres pestañas), Equipos, Jugadores, Reportes y Mantenimiento. Se corrigió en el camino un texto oculto del encabezado de la tabla que ensanchaba la página en celular.
+- El navegador no abrió ninguna ventana propia y no hubo errores de JavaScript.
+- **Límite:** Chromium sobre Linux con datos de ejemplo. No se probó contra el servidor real ni en un celular físico.
+
+### Anotado para otras fases
+
+- **Fase 5:** confirmación al quitar un jugador de la planilla; servir Oswald desde la propia app para usarla sin señal; fechas legibles en el Dashboard.
+- **Fase 6:** `modalidad` y `totalJornadas` en la lista de campeonatos.
+- **Sin fase:** nada indica que las tablas se deslizan hacia los lados en celular; quedan emojis fuera del menú (pestañas, estados vacíos, estadio y país).
+
+### Siguiente paso
+
+Probar y, si se aprueba, fusionar `ux/fase-4-pantallas` a `main`. Después, Fase 5 (modo en vivo: interfaz) en `ux/fase-5-en-vivo`.
+
