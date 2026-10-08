@@ -1,5 +1,5 @@
 import { useState, useEffect, useId, useRef } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
 import Modal from '../../components/Modal'
@@ -7,6 +7,7 @@ import EstadoError from '../../components/EstadoError'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
+import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 
 // ── Badges ───────────────────────────────────────────────────────────────────
 
@@ -246,16 +247,6 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 
 // ── Alineación (titulares/suplentes) y cambios de un partido ─────────────────
 
-// Jugadores con dorsal primero y en orden numérico; sin dorsal, al final.
-function ordenarPorDorsal(lista) {
-  return [...lista].sort((a, b) => {
-    if (a.dorsal == null && b.dorsal == null) return 0
-    if (a.dorsal == null) return 1
-    if (b.dorsal == null) return -1
-    return a.dorsal - b.dorsal
-  })
-}
-
 function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
@@ -365,18 +356,11 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
   )
 }
 
-function jugadoresEnCancha(alineacionEquipo, cambiosEquipo) {
-  const enCancha = new Set(alineacionEquipo.filter(a => a.titular).map(a => a.idJugador))
-  cambiosEquipo.forEach(c => enCancha.add(c.idJugadorEntra))
-  cambiosEquipo.forEach(c => enCancha.delete(c.idJugadorSale))
-  return alineacionEquipo.filter(a => enCancha.has(a.idJugador))
-}
-
 function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEvento }) {
   const fid = useId()
   const queryClient = useQueryClient()
   const aviso = useAviso()
-  const { pedirNumero } = useDialogos()
+  const { pedirNumero, confirmar } = useDialogos()
   const fechaPartido = partido?.fecha?.slice(0, 10)
   const [cambioForm, setCambioForm] = useState({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
   const [error, setError] = useState('')
@@ -500,6 +484,18 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
     onRegistrarEvento({ idJugador, tipoEvento, minuto })
   }
 
+  // La ✕ está junto a la tarjeta roja: se confirma para no quitar a nadie por accidente.
+  const quitarJugador = async (idAlineacion) => {
+    const fila = [...alineacionLocal, ...alineacionVisitante].find(a => a.idAlineacion === idAlineacion)
+    const ok = await confirmar({
+      titulo: `¿Quitar a ${fila ? `${fila.dorsal != null ? `(${fila.dorsal}) ` : ''}${fila.jugador}` : 'este jugador'} de la planilla?`,
+      mensaje: 'Deja de estar convocado para este partido.',
+      textoConfirmar: 'Quitar',
+      peligro: true,
+    })
+    if (ok) quitarMutation.mutate(idAlineacion)
+  }
+
   // Cambios sin guardar: observaciones o estado distintos de lo guardado, o un cambio a medio llenar.
   const hayCambios = observaciones !== (partido.observaciones ?? '')
     || desierto !== !!partido.desierto
@@ -532,7 +528,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             enCanchaIds={enCanchaLocalIds}
             sinGoles={partido.desierto || partido.perdidaReglamento}
             onAgregar={(idsJugador, titular) => agregarMutation.mutate({ idsJugador, titular })}
-            onQuitar={(id) => quitarMutation.mutate(id)}
+            onQuitar={quitarJugador}
             onEvento={onEvento}
             agregando={agregarMutation.isPending}
           />
@@ -543,7 +539,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             enCanchaIds={enCanchaVisitanteIds}
             sinGoles={partido.desierto || partido.perdidaReglamento}
             onAgregar={(idsJugador, titular) => agregarMutation.mutate({ idsJugador, titular })}
-            onQuitar={(id) => quitarMutation.mutate(id)}
+            onQuitar={quitarJugador}
             onEvento={onEvento}
             agregando={agregarMutation.isPending}
           />
@@ -910,6 +906,10 @@ function PartidoCard({ partido, idCampeonato }) {
           onClick={() => setShowAlineacionModal(true)}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors"
         >📋 Planilla</button>
+        <Link
+          to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}`}
+          className="text-xs px-3 py-1.5 rounded border border-brand-700 text-brand-300 hover:bg-brand-900/30 transition-colors inline-flex items-center"
+        >● En vivo</Link>
         <button
           onClick={() => {
             setEditForm({

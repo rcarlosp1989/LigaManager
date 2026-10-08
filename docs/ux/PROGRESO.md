@@ -171,7 +171,7 @@ Probar y, si se aprueba, fusionar `ux/fase-3-ventanas` a `main`. Después, Fase 
 
 ## 2026-10-08 — Fase 4: Ajustes por pantalla
 
-**Estado:** aplicada en la rama `ux/fase-4-pantallas`, creada desde `main` con las fases 1 a 3 fusionadas (`db8d76a`). Pendiente de que Roberto la pruebe y la apruebe.
+**Estado:** aprobada por Roberto y fusionada en `main` el 8 de octubre de 2026 (pull request #4). Publicada en producción.
 
 Los hallazgos seguían vigentes, con dos matices: el servidor ya permite editar campeonatos y equipos (`PUT /api/campeonatos/{id}` y `PUT /api/equipos/{id}`), y la confirmación al eliminar un campeonato ya nombraba el campeonato desde la Fase 3.
 
@@ -229,4 +229,83 @@ Anotados en `docs/ux/PENDIENTES_BACKEND.md`: la lista de campeonatos no devuelve
 ### Siguiente paso
 
 Probar y, si se aprueba, fusionar `ux/fase-4-pantallas` a `main`. Después, Fase 5 (modo en vivo: interfaz) en `ux/fase-5-en-vivo`.
+
+---
+
+## 2026-10-08 — Fase 5: Modo en vivo (interfaz)
+
+**Estado:** aplicada en la rama `ux/fase-5-en-vivo`, creada desde `main` con las fases 1 a 4 fusionadas (`414fa5b`). Pendiente de que Roberto la pruebe y la apruebe.
+
+Los hallazgos seguían vigentes. Dos datos del código que cambian el plan:
+
+- **No existe `GET /api/partidos/{id}`.** El partido solo se lee dentro de su jornada (`GET /api/jornadas/{id}`), así que la dirección del modo en vivo lleva la jornada: `/partidos/{id}/en-vivo?jornada={idJornada}`.
+- **El Dashboard no recibe la jornada del partido** (`ProximoPartidoDto` no tiene `idJornada`), así que todavía no puede abrir el modo en vivo directamente.
+
+Ambos quedaron en `PENDIENTES_BACKEND.md`.
+
+### Qué se construyó
+
+Una pantalla nueva, `/partidos/{id}/en-vivo?jornada={idJornada}`, a pantalla completa y sin el menú de administración. La planilla actual sigue igual como vía de registro posterior.
+
+| Archivo | Qué hace |
+|---|---|
+| `frontend/src/pages/vivo/EnVivo.jsx` | La pantalla. Encabezado fijo con marcador, reloj y último registro con «Deshacer». Tres etapas: **Convocatoria** (pasar lista con foto, selección múltiple y «Titulares» o «Suplentes»; «Quitar» pide confirmación), **Partido** (un equipo a la vez; en cancha con dorsal grande en filas de 64 px; banca y los que salieron) y **Cierre** (marcador, todos los registros por minuto y «Cerrar partido y marcarlo como jugado»). Al tocar un jugador se abre una hoja con el minuto del reloj (con − y + o escrito) y botones de 80 px: Gol, Amarilla, Roja, Gol en contra y «Cambio: sale este jugador». |
+| `frontend/src/pages/vivo/reloj.js` | Reloj del partido: iniciar, pausar, reanudar, terminar cada tiempo, duración de cada tiempo (45 por defecto) y reiniciar. Se guarda en el dispositivo como hora de inicio, así que sobrevive a una recarga. El tiempo añadido se muestra «45:00 +2» y se registra como minuto 45 (o 90). |
+| `frontend/src/pages/vivo/cola.js` | Cola de envío. Cada gol, tarjeta o cambio se guarda en el dispositivo y se envía en orden; sin señal reintenta al volver la conexión y cada 15 segundos. Si un envío quedó sin respuesta, antes de reenviarlo consulta el partido y, si el registro ya está, no lo manda otra vez. Lo que el servidor rechaza queda a la vista con su motivo. |
+| `frontend/src/pages/vivo/pantallaEncendida.js` | Pide al navegador que no apague la pantalla mientras el modo en vivo está abierto, y lo vuelve a pedir al regresar a la pestaña. |
+| `frontend/src/pages/vivo/almacen.js` | Lectura y escritura segura en el almacenamiento del navegador. |
+| `frontend/src/utils/planilla.js` | Lógica de cancha y banca compartida con la planilla (`jugadoresEnCancha`, `suplentesDisponibles`, `ordenarPorDorsal`) y el marcador calculado desde los eventos, con la misma regla que el servidor. |
+| `frontend/src/utils/fotos.js` | Arma la dirección de la foto del jugador, que el servidor guarda como ruta propia. |
+| `frontend/src/App.jsx` | Ruta nueva, fuera del menú de administración. |
+
+### Otros cambios
+
+- **Detalle del campeonato** (`CampeonatoDetalle.jsx`): botón «● En vivo» en cada partido. En la planilla, quitar a un jugador ahora pide confirmación con su nombre. La lógica de cancha y banca se movió a `utils/planilla.js` sin cambios.
+- **Dashboard** (`Dashboard.jsx`): las tarjetas de partido son enlaces a la pestaña Jornadas del campeonato y muestran fechas legibles. «Registrar en vivo» aparece cuando la API envíe `idJornada`.
+- **Oswald local** (`main.jsx`, `index.html`, `package.json`): la fuente de títulos se sirve desde la propia app con `@fontsource/oswald`; ya no depende de Google Fonts. `index.html` tiene `theme-color` oscuro para la barra del navegador en celular.
+
+### Alto contraste
+
+El modo en vivo usa fondo negro, texto blanco y grises claros, y botones de color sólido con texto negro (verde, amarillo, gris claro) o blanco (rojo). No usa los grises azulados del resto de la app.
+
+### Datos sin señal
+
+- La jornada y los planteles se guardan en el dispositivo cada vez que llegan. Si se recarga la página sin señal, se ve la última copia con un aviso.
+- La convocatoria, «Quitar», «Deshacer» de algo ya enviado y «Cerrar partido» necesitan señal y lo dicen si no la hay. «Deshacer» de algo que aún no salió funciona sin señal.
+- **Límite:** sin señal, la página tiene que estar ya abierta. Cargar la app desde cero sin conexión necesitaría un *service worker*, que no se agregó en esta fase.
+
+### Decisiones
+
+- **Sin avisos emergentes por cada evento.** El registro aparece en la barra del último registro, arriba, y el celular vibra. Los avisos emergentes tapaban la parte de abajo de la pantalla.
+- **Las tarjetas no sacan al jugador de la cancha.** Se marca «Expulsado» con una roja o dos amarillas, pero la lógica de cancha y banca se mantuvo como estaba.
+- **«Deshacer» solo deshace el último registro de este dispositivo.** Para corregir otros, la planilla.
+- **Las observaciones, desierto y perdido por reglamento siguen en la planilla.** El plan pone las observaciones del vocal en la Fase 8.
+- **Si el inicio de sesión vence durante el partido**, la app lleva a la pantalla de ingreso, como en el resto. La cola y el reloj quedan guardados y se retoman al volver a abrir el partido.
+
+### Cómo se verificó
+
+- `npm run build` sin errores. `npm run lint`: los mismos 5 errores previos, ninguno nuevo.
+- Prueba automática en 390 px (táctil) con un servidor simulado que guarda lo que recibe:
+  - Pantalla completa sin menú. Con el reloj en 31:05, la hoja del jugador propone el minuto 32; «Gol» lo registra y el marcador pasa a 1–0; «Deshacer» lo borra del servidor y vuelve a 0–0. Un minuto cambiado a mano (40) se envía como 40.
+  - Sin servidor: un gol, un cambio y una roja al jugador que entró quedan como «3 por enviar», el marcador sube y el suplente aparece en cancha. Al recargar la página sin servidor siguen el marcador, los 3 pendientes y el reloj.
+  - Al volver el servidor, el primer envío llega pero su respuesta se corta: en el reintento la cola lo encuentra en el partido y no lo reenvía. Resultado: 3 eventos y 1 cambio en el servidor, sin duplicados (5 envíos en total).
+  - Un rechazo del servidor (400) queda a la vista con su motivo y no se reintenta.
+  - Convocatoria del visitante: 7 titulares y 2 suplentes por selección múltiple; «Quitar» pide confirmación y borra; la foto se abre en grande o dice que no hay.
+  - Cierre: el resumen tiene las mismas 4 filas que el servidor (3 eventos y 1 cambio); «Cerrar partido» pide confirmación con el resultado, marca el partido como jugado y detiene el reloj.
+  - Partido completo con reloj simulado, sin escribir minutos: gol al 21, amarilla en tiempo añadido del 1.er tiempo registrada al 45, gol al 56 en el 2.º tiempo.
+  - Reloj real: corre, sigue corriendo tras recargar, la pausa lo detiene.
+- En 390 y 768 px: 0 controles menores de 44 px (las casillas miden 22 px, pero se tocan en toda su fila de 56 px) y 0 desplazamiento lateral. En 1.440 px tampoco hay desplazamiento lateral.
+- Planilla: «Quitar» pide «¿Quitar a (1) Jose Luis Garcia Veloz de la planilla?». Dashboard: «sáb 10 oct 2026 · 10:00» y, con `idJornada`, «Registrar en vivo» apunta al modo en vivo.
+- Las pruebas de la Fase 4 dan el mismo resultado que antes. La app ya no pide nada a Google Fonts y los títulos siguen en Oswald.
+- **Límite:** Chromium sobre Linux con datos simulados. No se probó en un celular real, a pleno sol ni contra el servidor real. Que la pantalla no se apague depende del navegador: Chrome y Safari recientes lo permiten; si no, no se nota ningún error, simplemente no aparece «Pantalla encendida».
+
+### Anotado para otras fases
+
+- **Fase 6:** `GET /api/partidos/{id}`, `idJornada` en el Dashboard y `fotoUrl` en la alineación (en `PENDIENTES_BACKEND.md`).
+- **Fase 8:** estado del partido (sin iniciar, en vivo, cerrado), autor de cada evento, bloqueo tras el cierre, observaciones del vocal e identificador por evento para que el servidor rechace duplicados.
+- **Sin fase:** cargar la app sin señal (service worker); nada indica que las tablas se deslizan hacia los lados en celular; quedan emojis fuera del menú.
+
+### Siguiente paso
+
+Probar en un celular y, si se aprueba, fusionar `ux/fase-5-en-vivo` a `main`. La Fase 6 resuelve `PENDIENTES_BACKEND.md` sin cambiar el esquema. Antes de dar el modo en vivo por terminado, el plan pide probarlo en un partido real.
 
