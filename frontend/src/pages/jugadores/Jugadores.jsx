@@ -311,8 +311,8 @@ export default function Jugadores() {
                   <td className="px-5 py-4 text-gray-500 text-sm font-mono">
                     {j.dorsal ? `#${j.dorsal}` : '–'}
                   </td>
-                  <td className="px-5 py-4">
-                    <p className="text-white font-medium whitespace-nowrap">{j.apellido}, {j.nombre}</p>
+                  <td className="px-5 py-4 min-w-44">
+                    <p className="text-white font-medium">{j.apellido}, {j.nombre}</p>
                   </td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.ubicacion}</td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.edad} años</td>

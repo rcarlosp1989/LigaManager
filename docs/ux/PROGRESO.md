@@ -71,7 +71,7 @@ Todos los hallazgos de la fase seguían vigentes: en 390 px el contenido quedaba
 | `frontend/src/components/PageHeader.jsx` | Título y botón principal bajan a dos líneas si no caben; título algo menor en celular. |
 | `frontend/src/index.css` | Bloque `@media (pointer: coarse)`: botones, enlaces, listas y campos de al menos 44 px; casillas de 22 px con la fila completa como área táctil; letra de 16 px en campos para que el celular no haga zoom. No aplica con mouse. |
 | Páginas (`Dashboard`, `Campeonatos`, `CampeonatoDetalle`, `Equipos`, `Jugadores`, `Reportes`, `Mantenimiento`) | Margen de 16 px en celular, 24 px en tablet y 32 px en computadora. |
-| `Campeonatos.jsx`, `Jugadores.jsx`, `CampeonatoDetalle.jsx` | Tablas con desplazamiento lateral y ancho mínimo, igual que las de Reportes. Nombres en una línea. |
+| `Campeonatos.jsx`, `Jugadores.jsx`, `CampeonatoDetalle.jsx` | Tablas con desplazamiento lateral y ancho mínimo, igual que las de Reportes. La columna del nombre tiene un ancho mínimo para que no se parta en muchas líneas. |
 | `CampeonatoDetalle.jsx` | Cabecera de jornada, tarjeta de partido y panel de agregar equipos pasan a varias líneas cuando no caben. Pestañas con desplazamiento lateral. En pantallas táctiles, los botones de evento de la planilla bajan a una segunda línea bajo el nombre del jugador. |
 | `Reportes.jsx`, `Mantenimiento.jsx` | Las pestañas ya no se encogen ni se superponen. |
 | `Equipos.jsx` | El botón de eliminar se ve siempre, no solo al pasar el mouse. |

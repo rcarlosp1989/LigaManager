@@ -163,10 +163,10 @@ export default function Campeonatos() {
             <tbody>
               {campeonatos.map(c => (
                 <tr key={c.idCampeonato} className="table-row">
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 min-w-48">
                     <button
                       onClick={() => navigate(`/campeonatos/${c.idCampeonato}`)}
-                      className="text-white font-medium hover:text-brand-400 transition-colors text-left whitespace-nowrap"
+                      className="text-white font-medium hover:text-brand-400 transition-colors text-left"
                     >
                       {c.nombre}
                     </button>
