@@ -1,6 +1,12 @@
 @import "tailwindcss";
+/* Tailwind v4 no lee tailwind.config.js por su cuenta: sin esta línea no existen
+   los colores brand-* ni la fuente font-display. */
+@config "../tailwind.config.js";
 
 :root {
+  /* Tema oscuro también para lo que dibuja el navegador: barras de desplazamiento,
+     selector de fecha y listas desplegables. */
+  color-scheme: dark;
   --surface-950: #08111f;
   --surface-900: #0d1a2b;
   --surface-800: #15263b;
@@ -25,6 +31,40 @@ button,
 input,
 select {
   font: inherit;
+}
+
+/* Clases compartidas que las pantallas ya usaban y no estaban definidas.
+   Van en la capa components para que las utilidades (p-0, py-12…) puedan ajustarlas. */
+@layer components {
+  .card {
+    background: var(--surface-900);
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tr.table-row {
+    border-bottom: 1px solid var(--line);
+    transition: background 120ms ease;
+  }
+
+  tr.table-row:last-child {
+    border-bottom: 0;
+  }
+
+  tr.table-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
 }
 
 .btn-primary {
