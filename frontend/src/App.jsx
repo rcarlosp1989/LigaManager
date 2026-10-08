@@ -10,6 +10,7 @@ import Equipos           from './pages/equipos/Equipos'
 import Jugadores         from './pages/jugadores/Jugadores'
 import Reportes          from './pages/reportes/Reportes'
 import Mantenimiento     from './pages/mantenimiento/Mantenimiento'
+import EnVivo            from './pages/vivo/EnVivo'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -22,6 +23,12 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        {/* Modo en vivo: pantalla completa, sin el menú de administración. */}
+        <Route path="/partidos/:idPartido/en-vivo" element={
+          <ProtectedRoute>
+            <EnVivo />
+          </ProtectedRoute>
+        } />
         <Route path="/" element={
           <ProtectedRoute>
             <Layout />

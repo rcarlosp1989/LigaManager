@@ -1,9 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
 import PageHeader from '../components/PageHeader'
 import StatusBadge from '../components/StatusBadge'
 import EstadoError from '../components/EstadoError'
+import { formatearFecha } from '../utils/fechas'
+
+// La jornada del partido dentro de su campeonato; la exacta cuando la API envíe idJornada.
+const rutaJornada = (p) => `/campeonatos/${p.idCampeonato}?tab=jornadas${p.idJornada ? `&jornada=${p.idJornada}` : ''}`
 
 function StatCard({ label, value, icon, color = 'blue' }) {
   const colors = {
@@ -24,8 +28,6 @@ function StatCard({ label, value, icon, color = 'blue' }) {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate()
-
   const { data: dash, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['dashboard'],
     queryFn:  () => api.get('/dashboard').then(r => r.data),
@@ -65,21 +67,26 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3">
               {dash?.proximosPartidos?.map(p => (
-                <div
-                  key={p.idPartido}
-                  onClick={() => navigate(`/campeonatos/${p.idCampeonato}`)}
-                  className="p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
-                    <span className="text-xs text-gray-500">{p.fecha}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">{p.equipoLocal}</span>
-                    <span className="text-gray-600 text-xs px-2">vs</span>
-                    <span className="text-white font-medium text-sm">{p.equipoVisitante}</span>
-                  </div>
-                  <p className="text-gray-500 text-xs mt-1">🏟️ {p.estadio}</p>
+                <div key={p.idPartido} className="p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                  {/* Lleva a la jornada del partido. Con idJornada (pendiente en la API) abre la jornada exacta y el modo en vivo. */}
+                  <Link to={rutaJornada(p)} className="block focus-visible:outline-2 focus-visible:outline-brand-400 rounded">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 mb-1">
+                      <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
+                      <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white font-medium text-sm">{p.equipoLocal}</span>
+                      <span className="text-gray-600 text-xs px-2">vs</span>
+                      <span className="text-white font-medium text-sm text-right">{p.equipoVisitante}</span>
+                    </div>
+                    <p className="text-gray-500 text-xs mt-1">🏟️ {p.estadio}</p>
+                  </Link>
+                  {p.idJornada && (
+                    <Link to={`/partidos/${p.idPartido}/en-vivo?jornada=${p.idJornada}`}
+                      className="mt-2 inline-flex items-center rounded border border-brand-700 px-3 py-1.5 text-xs text-brand-300 hover:bg-brand-900/30">
+                      ● Registrar en vivo
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>
@@ -98,14 +105,14 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3">
               {dash?.ultimosResultados?.map(p => (
-                <div
+                <Link
                   key={p.idPartido}
-                  onClick={() => navigate(`/campeonatos/${p.idCampeonato}`)}
-                  className="p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+                  to={rutaJornada(p)}
+                  className="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors focus-visible:outline-2 focus-visible:outline-brand-400"
                 >
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex flex-wrap items-center justify-between gap-x-2 mb-1">
                     <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
-                    <span className="text-xs text-gray-500">{p.fecha}</span>
+                    <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white font-medium text-sm">{p.equipoLocal}</span>
@@ -114,9 +121,9 @@ export default function Dashboard() {
                       <span className="text-gray-600 text-xs">-</span>
                       <span className="text-white font-display text-lg">{p.golesVisitante}</span>
                     </div>
-                    <span className="text-white font-medium text-sm">{p.equipoVisitante}</span>
+                    <span className="text-white font-medium text-sm text-right">{p.equipoVisitante}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
