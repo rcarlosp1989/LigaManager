@@ -238,12 +238,12 @@ function ordenarPorDorsal(lista) {
 
 function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
-    <div className="flex items-center justify-between gap-2 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
-      <span className="truncate">
+    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
+      <span className="truncate min-w-0 flex-1 pointer-coarse:basis-full">
         {jugador.dorsal != null && <span className="text-gray-500 mr-1.5">({jugador.dorsal})</span>}
         {jugador.jugador}
       </span>
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 pointer-coarse:ml-auto">
         {enCancha ? (
           <>
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol'} disabled={sinGoles}
@@ -759,8 +759,8 @@ function PartidoCard({ partido, idCampeonato }) {
 
   return (
     <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-4 flex-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 flex-1 min-w-0">
           <span className="text-white font-medium text-sm">{partido.equipoLocal}</span>
           {partido.jugado && !partido.desierto && (
             <span className="text-white font-display text-sm">
@@ -772,7 +772,7 @@ function PartidoCard({ partido, idCampeonato }) {
           {!partido.jugado && <span className="text-gray-600 text-xs">vs</span>}
           <span className="text-white font-medium text-sm">{partido.equipoVisitante}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {partido.grupo && (
             <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
               {/^grupo\b/i.test(partido.grupo) ? partido.grupo : `Grupo ${partido.grupo}`}
@@ -783,7 +783,7 @@ function PartidoCard({ partido, idCampeonato }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-3 text-xs text-gray-500">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-gray-500">
         {partido.estadio
           ? <span>🏟️ {partido.estadio}</span>
           : <span className="text-gray-700">🏟️ Sin estadio</span>}
@@ -995,10 +995,10 @@ function JornadaCard({ jornada, idCampeonato }) {
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden">
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-800/30 transition-colors"
+        className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-gray-800/30 transition-colors"
         onClick={() => setExpanded(e => !e)}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
           <span className="text-white font-medium">Jornada {jornada.numero}</span>
           <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{jornada.instancia}</span>
           {jornada.grupo && <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">Grupo {jornada.grupo}</span>}
@@ -1213,7 +1213,8 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
 
       {/* Tabla de posiciones */}
       {grupo.posiciones?.length > 0 ? (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-800">
               {['#', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'].map(h => (
@@ -1246,6 +1247,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
             ))}
           </tbody>
         </table>
+        </div>
       ) : (
         <div className="text-center py-6">
           <p className="text-gray-500 text-sm">Sin partidos jugados aún.</p>
@@ -1307,7 +1309,7 @@ function TablaCampeonato({ idCampeonato }) {
         <span className="text-xs text-gray-500">Todos contra todos</span>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-800">
               {['#', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'].map(h => (
@@ -1427,16 +1429,16 @@ export default function CampeonatoDetalle() {
     onError: (err) => setGrupoError(err.response?.data?.error || 'Error al crear grupo.'),
   })
 
-  if (isLoading) return <div className="p-8 text-gray-500 text-center py-24">Cargando campeonato...</div>
+  if (isLoading) return <div className="p-4 sm:p-6 lg:p-8 text-gray-500 text-center py-24">Cargando campeonato...</div>
   if (isError || !camp) return (
-    <div className="p-8 text-center py-24">
+    <div className="p-4 sm:p-6 lg:p-8 text-center py-24">
       <p className="text-red-400 mb-4">No se encontró el campeonato.</p>
       <button onClick={() => navigate('/campeonatos')} className="btn-primary">← Volver</button>
     </div>
   )
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
       <button onClick={() => navigate('/campeonatos')}
         className="text-gray-500 hover:text-gray-300 text-sm mb-6 flex items-center gap-1.5 transition-colors">
         ← Campeonatos
@@ -1444,7 +1446,7 @@ export default function CampeonatoDetalle() {
 
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="font-display text-4xl text-white tracking-wide mb-2">{camp.nombre}</h1>
+          <h1 className="font-display text-3xl sm:text-4xl text-white tracking-wide mb-2 break-words">{camp.nombre}</h1>
           <EstadoBadge estado={camp.estado} />
         </div>
       </div>
@@ -1462,10 +1464,10 @@ export default function CampeonatoDetalle() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 border-b border-gray-800">
+      <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
         {[['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas']].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 ${
               tab === key
                 ? 'border-brand-400 text-white'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -1487,8 +1489,8 @@ export default function CampeonatoDetalle() {
             )}
           </div>
           {showAgregar && (
-            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-4 flex gap-3 items-end">
-              <div className="flex-1">
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
+              <div className="w-full sm:w-auto sm:flex-1">
                 <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Seleccionar equipos</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/60 p-2">
                   {equiposDisponibles.map(e => {
@@ -1533,7 +1535,8 @@ export default function CampeonatoDetalle() {
               <p className="text-gray-400 text-sm">No hay equipos inscritos.</p>
             </div>
           ) : (
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[440px]">
               <thead>
                 <tr className="border-b border-gray-800">
                   {['#', 'Equipo', 'País', ''].map(h => (
@@ -1557,6 +1560,7 @@ export default function CampeonatoDetalle() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

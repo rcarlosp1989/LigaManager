@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-10">
-          <h1 className="font-display text-6xl text-white tracking-widest">
+          <h1 className="font-display text-5xl sm:text-6xl text-white tracking-widest">
             LIGA<span className="text-brand-500">MANAGER</span>
           </h1>
           <p className="text-gray-500 text-sm mt-2 tracking-wider uppercase">

@@ -264,7 +264,7 @@ export default function Jugadores() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="JUGADORES"
         subtitle={`${jugadores.length} registrados`}
@@ -296,8 +296,8 @@ export default function Jugadores() {
           }
         />
       ) : (
-        <div className="card p-0 overflow-hidden">
-          <table className="w-full">
+        <div className="card p-0 overflow-x-auto">
+          <table className="w-full min-w-[780px]">
             <thead>
               <tr className="border-b border-gray-800">
                 {['#', 'Jugador', 'Ubicación', 'Edad', 'Posición', 'Equipo Actual', ''].map(h => (
@@ -311,7 +311,7 @@ export default function Jugadores() {
                   <td className="px-5 py-4 text-gray-500 text-sm font-mono">
                     {j.dorsal ? `#${j.dorsal}` : '–'}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 min-w-44">
                     <p className="text-white font-medium">{j.apellido}, {j.nombre}</p>
                   </td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.ubicacion}</td>

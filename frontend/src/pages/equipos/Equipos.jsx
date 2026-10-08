@@ -72,7 +72,7 @@ export default function Equipos() {
   })
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="EQUIPOS"
         subtitle={`${equipos.length} registrados`}
@@ -109,8 +109,8 @@ export default function Equipos() {
                 onClick={() => {
                   if (confirm(`¿Eliminar ${e.nombre}?`)) deleteMutation.mutate(e.idEquipo)
                 }}
-                className="text-gray-700 hover:text-red-400 transition-colors opacity-0
-                           group-hover:opacity-100 text-sm ml-2 mt-0.5"
+                className="text-gray-500 hover:text-red-400 transition-colors text-sm -mr-2 -mt-2 px-2 py-1"
+                aria-label={`Eliminar ${e.nombre}`}
               >
                 ✕
               </button>

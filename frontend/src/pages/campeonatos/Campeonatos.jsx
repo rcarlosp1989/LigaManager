@@ -125,7 +125,7 @@ export default function Campeonatos() {
   })
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="CAMPEONATOS"
         subtitle={`${campeonatos.length} registrados`}
@@ -150,8 +150,8 @@ export default function Campeonatos() {
           }
         />
       ) : (
-        <div className="card p-0 overflow-hidden">
-          <table className="w-full">
+        <div className="card p-0 overflow-x-auto">
+          <table className="w-full min-w-[640px]">
             <thead>
               <tr className="border-b border-gray-800">
                 {['Nombre','Tipo','Año','Equipos','Estado',''].map(h => (
@@ -163,7 +163,7 @@ export default function Campeonatos() {
             <tbody>
               {campeonatos.map(c => (
                 <tr key={c.idCampeonato} className="table-row">
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 min-w-48">
                     <button
                       onClick={() => navigate(`/campeonatos/${c.idCampeonato}`)}
                       className="text-white font-medium hover:text-brand-400 transition-colors text-left"
