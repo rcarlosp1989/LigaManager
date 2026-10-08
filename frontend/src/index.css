@@ -95,6 +95,54 @@ select {
   outline-offset: 2px;
 }
 
+/* Botón secundario (Cancelar, Reintentar) y botón de acción destructiva (Eliminar, Descartar). */
+.btn-secundario,
+.btn-peligro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.65rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.btn-secundario {
+  border: 1px solid #38516b;
+  background: transparent;
+  color: #d5dee8;
+}
+
+.btn-secundario:hover:not(:disabled) {
+  border-color: #58718b;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.btn-peligro {
+  border: 1px solid #b91c1c;
+  background: #991b1b;
+  color: #fff;
+}
+
+.btn-peligro:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-secundario:focus-visible,
+.btn-peligro:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-secundario:disabled,
+.btn-peligro:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .input-field {
   width: 100%;
   box-sizing: border-box;

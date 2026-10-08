@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
 export default function TabGoleadores({ idCampeonato }) {
+  const fid = useId()
   const [top, setTop] = useState(10)
 
-  const { data: goleadores = [], isLoading, isError } = useQuery({
+  const { data: goleadores = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['estadisticas-goleadores', idCampeonato, top],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/goleadores`, {
       params: top > 0 ? { top } : {},
@@ -17,13 +19,13 @@ export default function TabGoleadores({ idCampeonato }) {
   })
 
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando goleadores...</p>
-  if (isError) return <p className="text-red-400 text-sm text-center py-10">No se pudieron cargar los goleadores.</p>
+  if (isError) return <EstadoError mensaje="No se pudieron cargar los goleadores." onReintentar={refetch} reintentando={isFetching} />
 
   return (
     <div>
       <div className="flex items-center justify-end gap-2 mb-3">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Top</label>
-        <select className="input-field w-28" value={top} onChange={e => setTop(Number(e.target.value))}>
+        <label htmlFor={`${fid}-c1`} className="text-xs text-gray-400 uppercase tracking-wider">Top</label>
+        <select id={`${fid}-c1`} className="input-field w-28" value={top} onChange={e => setTop(Number(e.target.value))}>
           {TOPS.map(t => <option key={t} value={t}>{t === 0 ? 'Todos' : t}</option>)}
         </select>
       </div>

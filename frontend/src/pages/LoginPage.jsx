@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function LoginPage() {
+  const fid = useId()
   const { login } = useAuth()
   const navigate  = useNavigate()
   const [form,    setForm]    = useState({ email: '', password: '' })
@@ -48,10 +49,10 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
+              <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
                 Correo electrónico
               </label>
-              <input
+              <input id={`${fid}-c1`}
                 type="email"
                 className="input-field"
                 placeholder="admin@ligamanager.com"
@@ -63,10 +64,10 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
+              <label htmlFor={`${fid}-c2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
                 Contraseña
               </label>
-              <input
+              <input id={`${fid}-c2`}
                 type="password"
                 className="input-field"
                 placeholder="••••••••"

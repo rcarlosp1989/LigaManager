@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import PageHeader from '../../components/PageHeader'
 import EmptyState from '../../components/EmptyState'
 import TabPosiciones from './TabPosiciones'
@@ -18,10 +19,11 @@ const TABS = [
 ]
 
 export default function Reportes() {
+  const fid = useId()
   const [idCampeonato, setIdCampeonato] = useState('')
   const [tab, setTab] = useState('posiciones')
 
-  const { data: campeonatos = [] } = useQuery({
+  const { data: campeonatos = [], isError, refetch, isFetching } = useQuery({
     queryKey: ['campeonatos'],
     queryFn: () => api.get('/campeonatos').then(r => r.data),
   })
@@ -32,9 +34,12 @@ export default function Reportes() {
     <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader title="REPORTES" subtitle="Posiciones, nómina y estadísticas por campeonato, con exportación a Excel y PDF" />
 
+      {isError ? (
+        <EstadoError mensaje="No se pudieron cargar los campeonatos." onReintentar={refetch} reintentando={isFetching} />
+      ) : (<>
       <div className="max-w-xl mb-6">
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
-        <select className="input-field" value={idCampeonato} onChange={e => setIdCampeonato(e.target.value)}>
+        <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
+        <select id={`${fid}-c1`} className="input-field" value={idCampeonato} onChange={e => setIdCampeonato(e.target.value)}>
           <option value="">Selecciona un campeonato...</option>
           {campeonatos.map(c => <option key={c.idCampeonato} value={c.idCampeonato}>{c.nombre} ({c.anio})</option>)}
         </select>
@@ -62,6 +67,7 @@ export default function Reportes() {
           {tab === 'suspensiones' && <TabSuspensiones idCampeonato={idCampeonato} />}
         </>
       )}
+      </>)}
     </div>
   )
 }

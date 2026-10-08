@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
 import Modal from '../../components/Modal'
+import EstadoError from '../../components/EstadoError'
+import AccionesFormulario from '../../components/AccionesFormulario'
+import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 
 // ── Badges ───────────────────────────────────────────────────────────────────
 
@@ -48,30 +51,38 @@ function InfoItem({ label, value }) {
 // ── Formulario nueva jornada ──────────────────────────────────────────────────
 
 function JornadaForm({ onSubmit, loading, error, idCampeonato }) {
+  const fid = useId()
   const [form, setForm] = useState({ numero: '', idInstancia: '', idGrupo: '' })
 
-  const { data: instancias = [] } = useQuery({
+  const qInstancias = useQuery({
     queryKey: ['instancias'],
     queryFn:  () => api.get('/catalogos/instancias').then(r => r.data),
   })
-  const { data: grupos = [] } = useQuery({
+  const qGrupos = useQuery({
     queryKey: ['grupos', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}/grupos`).then(r => r.data),
   })
+  const instancias = qInstancias.data ?? []
+  const grupos = qGrupos.data ?? []
+  const catalogos = erroresDe(qInstancias, qGrupos)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   return (
     <div className="space-y-4">
+      {catalogos.hayError && (
+        <EstadoError compacto mensaje="No se pudieron cargar las instancias y grupos."
+          onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número</label>
-          <input type="number" className="input-field" value={form.numero} min="1"
+          <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número</label>
+          <input id={`${fid}-c1`} type="number" className="input-field" value={form.numero} min="1"
             onChange={e => set('numero', e.target.value)} placeholder="1" required />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
-          <select className="input-field" value={form.idInstancia}
+          <label htmlFor={`${fid}-c2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
+          <select id={`${fid}-c2`} className="input-field" value={form.idInstancia}
             onChange={e => set('idInstancia', e.target.value)}>
             <option value="">Seleccionar...</option>
             {instancias.map(i => <option key={i.idInstancia} value={i.idInstancia}>{i.nombre}</option>)}
@@ -80,26 +91,25 @@ function JornadaForm({ onSubmit, loading, error, idCampeonato }) {
       </div>
       {grupos.length > 0 && (
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Grupo (opcional)</label>
-          <select className="input-field" value={form.idGrupo}
+          <label htmlFor={`${fid}-c3`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Grupo (opcional)</label>
+          <select id={`${fid}-c3`} className="input-field" value={form.idGrupo}
             onChange={e => set('idGrupo', e.target.value)}>
             <option value="">Sin grupo</option>
             {grupos.map(g => <option key={g.idGrupo} value={g.idGrupo}>{g.nombre}</option>)}
           </select>
         </div>
       )}
-      {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
-      <button
-        onClick={() => onSubmit({
+      {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
+      <AccionesFormulario
+        texto="Crear Jornada"
+        guardando={loading}
+        deshabilitado={!form.numero || !form.idInstancia}
+        onGuardar={() => onSubmit({
           numero:      parseInt(form.numero),
           idInstancia: parseInt(form.idInstancia),
           idGrupo:     form.idGrupo ? parseInt(form.idGrupo) : null,
         })}
-        disabled={loading || !form.numero || !form.idInstancia}
-        className="btn-primary w-full disabled:opacity-40"
-      >
-        {loading ? 'Guardando...' : 'Crear Jornada'}
-      </button>
+      />
     </div>
   )
 }
@@ -107,27 +117,33 @@ function JornadaForm({ onSubmit, loading, error, idCampeonato }) {
 // ── Formulario nuevo partido ──────────────────────────────────────────────────
 
 function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
+  const fid = useId()
   const [form, setForm] = useState({
     idEquipoLocal: '', idEquipoVisitante: '', fecha: '', idEstadio: '', idArbitro: '', oficiales: {}
   })
 
-  const { data: camp } = useQuery({
+  const qCamp = useQuery({
     queryKey: ['campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
   })
-  const { data: estadios = [] } = useQuery({
+  const camp = qCamp.data
+  const qEstadios = useQuery({
     queryKey: ['estadios'],
     queryFn:  () => api.get('/estadios').then(r => r.data),
   })
-  const { data: arbitros = [] } = useQuery({
+  const qArbitros = useQuery({
     queryKey: ['arbitros'],
     queryFn:  () => api.get('/arbitros').then(r => r.data),
   })
-  const { data: cargos = [] } = useQuery({
+  const qCargos = useQuery({
     queryKey: ['cargos-oficiales', camp?.idModalidad],
     queryFn:  () => api.get(`/catalogos/cargos-oficiales?modalidadId=${camp.idModalidad}`).then(r => r.data),
     enabled: !!camp?.idModalidad,
   })
+  const estadios = qEstadios.data ?? []
+  const arbitros = qArbitros.data ?? []
+  const cargos = qCargos.data ?? []
+  const catalogos = erroresDe(qCamp, qEstadios, qArbitros, qCargos)
 
   const equipos = camp?.equipos ?? []
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -141,18 +157,22 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 
   return (
     <div className="space-y-4">
+      {catalogos.hayError && (
+        <EstadoError compacto mensaje="No se pudieron cargar equipos, estadios u oficiales."
+          onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Local</label>
-          <select className="input-field" value={form.idEquipoLocal}
+          <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Local</label>
+          <select id={`${fid}-c4`} className="input-field" value={form.idEquipoLocal}
             onChange={e => set('idEquipoLocal', e.target.value)}>
             <option value="">Seleccionar...</option>
             {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Visitante</label>
-          <select className="input-field" value={form.idEquipoVisitante}
+          <label htmlFor={`${fid}-c5`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Visitante</label>
+          <select id={`${fid}-c5`} className="input-field" value={form.idEquipoVisitante}
             onChange={e => set('idEquipoVisitante', e.target.value)}>
             <option value="">Seleccionar...</option>
             {equipos.filter(e => e.idEquipo !== parseInt(form.idEquipoLocal))
@@ -165,10 +185,10 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
           <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido</p>
           {cargos.map(cargo => (
             <div key={cargo.idCargo}>
-              <label className="block text-xs text-gray-400 mb-1.5">
+              <label htmlFor={`${fid}-cargo-${cargo.idCargo}`} className="block text-xs text-gray-400 mb-1.5">
                 {cargo.cargo} {cargo.obligatorio && <span className="text-amber-300">*</span>}
               </label>
-              <select className="input-field" value={form.oficiales[cargo.idCargo] ?? ''}
+              <select id={`${fid}-cargo-${cargo.idCargo}`} className="input-field" value={form.oficiales[cargo.idCargo] ?? ''}
                 onChange={e => setOficial(cargo.idCargo, e.target.value)}>
                 <option value="">Sin asignar</option>
                 {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
@@ -178,31 +198,33 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
         </div>
       )}
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha</label>
-        <input type="date" className="input-field" value={form.fecha}
+        <label htmlFor={`${fid}-c7`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha</label>
+        <input id={`${fid}-c7`} type="date" className="input-field" value={form.fecha}
           onChange={e => set('fecha', e.target.value)} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
-          <select className="input-field" value={form.idEstadio}
+          <label htmlFor={`${fid}-c8`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
+          <select id={`${fid}-c8`} className="input-field" value={form.idEstadio}
             onChange={e => set('idEstadio', e.target.value)}>
             <option value="">Seleccionar...</option>
             {estadios.map(e => <option key={e.idEstadio} value={e.idEstadio}>{e.nombre}</option>)}
           </select>
         </div>
         {cargos.length === 0 && <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro principal</label>
-          <select className="input-field" value={form.idArbitro}
+          <label htmlFor={`${fid}-c9`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro principal</label>
+          <select id={`${fid}-c9`} className="input-field" value={form.idArbitro}
             onChange={e => set('idArbitro', e.target.value)}>
             <option value="">Seleccionar...</option>
             {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
           </select>
         </div>}
       </div>
-      {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
-      <button
-        onClick={() => onSubmit({
+      {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
+      <AccionesFormulario
+        texto="Agregar Partido"
+        guardando={loading}
+        onGuardar={() => onSubmit({
           idEquipoLocal:     parseInt(form.idEquipoLocal),
           idEquipoVisitante: parseInt(form.idEquipoVisitante),
           fecha:             form.fecha,
@@ -212,13 +234,10 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
             .filter(([, idArbitro]) => idArbitro)
             .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
         })}
-        disabled={loading || !form.idEquipoLocal || !form.idEquipoVisitante || !form.fecha || !form.idEstadio
+        deshabilitado={!form.idEquipoLocal || !form.idEquipoVisitante || !form.fecha || !form.idEstadio
           || (!form.idArbitro && !Object.values(form.oficiales).some(Boolean))
           || faltanCargosObligatorios}
-        className="btn-primary w-full disabled:opacity-40"
-      >
-        {loading ? 'Guardando...' : 'Agregar Partido'}
-      </button>
+      />
     </div>
   )
 }
@@ -247,20 +266,23 @@ function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }
         {enCancha ? (
           <>
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol'} disabled={sinGoles}
+              aria-label={`Gol de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL')}
               className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">⚽</button>
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol en contra (suma al equipo rival, no cuenta como gol del jugador)'} disabled={sinGoles}
+              aria-label={`Gol en contra de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL_EN_CONTRA')}
               className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">🥅</button>
-            <button title="Tarjeta amarilla" onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
+            <button title="Tarjeta amarilla" aria-label={`Tarjeta amarilla a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
               className="opacity-70 hover:opacity-100 transition-opacity">🟨</button>
-            <button title="Tarjeta roja" onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
+            <button title="Tarjeta roja" aria-label={`Tarjeta roja a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
               className="opacity-70 hover:opacity-100 transition-opacity">🟥</button>
           </>
         ) : (
           <span className="text-gray-600 italic">banca</span>
         )}
-        <button onClick={() => onQuitar(jugador.idAlineacion)} className="text-gray-600 hover:text-red-400 transition-colors">✕</button>
+        <button onClick={() => onQuitar(jugador.idAlineacion)} className="text-gray-600 hover:text-red-400 transition-colors"
+          aria-label={`Quitar a ${jugador.jugador} de la planilla`} title="Quitar de la planilla">✕</button>
       </div>
     </div>
   )
@@ -325,7 +347,7 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
         <div className="flex gap-1.5 shrink-0">
           {/* .input-field fuerza width:100%; se envuelve en un contenedor de ancho fijo para no pelear con esa clase. */}
           <div className="w-24 shrink-0">
-            <select className="input-field text-sm" value={titular ? 'titular' : 'suplente'}
+            <select aria-label="Convocar como" className="input-field text-sm" value={titular ? 'titular' : 'suplente'}
               onChange={e => setTitular(e.target.value === 'titular')}>
               <option value="titular">Titular</option>
               <option value="suplente">Suplente</option>
@@ -342,17 +364,6 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
   )
 }
 
-function pedirMinuto(tipoLabel) {
-  const minutoStr = window.prompt(`Minuto del evento (${tipoLabel}):`, '')
-  if (minutoStr === null) return null
-  const minuto = parseInt(minutoStr)
-  if (!minuto || minuto < 1 || minuto > 120) {
-    alert('Minuto inválido. Debe ser un número entre 1 y 120.')
-    return null
-  }
-  return minuto
-}
-
 function jugadoresEnCancha(alineacionEquipo, cambiosEquipo) {
   const enCancha = new Set(alineacionEquipo.filter(a => a.titular).map(a => a.idJugador))
   cambiosEquipo.forEach(c => enCancha.add(c.idJugadorEntra))
@@ -361,7 +372,10 @@ function jugadoresEnCancha(alineacionEquipo, cambiosEquipo) {
 }
 
 function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEvento }) {
+  const fid = useId()
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { pedirNumero } = useDialogos()
   const fechaPartido = partido?.fecha?.slice(0, 10)
   const [cambioForm, setCambioForm] = useState({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
   const [error, setError] = useState('')
@@ -382,16 +396,19 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
     }
   }, [isOpen, partido?.observaciones, partido?.desierto, partido?.perdidaReglamento, partido?.idEquipoSancionado])
 
-  const { data: equipoLocal } = useQuery({
+  const qLocal = useQuery({
     queryKey: ['equipo', partido?.idEquipoLocal, fechaPartido],
     queryFn:  () => api.get(`/equipos/${partido.idEquipoLocal}`, { params: { fecha: fechaPartido } }).then(r => r.data),
     enabled:  isOpen && !!partido?.idEquipoLocal,
   })
-  const { data: equipoVisitante } = useQuery({
+  const qVisitante = useQuery({
     queryKey: ['equipo', partido?.idEquipoVisitante, fechaPartido],
     queryFn:  () => api.get(`/equipos/${partido.idEquipoVisitante}`, { params: { fecha: fechaPartido } }).then(r => r.data),
     enabled:  isOpen && !!partido?.idEquipoVisitante,
   })
+  const equipoLocal = qLocal.data
+  const equipoVisitante = qVisitante.data
+  const plantillas = erroresDe(qLocal, qVisitante)
 
   const alineacionLocal     = partido?.alineacionLocal ?? []
   const alineacionVisitante = partido?.alineacionVisitante ?? []
@@ -416,14 +433,16 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
       setError(resultado.fallidos.length > 0
         ? `${resultado.agregados} jugador(es) agregado(s). ${resultado.fallidos.join(' ')}`
         : '')
+      if (resultado.fallidos.length === 0 && resultado.agregados > 0)
+        aviso.exito(resultado.agregados === 1 ? 'Jugador convocado.' : `${resultado.agregados} jugadores convocados.`)
     },
-    onError: (err) => setError(err.response?.data?.error || 'Error al agregar jugadores.'),
+    onError: (err) => setError(mensajeDeError(err, 'Error al agregar jugadores.')),
   })
 
   const quitarMutation = useMutation({
     mutationFn: (idAlineacion) => api.delete(`/alineacion/${idAlineacion}`),
-    onSuccess: invalidar,
-    onError: (err) => alert(err.response?.data?.error || 'No se puede quitar.'),
+    onSuccess: () => { invalidar(); aviso.exito('Jugador quitado de la planilla.') },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede quitar.')),
   })
 
   const cambioMutation = useMutation({
@@ -432,14 +451,15 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
       invalidar()
       setCambioForm({ idJugadorSale: '', idJugadorEntra: '', minuto: '' })
       setError('')
+      aviso.exito('Cambio registrado.')
     },
-    onError: (err) => setError(err.response?.data?.error || 'Error al registrar cambio.'),
+    onError: (err) => setError(mensajeDeError(err, 'Error al registrar cambio.')),
   })
 
   const eliminarCambioMutation = useMutation({
     mutationFn: (idCambio) => api.delete(`/cambios/${idCambio}`),
-    onSuccess: invalidar,
-    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
+    onSuccess: () => { invalidar(); aviso.exito('Cambio eliminado.') },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar.')),
   })
 
   const planillaMutation = useMutation({
@@ -453,7 +473,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
     },
     onError: (err) => {
       setGuardadoOk(false)
-      setError(err.response?.data?.error || 'Error al guardar la planilla.')
+      setError(mensajeDeError(err, 'Error al guardar la planilla.'))
     },
   })
 
@@ -464,12 +484,27 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
   const enCanchaLocalIds     = new Set(enCanchaLocal.map(a => a.idJugador))
   const enCanchaVisitanteIds = new Set(enCanchaVisitante.map(a => a.idJugador))
 
-  const tiposEvento = { GOL: 'gol', GOL_EN_CONTRA: 'gol en contra', TARJETA_AMARILLA: 'amarilla', TARJETA_ROJA: 'roja' }
-  const onEvento = (idJugador, tipoEvento) => {
-    const minuto = pedirMinuto(tiposEvento[tipoEvento])
+  const tiposEvento = { GOL: 'Gol', GOL_EN_CONTRA: 'Gol en contra', TARJETA_AMARILLA: 'Tarjeta amarilla', TARJETA_ROJA: 'Tarjeta roja' }
+  const onEvento = async (idJugador, tipoEvento) => {
+    const fila = [...alineacionLocal, ...alineacionVisitante].find(a => a.idJugador === idJugador)
+    const nombre = fila ? `${fila.dorsal != null ? `(${fila.dorsal}) ` : ''}${fila.jugador}` : ''
+    const minuto = await pedirNumero({
+      titulo: `${tiposEvento[tipoEvento]}${nombre ? ` · ${nombre}` : ''}`,
+      etiqueta: 'Minuto del evento',
+      min: 1,
+      max: 120,
+      textoConfirmar: 'Registrar',
+    })
     if (minuto === null) return
     onRegistrarEvento({ idJugador, tipoEvento, minuto })
   }
+
+  // Cambios sin guardar: observaciones o estado distintos de lo guardado, o un cambio a medio llenar.
+  const hayCambios = observaciones !== (partido.observaciones ?? '')
+    || desierto !== !!partido.desierto
+    || perdidaReglamento !== !!partido.perdidaReglamento
+    || idSancionado !== (partido.idEquipoSancionado ? String(partido.idEquipoSancionado) : '')
+    || !!(cambioForm.idJugadorSale || cambioForm.idJugadorEntra || cambioForm.minuto)
 
   const entradosLocal     = new Set(cambiosLocal.map(c => c.idJugadorEntra))
   const entradosVisitante = new Set(cambiosVisitante.map(c => c.idJugadorEntra))
@@ -482,8 +517,12 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
     : []
 
   return (
-    <Modal isOpen={isOpen} onClose={() => { onClose(); setError('') }} title="PLANILLA DEL PARTIDO" maxWidth="max-w-2xl">
+    <Modal isOpen={isOpen} onClose={() => { onClose(); setError('') }} title="PLANILLA DEL PARTIDO" maxWidth="max-w-2xl" hayCambios={hayCambios}>
       <div className="space-y-4">
+        {plantillas.hayError && (
+          <EstadoError compacto mensaje="No se pudieron cargar los jugadores de los equipos."
+            onReintentar={plantillas.reintentar} reintentando={plantillas.reintentando} />
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <AlineacionLado
             label={`🏠 ${partido.equipoLocal}`}
@@ -516,15 +555,16 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             {cambios.map(c => (
               <div key={c.idCambio} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1.5">
                 <span>min. {c.minuto} — <span className="text-red-400">↓ {c.jugadorSale}</span> / <span className="text-green-400">↑ {c.jugadorEntra}</span></span>
-                <button onClick={() => eliminarCambioMutation.mutate(c.idCambio)} className="text-gray-600 hover:text-red-400 transition-colors ml-2">✕</button>
+                <button onClick={() => eliminarCambioMutation.mutate(c.idCambio)} className="text-gray-600 hover:text-red-400 transition-colors ml-2"
+                  aria-label={`Eliminar el cambio del minuto ${c.minuto}`}>✕</button>
               </div>
             ))}
           </div>
 
           <div className="grid grid-cols-2 gap-2 mb-2">
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Sale</label>
-              <select className="input-field text-sm" value={cambioForm.idJugadorSale}
+              <label htmlFor={`${fid}-c10`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Sale</label>
+              <select id={`${fid}-c10`} className="input-field text-sm" value={cambioForm.idJugadorSale}
                 onChange={e => setCambioForm(f => ({ ...f, idJugadorSale: e.target.value, idJugadorEntra: '' }))}>
                 <option value="">Seleccionar...</option>
                 {enCanchaLocal.length > 0 && (
@@ -540,8 +580,8 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Entra</label>
-              <select className="input-field text-sm" value={cambioForm.idJugadorEntra}
+              <label htmlFor={`${fid}-c11`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Entra</label>
+              <select id={`${fid}-c11`} className="input-field text-sm" value={cambioForm.idJugadorEntra}
                 disabled={!cambioForm.idJugadorSale}
                 onChange={e => setCambioForm(f => ({ ...f, idJugadorEntra: e.target.value }))}>
                 <option value="">Seleccionar...</option>
@@ -550,7 +590,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             </div>
           </div>
           <div className="flex gap-2">
-            <input type="number" className="input-field text-sm flex-1" placeholder="Minuto" min="1" max="120"
+            <input type="number" inputMode="numeric" aria-label="Minuto del cambio" className="input-field text-sm flex-1" placeholder="Minuto" min="1" max="120"
               value={cambioForm.minuto} onChange={e => setCambioForm(f => ({ ...f, minuto: e.target.value }))} />
             <button
               onClick={() => cambioMutation.mutate({
@@ -566,10 +606,10 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
 
         <div className="border-t border-gray-800 pt-4 space-y-3">
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
+            <label htmlFor={`${fid}-c12`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
               Observaciones <span className="text-gray-600">(opcional)</span>
             </label>
-            <textarea className="input-field text-sm" rows={3} maxLength={2000}
+            <textarea id={`${fid}-c12`} className="input-field text-sm" rows={3} maxLength={2000}
               placeholder="Novedades o comentarios sobre el partido..."
               value={observaciones} onChange={e => { setObservaciones(e.target.value); setGuardadoOk(false) }} />
           </div>
@@ -605,8 +645,8 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
           </label>
           {perdidaReglamento && (
             <div className="ml-7">
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo que pierde por reglamento</label>
-              <select className="input-field text-sm" value={idSancionado}
+              <label htmlFor={`${fid}-c13`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo que pierde por reglamento</label>
+              <select id={`${fid}-c13`} className="input-field text-sm" value={idSancionado}
                 onChange={e => { setIdSancionado(e.target.value); setGuardadoOk(false) }}>
                 <option value="">Selecciona el equipo...</option>
                 <option value={partido.idEquipoLocal}>{partido.equipoLocal}</option>
@@ -630,7 +670,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
           {guardadoOk && <p className="text-green-400 text-xs text-center">✓ Guardado</p>}
         </div>
 
-        {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
+        {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
       </div>
     </Modal>
   )
@@ -638,7 +678,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
 
 // ── Selector de equipo del campeonato ────────────────────────────────────────
 
-function EquipoSelector({ idCampeonato, value, onChange, excluir }) {
+function EquipoSelector({ id, idCampeonato, value, onChange, excluir }) {
   const { data: camp } = useQuery({
     queryKey: ['campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
@@ -646,7 +686,7 @@ function EquipoSelector({ idCampeonato, value, onChange, excluir }) {
   const equipos = (camp?.equipos ?? []).filter(e => e.idEquipo !== parseInt(excluir))
 
   return (
-    <select className="input-field" value={value} onChange={e => onChange(e.target.value)}>
+    <select id={id} className="input-field" value={value} onChange={e => onChange(e.target.value)}>
       <option value="">Sin cambio</option>
       {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
     </select>
@@ -655,8 +695,13 @@ function EquipoSelector({ idCampeonato, value, onChange, excluir }) {
 
 // ── Card de Partido ───────────────────────────────────────────────────────────
 
+const ETIQUETA_EVENTO = { GOL: 'Gol', GOL_EN_CONTRA: 'Gol en contra', TARJETA_AMARILLA: 'Tarjeta amarilla', TARJETA_ROJA: 'Tarjeta roja' }
+
 function PartidoCard({ partido, idCampeonato }) {
+  const fid = useId()
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
   const [showEditModal, setShowEditModal]             = useState(false)
   const [showAlineacionModal, setShowAlineacionModal] = useState(false)
   const [editError, setEditError]             = useState('')
@@ -673,21 +718,25 @@ function PartidoCard({ partido, idCampeonato }) {
     queryKey: ['campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
   })
-  const { data: estadios = [] } = useQuery({
+  const qEstadios = useQuery({
     queryKey: ['estadios'],
     queryFn:  () => api.get('/estadios').then(r => r.data),
     enabled:  showEditModal,
   })
-  const { data: arbitros = [] } = useQuery({
+  const qArbitros = useQuery({
     queryKey: ['arbitros'],
     queryFn:  () => api.get('/arbitros').then(r => r.data),
     enabled:  showEditModal,
   })
-  const { data: cargos = [] } = useQuery({
+  const qCargos = useQuery({
     queryKey: ['cargos-oficiales', camp?.idModalidad],
     queryFn:  () => api.get(`/catalogos/cargos-oficiales?modalidadId=${camp.idModalidad}`).then(r => r.data),
     enabled:  showEditModal && !!camp?.idModalidad,
   })
+  const estadios = qEstadios.data ?? []
+  const arbitros = qArbitros.data ?? []
+  const cargos = qCargos.data ?? []
+  const catalogosEdicion = erroresDe(qEstadios, qArbitros, qCargos)
   const faltanCargosObligatorios = cargos.some(cargo =>
     cargo.obligatorio && !editForm.oficiales[cargo.idCargo]
   )
@@ -698,8 +747,9 @@ function PartidoCard({ partido, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornada'] })
       queryClient.invalidateQueries({ queryKey: ['grupo'] })
       queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+      aviso.exito(partido.jugado ? 'Partido desmarcado como jugado.' : 'Partido marcado como jugado.')
     },
-    onError: (err) => alert(err.response?.data?.error || 'Error al actualizar partido.'),
+    onError: (err) => aviso.error(mensajeDeError(err, 'Error al actualizar partido.')),
   })
 
   const editarMutation = useMutation({
@@ -708,18 +758,20 @@ function PartidoCard({ partido, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornada'] })
       setShowEditModal(false)
       setEditError('')
+      aviso.exito('Partido actualizado.')
     },
-    onError: (err) => setEditError(err.response?.data?.error || 'Error al actualizar partido.'),
+    onError: (err) => setEditError(mensajeDeError(err, 'Error al actualizar partido.')),
   })
 
   const eventoMutation = useMutation({
     mutationFn: (data) => api.post(`/partidos/${partido.idPartido}/eventos`, data),
-    onSuccess: () => {
+    onSuccess: (_, data) => {
       queryClient.invalidateQueries({ queryKey: ['jornada'] })
       queryClient.invalidateQueries({ queryKey: ['grupo'] })
       queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+      aviso.exito(`${ETIQUETA_EVENTO[data.tipoEvento] ?? 'Evento'} registrado, minuto ${data.minuto}.`)
     },
-    onError: (err) => alert(err.response?.data?.error || 'Error al registrar evento.'),
+    onError: (err) => aviso.error(mensajeDeError(err, 'Error al registrar evento.')),
   })
 
   const eliminarEventoMutation = useMutation({
@@ -728,8 +780,9 @@ function PartidoCard({ partido, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornada'] })
       queryClient.invalidateQueries({ queryKey: ['grupo'] })
       queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+      aviso.exito('Evento eliminado.')
     },
-    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar.')),
   })
 
   const eliminarPartidoMutation = useMutation({
@@ -739,9 +792,30 @@ function PartidoCard({ partido, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornadas', idCampeonato] })
       queryClient.invalidateQueries({ queryKey: ['grupo'] })
       queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', idCampeonato] })
+      aviso.exito('Partido eliminado.')
     },
-    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar el partido.'),
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar el partido.')),
   })
+
+  const eliminarEvento = async (ev) => {
+    const ok = await confirmar({
+      titulo: `¿Eliminar ${(ETIQUETA_EVENTO[ev.tipoEvento] ?? 'el evento').toLowerCase()} de ${ev.jugador}?`,
+      mensaje: `Minuto ${ev.minuto}. La tabla de posiciones se recalcula.`,
+      textoConfirmar: 'Eliminar',
+      peligro: true,
+    })
+    if (ok) eliminarEventoMutation.mutate(ev.idEvento)
+  }
+
+  const eliminarPartido = async () => {
+    const ok = await confirmar({
+      titulo: `¿Eliminar el partido ${partido.equipoLocal} vs ${partido.equipoVisitante}?`,
+      mensaje: 'También se borran sus eventos registrados. Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar partido',
+      peligro: true,
+    })
+    if (ok) eliminarPartidoMutation.mutate()
+  }
 
   const iconoEvento = {
     'GOL':              '⚽',
@@ -810,8 +884,9 @@ function PartidoCard({ partido, idCampeonato }) {
             <div key={ev.idEvento} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1">
               <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span></span>
               <button
-                onClick={() => { if (confirm('¿Eliminar este evento?')) eliminarEventoMutation.mutate(ev.idEvento) }}
+                onClick={() => eliminarEvento(ev)}
                 className="text-gray-600 hover:text-red-400 transition-colors ml-2"
+                aria-label={`Eliminar ${(ETIQUETA_EVENTO[ev.tipoEvento] ?? 'evento').toLowerCase()} de ${ev.jugador}, minuto ${ev.minuto}`}
               >✕</button>
             </div>
           ))}
@@ -849,10 +924,7 @@ function PartidoCard({ partido, idCampeonato }) {
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-blue-700 hover:text-blue-400 transition-colors"
         >✏️ Editar</button>
         <button
-          onClick={() => {
-            if (confirm(`¿Eliminar el partido ${partido.equipoLocal} vs ${partido.equipoVisitante}? Esto también borrará sus eventos registrados.`))
-              eliminarPartidoMutation.mutate()
-          }}
+          onClick={eliminarPartido}
           disabled={eliminarPartidoMutation.isPending}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500 hover:border-red-800 hover:text-red-400 transition-colors"
         >🗑️ Eliminar</button>
@@ -863,6 +935,10 @@ function PartidoCard({ partido, idCampeonato }) {
              onClose={() => { setShowEditModal(false); setEditError('') }}
              title="EDITAR PARTIDO">
         <div className="space-y-4">
+          {catalogosEdicion.hayError && (
+            <EstadoError compacto mensaje="No se pudieron cargar estadios u oficiales."
+              onReintentar={catalogosEdicion.reintentar} reintentando={catalogosEdicion.reintentando} />
+          )}
           <div className="text-sm text-gray-400 bg-gray-800/40 rounded px-3 py-2">
             {partido.equipoLocal} vs {partido.equipoVisitante}
           </div>
@@ -870,8 +946,8 @@ function PartidoCard({ partido, idCampeonato }) {
           {puedeEditarEquipos && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo local</label>
-                <EquipoSelector
+                <label htmlFor={`${fid}-c14`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo local</label>
+                <EquipoSelector id={`${fid}-c14`}
                   idCampeonato={idCampeonato}
                   value={editForm.idEquipoLocal}
                   onChange={v => setE('idEquipoLocal', v)}
@@ -879,8 +955,8 @@ function PartidoCard({ partido, idCampeonato }) {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo visitante</label>
-                <EquipoSelector
+                <label htmlFor={`${fid}-c15`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo visitante</label>
+                <EquipoSelector id={`${fid}-c15`}
                   idCampeonato={idCampeonato}
                   value={editForm.idEquipoVisitante}
                   onChange={v => setE('idEquipoVisitante', v)}
@@ -890,13 +966,13 @@ function PartidoCard({ partido, idCampeonato }) {
             </div>
           )}
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</label>
-            <input type="datetime-local" className="input-field" value={editForm.fecha}
+            <label htmlFor={`${fid}-c16`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</label>
+            <input id={`${fid}-c16`} type="datetime-local" className="input-field" value={editForm.fecha}
               onChange={e => setE('fecha', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
-            <select className="input-field" value={editForm.idEstadio} required
+            <label htmlFor={`${fid}-c17`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
+            <select id={`${fid}-c17`} className="input-field" value={editForm.idEstadio} required
               onChange={e => setE('idEstadio', e.target.value)}>
               <option value="">Seleccionar...</option>
               {estadios.map(e => <option key={e.idEstadio} value={e.idEstadio}>{e.nombre}</option>)}
@@ -907,10 +983,10 @@ function PartidoCard({ partido, idCampeonato }) {
               <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido</p>
               {cargos.map(cargo => (
                 <div key={cargo.idCargo}>
-                  <label className="block text-xs text-gray-400 mb-1.5">
+                  <label htmlFor={`${fid}-cargo-${cargo.idCargo}`} className="block text-xs text-gray-400 mb-1.5">
                     {cargo.cargo} {cargo.obligatorio && <span className="text-amber-300">*</span>}
                   </label>
-                  <select className="input-field" value={editForm.oficiales[cargo.idCargo] ?? ''}
+                  <select id={`${fid}-cargo-${cargo.idCargo}`} className="input-field" value={editForm.oficiales[cargo.idCargo] ?? ''}
                     onChange={e => setEOficial(cargo.idCargo, e.target.value)}>
                     <option value="">Sin asignar</option>
                     {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
@@ -920,17 +996,19 @@ function PartidoCard({ partido, idCampeonato }) {
             </div>
           ) : (
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro</label>
-              <select className="input-field" value={editForm.idArbitro} required
+              <label htmlFor={`${fid}-c19`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro</label>
+              <select id={`${fid}-c19`} className="input-field" value={editForm.idArbitro} required
                 onChange={e => setE('idArbitro', e.target.value)}>
                 <option value="">Seleccionar...</option>
                 {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
               </select>
             </div>
           )}
-          {editError && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{editError}</div>}
-          <button
-            onClick={() => editarMutation.mutate({
+          {editError && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{editError}</div>}
+          <AccionesFormulario
+            texto="Guardar cambios"
+            guardando={editarMutation.isPending}
+            onGuardar={() => editarMutation.mutate({
               idEstadio:         editForm.idEstadio ? parseInt(editForm.idEstadio) : null,
               idArbitro:         parseInt(editForm.idArbitro || Object.values(editForm.oficiales).find(Boolean)),
               fecha:             editForm.fecha,
@@ -940,11 +1018,10 @@ function PartidoCard({ partido, idCampeonato }) {
                 .filter(([, idArbitro]) => idArbitro)
                 .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
             })}
-            disabled={editarMutation.isPending || !editForm.idEstadio
+            deshabilitado={!editForm.idEstadio
               || (!editForm.idArbitro && !Object.values(editForm.oficiales).some(Boolean))
               || faltanCargosObligatorios}
-            className="btn-primary w-full disabled:opacity-40"
-          >{editarMutation.isPending ? 'Guardando...' : 'Guardar cambios'}</button>
+          />
         </div>
       </Modal>
 
@@ -963,11 +1040,13 @@ function PartidoCard({ partido, idCampeonato }) {
 
 function JornadaCard({ jornada, idCampeonato }) {
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
   const [expanded, setExpanded] = useState(false)
   const [showPartidoModal, setShowPartidoModal] = useState(false)
   const [partidoError, setPartidoError] = useState('')
 
-  const { data: jornadaDetalle } = useQuery({
+  const { data: jornadaDetalle, isLoading: cargandoDetalle, isError: errorDetalle, refetch: recargarDetalle, isFetching: recargandoDetalle } = useQuery({
     queryKey: ['jornada', jornada.idJornada],
     queryFn:  () => api.get(`/jornadas/${jornada.idJornada}`).then(r => r.data),
     enabled:  expanded,
@@ -980,15 +1059,29 @@ function JornadaCard({ jornada, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['jornadas', idCampeonato] })
       setShowPartidoModal(false)
       setPartidoError('')
+      aviso.exito('Partido agregado.')
     },
-    onError: (err) => setPartidoError(err.response?.data?.error || 'Error al agregar partido.'),
+    onError: (err) => setPartidoError(mensajeDeError(err, 'Error al agregar partido.')),
   })
 
   const eliminarJornadaMutation = useMutation({
     mutationFn: () => api.delete(`/jornadas/${jornada.idJornada}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jornadas', idCampeonato] }),
-    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jornadas', idCampeonato] })
+      aviso.exito(`Jornada ${jornada.numero} eliminada.`)
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar.')),
   })
+
+  const eliminarJornada = async () => {
+    const ok = await confirmar({
+      titulo: `¿Eliminar la jornada ${jornada.numero}?`,
+      mensaje: 'Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar',
+      peligro: true,
+    })
+    if (ok) eliminarJornadaMutation.mutate()
+  }
 
   const partidos = jornadaDetalle?.partidos ?? []
 
@@ -1013,8 +1106,7 @@ function JornadaCard({ jornada, idCampeonato }) {
           <button
             onClick={e => {
               e.stopPropagation()
-              if (confirm(`¿Eliminar Jornada ${jornada.numero}?`))
-                eliminarJornadaMutation.mutate()
+              eliminarJornada()
             }}
             className="text-gray-600 hover:text-red-400 transition-colors text-xs"
           >Eliminar</button>
@@ -1029,7 +1121,12 @@ function JornadaCard({ jornada, idCampeonato }) {
               🛋️ {jornadaDetalle.equipoLibre} queda libre en esta jornada.
             </p>
           )}
-          {partidos.length === 0 ? (
+          {cargandoDetalle ? (
+            <p className="text-gray-500 text-sm text-center py-4">Cargando partidos...</p>
+          ) : errorDetalle ? (
+            <EstadoError compacto mensaje="No se pudieron cargar los partidos de esta jornada."
+              onReintentar={recargarDetalle} reintentando={recargandoDetalle} />
+          ) : partidos.length === 0 ? (
             <p className="text-gray-500 text-sm text-center py-4">No hay partidos en esta jornada.</p>
           ) : (
             partidos.map(p => (
@@ -1062,30 +1159,37 @@ function JornadaCard({ jornada, idCampeonato }) {
 // a nivel de campeonato sin grupos (postUrl = /campeonatos/{id}/calendario).
 
 function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, maxFecha, onGenerated }) {
+  const fid = useId()
   const [form, setForm] = useState({
     idInstancia: '', fechaInicio: '', diasEntreJornadas: 7, idaYVuelta: false
   })
   const [error, setError] = useState('')
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const { data: instancias = [] } = useQuery({
+  const qInstancias = useQuery({
     queryKey: ['instancias'],
     queryFn:  () => api.get('/catalogos/instancias').then(r => r.data),
     enabled:  isOpen,
   })
+  const instancias = qInstancias.data ?? []
+  const catalogos = erroresDe(qInstancias)
 
   const calendarioMutation = useMutation({
     mutationFn: (data) => api.post(postUrl, data),
     onSuccess: (res) => { setError(''); onGenerated(res.data.mensaje) },
-    onError: (err) => setError(err.response?.data?.error || 'Error al generar calendario.'),
+    onError: (err) => setError(mensajeDeError(err, 'Error al generar calendario.')),
   })
 
   return (
     <Modal isOpen={isOpen} onClose={() => { onClose(); setError('') }} title={title}>
       <div className="space-y-4">
+        {catalogos.hayError && (
+          <EstadoError compacto mensaje="No se pudieron cargar las instancias."
+            onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
+        )}
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
-          <select className="input-field" value={form.idInstancia}
+          <label htmlFor={`${fid}-c20`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Instancia</label>
+          <select id={`${fid}-c20`} className="input-field" value={form.idInstancia}
             onChange={e => set('idInstancia', e.target.value)}>
             <option value="">Seleccionar...</option>
             {instancias.map(i => <option key={i.idInstancia} value={i.idInstancia}>{i.nombre}</option>)}
@@ -1096,8 +1200,8 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha inicio</label>
-            <input type="date" className="input-field" value={form.fechaInicio}
+            <label htmlFor={`${fid}-c21`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha inicio</label>
+            <input id={`${fid}-c21`} type="date" className="input-field" value={form.fechaInicio}
               min={minFecha} max={maxFecha}
               onChange={e => set('fechaInicio', e.target.value)} />
             {minFecha && maxFecha && (
@@ -1105,31 +1209,33 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
             )}
           </div>
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Días entre jornadas</label>
-            <input type="number" className="input-field" value={form.diasEntreJornadas}
+            <label htmlFor={`${fid}-c22`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Días entre jornadas</label>
+            <input id={`${fid}-c22`} type="number" className="input-field" value={form.diasEntreJornadas}
               min="1" max="30" onChange={e => set('diasEntreJornadas', parseInt(e.target.value))} />
           </div>
         </div>
         <div className="flex items-center gap-3 p-3 bg-gray-800/40 rounded-lg">
-          <input type="checkbox" id="idaYVuelta" checked={form.idaYVuelta ?? false}
+          <input type="checkbox" id={`${fid}-idayvuelta`} checked={form.idaYVuelta ?? false}
             onChange={e => set('idaYVuelta', e.target.checked)}
             className="w-4 h-4 accent-brand-400" />
           <div>
-            <label htmlFor="idaYVuelta" className="text-white text-sm cursor-pointer">Ida y vuelta</label>
+            <label htmlFor={`${fid}-idayvuelta`} className="text-white text-sm cursor-pointer">Ida y vuelta</label>
             <p className="text-gray-500 text-xs">Genera dos rondas: en la segunda se invierten local y visitante.</p>
           </div>
         </div>
-        {error && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
-        <button
-          onClick={() => calendarioMutation.mutate({
+        {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
+        <AccionesFormulario
+          texto="📅 Generar calendario completo"
+          textoGuardando="Generando..."
+          guardando={calendarioMutation.isPending}
+          deshabilitado={!form.idInstancia || !form.fechaInicio}
+          onGuardar={() => calendarioMutation.mutate({
             idInstancia:       parseInt(form.idInstancia),
             fechaInicio:       form.fechaInicio,
             diasEntreJornadas: form.diasEntreJornadas,
             idaYVuelta:        form.idaYVuelta ?? false,
           })}
-          disabled={calendarioMutation.isPending || !form.idInstancia || !form.fechaInicio}
-          className="btn-primary w-full disabled:opacity-40"
-        >{calendarioMutation.isPending ? 'Generando...' : '📅 Generar calendario completo'}</button>
+        />
       </div>
     </Modal>
   )
@@ -1138,13 +1244,16 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
 // ── Tabla de posiciones de un grupo ──────────────────────────────────────────
 
 function TablaPosiciones({ idGrupo, idCampeonato }) {
+  const fid = useId()
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
   const [showCalendarioModal, setShowCalendarioModal] = useState(false)
   const [showAsignarModal, setShowAsignarModal]       = useState(false)
   const [asignarError, setAsignarError]               = useState('')
   const [equipoSel, setEquipoSel]                     = useState('')
 
-  const { data: grupo, isLoading } = useQuery({
+  const { data: grupo, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['grupo', idGrupo],
     queryFn:  () => api.get(`/grupos/${idGrupo}`).then(r => r.data),
   })
@@ -1162,17 +1271,35 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] })
       setShowAsignarModal(false); setEquipoSel(''); setAsignarError('')
+      aviso.exito('Equipo asignado al grupo.')
     },
-    onError: (err) => setAsignarError(err.response?.data?.error || 'Error al asignar equipo.'),
+    onError: (err) => setAsignarError(mensajeDeError(err, 'Error al asignar equipo.')),
   })
 
   const removerMutation = useMutation({
     mutationFn: (idEquipo) => api.delete(`/grupos/${idGrupo}/equipos/${idEquipo}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] }),
-    onError: (err) => alert(err.response?.data?.error || 'No se puede remover.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] })
+      aviso.exito('Equipo quitado del grupo.')
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede remover.')),
   })
 
+  const removerDelGrupo = async (e) => {
+    const ok = await confirmar({
+      titulo: `¿Quitar a ${e.nombre} del grupo ${grupo.nombre}?`,
+      textoConfirmar: 'Quitar',
+      peligro: true,
+    })
+    if (ok) removerMutation.mutate(e.idEquipo)
+  }
+
   if (isLoading) return <div className="text-gray-500 text-sm text-center py-4">Cargando grupo...</div>
+  if (isError) return (
+    <div className="mb-4">
+      <EstadoError compacto mensaje="No se pudo cargar este grupo." onReintentar={refetch} reintentando={isFetching} />
+    </div>
+  )
   if (!grupo) return null
 
   return (
@@ -1203,8 +1330,9 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
             <div key={e.idEquipo} className="flex items-center gap-1.5 bg-gray-800 rounded px-2 py-1 text-xs">
               <span className="text-gray-300">{e.nombre}</span>
               <button
-                onClick={() => { if (confirm(`¿Remover ${e.nombre} del grupo?`)) removerMutation.mutate(e.idEquipo) }}
+                onClick={() => removerDelGrupo(e)}
                 className="text-gray-600 hover:text-red-400 transition-colors"
+                aria-label={`Quitar a ${e.nombre} del grupo`}
               >✕</button>
             </div>
           ))}
@@ -1260,19 +1388,24 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
              onClose={() => { setShowAsignarModal(false); setEquipoSel(''); setAsignarError('') }}
              title={`AGREGAR EQUIPO — GRUPO ${grupo.nombre}`}>
         <div className="space-y-4">
-          <select className="input-field" value={equipoSel} onChange={e => setEquipoSel(e.target.value)}>
+          <div>
+          <label htmlFor={`${fid}-asignar`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
+          <select id={`${fid}-asignar`} className="input-field" value={equipoSel} onChange={e => setEquipoSel(e.target.value)}>
             <option value="">Seleccionar equipo...</option>
             {equiposDisponibles.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
           </select>
+          </div>
           {equiposDisponibles.length === 0 && (
             <p className="text-gray-500 text-sm text-center">Todos los equipos inscritos ya están asignados a un grupo.</p>
           )}
-          {asignarError && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{asignarError}</div>}
-          <button
-            onClick={() => equipoSel && asignarMutation.mutate(parseInt(equipoSel))}
-            disabled={!equipoSel || asignarMutation.isPending}
-            className="btn-primary w-full disabled:opacity-40"
-          >{asignarMutation.isPending ? 'Asignando...' : 'Asignar al grupo'}</button>
+          {asignarError && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{asignarError}</div>}
+          <AccionesFormulario
+            texto="Asignar al grupo"
+            textoGuardando="Asignando..."
+            guardando={asignarMutation.isPending}
+            deshabilitado={!equipoSel}
+            onGuardar={() => equipoSel && asignarMutation.mutate(parseInt(equipoSel))}
+          />
         </div>
       </Modal>
 
@@ -1287,7 +1420,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
           queryClient.invalidateQueries({ queryKey: ['jornadas', String(idCampeonato)] })
           queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] })
           setShowCalendarioModal(false)
-          alert(mensaje)
+          aviso.exito(mensaje || 'Calendario generado.')
         }}
       />
     </div>
@@ -1295,12 +1428,17 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
 }
 
 function TablaCampeonato({ idCampeonato }) {
-  const { data: posiciones = [], isLoading } = useQuery({
+  const { data: posiciones = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['posiciones-campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}/posiciones`).then(r => r.data),
   })
 
   if (isLoading) return <div className="card text-gray-500 text-sm text-center py-4">Cargando tabla...</div>
+  if (isError) return (
+    <div className="mb-4">
+      <EstadoError compacto mensaje="No se pudo cargar la tabla general." onReintentar={refetch} reintentando={isFetching} />
+    </div>
+  )
 
   return (
     <div className="card mb-4">
@@ -1342,9 +1480,12 @@ function TablaCampeonato({ idCampeonato }) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function CampeonatoDetalle() {
+  const fid = useId()
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
 
   const [tab, setTab]                           = useState('equipos')
   const [showAgregar, setShowAgregar]           = useState(false)
@@ -1356,28 +1497,31 @@ export default function CampeonatoDetalle() {
   const [grupoError, setGrupoError]             = useState('')
   const [showCalendarioCampeonatoModal, setShowCalendarioCampeonatoModal] = useState(false)
 
-  const { data: camp, isLoading, isError } = useQuery({
+  const { data: camp, isLoading, isError, error: errorCamp, refetch: recargarCamp, isFetching: recargandoCamp } = useQuery({
     queryKey: ['campeonato', id],
     queryFn:  () => api.get(`/campeonatos/${id}`).then(r => r.data),
   })
 
-  const { data: jornadas = [] } = useQuery({
+  const qJornadas = useQuery({
     queryKey: ['jornadas', id],
     queryFn:  () => api.get(`/campeonatos/${id}/jornadas`).then(r => r.data),
     enabled:  tab === 'jornadas',
   })
 
-  const { data: grupos = [] } = useQuery({
+  const qGrupos = useQuery({
     queryKey: ['grupos', id],
     queryFn:  () => api.get(`/campeonatos/${id}/grupos`).then(r => r.data),
     enabled:  tab === 'grupos',
   })
 
-  const { data: todosEquipos = [] } = useQuery({
+  const qTodosEquipos = useQuery({
     queryKey: ['equipos'],
     queryFn:  () => api.get('/equipos').then(r => r.data),
     enabled:  showAgregar,
   })
+  const jornadas     = qJornadas.data ?? []
+  const grupos       = qGrupos.data ?? []
+  const todosEquipos = qTodosEquipos.data ?? []
 
   const equiposInscritos   = camp?.equipos ?? []
   const idsInscritos       = new Set(equiposInscritos.map(e => e.idEquipo))
@@ -1399,25 +1543,40 @@ export default function CampeonatoDetalle() {
       queryClient.invalidateQueries({ queryKey: ['campeonato', id] })
       setShowAgregar(false); setEquiposSel([])
       if (resultado.fallidos.length > 0) {
-        alert(`${resultado.agregados} equipo(s) agregado(s). ${resultado.fallidos.join(' ')}`)
+        aviso.error(`${resultado.agregados} equipo(s) agregado(s). ${resultado.fallidos.join(' ')}`)
+      } else {
+        aviso.exito(resultado.agregados === 1 ? 'Equipo inscrito.' : `${resultado.agregados} equipos inscritos.`)
       }
     },
-    onError: (err) => alert(err.response?.data?.error || 'Error al agregar equipo.'),
+    onError: (err) => aviso.error(mensajeDeError(err, 'Error al agregar equipo.')),
   })
 
   const removerEquipoMutation = useMutation({
     mutationFn: (idEquipo) => api.delete(`/campeonatos/${id}/equipos/${idEquipo}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['campeonato', id] }),
-    onError: (err) => alert(err.response?.data?.error || 'No se puede remover el equipo.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campeonato', id] })
+      aviso.exito('Equipo removido del campeonato.')
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede remover el equipo.')),
   })
+
+  const removerEquipo = async (e) => {
+    const ok = await confirmar({
+      titulo: `¿Remover a ${e.nombre} del campeonato?`,
+      textoConfirmar: 'Remover',
+      peligro: true,
+    })
+    if (ok) removerEquipoMutation.mutate(e.idEquipo)
+  }
 
   const crearJornadaMutation = useMutation({
     mutationFn: (data) => api.post(`/campeonatos/${id}/jornadas`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jornadas', id] })
       setShowJornadaModal(false); setJornadaError('')
+      aviso.exito('Jornada creada.')
     },
-    onError: (err) => setJornadaError(err.response?.data?.error || 'Error al crear jornada.'),
+    onError: (err) => setJornadaError(mensajeDeError(err, 'Error al crear jornada.')),
   })
 
   const crearGrupoMutation = useMutation({
@@ -1425,11 +1584,18 @@ export default function CampeonatoDetalle() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['grupos', id] })
       setShowGrupoModal(false); setGrupoNombre(''); setGrupoError('')
+      aviso.exito('Grupo creado.')
     },
-    onError: (err) => setGrupoError(err.response?.data?.error || 'Error al crear grupo.'),
+    onError: (err) => setGrupoError(mensajeDeError(err, 'Error al crear grupo.')),
   })
 
   if (isLoading) return <div className="p-4 sm:p-6 lg:p-8 text-gray-500 text-center py-24">Cargando campeonato...</div>
+  // Un error del servidor no es lo mismo que un campeonato que no existe.
+  if (isError && errorCamp?.response?.status !== 404) return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <EstadoError mensaje="No se pudo cargar el campeonato." onReintentar={recargarCamp} reintentando={recargandoCamp} />
+    </div>
+  )
   if (isError || !camp) return (
     <div className="p-4 sm:p-6 lg:p-8 text-center py-24">
       <p className="text-red-400 mb-4">No se encontró el campeonato.</p>
@@ -1491,8 +1657,14 @@ export default function CampeonatoDetalle() {
           {showAgregar && (
             <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-4 flex flex-wrap gap-3 items-end">
               <div className="w-full sm:w-auto sm:flex-1">
-                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Seleccionar equipos</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/60 p-2">
+                <p id={`${fid}-sel-equipos`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Seleccionar equipos</p>
+                {qTodosEquipos.isError && (
+                  <div className="mb-2">
+                    <EstadoError compacto mensaje="No se pudo cargar la lista de equipos."
+                      onReintentar={qTodosEquipos.refetch} reintentando={qTodosEquipos.isFetching} />
+                  </div>
+                )}
+                <div role="group" aria-labelledby={`${fid}-sel-equipos`} className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/60 p-2">
                   {equiposDisponibles.map(e => {
                     const seleccionado = equiposSel.includes(String(e.idEquipo))
                     return (
@@ -1516,7 +1688,7 @@ export default function CampeonatoDetalle() {
                   })}
                 </div>
                 {equiposSel.length > 0 && <p className="text-brand-400 text-xs mt-1">{equiposSel.length} equipo(s) seleccionado(s)</p>}
-                {equiposDisponibles.length === 0 && <p className="text-gray-500 text-xs mt-1">Todos los equipos ya están inscritos.</p>}
+                {equiposDisponibles.length === 0 && qTodosEquipos.isSuccess && <p className="text-gray-500 text-xs mt-1">Todos los equipos ya están inscritos.</p>}
               </div>
               <button onClick={() => equiposSel.length > 0 && agregarEquipoMutation.mutate(equiposSel.map(Number))}
                 disabled={equiposSel.length === 0 || agregarEquipoMutation.isPending}
@@ -1551,7 +1723,7 @@ export default function CampeonatoDetalle() {
                     <td className="px-3 py-3 text-white font-medium">{e.nombre}</td>
                     <td className="px-3 py-3 text-gray-400 text-sm">{e.pais}</td>
                     <td className="px-3 py-3 text-right">
-                      <button onClick={() => { if (confirm(`¿Remover a ${e.nombre}?`)) removerEquipoMutation.mutate(e.idEquipo) }}
+                      <button onClick={() => removerEquipo(e)}
                         className="text-gray-600 hover:text-red-400 transition-colors text-sm">
                         Remover
                       </button>
@@ -1573,7 +1745,11 @@ export default function CampeonatoDetalle() {
               + Nuevo Grupo
             </button>
           </div>
-          {grupos.length === 0 ? (
+          {qGrupos.isLoading ? (
+            <p className="text-gray-500 text-sm text-center py-8">Cargando grupos...</p>
+          ) : qGrupos.isError ? (
+            <EstadoError mensaje="No se pudieron cargar los grupos." onReintentar={qGrupos.refetch} reintentando={qGrupos.isFetching} />
+          ) : grupos.length === 0 ? (
             <div className="card text-center py-12">
               <p className="text-4xl mb-3">🏅</p>
               <p className="text-gray-400 text-sm">No hay grupos creados.</p>
@@ -1605,7 +1781,11 @@ export default function CampeonatoDetalle() {
               + Nueva Jornada
             </button>
           </div>
-          {jornadas.length === 0 ? (
+          {qJornadas.isLoading ? (
+            <p className="text-gray-500 text-sm text-center py-8">Cargando jornadas...</p>
+          ) : qJornadas.isError ? (
+            <EstadoError mensaje="No se pudieron cargar las jornadas." onReintentar={qJornadas.refetch} reintentando={qJornadas.isFetching} />
+          ) : jornadas.length === 0 ? (
             <div className="card text-center py-12">
               <p className="text-4xl mb-3">📅</p>
               <p className="text-gray-400 text-sm">No hay jornadas creadas.</p>
@@ -1639,17 +1819,19 @@ export default function CampeonatoDetalle() {
              title="NUEVO GRUPO">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre del grupo</label>
-            <input className="input-field" value={grupoNombre}
+            <label htmlFor={`${fid}-c23`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre del grupo</label>
+            <input id={`${fid}-c23`} className="input-field" value={grupoNombre}
               onChange={e => setGrupoNombre(e.target.value)}
               placeholder="A, B, C..." maxLength={10} />
           </div>
-          {grupoError && <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{grupoError}</div>}
-          <button
-            onClick={() => grupoNombre.trim() && crearGrupoMutation.mutate(grupoNombre.trim())}
-            disabled={!grupoNombre.trim() || crearGrupoMutation.isPending}
-            className="btn-primary w-full disabled:opacity-40"
-          >{crearGrupoMutation.isPending ? 'Creando...' : 'Crear Grupo'}</button>
+          {grupoError && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{grupoError}</div>}
+          <AccionesFormulario
+            texto="Crear Grupo"
+            textoGuardando="Creando..."
+            guardando={crearGrupoMutation.isPending}
+            deshabilitado={!grupoNombre.trim()}
+            onGuardar={() => grupoNombre.trim() && crearGrupoMutation.mutate(grupoNombre.trim())}
+          />
         </div>
       </Modal>
 
@@ -1664,7 +1846,7 @@ export default function CampeonatoDetalle() {
           queryClient.invalidateQueries({ queryKey: ['jornadas', id] })
           queryClient.invalidateQueries({ queryKey: ['posiciones-campeonato', id] })
           setShowCalendarioCampeonatoModal(false)
-          alert(mensaje)
+          aviso.exito(mensaje || 'Calendario generado.')
         }}
       />
     </div>
