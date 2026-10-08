@@ -4,14 +4,32 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
+import AvisosProvider from './components/AvisosProvider'
+import DialogosProvider from './components/DialogosProvider'
 
-const queryClient = new QueryClient()
+// Los errores 4xx (no encontrado, sin permiso, datos inválidos) no mejoran al reintentar:
+// se muestran de inmediato. Los de red o servidor se reintentan hasta 3 veces.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (intentos, error) => {
+        const estado = error?.response?.status
+        if (estado >= 400 && estado < 500) return false
+        return intentos < 3
+      },
+    },
+  },
+})
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <AvisosProvider>
+          <DialogosProvider>
+            <App />
+          </DialogosProvider>
+        </AvisosProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

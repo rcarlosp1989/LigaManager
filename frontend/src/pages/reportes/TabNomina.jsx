@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 
@@ -11,15 +12,16 @@ const COLUMNAS_EXPORT = [
 ]
 
 export default function TabNomina({ idCampeonato, campeonato }) {
+  const fid = useId()
   const [idEquipo, setIdEquipo] = useState('')
 
-  const { data: equipos = [] } = useQuery({
+  const { data: equipos = [], isError: errorEquipos, refetch: recargarEquipos, isFetching: cargandoEquipos } = useQuery({
     queryKey: ['campeonato-equipos-select', idCampeonato],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data.equipos ?? []),
     enabled: !!idCampeonato,
   })
 
-  const { data: equipoDetalle, isLoading, isError } = useQuery({
+  const { data: equipoDetalle, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['equipo-nomina', idEquipo],
     queryFn: () => api.get(`/equipos/${idEquipo}`).then(r => r.data),
     enabled: !!idEquipo,
@@ -41,11 +43,16 @@ export default function TabNomina({ idCampeonato, campeonato }) {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
-          <select className="input-field w-64" value={idEquipo} onChange={e => setIdEquipo(e.target.value)}>
+          <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
+          <select id={`${fid}-c1`} className="input-field w-64" value={idEquipo} onChange={e => setIdEquipo(e.target.value)}>
             <option value="">Selecciona un equipo...</option>
             {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
           </select>
+          {errorEquipos && (
+            <div className="mt-2">
+              <EstadoError compacto mensaje="No se pudo cargar la lista de equipos." onReintentar={recargarEquipos} reintentando={cargandoEquipos} />
+            </div>
+          )}
         </div>
         {idEquipo && (
           <BotonExportar
@@ -67,7 +74,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
       )}
 
       {idEquipo && isError && (
-        <p className="text-red-400 text-sm text-center py-10">No se pudo cargar la nómina de este equipo.</p>
+        <EstadoError mensaje="No se pudo cargar la nómina de este equipo." onReintentar={refetch} reintentando={isFetching} />
       )}
 
       {idEquipo && !isLoading && !isError && jugadores.length === 0 && (

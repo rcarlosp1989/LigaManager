@@ -58,7 +58,7 @@ Hecho: fusionada en `main` el 8 de octubre. La Fase 2 sigue en `ux/fase-2-celula
 
 ## 2026-10-08 — Fase 2: Celular y tablet
 
-**Estado:** aplicada en la rama `ux/fase-2-celular`, creada desde `main` con la Fase 1 ya fusionada (`13bf5f6`). Pendiente de que Roberto la pruebe y la apruebe.
+**Estado:** probada por Roberto en su celular y fusionada en `main` el 8 de octubre (pull request #2). Publicada en producción.
 
 Todos los hallazgos de la fase seguían vigentes: en 390 px el contenido quedaba en 134 px de ancho y había controles de hasta 10×16 px.
 
@@ -103,4 +103,66 @@ No se tocó `backend/` ni la base de datos. No hizo falta `PENDIENTES_BACKEND.md
 
 ### Siguiente paso
 
-Probar en un celular real y, si se aprueba, fusionar `ux/fase-2-celular` a `main`. Después, Fase 3 en `ux/fase-3-ventanas`.
+Hecho: fusionada en `main` el 8 de octubre. La Fase 3 sigue en `ux/fase-3-ventanas`.
+
+---
+
+## 2026-10-08 — Fase 3: Ventanas, errores y avisos
+
+**Estado:** aplicada en la rama `ux/fase-3-ventanas`, creada desde `main` con las fases 1 y 2 fusionadas (`62a1a9a`). Pendiente de que Roberto la pruebe y la apruebe.
+
+Los hallazgos seguían vigentes: 27 ventanas del navegador (17 `alert`, 9 `confirm` y 1 `prompt`), 41 consultas de datos de las que solo 5 manejaban el error, y unas 70 etiquetas sin asociar a su campo.
+
+### Piezas compartidas nuevas
+
+| Archivo | Qué hace |
+|---|---|
+| `frontend/src/feedback/contextos.js` | Contextos y hooks: `useAviso`, `useDialogos`, `useModal`, `mensajeDeError` y `erroresDe` (agrupa consultas que fallan). Sin componentes, para que el recargado rápido funcione. |
+| `frontend/src/feedback/foco.js` | `useAtraparFoco`: lleva el foco a la ventana, lo mantiene ahí con Tab y lo devuelve al cerrar. |
+| `frontend/src/components/AvisosProvider.jsx` | Avisos breves abajo de la pantalla: éxito (3,5 s) y error (7 s). Se pueden cerrar. |
+| `frontend/src/components/DialogosProvider.jsx` | Ventana de confirmación (`confirmar`) y ventana para pedir un número (`pedirNumero`), en lugar de `confirm()` y `prompt()`. La confirmación empieza con el foco en «Cancelar». |
+| `frontend/src/components/EstadoError.jsx` | Estado de error con «Reintentar», a página completa o compacto para formularios y secciones. |
+| `frontend/src/components/AccionesFormulario.jsx` | Botones al pie de los formularios: «Cancelar» y el botón principal. |
+| `frontend/src/components/Modal.jsx` | Cierra con Esc, la × o tocando fuera; si se escribió algo, pregunta «¿Descartar los cambios?». Tiene `role="dialog"` y título asociado. |
+| `frontend/src/main.jsx` | Monta los avisos y diálogos. Los errores 4xx ya no se reintentan; los de red o servidor sí, hasta 3 veces. |
+| `frontend/src/index.css` | Estilos `.btn-secundario` y `.btn-peligro`. |
+
+### Qué cambió en las pantallas
+
+- **Sin ventanas del navegador:** las 9 confirmaciones nombran lo que se va a borrar («¿Eliminar el campeonato «X»?»). Los `alert` de error pasan a avisos de error y los de éxito (calendario generado) a avisos de éxito. El minuto de la planilla se escribe en una ventana propia que dice el evento y el jugador («Gol · (9) Washington Barreto») y valida 1 a 120.
+- **Avisos de éxito** al crear, editar, eliminar, inscribir, convocar, registrar eventos y cambios, y generar el calendario.
+- **Estado de error con «Reintentar»** en Dashboard, Campeonatos, detalle del campeonato (y sus jornadas, grupos, tabla general y partidos de cada jornada), Equipos, Jugadores, Reportes (las cinco pestañas), Estadios y Oficiales. En los formularios, un aviso compacto cuando falla un catálogo (tipos, países, equipos, estadios, oficiales, instancias, ubicación). En el detalle, un 404 sigue diciendo «No se encontró el campeonato»; cualquier otro error muestra «Reintentar».
+- **Formularios:** todos los de ventana tienen «Cancelar». La sanción de Reportes ya lo tenía y ahora usa el mismo estilo.
+- **Etiquetas:** cada etiqueta está asociada a su campo con `useId()`. Estadios y Oficiales tenían campos sin etiqueta; ahora la tienen, incluida «Fecha de nacimiento», que antes no decía qué fecha era.
+- **Nombres accesibles** en los botones de solo ícono: ✕ de eventos, cambios, jugadores, grupos y sanciones; botones de evento de la planilla («Gol de …»); búsqueda de jugadores; selector «Convocar como».
+- **Selector de ubicación:** si falla la consulta de provincias, ya no dice «Otro país» por error.
+- **Jugadores:** abrir «Editar» ahora muestra «Abriendo...» y, si falla, un aviso; antes no pasaba nada.
+
+No se tocó `backend/` ni la base de datos. No hizo falta `PENDIENTES_BACKEND.md`.
+
+### Decisiones
+
+- **Planilla:** como guarda los eventos al instante, la ventana solo pregunta antes de cerrar si quedaron observaciones, estado del partido o un cambio a medio llenar sin guardar.
+- **Reintentos:** con el servidor caído el error aparece a los 7 a 8 segundos, porque React Query reintenta 3 veces. Se mantuvo así porque ayuda con señal inestable en la cancha. Bajarlo a 1 reintento lo mostraría en unos 2 segundos.
+- **Fase 3 no agrega confirmación al quitar un jugador de la planilla:** el plan lo pone en la Fase 5. Solo se le dio nombre accesible.
+
+### Cómo se verificó
+
+- `npm run build` sin errores. `npm run lint`: los mismos 5 errores previos, ninguno nuevo.
+- Búsqueda en el código: 0 usos de `alert(`, `confirm(` o `prompt(`.
+- Prueba automática con el backend apagado, en 390 y 1.440 px: Dashboard, Campeonatos, detalle, Equipos, Jugadores, Reportes, Estadios y Oficiales muestran «Reintentar» y ningún mensaje de lista vacía. Al volver el servidor, «Reintentar» recupera los datos.
+- Prueba con fallas parciales: con el campeonato cargado y las jornadas o grupos caídos, cada sección muestra su propio error.
+- Prueba de flujos con el servidor funcionando: confirmación al eliminar, Esc la cierra, aviso «Campeonato eliminado»; «Cancelar» en la ventana; aviso de descarte al cerrar con cambios y «Seguir editando» conserva lo escrito; sin cambios, Esc cierra directo; aviso «Campeonato creado»; minuto 150 rechazado y minuto 32 registrado con aviso; la planilla sin cambios cierra sin preguntar. El navegador no abrió ninguna ventana propia en toda la prueba.
+- Accesibilidad en seis ventanas (campeonato, planilla, jugador, equipo, estadio, oficial): 0 etiquetas sin campo, 0 campos sin nombre, 0 botones sin nombre; todas con `role="dialog"` y título.
+- En 390 y 768 px siguen en 0 los controles menores de 44 px y el desplazamiento lateral. En 1.440 px las pantallas quedan iguales, salvo el botón «Cancelar» nuevo en las ventanas.
+- **Límite:** Chromium sobre Linux con datos de ejemplo.
+
+### Anotado para otras fases
+
+- **Fase 4:** en el formulario de jugador, la fila Fecha de nacimiento, Edad y Dorsal queda apretada en celular.
+- **Fase 5:** confirmación al quitar un jugador de la planilla.
+- **Sin fase:** la cabecera de cada jornada se abre tocándola, pero no es un botón, así que no se puede abrir con el teclado.
+
+### Siguiente paso
+
+Probar y, si se aprueba, fusionar `ux/fase-3-ventanas` a `main`. Después, Fase 4 en `ux/fase-4-pantallas`.

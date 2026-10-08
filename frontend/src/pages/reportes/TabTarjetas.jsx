@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 
 export default function TabTarjetas({ idCampeonato }) {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['estadisticas-tarjetas', idCampeonato],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/tarjetas`).then(r => r.data),
     enabled: !!idCampeonato,
   })
 
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando tarjetas...</p>
-  if (isError) return <p className="text-red-400 text-sm text-center py-10">No se pudieron cargar las tarjetas.</p>
+  if (isError) return <EstadoError mensaje="No se pudieron cargar las tarjetas." onReintentar={refetch} reintentando={isFetching} />
 
   const porJugador = data?.porJugador ?? []
   const porEquipo = data?.porEquipo ?? []

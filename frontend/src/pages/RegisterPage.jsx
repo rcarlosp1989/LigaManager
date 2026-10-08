@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const emailValido = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)
 
 export default function RegisterPage() {
+  const fid = useId()
   const { register } = useAuth()
   const navigate     = useNavigate()
   const [form,    setForm]    = useState({ nombre: '', email: '', password: '', confirmar: '' })
@@ -58,23 +59,23 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
-              <input className="input-field" placeholder="Tu nombre" value={form.nombre}
+              <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
+              <input id={`${fid}-c1`} className="input-field" placeholder="Tu nombre" value={form.nombre}
                 onChange={e => set('nombre', e.target.value)} maxLength={100} required autoFocus />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Correo electrónico</label>
-              <input type="email" className="input-field" placeholder="tucorreo@ejemplo.com" value={form.email}
+              <label htmlFor={`${fid}-c2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Correo electrónico</label>
+              <input id={`${fid}-c2`} type="email" className="input-field" placeholder="tucorreo@ejemplo.com" value={form.email}
                 onChange={e => set('email', e.target.value)} required />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Contraseña</label>
-              <input type="password" className="input-field" placeholder="Mínimo 6 caracteres" value={form.password}
+              <label htmlFor={`${fid}-c3`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Contraseña</label>
+              <input id={`${fid}-c3`} type="password" className="input-field" placeholder="Mínimo 6 caracteres" value={form.password}
                 onChange={e => set('password', e.target.value)} required />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Confirmar contraseña</label>
-              <input type="password" className="input-field" placeholder="Repite la contraseña" value={form.confirmar}
+              <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Confirmar contraseña</label>
+              <input id={`${fid}-c4`} type="password" className="input-field" placeholder="Repite la contraseña" value={form.confirmar}
                 onChange={e => set('confirmar', e.target.value)} required />
             </div>
 

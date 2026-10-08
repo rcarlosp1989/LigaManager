@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import PageHeader from '../components/PageHeader'
 import StatusBadge from '../components/StatusBadge'
+import EstadoError from '../components/EstadoError'
 
 function StatCard({ label, value, icon, color = 'blue' }) {
   const colors = {
@@ -25,7 +26,7 @@ function StatCard({ label, value, icon, color = 'blue' }) {
 export default function Dashboard() {
   const navigate = useNavigate()
 
-  const { data: dash, isLoading } = useQuery({
+  const { data: dash, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['dashboard'],
     queryFn:  () => api.get('/dashboard').then(r => r.data),
   })
@@ -39,6 +40,9 @@ export default function Dashboard() {
         })}
       />
 
+      {isError ? (
+        <EstadoError mensaje="No se pudo cargar el resumen." onReintentar={refetch} reintentando={isFetching} />
+      ) : (<>
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Campeonatos"  value={dash?.totalCampeonatos}   icon="🏆" color="blue"   />
@@ -119,6 +123,7 @@ export default function Dashboard() {
         </div>
 
       </div>
+      </>)}
     </div>
   )
 }

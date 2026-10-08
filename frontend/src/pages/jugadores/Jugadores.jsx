@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api        from '../../services/api'
 import PageHeader from '../../components/PageHeader'
 import Modal      from '../../components/Modal'
 import EmptyState from '../../components/EmptyState'
 import UbicacionSelector from '../../components/UbicacionSelector'
+import EstadoError from '../../components/EstadoError'
+import AccionesFormulario from '../../components/AccionesFormulario'
+import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 
 const posiciones = [
   'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
@@ -26,16 +29,19 @@ function calcularEdad(fechaNac) {
 // ── Formulario crear jugador ──────────────────────────────────────────────────
 
 function JugadorForm({ onSubmit, loading, error }) {
+  const fid = useId()
   const [form, setForm] = useState({
     nombre: '', apellido: '', cedula: '', fechaNac: '', posicion: '', foto: null,
     idPais: '', idProvincia: '', idCanton: '', idEquipo: '', fechaDesde: new Date().toISOString().split('T')[0],
     dorsal: ''
   })
 
-  const { data: equipos = [] } = useQuery({
+  const qEquipos = useQuery({
     queryKey: ['equipos'],
     queryFn:  () => api.get('/equipos').then(r => r.data),
   })
+  const equipos = qEquipos.data ?? []
+  const catalogos = erroresDe(qEquipos)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -43,41 +49,41 @@ function JugadorForm({ onSubmit, loading, error }) {
     <form onSubmit={e => { e.preventDefault(); onSubmit(form) }} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Posición</label>
-          <select className="input-field" value={form.posicion} required onChange={e => set('posicion', e.target.value)}>
+          <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Posición</label>
+          <select id={`${fid}-c1`} className="input-field" value={form.posicion} required onChange={e => set('posicion', e.target.value)}>
             <option value="">Seleccionar posición...</option>
             {posiciones.map(posicion => <option key={posicion} value={posicion}>{posicion}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
-          <input className="input-field" value={form.nombre} required
+          <label htmlFor={`${fid}-c2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
+          <input id={`${fid}-c2`} className="input-field" value={form.nombre} required
             onChange={e => set('nombre', e.target.value)} placeholder="Juan" />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Apellido</label>
-          <input className="input-field" value={form.apellido} required
+          <label htmlFor={`${fid}-c3`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Apellido</label>
+          <input id={`${fid}-c3`} className="input-field" value={form.apellido} required
             onChange={e => set('apellido', e.target.value)} placeholder="Pérez" />
         </div>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
-        <input className="input-field" value={form.cedula} required maxLength="20"
+        <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
+        <input id={`${fid}-c4`} className="input-field" value={form.cedula} required maxLength="20"
           onChange={e => set('cedula', e.target.value)} placeholder="0102030405" />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
-          <input type="date" className="input-field" value={form.fechaNac} required
+          <label htmlFor={`${fid}-c5`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
+          <input id={`${fid}-c5`} type="date" className="input-field" value={form.fechaNac} required
             onChange={e => set('fechaNac', e.target.value)} />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Edad</label>
-          <input className="input-field text-gray-400" value={calcularEdad(form.fechaNac) ?? '–'} disabled readOnly />
+          <label htmlFor={`${fid}-c6`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Edad</label>
+          <input id={`${fid}-c6`} className="input-field text-gray-400" value={calcularEdad(form.fechaNac) ?? '–'} disabled readOnly />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal <span className="text-gray-600">(opcional)</span></label>
-          <input type="number" className="input-field" value={form.dorsal} min="1" max="99"
+          <label htmlFor={`${fid}-c7`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal <span className="text-gray-600">(opcional)</span></label>
+          <input id={`${fid}-c7`} type="number" className="input-field" value={form.dorsal} min="1" max="99"
             onChange={e => set('dorsal', e.target.value)} placeholder="10" />
         </div>
       </div>
@@ -86,30 +92,32 @@ function JugadorForm({ onSubmit, loading, error }) {
         onChange={u => setForm(f => ({ ...f, ...u }))}
       />
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo inicial</label>
-        <select className="input-field" value={form.idEquipo} required
+        <label htmlFor={`${fid}-c8`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo inicial</label>
+        <select id={`${fid}-c8`} className="input-field" value={form.idEquipo} required
           onChange={e => set('idEquipo', parseInt(e.target.value))}>
           <option value="">Seleccionar equipo...</option>
           {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
         </select>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de inscripción</label>
-        <input type="date" className="input-field" value={form.fechaDesde} required
+        <label htmlFor={`${fid}-c9`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de inscripción</label>
+        <input id={`${fid}-c9`} type="date" className="input-field" value={form.fechaDesde} required
           onChange={e => set('fechaDesde', e.target.value)} />
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Foto del jugador <span className="text-gray-600">(opcional)</span></label>
-        <input type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
+        <label htmlFor={`${fid}-c10`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Foto del jugador <span className="text-gray-600">(opcional)</span></label>
+        <input id={`${fid}-c10`} type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
           onChange={e => set('foto', e.target.files?.[0] ?? null)} />
         <p className="text-gray-500 text-xs mt-1">JPG, PNG o WEBP. Máximo 5 MB.</p>
       </div>
-      {error && (
-        <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
+      {catalogos.hayError && (
+        <EstadoError compacto mensaje="No se pudo cargar la lista de equipos."
+          onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
       )}
-      <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? 'Guardando...' : 'Registrar Jugador'}
-      </button>
+      {error && (
+        <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
+      )}
+      <AccionesFormulario guardando={loading} texto="Registrar Jugador" />
     </form>
   )
 }
@@ -117,6 +125,7 @@ function JugadorForm({ onSubmit, loading, error }) {
 // ── Formulario editar jugador ─────────────────────────────────────────────────
 
 function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
+  const fid = useId()
   const [form, setForm] = useState({
     nombre:   jugador.nombre,
     apellido: jugador.apellido,
@@ -136,46 +145,46 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
-          <input className="input-field" value={form.nombre}
+          <label htmlFor={`${fid}-c11`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
+          <input id={`${fid}-c11`} className="input-field" value={form.nombre}
             onChange={e => set('nombre', e.target.value)} />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Apellido</label>
-          <input className="input-field" value={form.apellido}
+          <label htmlFor={`${fid}-c12`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Apellido</label>
+          <input id={`${fid}-c12`} className="input-field" value={form.apellido}
             onChange={e => set('apellido', e.target.value)} />
         </div>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Posición</label>
-        <select className="input-field" value={form.posicion} required onChange={e => set('posicion', e.target.value)}>
+        <label htmlFor={`${fid}-c13`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Posición</label>
+        <select id={`${fid}-c13`} className="input-field" value={form.posicion} required onChange={e => set('posicion', e.target.value)}>
           <option value="">Seleccionar posición...</option>
           {posiciones.map(posicion => <option key={posicion} value={posicion}>{posicion}</option>)}
         </select>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
-        <input className="input-field" value={form.cedula} required maxLength="20"
+        <label htmlFor={`${fid}-c14`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
+        <input id={`${fid}-c14`} className="input-field" value={form.cedula} required maxLength="20"
           onChange={e => set('cedula', e.target.value)} />
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Cambiar foto <span className="text-gray-600">(opcional)</span></label>
-        <input type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
+        <label htmlFor={`${fid}-c15`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Cambiar foto <span className="text-gray-600">(opcional)</span></label>
+        <input id={`${fid}-c15`} type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
           onChange={e => set('foto', e.target.files?.[0] ?? null)} />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
-          <input type="date" className="input-field" value={form.fechaNac}
+          <label htmlFor={`${fid}-c16`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
+          <input id={`${fid}-c16`} type="date" className="input-field" value={form.fechaNac}
             onChange={e => set('fechaNac', e.target.value)} />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Edad</label>
-          <input className="input-field text-gray-400" value={calcularEdad(form.fechaNac) ?? '–'} disabled readOnly />
+          <label htmlFor={`${fid}-c17`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Edad</label>
+          <input id={`${fid}-c17`} className="input-field text-gray-400" value={calcularEdad(form.fechaNac) ?? '–'} disabled readOnly />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal</label>
-          <input type="number" className="input-field" value={form.dorsal} min="1" max="99"
+          <label htmlFor={`${fid}-c18`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Dorsal</label>
+          <input id={`${fid}-c18`} type="number" className="input-field" value={form.dorsal} min="1" max="99"
             onChange={e => set('dorsal', e.target.value)} placeholder="10" />
         </div>
       </div>
@@ -184,15 +193,9 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
         onChange={u => setForm(f => ({ ...f, ...u }))}
       />
       {error && (
-        <div className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
+        <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
       )}
-      <button
-        onClick={() => onSubmit(form)}
-        disabled={loading}
-        className="btn-primary w-full"
-      >
-        {loading ? 'Guardando...' : 'Guardar cambios'}
-      </button>
+      <AccionesFormulario guardando={loading} texto="Guardar cambios" onGuardar={() => onSubmit(form)} />
     </div>
   )
 }
@@ -201,6 +204,8 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
 
 export default function Jugadores() {
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
   const [modal, setModal]           = useState(false)
   const [editModal, setEditModal]   = useState(false)
   const [jugadorEdit, setJugadorEdit] = useState(null)
@@ -208,7 +213,9 @@ export default function Jugadores() {
   const [editError, setEditError]   = useState('')
   const [search, setSearch]         = useState('')
 
-  const { data: jugadores = [], isLoading } = useQuery({
+  const [abriendo, setAbriendo]     = useState(null)
+
+  const { data: jugadores = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['jugadores'],
     queryFn:  () => api.get('/jugadores').then(r => r.data),
   })
@@ -232,8 +239,9 @@ export default function Jugadores() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jugadores'] })
       setModal(false); setFormError('')
+      aviso.exito('Jugador registrado.')
     },
-    onError: (err) => setFormError(err.response?.data?.error || 'Error al guardar.'),
+    onError: (err) => setFormError(mensajeDeError(err, 'Error al guardar.')),
   })
 
   const updateMutation = useMutation({
@@ -246,28 +254,49 @@ export default function Jugadores() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jugadores'] })
       setEditModal(false); setEditError(''); setJugadorEdit(null)
+      aviso.exito('Cambios guardados.')
     },
-    onError: (err) => setEditError(err.response?.data?.error || 'Error al actualizar.'),
+    onError: (err) => setEditError(mensajeDeError(err, 'Error al actualizar.')),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/jugadores/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jugadores'] }),
-    onError: (err) => alert(err.response?.data?.error || 'No se puede eliminar.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jugadores'] })
+      aviso.exito('Jugador eliminado.')
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar.')),
   })
 
+  const eliminar = async (j) => {
+    const ok = await confirmar({
+      titulo: `¿Eliminar a ${j.nombre} ${j.apellido}?`,
+      mensaje: 'Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar',
+      peligro: true,
+    })
+    if (ok) deleteMutation.mutate(j.idJugador)
+  }
+
   const abrirEditar = async (j) => {
-    const res = await api.get(`/jugadores/${j.idJugador}`)
-    setJugadorEdit(res.data)
-    setEditModal(true)
-    setEditError('')
+    setAbriendo(j.idJugador)
+    try {
+      const res = await api.get(`/jugadores/${j.idJugador}`)
+      setJugadorEdit(res.data)
+      setEditModal(true)
+      setEditError('')
+    } catch (err) {
+      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del jugador. Inténtalo de nuevo.'))
+    } finally {
+      setAbriendo(null)
+    }
   }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="JUGADORES"
-        subtitle={`${jugadores.length} registrados`}
+        subtitle={!isLoading && !isError ? `${jugadores.length} registrados` : undefined}
         action={
           <button onClick={() => setModal(true)} className="btn-primary">
             + Nuevo Jugador
@@ -277,6 +306,8 @@ export default function Jugadores() {
 
       <div className="mb-5">
         <input
+          type="search"
+          aria-label="Buscar jugadores"
           className="input-field max-w-sm"
           placeholder="Buscar por nombre, apellido o equipo..."
           value={search}
@@ -286,6 +317,8 @@ export default function Jugadores() {
 
       {isLoading ? (
         <div className="text-gray-500 text-center py-16">Cargando...</div>
+      ) : isError ? (
+        <EstadoError mensaje="No se pudieron cargar los jugadores." onReintentar={refetch} reintentando={isFetching} />
       ) : filtered.length === 0 ? (
         <EmptyState icon="👤" title="Sin jugadores"
           description="Registra el primer jugador del sistema."
@@ -331,13 +364,10 @@ export default function Jugadores() {
                       onClick={() => abrirEditar(j)}
                       className="text-gray-500 hover:text-blue-400 transition-colors text-sm"
                     >
-                      ✏️ Editar
+                      {abriendo === j.idJugador ? 'Abriendo...' : '✏️ Editar'}
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`¿Eliminar a ${j.nombre} ${j.apellido}?`))
-                          deleteMutation.mutate(j.idJugador)
-                      }}
+                      onClick={() => eliminar(j)}
                       className="text-gray-600 hover:text-red-400 transition-colors text-sm"
                     >
                       Eliminar

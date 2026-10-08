@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 
@@ -80,6 +81,7 @@ const COLUMNAS_EXPORT = [
 ]
 
 export default function TabPosiciones({ idCampeonato, campeonato }) {
+  const fid = useId()
   const [idGrupo, setIdGrupo] = useState('')
 
   const { data: grupos = [] } = useQuery({
@@ -88,7 +90,7 @@ export default function TabPosiciones({ idCampeonato, campeonato }) {
     enabled: !!idCampeonato,
   })
 
-  const { data: tabla, isLoading, isError } = useQuery({
+  const { data: tabla, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['estadisticas-posiciones', idCampeonato, idGrupo],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/posiciones`, {
       params: idGrupo ? { idGrupo } : {},
@@ -103,15 +105,15 @@ export default function TabPosiciones({ idCampeonato, campeonato }) {
   ])))
 
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando posiciones...</p>
-  if (isError) return <p className="text-red-400 text-sm text-center py-10">No se pudo cargar la tabla de posiciones.</p>
+  if (isError) return <EstadoError mensaje="No se pudo cargar la tabla de posiciones." onReintentar={refetch} reintentando={isFetching} />
 
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         {grupos.length > 0 ? (
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Grupo</label>
-            <select className="input-field w-48" value={idGrupo} onChange={e => setIdGrupo(e.target.value)}>
+            <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Grupo</label>
+            <select id={`${fid}-c1`} className="input-field w-48" value={idGrupo} onChange={e => setIdGrupo(e.target.value)}>
               <option value="">Todos los grupos</option>
               {grupos.map(g => <option key={g.idGrupo} value={g.idGrupo}>Grupo {g.nombre}</option>)}
             </select>

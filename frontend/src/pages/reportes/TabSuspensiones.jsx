@@ -1,24 +1,30 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
+import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
+import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 
 function hoy() {
   return new Date().toISOString().slice(0, 10)
 }
 
 function AgregarSancionForm({ idCampeonato, onCerrar }) {
+  const fid = useId()
   const queryClient = useQueryClient()
+  const aviso = useAviso()
   const [form, setForm] = useState({ idJugador: '', motivo: '', partidosSancion: 1, fechaDecision: hoy() })
   const [error, setError] = useState('')
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const { data: equipos = [] } = useQuery({
+  const qEquipos = useQuery({
     queryKey: ['campeonato-equipos', idCampeonato],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data.equipos ?? []),
   })
 
-  const { data: jugadoresPorEquipo = [] } = useQuery({
+  const equipos = qEquipos.data ?? []
+
+  const qJugadores = useQuery({
     queryKey: ['campeonato-jugadores', idCampeonato, equipos.map(e => e.idEquipo).join(',')],
     queryFn: async () => {
       const resultados = await Promise.all(
@@ -28,14 +34,17 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
     },
     enabled: equipos.length > 0,
   })
+  const jugadoresPorEquipo = qJugadores.data ?? []
+  const catalogos = erroresDe(qEquipos, qJugadores)
 
   const agregarMutation = useMutation({
     mutationFn: (data) => api.post(`/campeonatos/${idCampeonato}/estadisticas/suspensiones`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['estadisticas-suspensiones', idCampeonato] })
       onCerrar()
+      aviso.exito('Sanción agregada.')
     },
-    onError: (err) => setError(err.response?.data?.error || 'Error al agregar la sanción.'),
+    onError: (err) => setError(mensajeDeError(err, 'Error al agregar la sanción.')),
   })
 
   const submit = () => {
@@ -51,10 +60,14 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
 
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-4 space-y-3">
+      {catalogos.hayError && (
+        <EstadoError compacto mensaje="No se pudo cargar la lista de jugadores."
+          onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Jugador</label>
-          <select className="input-field text-sm" value={form.idJugador} onChange={e => set('idJugador', e.target.value)}>
+          <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Jugador</label>
+          <select id={`${fid}-c1`} className="input-field text-sm" value={form.idJugador} onChange={e => set('idJugador', e.target.value)}>
             <option value="">Seleccionar...</option>
             {jugadoresPorEquipo.map(grupo => (
               <optgroup key={grupo.equipo} label={grupo.equipo}>
@@ -66,20 +79,20 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de la decisión</label>
-          <input type="date" className="input-field text-sm" value={form.fechaDecision} onChange={e => set('fechaDecision', e.target.value)} />
+          <label htmlFor={`${fid}-c2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de la decisión</label>
+          <input id={`${fid}-c2`} type="date" className="input-field text-sm" value={form.fechaDecision} onChange={e => set('fechaDecision', e.target.value)} />
         </div>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Motivo</label>
-        <input className="input-field text-sm" value={form.motivo} maxLength={200}
+        <label htmlFor={`${fid}-c3`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Motivo</label>
+        <input id={`${fid}-c3`} className="input-field text-sm" value={form.motivo} maxLength={200}
           placeholder="Ej. Conducta antideportiva, decisión de la comisión disciplinaria..."
           onChange={e => set('motivo', e.target.value)} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
         <div>
-          <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Partidos de sanción</label>
-          <input type="number" min="1" className="input-field text-sm" value={form.partidosSancion}
+          <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Partidos de sanción</label>
+          <input id={`${fid}-c4`} type="number" min="1" className="input-field text-sm" value={form.partidosSancion}
             onChange={e => set('partidosSancion', e.target.value)} />
         </div>
         <div className="flex gap-2">
@@ -87,19 +100,21 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
             className="btn-primary flex-1 disabled:opacity-40">
             {agregarMutation.isPending ? 'Guardando...' : 'Agregar sanción'}
           </button>
-          <button onClick={onCerrar} className="text-gray-500 hover:text-white transition-colors px-3 text-sm">Cancelar</button>
+          <button onClick={onCerrar} className="btn-secundario">Cancelar</button>
         </div>
       </div>
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      {error && <p role="alert" className="text-red-400 text-xs">{error}</p>}
     </div>
   )
 }
 
 export default function TabSuspensiones({ idCampeonato }) {
   const queryClient = useQueryClient()
+  const aviso = useAviso()
+  const { confirmar } = useDialogos()
   const [showForm, setShowForm] = useState(false)
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['estadisticas-suspensiones', idCampeonato],
     queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/suspensiones`).then(r => r.data),
     enabled: !!idCampeonato,
@@ -107,12 +122,25 @@ export default function TabSuspensiones({ idCampeonato }) {
 
   const eliminarMutation = useMutation({
     mutationFn: (idSancion) => api.delete(`/campeonatos/${idCampeonato}/estadisticas/suspensiones/${idSancion}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['estadisticas-suspensiones', idCampeonato] }),
-    onError: (err) => alert(err.response?.data?.error || 'No se pudo eliminar la sanción.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['estadisticas-suspensiones', idCampeonato] })
+      aviso.exito('Sanción eliminada.')
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se pudo eliminar la sanción.')),
   })
 
+  const eliminar = async (s) => {
+    const ok = await confirmar({
+      titulo: `¿Eliminar la sanción de ${s.jugador}?`,
+      mensaje: s.motivo ? `Motivo: ${s.motivo}` : undefined,
+      textoConfirmar: 'Eliminar',
+      peligro: true,
+    })
+    if (ok) eliminarMutation.mutate(s.idSancion)
+  }
+
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando suspensiones...</p>
-  if (isError) return <p className="text-red-400 text-sm text-center py-10">No se pudieron cargar las suspensiones.</p>
+  if (isError) return <EstadoError mensaje="No se pudieron cargar las suspensiones." onReintentar={refetch} reintentando={isFetching} />
 
   const sanciones = data?.sanciones ?? []
   const enRiesgo = data?.enRiesgo ?? []
@@ -163,8 +191,9 @@ export default function TabSuspensiones({ idCampeonato }) {
                       <td className="px-3 py-2 text-center">
                         {s.manual && (
                           <button
-                            onClick={() => { if (confirm('¿Eliminar esta sanción?')) eliminarMutation.mutate(s.idSancion) }}
+                            onClick={() => eliminar(s)}
                             className="text-gray-600 hover:text-red-400 transition-colors"
+                            aria-label={`Eliminar la sanción de ${s.jugador}`}
                           >✕</button>
                         )}
                       </td>
