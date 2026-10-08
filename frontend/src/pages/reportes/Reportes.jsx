@@ -18,15 +18,37 @@ const TABS = [
   { key: 'suspensiones', label: '🚫 Suspensiones' },
 ]
 
+// El último campeonato elegido se recuerda en este navegador.
+const CLAVE_ULTIMO = 'reportes.ultimoCampeonato'
+function leerUltimo() {
+  try { return localStorage.getItem(CLAVE_ULTIMO) ?? '' } catch { return '' }
+}
+function guardarUltimo(valor) {
+  try {
+    if (valor) localStorage.setItem(CLAVE_ULTIMO, valor)
+    else localStorage.removeItem(CLAVE_ULTIMO)
+  } catch { /* sin almacenamiento: no se recuerda, y no pasa nada */ }
+}
+
 export default function Reportes() {
   const fid = useId()
-  const [idCampeonato, setIdCampeonato] = useState('')
+  const [elegido, setElegido] = useState(null)   // null = el usuario aún no eligió en esta visita
   const [tab, setTab] = useState('posiciones')
 
   const { data: campeonatos = [], isError, refetch, isFetching } = useQuery({
     queryKey: ['campeonatos'],
     queryFn: () => api.get('/campeonatos').then(r => r.data),
   })
+
+  // Si no eligió nada todavía: el último usado (si sigue existiendo) o el único que hay.
+  const existe = (valor) => campeonatos.some(c => String(c.idCampeonato) === valor)
+  const ultimo = leerUltimo()
+  const idCampeonato = elegido ?? (
+    existe(ultimo) ? ultimo
+      : campeonatos.length === 1 ? String(campeonatos[0].idCampeonato)
+      : ''
+  )
+  const elegir = (valor) => { setElegido(valor); guardarUltimo(valor) }
 
   const campeonato = campeonatos.find(c => c.idCampeonato === Number(idCampeonato))
 
@@ -39,7 +61,7 @@ export default function Reportes() {
       ) : (<>
       <div className="max-w-xl mb-6">
         <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
-        <select id={`${fid}-c1`} className="input-field" value={idCampeonato} onChange={e => setIdCampeonato(e.target.value)}>
+        <select id={`${fid}-c1`} className="input-field" value={idCampeonato} onChange={e => elegir(e.target.value)}>
           <option value="">Selecciona un campeonato...</option>
           {campeonatos.map(c => <option key={c.idCampeonato} value={c.idCampeonato}>{c.nombre} ({c.anio})</option>)}
         </select>

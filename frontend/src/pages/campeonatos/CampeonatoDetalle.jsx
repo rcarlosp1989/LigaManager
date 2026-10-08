@@ -1,11 +1,12 @@
-import { useState, useEffect, useId } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useId, useRef } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
 import Modal from '../../components/Modal'
 import EstadoError from '../../components/EstadoError'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
+import { formatearFecha } from '../../utils/fechas'
 
 // ── Badges ───────────────────────────────────────────────────────────────────
 
@@ -853,7 +854,7 @@ function PartidoCard({ partido, idCampeonato }) {
             </span>
           )}
           <PartidoBadge estado={partido.estado} />
-          <span className="text-gray-500 text-xs">{partido.fecha}</span>
+          <span className="text-gray-500 text-xs whitespace-nowrap">{formatearFecha(partido.fecha)}</span>
         </div>
       </div>
 
@@ -1038,11 +1039,19 @@ function PartidoCard({ partido, idCampeonato }) {
 
 // ── Card de Jornada ───────────────────────────────────────────────────────────
 
-function JornadaCard({ jornada, idCampeonato }) {
+function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
   const queryClient = useQueryClient()
   const aviso = useAviso()
   const { confirmar } = useDialogos()
-  const [expanded, setExpanded] = useState(false)
+  const tarjeta = useRef(null)
+  const panelId = useId()
+
+  // Si la jornada llega abierta desde la dirección (al recargar o volver), se lleva a la vista.
+  useEffect(() => {
+    if (expanded) tarjeta.current?.scrollIntoView({ block: 'start' })
+    // Solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [showPartidoModal, setShowPartidoModal] = useState(false)
   const [partidoError, setPartidoError] = useState('')
 
@@ -1086,12 +1095,16 @@ function JornadaCard({ jornada, idCampeonato }) {
   const partidos = jornadaDetalle?.partidos ?? []
 
   return (
-    <div className="border border-gray-800 rounded-lg overflow-hidden">
-      <div
-        className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-gray-800/30 transition-colors"
-        onClick={() => setExpanded(e => !e)}
-      >
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+    <div ref={tarjeta} className="border border-gray-800 rounded-lg overflow-hidden scroll-mt-4">
+      <div className="flex items-center gap-2 pr-3 hover:bg-gray-800/30 transition-colors">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          className="flex flex-1 min-w-0 items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-2 focus-visible:outline-brand-400 rounded-lg"
+        >
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
           <span className="text-white font-medium">Jornada {jornada.numero}</span>
           <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{jornada.instancia}</span>
           {jornada.grupo && <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">Grupo {jornada.grupo}</span>}
@@ -1101,21 +1114,19 @@ function JornadaCard({ jornada, idCampeonato }) {
               🛋️ Libre: {jornada.equipoLibre}
             </span>
           )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={e => {
-              e.stopPropagation()
-              eliminarJornada()
-            }}
-            className="text-gray-600 hover:text-red-400 transition-colors text-xs"
-          >Eliminar</button>
-          <span className="text-gray-500 text-sm">{expanded ? '▲' : '▼'}</span>
-        </div>
+        </span>
+          <span className="text-gray-500 text-sm" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={eliminarJornada}
+          aria-label={`Eliminar la jornada ${jornada.numero}`}
+          className="text-gray-600 hover:text-red-400 transition-colors text-xs px-1"
+        >Eliminar</button>
       </div>
 
       {expanded && (
-        <div className="border-t border-gray-800 p-4 space-y-3">
+        <div id={panelId} className="border-t border-gray-800 p-4 space-y-3">
           {jornadaDetalle?.equipoLibre && (
             <p className="text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
               🛋️ {jornadaDetalle.equipoLibre} queda libre en esta jornada.
@@ -1479,6 +1490,8 @@ function TablaCampeonato({ idCampeonato }) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
+const TABS_DETALLE = [['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas']]
+
 export default function CampeonatoDetalle() {
   const fid = useId()
   const { id } = useParams()
@@ -1487,7 +1500,16 @@ export default function CampeonatoDetalle() {
   const aviso = useAviso()
   const { confirmar } = useDialogos()
 
-  const [tab, setTab]                           = useState('equipos')
+  // La pestaña y la jornada abierta viven en la dirección (?tab=jornadas&jornada=12),
+  // para que recargar o volver atrás no pierda el lugar.
+  const [params, setParams] = useSearchParams()
+  const tab = TABS_DETALLE.some(([clave]) => clave === params.get('tab')) ? params.get('tab') : 'equipos'
+  const jornadaAbierta = params.get('jornada')
+  const setTab = (clave) => setParams(clave === 'equipos' ? {} : { tab: clave }, { replace: true })
+  const alternarJornada = (idJornada) => setParams(
+    jornadaAbierta === String(idJornada) ? { tab: 'jornadas' } : { tab: 'jornadas', jornada: String(idJornada) },
+    { replace: true },
+  )
   const [showAgregar, setShowAgregar]           = useState(false)
   const [equiposSel, setEquiposSel]             = useState([])
   const [showJornadaModal, setShowJornadaModal] = useState(false)
@@ -1624,15 +1646,15 @@ export default function CampeonatoDetalle() {
           <InfoItem label="Modalidad" value={camp.modalidad} />
           <InfoItem label="Tipo"      value={camp.tipoPartido} />
           <InfoItem label="Equipos"   value={`${equiposInscritos.length} inscritos`} />
-          <InfoItem label="Inicio"    value={camp.fechaInicio} />
-          <InfoItem label="Fin"       value={camp.fechaFin} />
+          <InfoItem label="Inicio"    value={formatearFecha(camp.fechaInicio)} />
+          <InfoItem label="Fin"       value={formatearFecha(camp.fechaFin)} />
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
-        {[['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas']].map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)}
+        {TABS_DETALLE.map(([key, label]) => (
+          <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'true' : undefined}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 ${
               tab === key
                 ? 'border-brand-400 text-white'
@@ -1794,7 +1816,9 @@ export default function CampeonatoDetalle() {
           ) : (
             <div className="space-y-3">
               {jornadas.map(j => (
-                <JornadaCard key={j.idJornada} jornada={j} idCampeonato={id} />
+                <JornadaCard key={j.idJornada} jornada={j} idCampeonato={id}
+                  expanded={jornadaAbierta === String(j.idJornada)}
+                  onToggle={() => alternarJornada(j.idJornada)} />
               ))}
             </div>
           )}
