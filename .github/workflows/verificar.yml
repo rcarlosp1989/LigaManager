@@ -16,4 +16,7 @@ jobs:
       - name: Compilar API
         run: dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release
       - name: Consultas contra MySQL
-        run: dotnet run --project ci/prueba/prueba.csproj -c Release
+        run: |
+          dotnet run --project ci/prueba/prueba.csproj -c Release > salida.txt 2>&1; codigo=$?
+          grep -E "^OK|TODO OK|Exception" salida.txt | while read l; do echo "::notice::$l"; done
+          exit $codigo
