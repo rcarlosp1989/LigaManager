@@ -31,6 +31,7 @@ void QuitarColumna(string tabla, string columna)
         cmd.CommandText = $"SELECT DISTINCT INDEX_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{tabla}' AND COLUMN_NAME = '{columna}' AND INDEX_NAME <> 'PRIMARY'";
         using var r = cmd.ExecuteReader(); while (r.Read()) indices.Add(r.GetString(0));
     }
+    if (columna == "id_cliente") db.Database.ExecuteSqlRaw($"ALTER TABLE {tabla} ADD INDEX ix_semilla_partido (id_partido)");
     foreach (var ix in indices) db.Database.ExecuteSqlRaw($"ALTER TABLE {tabla} DROP INDEX `{ix}`");
     db.Database.ExecuteSqlRaw($"ALTER TABLE {tabla} DROP COLUMN {columna}");
 }
