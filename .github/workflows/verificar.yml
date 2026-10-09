@@ -1,0 +1,11 @@
+name: verificar
+on: { push: { branches: [ 'ci/verificar-fase-6' ] } }
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '9.0.x' }
+      - run: dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release -warnaserror:CS8618- 2>&1 | tail -40
+      - run: dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-restore
