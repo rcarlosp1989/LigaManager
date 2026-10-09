@@ -8,6 +8,7 @@ import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
 import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
+import TabVocales from './TabVocales'
 
 // ── Badges ───────────────────────────────────────────────────────────────────
 
@@ -1490,7 +1491,7 @@ function TablaCampeonato({ idCampeonato }) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-const TABS_DETALLE = [['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas']]
+const TABS_DETALLE = [['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas'], ['vocales', '🎙️ Vocales']]
 
 export default function CampeonatoDetalle() {
   const fid = useId()
@@ -1824,6 +1825,8 @@ export default function CampeonatoDetalle() {
           )}
         </div>
       )}
+
+      {tab === 'vocales' && <TabVocales camp={camp} />}
 
       {/* Modal nueva jornada */}
       <Modal isOpen={showJornadaModal}

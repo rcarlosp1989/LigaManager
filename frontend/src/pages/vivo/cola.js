@@ -37,14 +37,16 @@ export function nuevoUid() {
 
 // obtenerPartido: lee el partido del servidor. alConfirmar(item, idCreado, partido) y
 // alRechazar(item, mensaje) avisan a la pantalla.
-export function useCola(idPartido, { obtenerPartido, alConfirmar, alRechazar }) {
+// prefijo: '' para el organizador, '/vocal' para el vocal (Fase 7).
+export function useCola(idPartido, { prefijo = '', obtenerPartido, alConfirmar, alRechazar }) {
   const [estado, setEstado] = useState(() => ({ ...VACIA, ...leerLocal(clave(idPartido), {}) }))
   const [enviando, setEnviando] = useState(false)
   const [sinConexion, setSinConexion] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false)
   const actual = useRef(estado)
   const procesando = useRef(false)
   const avisos = useRef({ obtenerPartido, alConfirmar, alRechazar })
-  useEffect(() => { avisos.current = { obtenerPartido, alConfirmar, alRechazar } })
+  const prefijoRef = useRef(prefijo)
+  useEffect(() => { avisos.current = { obtenerPartido, alConfirmar, alRechazar }; prefijoRef.current = prefijo })
 
   const escribir = useCallback((cambio) => {
     const nuevo = cambio(actual.current)
@@ -68,7 +70,7 @@ export function useCola(idPartido, { obtenerPartido, alConfirmar, alRechazar }) 
             creado = creadoEn(item, partido)
           }
           if (!creado) {
-            const url = `/partidos/${idPartido}/${item.clase === 'evento' ? 'eventos' : 'cambios'}`
+            const url = `${prefijoRef.current}/partidos/${idPartido}/${item.clase === 'evento' ? 'eventos' : 'cambios'}`
             partido = (await api.post(url, item.datos)).data
             creado = creadoEn(item, partido)
           }

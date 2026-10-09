@@ -15,8 +15,9 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await login(form.email, form.password)
-      navigate('/dashboard')
+      const sesion = await login(form.email, form.password)
+      // El vocal entra directo a sus partidos, sin el menú de administración.
+      navigate(sesion?.rol === 'Vocal' ? '/vocal' : '/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión.')
     } finally {
@@ -96,6 +97,10 @@ export default function LoginPage() {
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿No tienes cuenta?{' '}
             <Link to="/register" className="text-brand-400 hover:text-brand-300">Regístrate</Link>
+          </p>
+          <p className="text-gray-500 text-sm text-center mt-2">
+            ¿Eres vocal y tienes un código?{' '}
+            <Link to="/invitacion" className="text-brand-400 hover:text-brand-300">Úsalo aquí</Link>
           </p>
         </div>
       </div>
