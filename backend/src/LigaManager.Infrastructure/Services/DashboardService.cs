@@ -1,23 +1,38 @@
 namespace LigaManager.Infrastructure.Services;
 using LigaManager.Application.DTOs.Dashboard;
 using LigaManager.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 public class DashboardService
 {
     private readonly LigaManagerContext _db;
-    public DashboardService(LigaManagerContext db) => _db = db;
+    private readonly IHttpContextAccessor _http;
+    public DashboardService(LigaManagerContext db, IHttpContextAccessor http) { _db = db; _http = http; }
+
+    private bool EsAdmin => string.Equals(
+        _http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Admin", StringComparison.OrdinalIgnoreCase);
+    private int? UsuarioActualId => int.TryParse(
+        _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
     public async Task<DashboardDto> GetDashboardAsync()
     {
+        // Cada organizador ve solo lo suyo (antes se contaba toda la base). El Admin ve todo.
+        var u = UsuarioActualId;
+        var campeonatos = EsAdmin ? _db.Campeonatos : _db.Campeonatos.Where(c => c.IdUsuarioCreador == u);
+        var equipos     = EsAdmin ? _db.Equipos     : _db.Equipos.Where(e => e.IdUsuarioCreador == u);
+        var jugadores   = EsAdmin ? _db.Jugadores   : _db.Jugadores.Where(j => j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == u));
+        var partidosVisibles = EsAdmin ? _db.Partidos : _db.Partidos.Where(p => p.Jornada.Campeonato.IdUsuarioCreador == u);
+
         // ── Totales ──────────────────────────────────────────────────────────
-        var totalCampeonatos   = await _db.Campeonatos.CountAsync();
-        var campeonatosEnCurso = await _db.Campeonatos.CountAsync(c => c.Estado == Domain.Entities.EstadoCampeonato.EnCurso);
-        var totalEquipos       = await _db.Equipos.CountAsync();
-        var totalJugadores     = await _db.Jugadores.CountAsync();
+        var totalCampeonatos   = await campeonatos.CountAsync();
+        var campeonatosEnCurso = await campeonatos.CountAsync(c => c.Estado == Domain.Entities.EstadoCampeonato.EnCurso);
+        var totalEquipos       = await equipos.CountAsync();
+        var totalJugadores     = await jugadores.CountAsync();
 
         // ── Próximos partidos (no jugados, fecha >= hoy, top 5) ──────────────
-        var proximos = await _db.Partidos
+        var proximos = await partidosVisibles
             .Where(p => !p.Jugado && p.Fecha >= DateTime.Today)
             .Include(p => p.EquipoLocal)
             .Include(p => p.EquipoVisitante)
@@ -39,7 +54,7 @@ public class DashboardService
             .ToListAsync();
 
         // ── Últimos resultados (jugados, top 5 más recientes) ─────────────────
-        var partidos = await _db.Partidos
+        var partidos = await partidosVisibles
             .Where(p => p.Jugado)
             .Include(p => p.EquipoLocal)
             .Include(p => p.EquipoVisitante)

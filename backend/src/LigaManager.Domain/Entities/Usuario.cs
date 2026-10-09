@@ -18,5 +18,6 @@ public enum RolUsuario
     Arbitro,
     Veedor,
     Delegado,
-    Organizador
+    Organizador,
+    Vocal
 }

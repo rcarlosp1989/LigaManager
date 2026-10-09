@@ -14,6 +14,7 @@ import { leerLocal, guardarLocal } from './almacen'
 import { useReloj, NOMBRE_FASE } from './reloj'
 import { useCola, nuevoUid } from './cola'
 import { usePantallaEncendida } from './pantallaEncendida'
+import { useAuth } from '../../context/AuthContext'
 
 // Modo en vivo: registrar el partido desde la cancha, en un celular.
 // Pantalla completa, alto contraste, un equipo a la vez. Usa los mismos endpoints que la
@@ -37,10 +38,15 @@ export default function EnVivo() {
   const idPartido = Number(idTexto)
   const [params, setParams] = useSearchParams()
   const idJornada = Number(params.get('jornada')) || null
+  const { user } = useAuth()
 
+  // El vocal usa sus propios endpoints (/api/vocal), que no necesitan la jornada.
+  if (user?.rol === 'Vocal') {
+    return <PartidoEnVivo key={`v${idPartido}`} modo="vocal" idPartido={idPartido} idJornada={null} params={params} setParams={setParams} />
+  }
   // Sin ?jornada= en la dirección, se pregunta al servidor a qué jornada pertenece el partido.
   if (!idJornada) return <BuscarJornada idPartido={idPartido} params={params} />
-  return <PartidoEnVivo key={idPartido} idPartido={idPartido} idJornada={idJornada} params={params} setParams={setParams} />
+  return <PartidoEnVivo key={idPartido} modo="organizador" idPartido={idPartido} idJornada={idJornada} params={params} setParams={setParams} />
 }
 
 function BuscarJornada({ idPartido, params }) {
@@ -77,7 +83,10 @@ function PantallaVivo({ children }) {
   return <div className="min-h-dvh bg-black text-white">{children}</div>
 }
 
-function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
+// modo: 'organizador' (endpoints de siempre) o 'vocal' (endpoints /api/vocal, Fase 7).
+function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
+  const vocal = modo === 'vocal'
+  const base = vocal ? '/vocal' : ''
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const aviso = useAviso()
@@ -102,10 +111,24 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
       guardarLocal(copiaJornada, r.data)
       return r.data
     }),
+    enabled: !vocal,
     ...conCopia(copiaJornada),
   })
-  const jornada = qJornada.data
-  const partido = jornada?.partidos?.find(p => p.idPartido === idPartido)
+  // Vocal: una sola llamada trae el partido y los dos planteles.
+  const claveVocal = useMemo(() => ['vocal-partido', idPartido], [idPartido])
+  const copiaVocal = `vivo.copia.vocal.${idPartido}`
+  const qVocal = useQuery({
+    queryKey: claveVocal,
+    queryFn: () => api.get(`/vocal/partidos/${idPartido}`, { timeout: TIEMPO_ESPERA }).then(r => {
+      guardarLocal(copiaVocal, r.data)
+      return r.data
+    }),
+    enabled: vocal,
+    ...conCopia(copiaVocal),
+  })
+  const qPrincipal = vocal ? qVocal : qJornada
+  const jornada = vocal ? qVocal.data : qJornada.data
+  const partido = vocal ? qVocal.data?.partido : jornada?.partidos?.find(p => p.idPartido === idPartido)
   const fecha = partido?.fecha?.slice(0, 10)
 
   const consultaEquipo = (idEquipo) => ({
@@ -114,11 +137,18 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
       guardarLocal(`vivo.copia.equipo.${idEquipo}.${fecha}`, r.data)
       return r.data
     }),
-    enabled: !!idEquipo && !!fecha,
+    enabled: !vocal && !!idEquipo && !!fecha,
     ...conCopia(`vivo.copia.equipo.${idEquipo}.${fecha}`),
   })
-  const qLocal = useQuery(consultaEquipo(partido?.idEquipoLocal))
-  const qVisitante = useQuery(consultaEquipo(partido?.idEquipoVisitante))
+  const qLocalOrg = useQuery(consultaEquipo(partido?.idEquipoLocal))
+  const qVisitanteOrg = useQuery(consultaEquipo(partido?.idEquipoVisitante))
+  // Para el vocal, el plantel viene dentro de su consulta; se presenta con la misma forma.
+  const desdeVocal = (lado) => ({
+    data: qVocal.data?.[lado], isLoading: qVocal.isLoading, isError: qVocal.isError,
+    isFetching: qVocal.isFetching, refetch: qVocal.refetch,
+  })
+  const qLocal = vocal ? desdeVocal('local') : qLocalOrg
+  const qVisitante = vocal ? desdeVocal('visitante') : qVisitanteOrg
   // Las fotos vienen en la lista general de jugadores.
   // La foto viene en el plantel y en la alineación. Con un servidor anterior a la Fase 6
   // no viene, y entonces se toma de la lista general de jugadores.
@@ -126,7 +156,7 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
   const qJugadores = useQuery({
     queryKey: ['jugadores'],
     queryFn: () => api.get('/jugadores').then(r => r.data),
-    enabled: !!qLocal.data && !plantelTraeFoto,
+    enabled: !vocal && !!qLocal.data && !plantelTraeFoto,
   })
   const fotos = useMemo(() => {
     const mapa = new Map()
@@ -141,6 +171,15 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
 
   const ponerPartido = (p) => {
     if (!p) return
+    if (vocal) {
+      queryClient.setQueryData(claveVocal, viejo => {
+        if (!viejo) return viejo
+        const nuevo = { ...viejo, partido: p }
+        guardarLocal(copiaVocal, nuevo)
+        return nuevo
+      })
+      return
+    }
     queryClient.setQueryData(claveJornada, viejo => {
       if (!viejo) return viejo
       const nuevo = { ...viejo, partidos: viejo.partidos.map(x => (x.idPartido === p.idPartido ? p : x)) }
@@ -149,6 +188,12 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
     })
   }
   const obtenerPartido = async () => {
+    if (vocal) {
+      const datos = (await api.get(`/vocal/partidos/${idPartido}`, { timeout: TIEMPO_ESPERA })).data
+      guardarLocal(copiaVocal, datos)
+      queryClient.setQueryData(claveVocal, datos)
+      return datos.partido
+    }
     const datos = (await api.get(`/jornadas/${idJornada}`, { timeout: TIEMPO_ESPERA })).data
     guardarLocal(copiaJornada, datos)
     queryClient.setQueryData(claveJornada, datos)
@@ -169,6 +214,7 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
   })
 
   const cola = useCola(idPartido, {
+    prefijo: base,
     obtenerPartido,
     alConfirmar: (item, idCreado, p) => {
       ponerPartido(p)
@@ -263,7 +309,7 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
       return
     }
     try {
-      await api.delete(ultimo.clase === 'evento' ? `/eventos/${ultimo.idServidor}` : `/cambios/${ultimo.idServidor}`, { timeout: TIEMPO_ESPERA })
+      await api.delete(ultimo.clase === 'evento' ? `${base}/eventos/${ultimo.idServidor}` : `${base}/cambios/${ultimo.idServidor}`, { timeout: TIEMPO_ESPERA })
     } catch (err) {
       aviso.error(err?.response
         ? mensajeDeError(err, 'No se pudo deshacer.')
@@ -272,13 +318,13 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
     }
     setUltimo(null)
     invalidarTablas()
-    obtenerPartido().catch(() => qJornada.refetch())
+    obtenerPartido().catch(() => qPrincipal.refetch())
   }
 
   const convocarMutation = useMutation({
     mutationFn: async ({ ids, titular }) => {
       const res = await Promise.allSettled(ids.map(idJugador =>
-        api.post(`/partidos/${idPartido}/alineacion`, { idJugador, titular }, { timeout: TIEMPO_ESPERA })))
+        api.post(`${base}/partidos/${idPartido}/alineacion`, { idJugador, titular }, { timeout: TIEMPO_ESPERA })))
       return {
         agregados: res.filter(r => r.status === 'fulfilled').length,
         sinRed: res.some(r => r.status === 'rejected' && !r.reason?.response),
@@ -302,7 +348,7 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
     })
     if (!ok) return
     try {
-      await api.delete(`/alineacion/${fila.idAlineacion}`, { timeout: TIEMPO_ESPERA })
+      await api.delete(`${base}/alineacion/${fila.idAlineacion}`, { timeout: TIEMPO_ESPERA })
       aviso.exito('Jugador quitado de la convocatoria.')
       await obtenerPartido().catch(() => {})
     } catch (err) {
@@ -311,7 +357,10 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
   }
 
   const cerrarMutation = useMutation({
-    mutationFn: () => api.put(`/partidos/${idPartido}/jugado`, { jugado: true }, { timeout: TIEMPO_ESPERA }),
+    // El vocal cierra con sus observaciones; el organizador marca el partido como jugado.
+    mutationFn: (observaciones) => vocal
+      ? api.put(`/vocal/partidos/${idPartido}/cerrar`, { observaciones: observaciones || null }, { timeout: TIEMPO_ESPERA })
+      : api.put(`/partidos/${idPartido}/jugado`, { jugado: true }, { timeout: TIEMPO_ESPERA }),
     onSuccess: (r) => {
       ponerPartido(r.data)
       invalidarTablas()
@@ -322,26 +371,37 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
     onError: (err) => aviso.error(err?.response ? mensajeDeError(err, 'No se pudo cerrar el partido.') : 'Sin conexión: cerrar el partido necesita señal.'),
   })
 
-  const cerrarPartido = async () => {
+  const cerrarPartido = async (observaciones) => {
     const ok = await confirmar({
       titulo: '¿Cerrar el partido y marcarlo como jugado?',
       mensaje: `Resultado: ${nombreEquipo.local} ${marcador.local} – ${marcador.visitante} ${nombreEquipo.visitante}. La tabla de posiciones se actualiza. Las correcciones posteriores se hacen desde la planilla.`,
       textoConfirmar: 'Cerrar partido',
     })
-    if (ok) cerrarMutation.mutate()
+    if (ok) cerrarMutation.mutate(observaciones)
   }
 
-  const salir = () => navigate(`/campeonatos/${jornada?.idCampeonato ?? ''}?tab=jornadas&jornada=${idJornada}`)
+  const salir = () => navigate(vocal ? '/vocal' : `/campeonatos/${jornada?.idCampeonato ?? ''}?tab=jornadas&jornada=${idJornada}`)
 
   // ── Estados de carga ───────────────────────────────────────────────────────
-  if (!jornada && qJornada.isLoading) {
+  if (!jornada && qPrincipal.isLoading) {
     return <PantallaVivo><p className="p-8 text-center text-gray-300">Cargando partido...</p></PantallaVivo>
+  }
+  if (!jornada && vocal && qVocal.error?.response?.status === 404) {
+    return (
+      <PantallaVivo>
+        <div className="p-6 space-y-4 text-center">
+          <p className="text-white text-lg">Este partido no está disponible para registrar hoy.</p>
+          <p className="text-gray-300">Cada partido se registra solo el día que se juega, en un campeonato donde estés habilitado.</p>
+          <Link to="/vocal" className="btn-primary inline-flex">Ver mis partidos</Link>
+        </div>
+      </PantallaVivo>
+    )
   }
   if (!jornada) {
     return (
       <PantallaVivo>
         <div className="p-4">
-          <EstadoError mensaje="No se pudo cargar el partido." onReintentar={qJornada.refetch} reintentando={qJornada.isFetching} />
+          <EstadoError mensaje="No se pudo cargar el partido." onReintentar={qPrincipal.refetch} reintentando={qPrincipal.isFetching} />
         </div>
       </PantallaVivo>
     )
@@ -351,14 +411,14 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
       <PantallaVivo>
         <div className="p-6 space-y-4 text-center">
           <p className="text-white text-lg">Este partido no está en la jornada indicada.</p>
-          <Link to="/campeonatos" className="btn-primary inline-flex">Ir a Campeonatos</Link>
+          <Link to={vocal ? '/vocal' : '/campeonatos'} className="btn-primary inline-flex">{vocal ? 'Ver mis partidos' : 'Ir a Campeonatos'}</Link>
         </div>
       </PantallaVivo>
     )
   }
 
   const pendientes = cola.items.length
-  const copiaVieja = qJornada.isError
+  const copiaVieja = qPrincipal.isError
 
   return (
     <PantallaVivo>
@@ -487,6 +547,7 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
             onCerrar={cerrarPartido}
             cerrando={cerrarMutation.isPending}
             onSalir={salir}
+            vocal={vocal}
           />
         )}
       </main>
@@ -877,7 +938,9 @@ function FotoGrande({ url, nombre, dorsal, onCerrar }) {
   )
 }
 
-function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, sinConexion, onReintentar, onCerrar, cerrando, onSalir }) {
+function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, sinConexion, onReintentar, onCerrar, cerrando, onSalir, vocal }) {
+  const obsId = useId()
+  const [observaciones, setObservaciones] = useState(partido.observaciones ?? '')
   const registros = [
     ...eventos.map(e => ({ ...e, clase: 'evento', clave: e.uid ?? `e${e.idEvento}`, lado: ladoDe(e.idJugador) })),
     ...cambios.map(c => ({ ...c, clase: 'cambio', clave: c.uid ?? `c${c.idCambio}`, lado: c.idEquipo === partido.idEquipoLocal ? 'local' : 'visitante' })),
@@ -927,14 +990,31 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
         </ol>
       </div>
 
-      <p className="text-sm text-gray-300">
-        Las observaciones, el partido desierto y el perdido por reglamento se registran en la planilla del partido.
-      </p>
+      {vocal ? (
+        <>
+          {!partido.jugado && (
+            <div>
+              <label htmlFor={obsId} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-300">Observaciones (opcional)</label>
+              <textarea id={obsId} rows={4} maxLength={2000} value={observaciones} onChange={e => setObservaciones(e.target.value)}
+                placeholder="Novedades del partido: incidentes, demoras, reclamos..."
+                className="w-full rounded-lg border border-neutral-500 bg-black px-3 py-2 text-base text-white placeholder:text-gray-500" />
+            </div>
+          )}
+          {partido.jugado && partido.observaciones && (
+            <p className="rounded-lg bg-neutral-900 px-3 py-2 text-sm text-gray-100"><span className="text-gray-300">Observaciones:</span> {partido.observaciones}</p>
+          )}
+          <p className="text-sm text-gray-300">El partido desierto y el perdido por reglamento los registra el organizador.</p>
+        </>
+      ) : (
+        <p className="text-sm text-gray-300">
+          Las observaciones, el partido desierto y el perdido por reglamento se registran en la planilla del partido.
+        </p>
+      )}
 
       {partido.jugado ? (
-        <button type="button" onClick={onSalir} className="h-14 w-full rounded-xl bg-white text-base font-bold text-black">Volver a la jornada</button>
+        <button type="button" onClick={onSalir} className="h-14 w-full rounded-xl bg-white text-base font-bold text-black">{vocal ? 'Volver a mis partidos' : 'Volver a la jornada'}</button>
       ) : (
-        <button type="button" onClick={onCerrar} disabled={pendientes > 0 || cerrando}
+        <button type="button" onClick={() => onCerrar(observaciones.trim())} disabled={pendientes > 0 || cerrando}
           className="h-14 w-full rounded-xl bg-green-500 text-base font-bold text-black disabled:opacity-40">
           {cerrando ? 'Cerrando...' : 'Cerrar partido y marcarlo como jugado'}
         </button>

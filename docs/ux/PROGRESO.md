@@ -313,7 +313,7 @@ Probar en un celular y, si se aprueba, fusionar `ux/fase-5-en-vivo` a `main`. La
 
 ## 2026-10-08 — Fase 6: Pendientes de servidor
 
-**Estado:** aplicada en la rama `ux/fase-6-servidor`, creada desde `main` con las fases 1 a 5 fusionadas (`1a4b44c`). Pendiente de que Roberto la pruebe y la apruebe.
+**Estado:** aprobada por Roberto y fusionada en `main` el 9 de octubre de 2026 (pull request #6). Publicada en producción.
 
 Resuelve todo lo anotado en `PENDIENTES_BACKEND.md` para esta fase. Ningún cambio toca el esquema de la base de datos: solo se agregan datos a respuestas que ya existían y un endpoint de lectura.
 
@@ -360,4 +360,71 @@ Al fusionar, Railway publica el servidor y Vercel el frontend a la vez. Como los
 ### Siguiente paso
 
 Probar y, si se aprueba, fusionar `ux/fase-6-servidor` a `main`. Después, la Fase 7 empieza con una propuesta de diseño para aprobar antes de escribir código.
+
+---
+
+## 2026-10-09 — Fase 7: Rol Vocal
+
+**Estado:** aplicada en la rama `ux/fase-7-vocal`, creada desde `main` con las fases 1 a 6 fusionadas (`8e0bc23`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere aplicar un script en la base de datos antes de publicar.**
+
+Diseño aprobado: `docs/ux/PROPUESTA_FASES_7_8.md`, con el ajuste de Roberto al punto 1 (código del titular vigente durante el campeonato y registro solo el día del partido; enlace de una vez para el reemplazo de un día).
+
+### Base de datos
+
+- `backend/database/20261009_rol_vocal.sql`: agrega `VOCAL` al rol de `usuario` y crea `campeonato_vocal` (quién está habilitado, como titular o como reemplazo de un día) e `invitacion_vocal` (códigos de un solo uso; se guarda solo su hash SHA-256).
+- `backend/database/20261009_rol_vocal_reversa.sql`: borra las dos tablas y quita el rol. Falla a propósito si quedan usuarios vocales, para no perder datos; el archivo explica qué hacer.
+- Compatible con la versión publicada: tablas nuevas y un valor más en el ENUM.
+
+### Servidor
+
+| Archivo | Cambio |
+|---|---|
+| `API/Program.cs` | La política por defecto de `[Authorize]` rechaza el rol Vocal. Política `SoloVocal` para `/api/vocal`. Respuesta 403 con mensaje en español. |
+| `API/Controllers/VocalesController.cs` | Endpoints del organizador (`/api/campeonatos/{id}/vocales`: listar, invitar, anular, quitar), públicos (`/api/invitaciones/{código}` y `…/aceptar`) y del vocal (`/api/vocal/inicio`, partido, convocatoria, eventos, cambios, cerrar y delegar un reemplazo). |
+| `Infrastructure/Services/VocalService.cs` | Invitaciones, aceptación (crea la cuenta Vocal o vincula una existente), inicio del vocal, partido con planteles y cierre con observaciones. |
+| `Infrastructure/Services/AccesoCampeonato.cs` | Con rol Vocal, un partido (y sus eventos, cambios y convocatoria) solo es accesible si es **hoy** en Ecuador y el vocal está habilitado hoy en su campeonato. El vocal no tiene acceso a campeonatos, jornadas, grupos ni fases. |
+| `Infrastructure/Services/HoraLocal.cs` | Fecha de Ecuador (UTC−5); el servidor de Railway corre en UTC. |
+| `Infrastructure/Services/DashboardService.cs` | **Corrige el hallazgo:** cada organizador ve solo sus campeonatos, equipos, jugadores y partidos. El Admin ve todo. |
+| `Domain/Entities/CampeonatoVocal.cs`, `InvitacionVocal.cs`, `Usuario.cs`, `Data/LigaManagerContext.cs`, `Application/DTOs/Vocales/VocalDtos.cs` | Entidades, mapeo y DTOs. |
+
+Las operaciones del vocal reutilizan los métodos de `JornadaService`, así que las reglas del partido (cancha y banca, desierto, reglamento, fechas del campeonato) son las mismas que para el organizador.
+
+### Frontend
+
+| Archivo | Cambio |
+|---|---|
+| `pages/campeonatos/TabVocales.jsx` | Pestaña «Vocales» en el campeonato: invitar titular o reemplazo por un día, ver habilitados, quitar (con confirmación) y anular invitaciones. |
+| `components/InvitacionCreada.jsx` | Código recién creado con «Copiar código», «Copiar enlace» y «WhatsApp». |
+| `pages/vocal/Invitacion.jsx` | `/invitacion` (escribir el código dictado) y `/invitacion/{código}`: crear la cuenta de vocal, entrar con una existente o, si hay sesión de organizador, pedir cerrar sesión. |
+| `pages/vocal/InicioVocal.jsx` | `/vocal`: partidos de hoy con «Registrar», próximos solo para mirar y, para el titular, «No puedo ir: delegar un día». Alto contraste, sin menú de administración. |
+| `pages/vivo/EnVivo.jsx`, `cola.js` | Con rol Vocal, el modo en vivo usa `/api/vocal` (una sola llamada trae partido y planteles), «Salir» vuelve a `/vocal` y el cierre pide observaciones. |
+| `App.jsx`, `LoginPage.jsx`, `context/AuthContext.jsx` | Rutas nuevas; el vocal que entra a la administración va a `/vocal`; el ingreso del vocal lleva directo a sus partidos; enlace «¿Eres vocal y tienes un código?». |
+
+### Cómo se verificó
+
+- **Servidor, en GitHub Actions** (rama temporal `ci/verificar-fase-7`, fuera del pull request), con MySQL 8: compilación en Release; base creada con el modelo, **aplicando el script real de la Fase 7**; API corriendo de verdad; **55 pruebas de punta a punta, todas bien**:
+  - invitación titular: solo el dueño del campeonato la crea; se consulta sin sesión (el código acepta minúsculas y espacios); un organizador no puede aceptarla; crea la cuenta Vocal; no sirve dos veces;
+  - inicio del vocal: solo el partido de hoy de su campeonato; el de mañana como próximo; nada de otros campeonatos;
+  - el vocal convoca, registra gol, tarjeta y cambio, deshace un evento y cierra con observaciones (queda jugado); no abre ni registra el partido de mañana ni el de otro campeonato;
+  - **17 llamadas de la columna «no puede» devuelven 403**: ver o crear campeonatos, ver jornadas, editar, borrar o marcar partidos, registrar por la vía del organizador, equipos, jugadores, Dashboard, vocales del campeonato, estadios y oficiales;
+  - reemplazo: el titular delega el día; el reemplazo ve y registra solo ese día; no puede delegar; un reemplazo de mañana no ve nada hoy;
+  - invitación anulada no sirve; el organizador ve titular y reemplazos; al quitar al vocal, deja de acceder;
+  - Dashboard: un organizador ve solo lo suyo; otro organizador no lee un partido ajeno.
+  - Script de reversa: falla con vocales existentes (como debe), funciona después de desactivarlos, y el script se puede volver a aplicar.
+- **Pantallas** (Playwright, 390 y 1.440 px, datos simulados): invitación por código escrito y por enlace, cuenta nueva que llega a `/vocal`, delegar un día con su enlace de WhatsApp, vocal redirigido desde la administración, modo en vivo del vocal contra `/api/vocal` (gol, deshacer, cierre con observaciones), invitación vencida, organizador con sesión abriendo una invitación, pestaña Vocales (invitar, copiar enlace, quitar, anular) e ingreso del vocal directo a `/vocal`. 0 controles menores de 44 px y 0 desplazamiento lateral en 390 px.
+- `npm run build` sin errores; lint con los mismos 5 errores previos.
+- **Límite:** no se probó contra la base de producción ni en un celular real.
+
+### Despliegue (en este orden)
+
+1. En Railway, conviene correr `SHOW TRIGGERS;` y confirmar que no hay triggers en `usuario`.
+2. Aplicar `backend/database/20261009_rol_vocal.sql` en la base de Railway.
+3. Fusionar el pull request (Railway publica el servidor y Vercel el frontend).
+
+Si se fusiona sin aplicar el script, el servidor nuevo falla al leer las tablas de vocales.
+
+### Anotado para otras fases
+
+- **Fase 8:** estado del partido (sin iniciar, en vivo, cerrado), autor de cada registro, bloqueo después del cierre y protección del servidor contra duplicados.
+- **Sin fase:** el servidor no limita los intentos de adivinar un código de invitación (10 caracteres de 31 símbolos, unas 8×10¹⁴ combinaciones); si se quiere, se puede agregar un límite de intentos por IP.
 

@@ -79,7 +79,8 @@ public class AuthService : IAuthService
         return ServiceResult<LoginResponse>.Ok(GenerarRespuesta(usuario));
     }
 
-    private LoginResponse GenerarRespuesta(Usuario usuario)
+    // También la usa la aceptación de invitaciones de vocal para iniciar la sesión.
+    public LoginResponse GenerarRespuesta(Usuario usuario)
     {
         var jwt    = _config.GetSection("JwtSettings");
         var key    = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["SecretKey"]!));
