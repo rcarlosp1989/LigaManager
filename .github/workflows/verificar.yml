@@ -1,0 +1,49 @@
+name: verificar
+on: { push: { branches: [ 'ci/verificar-fase-7' ] } }
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env: { MYSQL_ROOT_PASSWORD: root }
+        ports: [ '3306:3306' ]
+        options: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-retries=20
+    env:
+      CONN: "Server=127.0.0.1;Port=3306;Database=liga_prueba;User=root;Password=root;"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '9.0.x' }
+      - name: Compilar API
+        run: |
+          dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release > build.txt 2>&1; c=$?
+          grep -E " error " build.txt | sort -u | head -30 | while read l; do echo "::error::$l"; done
+          exit $c
+      - name: Semilla
+        run: SALIDA=$PWD/datos.json dotnet run --project ci/semilla/semilla.csproj -c Release
+      - name: Aplicar script de la Fase 7
+        run: mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal.sql
+      - name: Arrancar API
+        run: |
+          ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5080 ASPNETCORE_ENVIRONMENT=Development \
+            nohup dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5080/api/auth/login && break; sleep 2; done
+      - name: Pruebas de la Fase 7
+        run: |
+          python3 ci/prueba_vocal.py datos.json > prueba.txt 2>&1; c=$?
+          grep -E "^FALLA|^RESUMEN|Traceback|Error" prueba.txt | head -60 | while read l; do echo "::notice::$l"; done
+          grep -c "^OK" prueba.txt | while read n; do echo "::notice::pruebas OK: $n"; done
+          if [ $c -ne 0 ]; then grep -iE "exception|fail|error" api.log | head -25 | while read l; do echo "::warning::$l"; done; fi
+          exit $c
+      - name: Script de reversa
+        run: |
+          if mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal_reversa.sql 2>err.txt; then echo "::error::la reversa debía fallar con vocales"; exit 1; fi
+          echo "::notice::reversa con vocales: falla como se espera ($(head -c 150 err.txt))"
+          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE usuario SET rol='ORGANIZADOR', activo=0 WHERE rol='VOCAL'"
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal_reversa.sql
+          t=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name IN ('campeonato_vocal','invitacion_vocal')")
+          echo "::notice::tablas de vocales tras la reversa: $t"
+          [ "$t" = "0" ] || exit 1
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal.sql
+          echo "::notice::el script se vuelve a aplicar después de la reversa"
