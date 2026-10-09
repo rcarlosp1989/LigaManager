@@ -23,7 +23,7 @@ jobs:
       - name: Semilla
         run: |
           c=0; FASE8=1 SALIDA=$PWD/datos.json dotnet run --project ci/semilla/semilla.csproj -c Release > semilla.txt 2>&1 || c=$?
-          echo "::notice title=semilla::$(tail -30 semilla.txt | sed ":a;N;$!ba;s/%/%25/g;s/\n/%0A/g")"
+          echo "::notice title=semilla::$(grep -vE 'warning|^\s*$' semilla.txt | tail -25 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           exit $c
       - name: Aplicar scripts de las fases 7 y 8
         run: |
