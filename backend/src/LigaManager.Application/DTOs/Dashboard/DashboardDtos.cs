@@ -17,7 +17,8 @@ public record ProximoPartidoDto(
     string EquipoLocal,
     string EquipoVisitante,
     string Fecha,
-    string Estadio
+    string Estadio,
+    int    IdJornada
 );
 
 public record UltimoResultadoDto(
@@ -29,5 +30,6 @@ public record UltimoResultadoDto(
     int    GolesLocal,
     string EquipoVisitante,
     int    GolesVisitante,
-    string Fecha
+    string Fecha,
+    int    IdJornada
 );

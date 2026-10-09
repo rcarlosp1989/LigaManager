@@ -13,5 +13,7 @@ public record CampeonatoListDto(
     string FechaFin,
     string Estado,
     string TipoPartido,
-    int    TotalEquipos
+    int    TotalEquipos,
+    string Modalidad,
+    int    TotalJornadas
 );

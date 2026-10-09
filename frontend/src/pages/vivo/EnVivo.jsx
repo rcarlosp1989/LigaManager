@@ -1,5 +1,5 @@
 import { useId, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Undo2, WifiOff, CloudUpload, Sun, X, Minus, Plus, RefreshCw, User } from 'lucide-react'
 import api from '../../services/api'
@@ -38,18 +38,39 @@ export default function EnVivo() {
   const [params, setParams] = useSearchParams()
   const idJornada = Number(params.get('jornada')) || null
 
-  if (!idJornada) {
+  // Sin ?jornada= en la dirección, se pregunta al servidor a qué jornada pertenece el partido.
+  if (!idJornada) return <BuscarJornada idPartido={idPartido} params={params} />
+  return <PartidoEnVivo key={idPartido} idPartido={idPartido} idJornada={idJornada} params={params} setParams={setParams} />
+}
+
+function BuscarJornada({ idPartido, params }) {
+  const q = useQuery({
+    queryKey: ['partido', idPartido],
+    queryFn: () => api.get(`/partidos/${idPartido}`, { timeout: TIEMPO_ESPERA }).then(r => r.data),
+  })
+  if (q.data?.idJornada) {
+    const n = new URLSearchParams(params)
+    n.set('jornada', String(q.data.idJornada))
+    return <Navigate to={`/partidos/${idPartido}/en-vivo?${n}`} replace />
+  }
+  if (q.isError && q.error?.response?.status === 404) {
     return (
       <PantallaVivo>
         <div className="p-6 space-y-4 text-center">
-          <p className="text-white text-lg">Falta la jornada en la dirección.</p>
-          <p className="text-gray-300">Abre el modo en vivo desde el partido, en la pestaña Jornadas del campeonato.</p>
+          <p className="text-white text-lg">No se encontró este partido.</p>
           <Link to="/campeonatos" className="btn-primary inline-flex">Ir a Campeonatos</Link>
         </div>
       </PantallaVivo>
     )
   }
-  return <PartidoEnVivo key={idPartido} idPartido={idPartido} idJornada={idJornada} params={params} setParams={setParams} />
+  if (q.isError) {
+    return (
+      <PantallaVivo>
+        <div className="p-4"><EstadoError mensaje="No se pudo cargar el partido." onReintentar={q.refetch} reintentando={q.isFetching} /></div>
+      </PantallaVivo>
+    )
+  }
+  return <PantallaVivo><p className="p-8 text-center text-gray-300">Cargando partido...</p></PantallaVivo>
 }
 
 function PantallaVivo({ children }) {
@@ -99,8 +120,24 @@ function PartidoEnVivo({ idPartido, idJornada, params, setParams }) {
   const qLocal = useQuery(consultaEquipo(partido?.idEquipoLocal))
   const qVisitante = useQuery(consultaEquipo(partido?.idEquipoVisitante))
   // Las fotos vienen en la lista general de jugadores.
-  const qJugadores = useQuery({ queryKey: ['jugadores'], queryFn: () => api.get('/jugadores').then(r => r.data) })
-  const fotos = useMemo(() => new Map((qJugadores.data ?? []).map(j => [j.idJugador, urlFoto(j.fotoUrl)])), [qJugadores.data])
+  // La foto viene en el plantel y en la alineación. Con un servidor anterior a la Fase 6
+  // no viene, y entonces se toma de la lista general de jugadores.
+  const plantelTraeFoto = (qLocal.data?.jugadores ?? []).some(j => 'fotoUrl' in j)
+  const qJugadores = useQuery({
+    queryKey: ['jugadores'],
+    queryFn: () => api.get('/jugadores').then(r => r.data),
+    enabled: !!qLocal.data && !plantelTraeFoto,
+  })
+  const fotos = useMemo(() => {
+    const mapa = new Map()
+    const fuentes = [
+      ...(qJugadores.data ?? []),
+      ...(qLocal.data?.jugadores ?? []), ...(qVisitante.data?.jugadores ?? []),
+      ...(partido?.alineacionLocal ?? []), ...(partido?.alineacionVisitante ?? []),
+    ]
+    for (const j of fuentes) if (j.fotoUrl) mapa.set(j.idJugador, urlFoto(j.fotoUrl))
+    return mapa
+  }, [qJugadores.data, qLocal.data, qVisitante.data, partido])
 
   const ponerPartido = (p) => {
     if (!p) return
