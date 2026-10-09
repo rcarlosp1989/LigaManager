@@ -52,14 +52,16 @@ public class JornadaService : IJornadaService
             .Select(a => new AlineacionJugadorDto(
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
-                a.Titular, DorsalVigente(a, p.Fecha)
+                a.Titular, DorsalVigente(a, p.Fecha),
+                a.Jugador.Persona.FotoUrl
             )).ToList(),
         p.Alineaciones
             .Where(a => a.IdEquipo == p.IdEquipoVisitante)
             .Select(a => new AlineacionJugadorDto(
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
-                a.Titular, DorsalVigente(a, p.Fecha)
+                a.Titular, DorsalVigente(a, p.Fecha),
+                a.Jugador.Persona.FotoUrl
             )).ToList(),
         p.Cambios.Select(c => new CambioPartidoDto(
             c.IdCambio, c.IdEquipo,
@@ -875,6 +877,13 @@ public class JornadaService : IJornadaService
         _db.PosicionesGrupo.RemoveRange(existentes);
         _db.PosicionesGrupo.AddRange(posiciones.Values);
         await _db.SaveChangesAsync();
+    }
+
+    // Un partido suelto, con el mismo detalle que trae cada partido de GET /api/jornadas/{id}.
+    public async Task<ServiceResult<PartidoDetalleDto>> GetPartidoAsync(int idPartido)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+        return await GetPartidoDetalleAsync(idPartido);
     }
 
     private async Task<ServiceResult<PartidoDetalleDto>> GetPartidoDetalleAsync(int idPartido)

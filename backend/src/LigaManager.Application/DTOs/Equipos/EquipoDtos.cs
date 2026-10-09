@@ -24,7 +24,8 @@ public record JugadorEnEquipoDto(
     int?   Dorsal,
     string Cedula,
     string? Posicion,
-    int    Edad
+    int    Edad,
+    string? FotoUrl
 );
 
 public record CreateEquipoRequest(string Nombre, int IdPais);

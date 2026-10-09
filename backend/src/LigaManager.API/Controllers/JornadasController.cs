@@ -70,6 +70,13 @@ public class JornadasController : ControllerBase
 
     // ── Marcar jugado y eventos ──────────────────────────────────────────────
 
+    [HttpGet("api/partidos/{idPartido:int}")]
+    public async Task<IActionResult> GetPartido(int idPartido)
+    {
+        var result = await _service.GetPartidoAsync(idPartido);
+        return result.Success ? Ok(result.Data) : NotFound(new { error = result.Error });
+    }
+
     [HttpPut("api/partidos/{idPartido:int}/jugado")]
     public async Task<IActionResult> MarcarJugado(int idPartido, [FromBody] MarcarJugadoRequest req)
     {

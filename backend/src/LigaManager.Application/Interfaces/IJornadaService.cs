@@ -11,6 +11,7 @@ public interface IJornadaService
     Task<ServiceResult>                    DeleteAsync(int id);
 
     Task<ServiceResult<PartidoDetalleDto>> AgregarPartidoAsync(int idJornada, CreatePartidoRequest req);
+    Task<ServiceResult<PartidoDetalleDto>> GetPartidoAsync(int idPartido);
     Task<ServiceResult<PartidoDetalleDto>> MarcarJugadoAsync(int idPartido, MarcarJugadoRequest req);
     Task<ServiceResult<PartidoDetalleDto>> EditarPartidoAsync(int idPartido, EditarPartidoRequest req);
     Task<ServiceResult<PartidoDetalleDto>> RegistrarEventoAsync(int idPartido, RegistrarEventoRequest req);

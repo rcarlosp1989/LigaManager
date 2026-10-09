@@ -66,7 +66,8 @@ public class EquipoService : IEquipoService
                     je.Dorsal,
                     je.Jugador.Persona.Cedula,
                     je.Posicion,
-                    CalcularEdad(je.Jugador.Persona.FechaNac)
+                    CalcularEdad(je.Jugador.Persona.FechaNac),
+                    je.Jugador.Persona.FotoUrl
                 )).ToList()
         ));
     }
