@@ -1,5 +1,5 @@
 """Prueba de integración temporal de la Fase 7 contra el API real y MySQL (GitHub Actions)."""
-import json, sys, urllib.request, urllib.error
+import json, sys, urllib.request, urllib.error, urllib.parse
 
 BASE = "http://localhost:5080/api"
 D = json.load(open(sys.argv[1]))
@@ -42,7 +42,7 @@ codigo = inv["codigo"]
 s, _ = llamar("POST", f"/campeonatos/{D['campA']}/vocales/invitaciones", {"tipo": "Titular"}, org2)
 esperar("org2 no puede invitar en el campeonato de org1", s == 400)
 
-s, info = llamar("GET", f"/invitaciones/{codigo.lower().replace('-', ' ')}")
+s, info = llamar("GET", "/invitaciones/" + urllib.parse.quote(codigo.lower().replace("-", " ")))
 esperar("la invitación se consulta sin sesión (código en minúsculas y con espacio)", s == 200 and info["vigente"] and info["campeonato"] == "Senior A", str(info))
 
 s, r = llamar("POST", f"/invitaciones/{codigo}/aceptar", {}, org1)

@@ -32,9 +32,9 @@ jobs:
       - name: Pruebas de la Fase 7
         run: |
           c=0; python3 ci/prueba_vocal.py datos.json > prueba.txt 2>&1 || c=$?
-          grep -E "^FALLA|^RESUMEN|Traceback|Error|line [0-9]" prueba.txt | head -60 | while read l; do echo "::notice::$l"; done || true
-          echo "::notice::pruebas OK: $(grep -c "^OK" prueba.txt || true)"
-          if [ $c -ne 0 ]; then grep -iE "exception|fail|error" api.log | head -25 | while read l; do echo "::warning::$l"; done || true; fi
+          echo "::notice title=prueba::$(grep -vE '^OK ' prueba.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
+          echo "::notice title=ok::$(grep -c '^OK ' prueba.txt || true) pruebas OK"
+          if [ $c -ne 0 ]; then echo "::warning title=api::$(grep -iE 'exception|fail|error|at ' api.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; fi
           exit $c
       - name: Script de reversa
         run: |
