@@ -234,7 +234,7 @@ Probar y, si se aprueba, fusionar `ux/fase-4-pantallas` a `main`. Después, Fase
 
 ## 2026-10-08 — Fase 5: Modo en vivo (interfaz)
 
-**Estado:** aplicada en la rama `ux/fase-5-en-vivo`, creada desde `main` con las fases 1 a 4 fusionadas (`414fa5b`). Pendiente de que Roberto la pruebe y la apruebe.
+**Estado:** aprobada por Roberto y fusionada en `main` el 8 de octubre de 2026 (pull request #5). Publicada en producción. Falta la prueba en un partido real.
 
 Los hallazgos seguían vigentes. Dos datos del código que cambian el plan:
 
@@ -308,4 +308,56 @@ El modo en vivo usa fondo negro, texto blanco y grises claros, y botones de colo
 ### Siguiente paso
 
 Probar en un celular y, si se aprueba, fusionar `ux/fase-5-en-vivo` a `main`. La Fase 6 resuelve `PENDIENTES_BACKEND.md` sin cambiar el esquema. Antes de dar el modo en vivo por terminado, el plan pide probarlo en un partido real.
+
+---
+
+## 2026-10-08 — Fase 6: Pendientes de servidor
+
+**Estado:** aplicada en la rama `ux/fase-6-servidor`, creada desde `main` con las fases 1 a 5 fusionadas (`1a4b44c`). Pendiente de que Roberto la pruebe y la apruebe.
+
+Resuelve todo lo anotado en `PENDIENTES_BACKEND.md` para esta fase. Ningún cambio toca el esquema de la base de datos: solo se agregan datos a respuestas que ya existían y un endpoint de lectura.
+
+De los candidatos que el plan listaba, dos ya estaban resueltos en el código: el servidor ya permitía editar un equipo (`PUT /api/equipos/{id}`) y ya rechazaba eliminar un campeonato con jornadas.
+
+### Qué cambió en el servidor
+
+| Archivo | Cambio |
+|---|---|
+| `Application/DTOs/Campeonatos/CampeonatoDtos.cs`, `Infrastructure/Services/CampeonatoService.cs` | `GET /api/campeonatos` devuelve también `modalidad` y `totalJornadas`. |
+| `Application/DTOs/Dashboard/DashboardDtos.cs`, `Infrastructure/Services/DashboardService.cs` | `idJornada` en cada próximo partido y en cada último resultado. |
+| `API/Controllers/JornadasController.cs`, `Application/Interfaces/IJornadaService.cs`, `Infrastructure/Services/JornadaService.cs` | Endpoint nuevo `GET /api/partidos/{id}`, con el mismo detalle que trae cada partido de la jornada y el mismo control de acceso que el resto de los endpoints del partido. |
+| `Application/DTOs/Partidos/PartidoDtos.cs`, `Application/DTOs/Equipos/EquipoDtos.cs`, `JornadaService.cs`, `EquipoService.cs` | `fotoUrl` en cada jugador de la alineación y del plantel del equipo. |
+
+Todos los campos se agregaron al final de cada respuesta, así que el frontend anterior los ignora y nada se rompe si el servidor se publica antes que el frontend o al revés.
+
+### Qué cambió en el frontend
+
+- **Campeonatos y Dashboard:** no hizo falta tocarlos. Desde las fases 4 y 5 ya usan `modalidad`, `totalJornadas` e `idJornada` cuando llegan: aparece la columna «Modalidad», «Eliminar» se desactiva con jornadas, «Próxima fecha» abre la jornada exacta y muestra «Registrar en vivo».
+- **Modo en vivo** (`pages/vivo/EnVivo.jsx`):
+  - `?jornada=` pasa a ser opcional. Si falta, se pide el partido a `GET /api/partidos/{id}`, se completa la dirección y sigue igual. Las direcciones con `?jornada=` siguen sirviendo.
+  - Las fotos se toman del plantel y de la alineación. La lista general de jugadores solo se pide si el plantel no trae fotos (servidor anterior o equipo sin ninguna foto, porque el servidor omite los campos vacíos).
+
+### Orden de publicación
+
+Al fusionar, Railway publica el servidor y Vercel el frontend a la vez. Como los cambios son compatibles en ambos sentidos, el orden no importa.
+
+### Cómo se verificó
+
+- **Servidor:** este entorno no puede descargar .NET ni paquetes NuGet, así que la compilación se hizo en GitHub Actions, en una rama temporal (`ci/verificar-fase-6`) que no forma parte del pull request. Desde este entorno no se pudo borrar: Roberto puede eliminarla en GitHub (pestaña Branches). No afecta a producción. Ahí:
+  - `dotnet build` del proyecto API en Release, sin errores.
+  - Un programa de prueba creó la base con el modelo de EF Core en un MySQL 8 vacío y ejecutó las consultas cambiadas (lista de campeonatos, Dashboard, partido suelto, jornada y equipo) para comprobar que se traducen a SQL. Todas terminaron sin error. Con la base vacía no se comprobaron valores, solo que las consultas funcionan.
+- **Frontend:** `npm run build` sin errores; lint con los mismos 5 errores previos.
+  - Modo en vivo sin `?jornada=`: pide el partido, completa la dirección y muestra los 11 en cancha. Con un id que no existe muestra «No se encontró este partido».
+  - Con fotos en el plantel no pide la lista general de jugadores; sin ellas, sí.
+  - Campeonatos con los campos nuevos: aparece la columna «Modalidad» y «Eliminar» queda desactivado en el campeonato con jornadas.
+- **Límite:** no se probó contra la base de datos real. Conviene revisar en producción, después de publicar, que la lista de campeonatos muestre la modalidad y que el Dashboard abra la jornada correcta.
+
+### Anotado para otras fases
+
+- **Fase 7:** rol Vocal (requiere base de datos; primero la propuesta de diseño).
+- **Fase 8:** estado del partido, autor de cada evento, bloqueo tras el cierre, observaciones del vocal e identificador por evento contra duplicados.
+
+### Siguiente paso
+
+Probar y, si se aprueba, fusionar `ux/fase-6-servidor` a `main`. Después, la Fase 7 empieza con una propuesta de diseño para aprobar antes de escribir código.
 

@@ -26,6 +26,7 @@ public class CampeonatoService : ICampeonatoService
     public async Task<List<CampeonatoListDto>> GetAllAsync()
         => await CampeonatosVisibles()
             .Include(c => c.TipoPartido)
+            .Include(c => c.ModalidadDeportiva)
             .Include(c => c.Equipos)
             .OrderByDescending(c => c.Anio)
             .Select(c => new CampeonatoListDto(
@@ -36,7 +37,9 @@ public class CampeonatoService : ICampeonatoService
                 c.FechaFin.ToString("yyyy-MM-dd"),
                 c.Estado.ToString(),
                 c.TipoPartido.Nombre,
-                c.Equipos.Count
+                c.Equipos.Count,
+                c.ModalidadDeportiva.Nombre,
+                c.Jornadas.Count
             ))
             .ToListAsync();
 

@@ -33,7 +33,8 @@ public class DashboardService
                 p.EquipoLocal.Nombre,
                 p.EquipoVisitante.Nombre,
                 p.Fecha.ToString("yyyy-MM-dd HH:mm"),
-                p.Estadio.Nombre
+                p.Estadio.Nombre,
+                p.IdJornada
             ))
             .ToListAsync();
 
@@ -79,7 +80,8 @@ public class DashboardService
                 golesLocal,
                 p.EquipoVisitante.Nombre,
                 golesVisitante,
-                p.Fecha.ToString("yyyy-MM-dd")
+                p.Fecha.ToString("yyyy-MM-dd"),
+                p.IdJornada
             );
         }).ToList();
 
