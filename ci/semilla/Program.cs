@@ -17,7 +17,7 @@ db.Database.ExecuteSqlRaw("ALTER TABLE usuario MODIFY COLUMN rol ENUM('ADMIN','A
 // Quitar también las columnas de la Fase 8 (las crea su script real).
 void QuitarColumna(string tabla, string columna)
 {
-    var cn = db.Database.GetDbConnection(); cn.Open();
+    var cn = db.Database.GetDbConnection(); if (cn.State != System.Data.ConnectionState.Open) cn.Open();
     var nombres = new List<string>();
     using (var cmd = cn.CreateCommand())
     {

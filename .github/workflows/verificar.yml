@@ -21,7 +21,10 @@ jobs:
           grep -E " error " build.txt | sort -u | head -30 | while read l; do echo "::error::$l"; done
           exit $c
       - name: Semilla
-        run: FASE8=1 SALIDA=$PWD/datos.json dotnet run --project ci/semilla/semilla.csproj -c Release
+        run: |
+          c=0; FASE8=1 SALIDA=$PWD/datos.json dotnet run --project ci/semilla/semilla.csproj -c Release > semilla.txt 2>&1 || c=$?
+          echo "::notice title=semilla::$(tail -30 semilla.txt | sed ":a;N;$!ba;s/%/%25/g;s/\n/%0A/g")"
+          exit $c
       - name: Aplicar scripts de las fases 7 y 8
         run: |
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal.sql
