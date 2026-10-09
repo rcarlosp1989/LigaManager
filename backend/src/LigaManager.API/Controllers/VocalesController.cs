@@ -20,6 +20,12 @@ public class VocalesController : ControllerBase
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
     private IActionResult Resultado(Application.Common.ServiceResult r)       => r.Success ? NoContent() : BadRequest(new { error = r.Error });
 
+    // Fase 8: un partido cerrado no acepta más registros del vocal (409). Corrige el organizador.
+    private async Task<IActionResult?> SiCerrado(int? idPartido)
+        => idPartido is int p && await _vocales.CerradoAsync(p)
+            ? Conflict(new { error = "El partido está cerrado. Las correcciones las hace el organizador desde la planilla." })
+            : null;
+
     // ── Organizador ──────────────────────────────────────────────────────────
 
     [Authorize]
@@ -80,40 +86,45 @@ public class VocalesController : ControllerBase
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPost("api/vocal/partidos/{idPartido:int}/alineacion")]
     public async Task<IActionResult> Convocar(int idPartido, [FromBody] AgregarAlineacionRequest req)
-        => Resultado(await _jornadas.AgregarAlineacionAsync(idPartido, req));
+        => await SiCerrado(idPartido) ?? Resultado(await _jornadas.AgregarAlineacionAsync(idPartido, req));
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpDelete("api/vocal/alineacion/{idAlineacion:int}")]
     public async Task<IActionResult> QuitarConvocado(int idAlineacion)
-        => Resultado(await _jornadas.EliminarAlineacionAsync(idAlineacion));
+        => await SiCerrado(await _vocales.PartidoDeAlineacionAsync(idAlineacion)) ?? Resultado(await _jornadas.EliminarAlineacionAsync(idAlineacion));
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPost("api/vocal/partidos/{idPartido:int}/eventos")]
     public async Task<IActionResult> RegistrarEvento(int idPartido, [FromBody] RegistrarEventoRequest req)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        return Resultado(await _jornadas.RegistrarEventoAsync(idPartido, req));
+        return await SiCerrado(idPartido) ?? Resultado(await _jornadas.RegistrarEventoAsync(idPartido, req));
     }
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpDelete("api/vocal/eventos/{idEvento:int}")]
     public async Task<IActionResult> EliminarEvento(int idEvento)
-        => Resultado(await _jornadas.EliminarEventoAsync(idEvento));
+        => await SiCerrado(await _vocales.PartidoDeEventoAsync(idEvento)) ?? Resultado(await _jornadas.EliminarEventoAsync(idEvento));
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPost("api/vocal/partidos/{idPartido:int}/cambios")]
     public async Task<IActionResult> RegistrarCambio(int idPartido, [FromBody] RegistrarCambioRequest req)
-        => Resultado(await _jornadas.RegistrarCambioAsync(idPartido, req));
+        => await SiCerrado(idPartido) ?? Resultado(await _jornadas.RegistrarCambioAsync(idPartido, req));
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpDelete("api/vocal/cambios/{idCambio:int}")]
     public async Task<IActionResult> EliminarCambio(int idCambio)
-        => Resultado(await _jornadas.EliminarCambioAsync(idCambio));
+        => await SiCerrado(await _vocales.PartidoDeCambioAsync(idCambio)) ?? Resultado(await _jornadas.EliminarCambioAsync(idCambio));
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPut("api/vocal/partidos/{idPartido:int}/cerrar")]
     public async Task<IActionResult> Cerrar(int idPartido, [FromBody] CerrarPartidoVocalRequest req)
-        => Resultado(await _vocales.CerrarAsync(idPartido, req));
+        => await SiCerrado(idPartido) ?? Resultado(await _vocales.CerrarAsync(idPartido, req));
+
+    [Authorize(Policy = Politicas.SoloVocal)]
+    [HttpPut("api/vocal/partidos/{idPartido:int}/iniciar")]
+    public async Task<IActionResult> Iniciar(int idPartido)
+        => await SiCerrado(idPartido) ?? Resultado(await _jornadas.IniciarRegistroAsync(idPartido));
 }
 
 public static class Politicas

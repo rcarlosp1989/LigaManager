@@ -18,6 +18,13 @@ public class Partido
     public int?     GolesVisitante    { get; set; }
     public DateTime CreatedAt         { get; set; }
     public DateTime UpdatedAt         { get; set; }
+
+    // Fase 8: registro desde el modo en vivo.
+    public EstadoRegistro EstadoRegistro  { get; set; } = EstadoRegistro.SinIniciar;
+    public DateTime?      IniciadoEn      { get; set; }   // UTC
+    public DateTime?      CerradoEn       { get; set; }   // UTC
+    public int?           IdUsuarioCierre { get; set; }
+    public Usuario?       UsuarioCierre   { get; set; }
     public Jornada  Jornada           { get; set; } = null!;
     public Equipo   EquipoLocal       { get; set; } = null!;
     public Equipo   EquipoVisitante   { get; set; } = null!;
@@ -28,4 +35,11 @@ public class Partido
     public ICollection<AlineacionJugador> Alineaciones { get; set; } = [];
     public ICollection<CambioPartido> Cambios { get; set; } = [];
     public ICollection<PartidoOficial> Oficiales { get; set; } = [];
+}
+
+public enum EstadoRegistro
+{
+    SinIniciar,
+    EnVivo,
+    Cerrado
 }

@@ -39,7 +39,12 @@ public record PartidoDetalleDto(
     bool    Desierto,
     string? Observaciones,
     bool    PerdidaReglamento,
-    int?    IdEquipoSancionado
+    int?    IdEquipoSancionado,
+    // Fase 8: registro en vivo. EstadoRegistro: SinIniciar | EnVivo | Cerrado. Horas de Ecuador.
+    string  EstadoRegistro = "SinIniciar",
+    string? IniciadoEn     = null,
+    string? CerradoEn      = null,
+    string? CerradoPor     = null
 );
 
 public record AlineacionJugadorDto(
@@ -48,7 +53,8 @@ public record AlineacionJugadorDto(
     string  Jugador,
     bool    Titular,
     int?    Dorsal,
-    string? FotoUrl
+    string? FotoUrl,
+    string? RegistradoPor = null
 );
 
 public record CambioPartidoDto(
@@ -58,12 +64,15 @@ public record CambioPartidoDto(
     string JugadorSale,
     int    IdJugadorEntra,
     string JugadorEntra,
-    int    Minuto
+    int    Minuto,
+    string? RegistradoPor = null,
+    string? IdCliente     = null
 );
 
 public record AgregarAlineacionRequest(int IdJugador, bool Titular);
 
-public record RegistrarCambioRequest(int IdJugadorSale, int IdJugadorEntra, int Minuto);
+// IdCliente (Fase 8): identificador que manda el modo en vivo; si llega dos veces, no se duplica.
+public record RegistrarCambioRequest(int IdJugadorSale, int IdJugadorEntra, int Minuto, string? IdCliente = null);
 
 public record DesignacionPartidoDto(
     int    IdCargo,
@@ -77,7 +86,9 @@ public record EventoPartidoDto(
     string  TipoEvento,
     string  Jugador,
     int     IdJugador,
-    int     Minuto
+    int     Minuto,
+    string? RegistradoPor = null,
+    string? IdCliente     = null
 );
 
 public record CreatePartidoRequest(
@@ -103,8 +114,12 @@ public record DesignacionPartidoRequest(int IdCargo, int IdArbitro);
 public record RegistrarEventoRequest(
     int    IdJugador,
     string TipoEvento,     // GOL, GOL_EN_CONTRA, TARJETA_AMARILLA, TARJETA_ROJA
-    int    Minuto
+    int    Minuto,
+    string? IdCliente = null   // Fase 8: identificador del modo en vivo, evita duplicados
 );
 public record MarcarJugadoRequest(bool Jugado);
+
+// Fase 8: cerrar el registro del partido desde el modo en vivo.
+public record CerrarRegistroRequest(string? Observaciones);
 
 public record ActualizarPlanillaRequest(string? Observaciones, bool Desierto, bool PerdidaReglamento = false, int? IdEquipoSancionado = null);
