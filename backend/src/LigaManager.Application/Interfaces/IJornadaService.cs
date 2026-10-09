@@ -23,4 +23,9 @@ public interface IJornadaService
     Task<ServiceResult>                    EliminarAlineacionAsync(int idAlineacion);
     Task<ServiceResult<PartidoDetalleDto>> RegistrarCambioAsync(int idPartido, RegistrarCambioRequest req);
     Task<ServiceResult>                    EliminarCambioAsync(int idCambio);
+
+    // Fase 8: registro en vivo
+    Task<ServiceResult<PartidoDetalleDto>> IniciarRegistroAsync(int idPartido);
+    Task<ServiceResult<PartidoDetalleDto>> CerrarRegistroAsync(int idPartido, CerrarRegistroRequest req);
+    Task<ServiceResult<PartidoDetalleDto>> ReabrirRegistroAsync(int idPartido);
 }

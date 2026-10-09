@@ -45,7 +45,9 @@ public class JornadaService : IJornadaService
             e.TipoEvento,
             $"{e.Jugador.Persona.Nombre} {e.Jugador.Persona.Apellido}",
             e.IdJugador,
-            e.Minuto
+            e.Minuto,
+            e.UsuarioRegistro?.Nombre,
+            e.IdCliente
         )).ToList(),
         p.Alineaciones
             .Where(a => a.IdEquipo == p.IdEquipoLocal)
@@ -53,7 +55,8 @@ public class JornadaService : IJornadaService
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
                 a.Titular, DorsalVigente(a, p.Fecha),
-                a.Jugador.Persona.FotoUrl
+                a.Jugador.Persona.FotoUrl,
+                a.UsuarioRegistro?.Nombre
             )).ToList(),
         p.Alineaciones
             .Where(a => a.IdEquipo == p.IdEquipoVisitante)
@@ -61,20 +64,83 @@ public class JornadaService : IJornadaService
                 a.IdAlineacion, a.IdJugador,
                 $"{a.Jugador.Persona.Nombre} {a.Jugador.Persona.Apellido}",
                 a.Titular, DorsalVigente(a, p.Fecha),
-                a.Jugador.Persona.FotoUrl
+                a.Jugador.Persona.FotoUrl,
+                a.UsuarioRegistro?.Nombre
             )).ToList(),
         p.Cambios.Select(c => new CambioPartidoDto(
             c.IdCambio, c.IdEquipo,
             c.IdJugadorSale, $"{c.JugadorSale.Persona.Nombre} {c.JugadorSale.Persona.Apellido}",
             c.IdJugadorEntra, $"{c.JugadorEntra.Persona.Nombre} {c.JugadorEntra.Persona.Apellido}",
-            c.Minuto
+            c.Minuto,
+            c.UsuarioRegistro?.Nombre,
+            c.IdCliente
         )).ToList(),
         p.Grupo?.Nombre ?? p.Jornada?.Grupo?.Nombre,
         p.Desierto,
         p.Observaciones,
         p.PerdidaReglamento,
-        p.IdEquipoSancionado
+        p.IdEquipoSancionado,
+        p.EstadoRegistro.ToString(),
+        HoraEcuador(p.IniciadoEn),
+        HoraEcuador(p.CerradoEn),
+        p.UsuarioCierre?.Nombre
     );
+
+    private static string? HoraEcuador(DateTime? utc) => utc?.AddHours(-5).ToString("yyyy-MM-dd HH:mm");
+
+    // ── Registro en vivo (Fase 8) ────────────────────────────────────────────
+
+    private bool EsVocal => string.Equals(_http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Vocal", StringComparison.OrdinalIgnoreCase);
+
+    // El primer registro desde el modo en vivo (o de un vocal) pone el partido «en vivo».
+    private void MarcarEnVivo(Partido p, bool desdeModoEnVivo)
+    {
+        if (p.EstadoRegistro != EstadoRegistro.SinIniciar || !(desdeModoEnVivo || EsVocal)) return;
+        p.EstadoRegistro = EstadoRegistro.EnVivo;
+        p.IniciadoEn ??= DateTime.UtcNow;
+    }
+
+    public async Task<ServiceResult<PartidoDetalleDto>> IniciarRegistroAsync(int idPartido)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+        var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
+        if (p.EstadoRegistro == EstadoRegistro.SinIniciar)
+        {
+            p.EstadoRegistro = EstadoRegistro.EnVivo;
+            p.IniciadoEn ??= DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+        return await GetPartidoDetalleAsync(idPartido);
+    }
+
+    // Cierra el registro: guarda observaciones, quién y cuándo, y marca el partido como jugado.
+    public async Task<ServiceResult<PartidoDetalleDto>> CerrarRegistroAsync(int idPartido, CerrarRegistroRequest req)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+        var obs = req.Observaciones?.Trim();
+        if (obs is { Length: > 2000 }) return ServiceResult<PartidoDetalleDto>.Fail("Las observaciones no pueden pasar de 2000 caracteres.");
+        var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
+        if (!string.IsNullOrEmpty(obs)) p.Observaciones = obs;
+        p.EstadoRegistro  = EstadoRegistro.Cerrado;
+        p.IniciadoEn    ??= DateTime.UtcNow;
+        p.CerradoEn       = DateTime.UtcNow;
+        p.IdUsuarioCierre = UsuarioActualId;
+        await _db.SaveChangesAsync();
+        return await MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(true));
+    }
+
+    // Solo el organizador: devuelve el partido al vocal para que siga registrando.
+    public async Task<ServiceResult<PartidoDetalleDto>> ReabrirRegistroAsync(int idPartido)
+    {
+        if (EsVocal || !await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
+        var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
+        if (p.EstadoRegistro != EstadoRegistro.Cerrado) return ServiceResult<PartidoDetalleDto>.Fail("El partido no está cerrado.");
+        p.EstadoRegistro  = EstadoRegistro.EnVivo;
+        p.CerradoEn       = null;
+        p.IdUsuarioCierre = null;
+        await _db.SaveChangesAsync();
+        return await GetPartidoDetalleAsync(idPartido);
+    }
 
     // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
     private static bool EsGol(string tipoEvento) => tipoEvento is "GOL" or "GOL_EN_CONTRA";
@@ -209,6 +275,11 @@ public class JornadaService : IJornadaService
             .Include(j => j.Partidos).ThenInclude(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(ju => ju.JugadorEquipos)
             .Include(j => j.Partidos).ThenInclude(p => p.Cambios).ThenInclude(c => c.JugadorSale).ThenInclude(ju => ju.Persona)
             .Include(j => j.Partidos).ThenInclude(p => p.Cambios).ThenInclude(c => c.JugadorEntra).ThenInclude(ju => ju.Persona)
+            .Include(j => j.Partidos).ThenInclude(p => p.Eventos).ThenInclude(e => e.UsuarioRegistro)
+            .Include(j => j.Partidos).ThenInclude(p => p.Alineaciones).ThenInclude(a => a.UsuarioRegistro)
+            .Include(j => j.Partidos).ThenInclude(p => p.Cambios).ThenInclude(c => c.UsuarioRegistro)
+            .Include(j => j.Partidos).ThenInclude(p => p.UsuarioCierre)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(j => j.IdJornada == id);
 
         if (j is null) return ServiceResult<JornadaDetalleDto>.Fail("Jornada no encontrada.");
@@ -533,6 +604,13 @@ public class JornadaService : IJornadaService
 
         if (req.Minuto < 1 || req.Minuto > 120)
             return ServiceResult<PartidoDetalleDto>.Fail("El minuto del evento debe estar entre 1 y 120.");
+        if (req.IdCliente is { Length: > 36 })
+            return ServiceResult<PartidoDetalleDto>.Fail("Identificador del registro inválido.");
+
+        // Fase 8: si este registro ya llegó (mismo IdCliente), no se crea otra vez.
+        if (req.IdCliente is { } idClienteEvento
+            && await _db.EventosPartido.AnyAsync(e => e.IdPartido == idPartido && e.IdCliente == idClienteEvento))
+            return await GetPartidoDetalleAsync(idPartido);
 
         var partido = await _db.Partidos
             .Include(p => p.Jornada)
@@ -569,7 +647,10 @@ public class JornadaService : IJornadaService
             TipoEvento = tipoEvento,
             Minuto     = req.Minuto,
             CreatedAt  = DateTime.UtcNow,
+            IdUsuarioRegistro = UsuarioActualId,
+            IdCliente  = req.IdCliente,
         };
+        MarcarEnVivo(partido, req.IdCliente != null);
 
         try
         {
@@ -578,6 +659,13 @@ public class JornadaService : IJornadaService
         }
         catch (DbUpdateException ex)
         {
+            // Dos envíos simultáneos del mismo registro: el índice único deja pasar solo uno.
+            if (req.IdCliente is { } idc)
+            {
+                _db.ChangeTracker.Clear();
+                if (await _db.EventosPartido.AnyAsync(e => e.IdPartido == idPartido && e.IdCliente == idc))
+                    return await GetPartidoDetalleAsync(idPartido);
+            }
             var detalle = ex.InnerException?.Message ?? ex.Message;
             return ServiceResult<PartidoDetalleDto>.Fail($"No se pudo registrar el evento: {detalle}");
         }
@@ -667,7 +755,9 @@ public class JornadaService : IJornadaService
             IdJugador = req.IdJugador,
             Titular   = req.Titular,
             CreatedAt = DateTime.UtcNow,
+            IdUsuarioRegistro = UsuarioActualId,
         });
+        MarcarEnVivo(partido, false);
         await _db.SaveChangesAsync();
         return await GetPartidoDetalleAsync(idPartido);
     }
@@ -697,6 +787,11 @@ public class JornadaService : IJornadaService
             return ServiceResult<PartidoDetalleDto>.Fail("El minuto del cambio debe estar entre 1 y 120.");
         if (req.IdJugadorSale == req.IdJugadorEntra)
             return ServiceResult<PartidoDetalleDto>.Fail("El jugador que sale y el que entra no pueden ser el mismo.");
+        if (req.IdCliente is { Length: > 36 })
+            return ServiceResult<PartidoDetalleDto>.Fail("Identificador del registro inválido.");
+        if (req.IdCliente is { } idClienteCambio
+            && await _db.CambiosPartido.AnyAsync(c => c.IdPartido == idPartido && c.IdCliente == idClienteCambio))
+            return await GetPartidoDetalleAsync(idPartido);
 
         var partido = await _db.Partidos.FirstOrDefaultAsync(p => p.IdPartido == idPartido);
         if (partido is null) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
@@ -736,8 +831,21 @@ public class JornadaService : IJornadaService
             IdJugadorEntra = req.IdJugadorEntra,
             Minuto         = req.Minuto,
             CreatedAt      = DateTime.UtcNow,
+            IdUsuarioRegistro = UsuarioActualId,
+            IdCliente      = req.IdCliente,
         });
-        await _db.SaveChangesAsync();
+        MarcarEnVivo(partido, req.IdCliente != null);
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException) when (req.IdCliente is not null)
+        {
+            _db.ChangeTracker.Clear();
+            if (await _db.CambiosPartido.AnyAsync(c => c.IdPartido == idPartido && c.IdCliente == req.IdCliente))
+                return await GetPartidoDetalleAsync(idPartido);
+            throw;
+        }
         return await GetPartidoDetalleAsync(idPartido);
     }
 
@@ -900,6 +1008,11 @@ public class JornadaService : IJornadaService
             .Include(p => p.Alineaciones).ThenInclude(a => a.Jugador).ThenInclude(j => j.JugadorEquipos)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorSale).ThenInclude(j => j.Persona)
             .Include(p => p.Cambios).ThenInclude(c => c.JugadorEntra).ThenInclude(j => j.Persona)
+            .Include(p => p.Eventos).ThenInclude(e => e.UsuarioRegistro)
+            .Include(p => p.Alineaciones).ThenInclude(a => a.UsuarioRegistro)
+            .Include(p => p.Cambios).ThenInclude(c => c.UsuarioRegistro)
+            .Include(p => p.UsuarioCierre)
+            .AsSplitQuery()
             .Include(p => p.Grupo)
             .Include(p => p.Jornada).ThenInclude(j => j.Grupo)
             .FirstOrDefaultAsync(p => p.IdPartido == idPartido);

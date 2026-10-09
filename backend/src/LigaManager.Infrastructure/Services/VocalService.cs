@@ -359,18 +359,22 @@ public class VocalService
         return edad;
     }
 
-    // Cierra el partido: guarda las observaciones y lo marca como jugado (recalcula la tabla).
+    // Cierra el partido: observaciones, quién y cuándo (Fase 8), y lo marca como jugado.
     public async Task<ServiceResult<PartidoDetalleDto>> CerrarAsync(int idPartido, CerrarPartidoVocalRequest req)
     {
         if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Este partido no está disponible para registrar hoy.");
-        var obs = req.Observaciones?.Trim();
-        if (obs is { Length: > 2000 }) return ServiceResult<PartidoDetalleDto>.Fail("Las observaciones no pueden pasar de 2000 caracteres.");
-        if (!string.IsNullOrEmpty(obs))
-        {
-            var partido = await _db.Partidos.FirstAsync(p => p.IdPartido == idPartido);
-            partido.Observaciones = obs;
-            await _db.SaveChangesAsync();
-        }
-        return await _jornadas.MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(true));
+        return await _jornadas.CerrarRegistroAsync(idPartido, new CerrarRegistroRequest(req.Observaciones));
     }
+
+    // ── Bloqueo después del cierre (Fase 8) ──────────────────────────────────
+
+    public Task<bool> CerradoAsync(int idPartido)
+        => _db.Partidos.AnyAsync(p => p.IdPartido == idPartido && p.EstadoRegistro == EstadoRegistro.Cerrado);
+
+    public Task<int?> PartidoDeEventoAsync(int idEvento)
+        => _db.EventosPartido.Where(e => e.IdEvento == idEvento).Select(e => (int?)e.IdPartido).FirstOrDefaultAsync();
+    public Task<int?> PartidoDeCambioAsync(int idCambio)
+        => _db.CambiosPartido.Where(c => c.IdCambio == idCambio).Select(c => (int?)c.IdPartido).FirstOrDefaultAsync();
+    public Task<int?> PartidoDeAlineacionAsync(int idAlineacion)
+        => _db.Alineaciones.Where(a => a.IdAlineacion == idAlineacion).Select(a => (int?)a.IdPartido).FirstOrDefaultAsync();
 }

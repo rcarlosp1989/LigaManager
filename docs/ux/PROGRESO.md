@@ -428,3 +428,86 @@ Si se fusiona sin aplicar el script, el servidor nuevo falla al leer las tablas 
 - **Fase 8:** estado del partido (sin iniciar, en vivo, cerrado), autor de cada registro, bloqueo después del cierre y protección del servidor contra duplicados.
 - **Sin fase:** el servidor no limita los intentos de adivinar un código de invitación (10 caracteres de 31 símbolos, unas 8×10¹⁴ combinaciones); si se quiere, se puede agregar un límite de intentos por IP.
 
+---
+
+## 2026-10-09 — Fase 8: Modo en vivo, cierre y registro
+
+**Estado:** aplicada en la rama `ux/fase-8-registro`, creada **sobre la Fase 7** (`ux/fase-7-vocal`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere la Fase 7 y aplicar su propio script en la base de datos antes de publicar.**
+
+### Base de datos
+
+- `backend/database/20261009_registro_en_vivo.sql`:
+  - `partido`: `estado_registro` (SIN_INICIAR, EN_VIVO, CERRADO), `iniciado_en`, `cerrado_en` e `id_usuario_cierre`.
+  - `eventopartido` y `cambio_partido`: `id_usuario_registro` e `id_cliente` (único por partido).
+  - `alineacion_jugador`: `id_usuario_registro`.
+  - Todo con valor por defecto o nulo: los partidos existentes quedan «sin iniciar» y sin autor.
+- `backend/database/20261009_registro_en_vivo_reversa.sql`: quita todo lo anterior y conserva los goles, tarjetas, cambios y convocatorias.
+- Dos detalles que encontró la prueba en MySQL real y quedaron resueltos en los scripts:
+  - `id_cliente` es `VARCHAR(36)` y no `CHAR(36)`, porque el conector de MySQL lee `CHAR(36)` como Guid y el servidor fallaba al leer el partido.
+  - La reversa crea un índice sobre `id_partido` antes de borrar el índice único, porque MySQL puede usar ese índice único para la clave foránea y entonces no deja borrarlo.
+
+### Servidor
+
+| Archivo | Cambio |
+|---|---|
+| `Domain/Entities/Partido.cs`, `EventoPartido.cs`, `CambioPartido.cs`, `AlineacionJugador.cs`, `Data/LigaManagerContext.cs` | Campos nuevos y su mapeo (`EstadoRegistro` con conversión al ENUM de MySQL). |
+| `Application/DTOs/Partidos/PartidoDtos.cs` | El partido trae `estadoRegistro`, `iniciadoEn`, `cerradoEn` y `cerradoPor`. Cada evento, cambio y convocatoria trae `registradoPor`; eventos y cambios, su `idCliente`. Los pedidos de evento y cambio aceptan `idCliente` (opcional). `MarcarJugadoRequest` se conserva. |
+| `Infrastructure/Services/JornadaService.cs` | Guarda quién registra cada cosa. Si llega un `idCliente` repetido, devuelve el partido sin crear nada (también si dos envíos llegan a la vez). El primer registro del modo en vivo o de un vocal pone el partido «en vivo». Métodos nuevos: iniciar, cerrar (observaciones, quién y cuándo, y marca jugado) y reabrir (solo el organizador). |
+| `API/Controllers/JornadasController.cs` | `PUT /api/partidos/{id}/iniciar`, `/cerrar` y `/reabrir` para el organizador. |
+| `API/Controllers/VocalesController.cs`, `VocalService.cs` | Con el partido cerrado, toda escritura del vocal responde **409** «El partido está cerrado…». Nuevo `PUT /api/vocal/partidos/{id}/iniciar`. El cierre del vocal usa el cierre nuevo. |
+
+### Frontend
+
+- **Modo en vivo** (`pages/vivo/EnVivo.jsx`, `cola.js`, `reloj.js`):
+  - Cada gol, tarjeta o cambio manda su `idCliente`, y la cola lo usa para reconocer lo que ya llegó.
+  - «Iniciar partido» avisa al servidor la hora de inicio.
+  - Si el partido ya empezó en otro dispositivo, ofrece «Retomar desde esa hora» o «Empezar de cero».
+  - Con el partido cerrado, el vocal solo ve el resumen, con «Cerrado por … a las …». No hay botones de registro ni reloj.
+  - El organizador cierra con el endpoint nuevo, así que su cierre también queda registrado.
+- **Detalle del campeonato** (`CampeonatoDetalle.jsx`):
+  - Cada partido muestra «Registro en vivo: sin iniciar», «● En vivo desde las 10:02» o «Cerrado por Juan Vocal, 11:48», con el botón «Reabrir para el vocal» (pide confirmación).
+  - Cada evento dice «registrado por …».
+
+### Decisiones
+
+- **Reloj solo en el dispositivo**, como se aprobó. El servidor guarda la hora de inicio; al retomarla en otro dispositivo no se cuentan las pausas, y el minuto se puede corregir en cada registro.
+- **Reabrir no desmarca «jugado».** El partido sigue contando en la tabla; si el vocal agrega un gol, el marcador se recalcula.
+- **El organizador no tiene bloqueo:** corrige desde la planilla en cualquier momento.
+
+### Cómo se verificó
+
+- **Servidor, en GitHub Actions** (rama temporal `ci/verificar-fase-8`), con MySQL 8, los scripts reales de las fases 7 y 8 aplicados y el API corriendo:
+  - Las 55 pruebas de la Fase 7 siguen bien.
+  - 26 pruebas nuevas, todas bien:
+    - un partido empieza sin iniciar y pasa a en vivo con el primer registro del vocal;
+    - el mismo evento y el mismo cambio enviados dos veces se guardan una sola vez;
+    - autor de convocatorias, eventos y cambios, del vocal o del organizador;
+    - el cierre deja cerrado, jugado, con autor, hora y observaciones;
+    - con el partido cerrado, 7 escrituras del vocal responden 409, pero sigue viendo el resumen;
+    - el vocal no puede reabrir (403);
+    - el organizador corrige y borra después del cierre, reabre, el vocal vuelve a registrar, y el organizador también puede cerrar;
+    - los partidos viejos quedan sin iniciar y sin autor.
+  - Reversas: la de la Fase 8 quita sus columnas y conserva los eventos; la de la Fase 7 falla con vocales y funciona después de desactivarlos; los dos scripts se vuelven a aplicar.
+- **Pantallas** (Playwright, 390 y 1.440 px), todas bien:
+  - el vocal inicia el partido y el servidor recibe la hora;
+  - el gol lleva un `idCliente` con forma de UUID;
+  - al cerrar, el vocal queda en el resumen sin registro ni reloj, también tras recargar;
+  - en otro dispositivo se retoma el reloj desde la hora de inicio (18:30 a las 10:20:30 con inicio a las 10:02);
+  - el organizador ve «Cerrado por Juan Vocal, 11:48» y «registrado por Juan Vocal», y reabre con confirmación.
+  - Además se repitieron las pruebas de las fases 5 y 7, con el mismo resultado. 0 controles menores de 44 px en 390 px.
+- `npm run build` sin errores; lint con los mismos 5 errores previos.
+- **Límite:** no se probó contra la base de producción ni en un partido real. El plan pide probar el modo en vivo en un partido de verdad antes de darlo por terminado.
+
+### Despliegue (en este orden)
+
+1. Fase 7 completa: script `20261009_rol_vocal.sql` y fusionar su pull request.
+2. Aplicar `backend/database/20261009_registro_en_vivo.sql` en Railway.
+3. Fusionar el pull request de la Fase 8.
+
+Si se fusiona la Fase 8 sin su script, el servidor nuevo falla al leer los partidos.
+
+### Pendiente
+
+- Probar el modo en vivo en un partido real, con el vocal (pedido del plan).
+- Borrar en GitHub las ramas temporales `ci/verificar-fase-6`, `ci/verificar-fase-7` y `ci/verificar-fase-8` (desde aquí no hay permiso para borrarlas).
+

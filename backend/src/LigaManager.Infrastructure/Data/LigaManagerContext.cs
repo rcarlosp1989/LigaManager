@@ -600,6 +600,34 @@ public class LigaManagerContext : DbContext
             e.HasOne(i => i.UsuarioQueUso).WithMany().HasForeignKey(i => i.UsadaPor).OnDelete(DeleteBehavior.SetNull);
         });
 
+        // ── Registro en vivo (Fase 8) ────────────────────────────────────────
+        // ENUM de MySQL: SIN_INICIAR / EN_VIVO / CERRADO.
+        var estadoRegistro = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<EstadoRegistro, string>(
+            v => v == EstadoRegistro.EnVivo ? "EN_VIVO" : v == EstadoRegistro.Cerrado ? "CERRADO" : "SIN_INICIAR",
+            v => v == "EN_VIVO" ? EstadoRegistro.EnVivo : v == "CERRADO" ? EstadoRegistro.Cerrado : EstadoRegistro.SinIniciar);
+
+        modelBuilder.Entity<Partido>(e =>
+        {
+            e.Property(p => p.EstadoRegistro).HasConversion(estadoRegistro);
+            e.HasOne(p => p.UsuarioCierre).WithMany().HasForeignKey(p => p.IdUsuarioCierre).OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<EventoPartido>(e =>
+        {
+            e.Property(x => x.IdCliente).HasMaxLength(36);
+            e.HasIndex(x => new { x.IdPartido, x.IdCliente }).IsUnique();
+            e.HasOne(x => x.UsuarioRegistro).WithMany().HasForeignKey(x => x.IdUsuarioRegistro).OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<CambioPartido>(e =>
+        {
+            e.Property(x => x.IdCliente).HasMaxLength(36);
+            e.HasIndex(x => new { x.IdPartido, x.IdCliente }).IsUnique();
+            e.HasOne(x => x.UsuarioRegistro).WithMany().HasForeignKey(x => x.IdUsuarioRegistro).OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<AlineacionJugador>(e =>
+        {
+            e.HasOne(x => x.UsuarioRegistro).WithMany().HasForeignKey(x => x.IdUsuarioRegistro).OnDelete(DeleteBehavior.SetNull);
+        });
+
         // ── Convención snake_case (SIEMPRE AL FINAL) ─────────────────────────
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
             foreach (var property in entity.GetProperties())

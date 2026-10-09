@@ -77,6 +77,8 @@ export function useReloj(idPartido) {
     reanudar:  () => setReloj(r => ({ ...r, desde: Date.now() })),
     terminarTiempo: () => setReloj(r => ({ ...r, fase: r.fase === '1T' ? 'descanso' : 'final', acumulado: msJugados(r), desde: null })),
     finalizar: () => setReloj(r => ({ ...r, fase: 'final', acumulado: msJugados(r), desde: null })),
+    // Fase 8: retomar desde la hora de inicio guardada en el servidor (sin contar pausas).
+    retomar:   (desdeMs) => setReloj(r => ({ ...r, fase: '1T', acumulado: 0, desde: desdeMs })),
     reiniciar: () => setReloj(r => ({ ...INICIAL, duracion: r.duracion })),
     duracion:  (minutos) => setReloj(r => ({ ...r, duracion: minutos })),
   }
