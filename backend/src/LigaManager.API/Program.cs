@@ -31,6 +31,8 @@ builder.Services.AddScoped<IEstadioService,    EstadioService>();
 builder.Services.AddScoped<IGrupoService,      GrupoService>();
 builder.Services.AddScoped<IEstadisticasService, EstadisticasService>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<VocalService>();
 
 builder.Services.Configure<LigaManager.Application.Common.ReglasDisciplinariasOptions>(
     builder.Configuration.GetSection("ReglasDisciplinarias"));
@@ -58,6 +60,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
         opt.Events = new JwtBearerEvents
         {
+            OnForbidden = ctx =>
+            {
+                ctx.Response.StatusCode  = 403;
+                ctx.Response.ContentType = "application/json";
+                return ctx.Response.WriteAsync(
+                    "{\"error\":\"No tienes permiso para esta acción.\"}");
+            },
             OnChallenge = ctx =>
             {
                 ctx.HandleResponse();
@@ -69,7 +78,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+// ── Permisos por rol ─────────────────────────────────────────────────────────
+// Por defecto ([Authorize]) se rechaza el rol Vocal: el vocal solo usa /api/vocal,
+// que pide la política SoloVocal. Así todo lo que el vocal no puede hacer (editar o borrar
+// partidos, tocar jugadores, ver otros campeonatos) lo bloquea el servidor.
+builder.Services.AddAuthorization(opt =>
+{
+    opt.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .RequireAssertion(ctx => !ctx.User.IsInRole("Vocal"))
+        .Build();
+    opt.AddPolicy(LigaManager.API.Controllers.Politicas.SoloVocal, p => p.RequireRole("Vocal"));
+});
 
 // ── Controllers con enums como strings ───────────────────────────────────────
 builder.Services.AddControllers()

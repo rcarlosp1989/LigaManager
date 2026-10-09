@@ -38,6 +38,8 @@ public class LigaManagerContext : DbContext
     public DbSet<ConceptoPago>       ConceptosPago         { get; set; }
     public DbSet<Pago>               Pagos                 { get; set; }
     public DbSet<SancionManual>      SancionesManuales     { get; set; }
+    public DbSet<CampeonatoVocal>    CampeonatoVocales     { get; set; }
+    public DbSet<InvitacionVocal>    InvitacionesVocal     { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -75,6 +77,8 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<ConceptoPago>()      .ToTable("conceptopago");
         modelBuilder.Entity<Pago>()              .ToTable("pago");
         modelBuilder.Entity<SancionManual>()     .ToTable("sancion_manual");
+        modelBuilder.Entity<CampeonatoVocal>()   .ToTable("campeonato_vocal");
+        modelBuilder.Entity<InvitacionVocal>()   .ToTable("invitacion_vocal");
 
         // ── Enums como string ────────────────────────────────────────────────
         modelBuilder.Entity<Usuario>()
@@ -568,6 +572,32 @@ public class LigaManagerContext : DbContext
                 .WithMany()
                 .HasForeignKey(s => s.IdJugador)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Vocales (Fase 7) ─────────────────────────────────────────────────
+        // El ENUM de MySQL guarda TITULAR/REEMPLAZO en mayúsculas.
+        var tipoVocal = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TipoVocal, string>(
+            v => v.ToString().ToUpperInvariant(),
+            v => Enum.Parse<TipoVocal>(v, true));
+
+        modelBuilder.Entity<CampeonatoVocal>(e =>
+        {
+            e.HasKey(v => v.IdHabilitacion);
+            e.Property(v => v.Tipo).HasConversion(tipoVocal);
+            e.Property(v => v.CreatedAt).ValueGeneratedOnAdd();
+            e.HasOne(v => v.Campeonato).WithMany().HasForeignKey(v => v.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(v => v.Usuario).WithMany().HasForeignKey(v => v.IdUsuario).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InvitacionVocal>(e =>
+        {
+            e.HasKey(i => i.IdInvitacion);
+            e.Property(i => i.Tipo).HasConversion(tipoVocal);
+            e.Property(i => i.CreatedAt).ValueGeneratedOnAdd();
+            e.HasIndex(i => i.TokenHash).IsUnique();
+            e.HasOne(i => i.Campeonato).WithMany().HasForeignKey(i => i.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.Creador).WithMany().HasForeignKey(i => i.CreadaPor).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.UsuarioQueUso).WithMany().HasForeignKey(i => i.UsadaPor).OnDelete(DeleteBehavior.SetNull);
         });
 
         // ── Convención snake_case (SIEMPRE AL FINAL) ─────────────────────────
