@@ -17,7 +17,7 @@ jobs:
         with: { dotnet-version: '9.0.x' }
       - name: Compilar API
         run: |
-          dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release > build.txt 2>&1; c=$?
+          c=0; dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release > build.txt 2>&1 || c=$?
           grep -E " error " build.txt | sort -u | head -30 | while read l; do echo "::error::$l"; done
           exit $c
       - name: Semilla
@@ -31,10 +31,10 @@ jobs:
           for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5080/api/auth/login && break; sleep 2; done
       - name: Pruebas de la Fase 7
         run: |
-          python3 ci/prueba_vocal.py datos.json > prueba.txt 2>&1; c=$?
-          grep -E "^FALLA|^RESUMEN|Traceback|Error" prueba.txt | head -60 | while read l; do echo "::notice::$l"; done
-          grep -c "^OK" prueba.txt | while read n; do echo "::notice::pruebas OK: $n"; done
-          if [ $c -ne 0 ]; then grep -iE "exception|fail|error" api.log | head -25 | while read l; do echo "::warning::$l"; done; fi
+          c=0; python3 ci/prueba_vocal.py datos.json > prueba.txt 2>&1 || c=$?
+          grep -E "^FALLA|^RESUMEN|Traceback|Error|line [0-9]" prueba.txt | head -60 | while read l; do echo "::notice::$l"; done || true
+          echo "::notice::pruebas OK: $(grep -c "^OK" prueba.txt || true)"
+          if [ $c -ne 0 ]; then grep -iE "exception|fail|error" api.log | head -25 | while read l; do echo "::warning::$l"; done || true; fi
           exit $c
       - name: Script de reversa
         run: |
