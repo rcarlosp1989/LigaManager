@@ -77,6 +77,29 @@ public class JornadasController : ControllerBase
         return result.Success ? Ok(result.Data) : NotFound(new { error = result.Error });
     }
 
+    // ── Registro en vivo (Fase 8) ────────────────────────────────────────────
+
+    [HttpPut("api/partidos/{idPartido:int}/iniciar")]
+    public async Task<IActionResult> IniciarRegistro(int idPartido)
+    {
+        var result = await _service.IniciarRegistroAsync(idPartido);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpPut("api/partidos/{idPartido:int}/cerrar")]
+    public async Task<IActionResult> CerrarRegistro(int idPartido, [FromBody] CerrarRegistroRequest req)
+    {
+        var result = await _service.CerrarRegistroAsync(idPartido, req);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpPut("api/partidos/{idPartido:int}/reabrir")]
+    public async Task<IActionResult> ReabrirRegistro(int idPartido)
+    {
+        var result = await _service.ReabrirRegistroAsync(idPartido);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
     [HttpPut("api/partidos/{idPartido:int}/jugado")]
     public async Task<IActionResult> MarcarJugado(int idPartido, [FromBody] MarcarJugadoRequest req)
     {

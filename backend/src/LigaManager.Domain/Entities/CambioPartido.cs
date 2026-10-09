@@ -8,6 +8,9 @@ public class CambioPartido
     public int      IdJugadorEntra { get; set; }
     public int      Minuto         { get; set; }
     public DateTime CreatedAt      { get; set; }
+    public int?     IdUsuarioRegistro { get; set; }   // Fase 8
+    public string?  IdCliente         { get; set; }   // Fase 8
+    public Usuario? UsuarioRegistro   { get; set; }
 
     public Partido  Partido        { get; set; } = null!;
     public Equipo   Equipo         { get; set; } = null!;

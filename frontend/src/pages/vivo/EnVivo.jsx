@@ -23,6 +23,12 @@ import { useAuth } from '../../context/AuthContext'
 const TIEMPO_ESPERA = 15000
 const VISTAS = [['convocatoria', 'Convocatoria'], ['partido', 'Partido'], ['cierre', 'Cierre']]
 
+// Fase 8: el servidor dice si el registro está cerrado; con uno anterior, se usa «jugado».
+const estaCerrado = (p) => (p?.estadoRegistro ? p.estadoRegistro === 'Cerrado' : !!p?.jugado)
+
+// Hora de Ecuador «yyyy-MM-dd HH:mm» del servidor → milisegundos.
+const msDesdeHoraEcuador = (t) => Date.parse(`${t.replace(' ', 'T')}:00-05:00`)
+
 const nombreCorto = (j) => `${j.dorsal != null ? `${j.dorsal} · ` : ''}${j.jugador}`
 
 // Copia local de una consulta: si se recarga sin señal, se muestra lo último que llegó.
@@ -265,7 +271,24 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
 
   const lado = params.get('equipo') === 'visitante' ? 'visitante' : 'local'
   const hayConvocados = alineacion.local.length + alineacion.visitante.length > 0
-  const vista = VISTAS.some(([v]) => v === params.get('vista')) ? params.get('vista') : (hayConvocados ? 'partido' : 'convocatoria')
+  // Fase 8: cerrado el partido, el vocal solo ve el resumen.
+  const bloqueado = vocal && estaCerrado(partido)
+  const vista = bloqueado ? 'cierre'
+    : VISTAS.some(([v]) => v === params.get('vista')) ? params.get('vista') : (hayConvocados ? 'partido' : 'convocatoria')
+
+  // El servidor guarda la hora de inicio (Fase 8): avisa que el partido empezó y permite retomar el reloj.
+  const iniciarEnServidor = () => {
+    api.put(`${base}/partidos/${idPartido}/iniciar`, null, { timeout: TIEMPO_ESPERA })
+      .then(r => ponerPartido(r.data)).catch(() => {})
+  }
+  const accionesRelojVivo = {
+    ...accionesReloj,
+    iniciar: () => {
+      if (reloj.fase === 'antes') iniciarEnServidor()
+      accionesReloj.iniciar()
+    },
+  }
+  const puedeRetomar = reloj.fase === 'antes' && partido?.iniciadoEn && !estaCerrado(partido)
 
   // ── Acciones ───────────────────────────────────────────────────────────────
   const anotar = (item, texto, icono) => {
@@ -276,18 +299,20 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
   }
 
   const registrarEvento = (jugador, ladoJugador, tipoEvento, minuto) => {
+    const uid = nuevoUid()
     anotar({
-      uid: nuevoUid(), clase: 'evento', lado: ladoJugador,
-      datos: { idJugador: jugador.idJugador, tipoEvento, minuto },
+      uid, clase: 'evento', lado: ladoJugador,
+      datos: { idJugador: jugador.idJugador, tipoEvento, minuto, idCliente: uid },
       conocidos: (partido.eventos ?? []).map(e => e.idEvento),
     }, `${ETIQUETA_EVENTO[tipoEvento]} · ${nombreCorto(jugador)} · min ${minuto}`, ICONO_EVENTO[tipoEvento])
     setHoja(null)
   }
 
   const registrarCambio = (sale, entra, ladoJugador, minuto) => {
+    const uid = nuevoUid()
     anotar({
-      uid: nuevoUid(), clase: 'cambio', lado: ladoJugador,
-      datos: { idJugadorSale: sale.idJugador, idJugadorEntra: entra.idJugador, minuto },
+      uid, clase: 'cambio', lado: ladoJugador,
+      datos: { idJugadorSale: sale.idJugador, idJugadorEntra: entra.idJugador, minuto, idCliente: uid },
       conocidos: (partido.cambios ?? []).map(c => c.idCambio),
     }, `Cambio · sale ${nombreCorto(sale)}, entra ${nombreCorto(entra)} · min ${minuto}`, '🔄')
     setHoja(null)
@@ -360,7 +385,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
     // El vocal cierra con sus observaciones; el organizador marca el partido como jugado.
     mutationFn: (observaciones) => vocal
       ? api.put(`/vocal/partidos/${idPartido}/cerrar`, { observaciones: observaciones || null }, { timeout: TIEMPO_ESPERA })
-      : api.put(`/partidos/${idPartido}/jugado`, { jugado: true }, { timeout: TIEMPO_ESPERA }),
+      : api.put(`/partidos/${idPartido}/cerrar`, { observaciones: null }, { timeout: TIEMPO_ESPERA }),
     onSuccess: (r) => {
       ponerPartido(r.data)
       invalidarTablas()
@@ -450,7 +475,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
               {pantalla === 'activa' && <span className="ml-2 inline-flex items-center gap-1 text-amber-300"><Sun size={12} aria-hidden="true" />Pantalla encendida</span>}
             </p>
           </div>
-          <ControlReloj reloj={reloj} corriendo={corriendo} acciones={accionesReloj} />
+          {!bloqueado && <ControlReloj reloj={reloj} corriendo={corriendo} acciones={accionesRelojVivo} />}
         </div>
 
         {ultimo && (
@@ -485,15 +510,33 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
         </div>
       )}
 
+      {puedeRetomar && (
+        <div role="status" className="mx-3 mt-3 rounded-lg border border-sky-400/60 bg-sky-950/60 px-3 py-2 text-sm text-sky-50">
+          <p>El partido se inició a las {partido.iniciadoEn.slice(11, 16)}, quizás en otro dispositivo.</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => accionesReloj.retomar(msDesdeHoraEcuador(partido.iniciadoEn))}
+              className="h-11 rounded-lg bg-sky-300 font-bold text-black">Retomar desde esa hora</button>
+            <button type="button" onClick={accionesRelojVivo.iniciar} className="h-11 rounded-lg border border-sky-300 text-sky-100">Empezar de cero</button>
+          </div>
+          <p className="mt-1.5 text-xs text-sky-200">Al retomar no se cuentan las pausas: corrige el minuto en cada registro si hace falta.</p>
+        </div>
+      )}
+      {bloqueado && (
+        <p role="status" className="mx-3 mt-3 rounded-lg border border-green-500/60 bg-green-950/60 px-3 py-2 text-sm text-green-50">
+          Partido cerrado{partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''}{partido.cerradoEn ? ` a las ${partido.cerradoEn.slice(11, 16)}` : ''}.
+          Ya no se pueden hacer registros; las correcciones las hace el organizador.
+        </p>
+      )}
+
       {/* ── Vista ── */}
-      <nav aria-label="Etapas del partido" className="grid grid-cols-3 gap-1 px-3 pt-3">
+      {!bloqueado && <nav aria-label="Etapas del partido" className="grid grid-cols-3 gap-1 px-3 pt-3">
         {VISTAS.map(([clave, texto]) => (
           <button key={clave} type="button" onClick={() => setParam('vista', clave)} aria-current={vista === clave ? 'step' : undefined}
             className={`h-11 rounded-lg text-sm font-semibold transition-colors ${
               vista === clave ? 'bg-white text-black' : 'bg-neutral-900 text-gray-200 hover:bg-neutral-800'
             }`}>{texto}</button>
         ))}
-      </nav>
+      </nav>}
 
       {vista !== 'cierre' && (
         <div role="group" aria-label="Equipo" className="grid grid-cols-2 gap-2 px-3 pt-3">
@@ -955,7 +998,11 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
           <p className="font-display text-5xl tabular-nums text-white">{marcador.local} – {marcador.visitante}</p>
           <p className="text-left text-base font-semibold text-white">{partido.equipoVisitante}</p>
         </div>
-        {partido.jugado && <p className="mt-2 text-sm font-semibold text-green-400">Partido cerrado y marcado como jugado.</p>}
+        {estaCerrado(partido) && (
+          <p className="mt-2 text-sm font-semibold text-green-400">
+            Partido cerrado{partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''} y marcado como jugado.
+          </p>
+        )}
         {(partido.desierto || partido.perdidaReglamento) && (
           <p className="mt-2 text-sm text-amber-300">{partido.desierto ? 'Marcado como desierto.' : 'Perdido por reglamento (3-0).'} El resultado oficial lo define la planilla.</p>
         )}
@@ -992,7 +1039,7 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
 
       {vocal ? (
         <>
-          {!partido.jugado && (
+          {!estaCerrado(partido) && (
             <div>
               <label htmlFor={obsId} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-300">Observaciones (opcional)</label>
               <textarea id={obsId} rows={4} maxLength={2000} value={observaciones} onChange={e => setObservaciones(e.target.value)}
@@ -1000,7 +1047,7 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
                 className="w-full rounded-lg border border-neutral-500 bg-black px-3 py-2 text-base text-white placeholder:text-gray-500" />
             </div>
           )}
-          {partido.jugado && partido.observaciones && (
+          {estaCerrado(partido) && partido.observaciones && (
             <p className="rounded-lg bg-neutral-900 px-3 py-2 text-sm text-gray-100"><span className="text-gray-300">Observaciones:</span> {partido.observaciones}</p>
           )}
           <p className="text-sm text-gray-300">El partido desierto y el perdido por reglamento los registra el organizador.</p>
@@ -1011,7 +1058,7 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
         </p>
       )}
 
-      {partido.jugado ? (
+      {estaCerrado(partido) ? (
         <button type="button" onClick={onSalir} className="h-14 w-full rounded-xl bg-white text-base font-bold text-black">{vocal ? 'Volver a mis partidos' : 'Volver a la jornada'}</button>
       ) : (
         <button type="button" onClick={() => onCerrar(observaciones.trim())} disabled={pendientes > 0 || cerrando}

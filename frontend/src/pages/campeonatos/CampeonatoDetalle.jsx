@@ -42,6 +42,34 @@ function PartidoBadge({ estado }) {
 
 // ── InfoItem ─────────────────────────────────────────────────────────────────
 
+// Fase 8: estado del registro en vivo. Sin el dato (servidor anterior) no muestra nada.
+function EstadoRegistro({ partido, onReabrir, reabriendo }) {
+  const estado = partido.estadoRegistro
+  if (!estado) return null
+  const hora = (t) => (t ? t.slice(11, 16) : '')
+  return (
+    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+      {estado === 'SinIniciar' && <span className="text-gray-500">Registro en vivo: sin iniciar</span>}
+      {estado === 'EnVivo' && (
+        <span className="inline-flex items-center gap-1.5 rounded bg-red-900/30 px-2 py-0.5 font-semibold text-red-300">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-400" /> En vivo{partido.iniciadoEn ? ` desde las ${hora(partido.iniciadoEn)}` : ''}
+        </span>
+      )}
+      {estado === 'Cerrado' && (
+        <>
+          <span className="rounded bg-green-900/30 px-2 py-0.5 font-semibold text-green-300">
+            Cerrado{partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''}{partido.cerradoEn ? `, ${hora(partido.cerradoEn)}` : ''}
+          </span>
+          <button type="button" onClick={onReabrir} disabled={reabriendo}
+            className="rounded border border-gray-700 px-2 py-0.5 text-gray-300 hover:border-gray-500 disabled:opacity-40">
+            Reabrir para el vocal
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
 function InfoItem({ label, value }) {
   return (
     <div>
@@ -795,6 +823,24 @@ function PartidoCard({ partido, idCampeonato }) {
     onError: (err) => aviso.error(mensajeDeError(err, 'No se puede eliminar el partido.')),
   })
 
+  // Fase 8: devolver el partido al vocal después de que lo cerró.
+  const reabrirMutation = useMutation({
+    mutationFn: () => api.put(`/partidos/${partido.idPartido}/reabrir`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jornada'] })
+      aviso.exito('Partido reabierto: el vocal puede volver a registrar.')
+    },
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se pudo reabrir el partido.')),
+  })
+  const reabrir = async () => {
+    const ok = await confirmar({
+      titulo: '¿Reabrir el partido para el vocal?',
+      mensaje: 'El vocal podrá volver a registrar y cerrarlo otra vez. El partido sigue marcado como jugado. Tú puedes corregir desde la planilla sin reabrirlo.',
+      textoConfirmar: 'Reabrir',
+    })
+    if (ok) reabrirMutation.mutate()
+  }
+
   const eliminarEvento = async (ev) => {
     const ok = await confirmar({
       titulo: `¿Eliminar ${(ETIQUETA_EVENTO[ev.tipoEvento] ?? 'el evento').toLowerCase()} de ${ev.jugador}?`,
@@ -864,6 +910,8 @@ function PartidoCard({ partido, idCampeonato }) {
           : <span className="text-gray-700">👤 Sin árbitro</span>}
       </div>
 
+      <EstadoRegistro partido={partido} onReabrir={reabrir} reabriendo={reabrirMutation.isPending} />
+
       {partido.observaciones && (
         <p className="mb-3 text-xs text-gray-400 italic whitespace-pre-line">📝 {partido.observaciones}</p>
       )}
@@ -880,7 +928,7 @@ function PartidoCard({ partido, idCampeonato }) {
         <div className="mb-3 space-y-1">
           {partido.eventos.map(ev => (
             <div key={ev.idEvento} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1">
-              <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span></span>
+              <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span>{ev.registradoPor && <span className="text-gray-600"> · registrado por {ev.registradoPor}</span>}</span>
               <button
                 onClick={() => eliminarEvento(ev)}
                 className="text-gray-600 hover:text-red-400 transition-colors ml-2"

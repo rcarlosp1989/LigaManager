@@ -27,7 +27,10 @@ function coincide(item, x) {
 // El registro nuevo que corresponde a este item: igual en datos y que no existía al anotarlo.
 function creadoEn(item, partido) {
   return listaDe(item.clase, partido)
-    .filter(x => !item.conocidos.includes(idDe(item.clase, x)) && coincide(item, x))
+    // Con el servidor de la Fase 8, cada registro trae el idCliente que mandó el celular.
+    .filter(x => (x.idCliente
+      ? x.idCliente === item.uid
+      : !item.conocidos.includes(idDe(item.clase, x)) && coincide(item, x)))
     .sort((a, b) => idDe(item.clase, b) - idDe(item.clase, a))[0] ?? null
 }
 
