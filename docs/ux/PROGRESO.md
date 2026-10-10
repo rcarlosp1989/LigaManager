@@ -815,3 +815,44 @@ Si se fusiona sin el script, el servidor nuevo deja pasar la cédula repetida y 
 
 1. En Railway, ejecutar `backend/database/20261010_tipo_documento.sql`.
 2. Fusionar el PR.
+
+---
+
+## 2026-10-10 — Mejora: editar oficiales y estadios; todos los países
+
+**Estado:** aplicada en la rama `mejora/editar-oficiales-estadios`, creada desde `main`. Pendiente de que Roberto la apruebe. **Tiene un script de países (opcional, recomendado).**
+
+### Decisión de Roberto
+
+Países, provincias y cantones son compartidos por todos los organizadores. En lugar de una pantalla para que cada uno agregue, con riesgo de duplicados y errores visibles para todos, **se carga una sola vez la lista completa de países**. Ecuador ya tiene sus 24 provincias y 221 cantones, y los países extranjeros solo piden el país.
+
+### Qué cambió
+
+- **Oficiales (Mantenimiento → Oficiales):**
+  - menú ⋮ en cada tarjeta, con **Editar** y **Eliminar** (con confirmación);
+  - Editar trae nombre, documento, fecha y ubicación;
+  - el documento usa las mismas reglas que al crear y, al editar, es opcional: vacío conserva el que tenía;
+  - la tarjeta muestra «Pasaporte: …» o «Sin documento»; ya no muestra los códigos internos «AR-…».
+  - Servidor: nueva ruta `PUT /api/arbitros/{id}`, solo para el dueño. Valida documento, repetidos y ubicación.
+- **Estadios (Mantenimiento → Estadios):** menú ⋮ con **Editar** y **Eliminar**. El servidor ya lo permitía; faltaba la pantalla.
+- **Países:**
+  - script `20261010_paises_completos.sql` con los 195 países en español (193 de la ONU, más Ciudad del Vaticano y Palestina);
+  - solo agrega los que faltan, sin distinguir mayúsculas ni tildes, y se puede repetir;
+  - el listado pone a **Ecuador primero**, y los formularios nuevos empiezan con Ecuador elegido.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-mantenimiento`):
+  - con un «Peru» sin tilde ya cargado, el script deja 195 países sin duplicarlo, también al aplicarlo dos veces; Ecuador sale primero;
+  - editar un oficial cambia nombre, documento y fecha; una cédula inválida o el documento de otro oficial propio dan 400; vacío conserva el documento; org2 no puede editar ni ver cambios;
+  - editar y eliminar un estadio funciona, y org2 no puede editarlo;
+  - se repitieron todas las pruebas anteriores, todas bien.
+- Pantallas (Playwright, 390 y 1.440 px):
+  - el menú ⋮ abre Editar con todo precargado (país, provincia y cantón);
+  - guardar envía el PUT correcto; Eliminar pide confirmación;
+  - un oficial nuevo empieza con Ecuador; sin desborde y 0 errores.
+
+### Orden para publicar
+
+1. (Recomendado) En Railway, ejecutar `backend/database/20261010_paises_completos.sql`.
+2. Fusionar el PR. Funciona aunque no se aplique el script; solo faltarían países.
