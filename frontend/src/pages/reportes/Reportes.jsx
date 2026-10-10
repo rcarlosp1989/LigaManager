@@ -9,13 +9,15 @@ import TabNomina from './TabNomina'
 import TabGoleadores from './TabGoleadores'
 import TabTarjetas from './TabTarjetas'
 import TabSuspensiones from './TabSuspensiones'
+import { Ban, ChartColumn, ClipboardList, FolderOpen, RectangleVertical } from 'lucide-react'
+import { Balon } from '../../components/IconoEvento'
 
 const TABS = [
-  { key: 'posiciones', label: '📊 Posiciones' },
-  { key: 'nomina', label: '📋 Nómina' },
-  { key: 'goleadores', label: '⚽ Goleadores' },
-  { key: 'tarjetas', label: '🟨 Tarjetas' },
-  { key: 'suspensiones', label: '🚫 Suspensiones' },
+  { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
+  { key: 'nomina', label: 'Nómina', Icono: ClipboardList },
+  { key: 'goleadores', label: 'Goleadores', Icono: Balon },
+  { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical },
+  { key: 'suspensiones', label: 'Suspensiones', Icono: Ban },
 ]
 
 // El último campeonato elegido se recuerda en este navegador.
@@ -68,16 +70,16 @@ export default function Reportes() {
       </div>
 
       {!idCampeonato ? (
-        <EmptyState icon="📁" title="Elige un campeonato" description="Selecciona un campeonato para ver sus reportes." />
+        <EmptyState icon={FolderOpen} title="Elige un campeonato" description="Selecciona un campeonato para ver sus reportes." />
       ) : (
         <>
           <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
             {TABS.map(t => (
               <button key={t.key} onClick={() => setTab(t.key)}
-                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 ${
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 inline-flex items-center gap-2 ${
                   tab === t.key ? 'border-brand-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}>
-                {t.label}
+                <t.Icono size={15} aria-hidden="true" />{t.label}
               </button>
             ))}
           </div>

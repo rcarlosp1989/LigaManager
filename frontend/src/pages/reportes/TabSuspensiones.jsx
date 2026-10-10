@@ -4,6 +4,7 @@ import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
+import TablaDesplazable from '../../components/TablaDesplazable'
 
 function hoy() {
   return new Date().toISOString().slice(0, 10)
@@ -163,7 +164,7 @@ export default function TabSuspensiones({ idCampeonato }) {
           <p className="text-gray-600 text-sm">Sin sanciones registradas.</p>
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
+            <TablaDesplazable>
               <table className="w-full text-sm min-w-[620px]">
                 <thead>
                   <tr className="border-b border-gray-800">
@@ -201,7 +202,7 @@ export default function TabSuspensiones({ idCampeonato }) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TablaDesplazable>
           </div>
         )}
       </div>
@@ -212,7 +213,7 @@ export default function TabSuspensiones({ idCampeonato }) {
           <p className="text-gray-600 text-sm">Nadie está a una amarilla de la sanción por acumulación.</p>
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
+            <TablaDesplazable>
               <table className="w-full text-sm min-w-[380px]">
                 <thead>
                   <tr className="border-b border-gray-800">
@@ -231,7 +232,7 @@ export default function TabSuspensiones({ idCampeonato }) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TablaDesplazable>
           </div>
         )}
       </div>

@@ -8,6 +8,7 @@ import EstadoError from '../../components/EstadoError'
 import MenuAcciones from '../../components/MenuAcciones'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
+import { Globe, Shield } from 'lucide-react'
 
 // Mismo formulario para crear y editar; al editar llega `inicial`.
 function EquipoForm({ inicial, onSubmit, loading, error, textoGuardar = 'Guardar Equipo' }) {
@@ -141,7 +142,7 @@ export default function Equipos() {
       ) : isError ? (
         <EstadoError mensaje="No se pudieron cargar los equipos." onReintentar={refetch} reintentando={isFetching} />
       ) : equipos.length === 0 ? (
-        <EmptyState icon="🛡️" title="Sin equipos"
+        <EmptyState icon={Shield} title="Sin equipos"
           description="Registra el primer equipo para comenzar."
           action={
             <button onClick={() => setModal('crear')} className="btn-primary">
@@ -155,7 +156,7 @@ export default function Equipos() {
             <div key={e.idEquipo} className="card flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="text-white font-semibold">{e.nombre}</h3>
-                <p className="text-gray-400 text-sm mt-1">🌍 {e.pais}</p>
+                <p className="flex items-center gap-1.5 text-gray-400 text-sm mt-1"><Globe size={14} aria-hidden="true" />{e.pais}</p>
                 <p className="text-gray-500 text-xs mt-2">
                   {e.totalJugadores} jugador{e.totalJugadores !== 1 ? 'es' : ''} activo{e.totalJugadores !== 1 ? 's' : ''}
                 </p>

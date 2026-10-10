@@ -4,6 +4,8 @@ import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { Trophy } from 'lucide-react'
 
 const COLOR_FORMA = {
   V: 'bg-green-500 text-green-950',
@@ -33,7 +35,7 @@ function TablaGrupo({ grupo }) {
           <span className="text-white font-medium">Grupo {grupo.grupo}</span>
         </div>
       )}
-      <div className="overflow-x-auto">
+      <TablaDesplazable>
         <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-gray-800">
@@ -68,7 +70,7 @@ function TablaGrupo({ grupo }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TablaDesplazable>
     </div>
   )
 }
@@ -129,7 +131,7 @@ export default function TabPosiciones({ idCampeonato, campeonato }) {
       </div>
 
       {gruposConDatos.length === 0 ? (
-        <EmptyState icon="⚽" title="Aún no hay partidos jugados" description="La tabla aparecerá cuando se registren resultados en este campeonato." />
+        <EmptyState icon={Trophy} title="Aún no hay partidos jugados" description="La tabla aparecerá cuando se registren resultados en este campeonato." />
       ) : (
         <>
           {gruposConDatos.map(g => (

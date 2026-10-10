@@ -11,6 +11,8 @@ import MenuAcciones from '../../components/MenuAcciones'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import { anioDe, formatearRango } from '../../utils/fechas'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { Trophy } from 'lucide-react'
 
 const labelClass = 'block text-xs text-gray-400 uppercase tracking-wider mb-1.5'
 
@@ -245,7 +247,7 @@ export default function Campeonatos() {
         <EstadoError mensaje="No se pudieron cargar los campeonatos." onReintentar={refetch} reintentando={isFetching} />
       ) : vacio ? (
         <EmptyState
-          icon="🏆"
+          icon={Trophy}
           title="Sin campeonatos"
           description="Crea tu primer campeonato para comenzar a gestionar torneos."
           action={
@@ -255,8 +257,8 @@ export default function Campeonatos() {
           }
         />
       ) : (
-        // «relative» para que el texto oculto del encabezado quede dentro del área con desplazamiento.
-        <div className="card p-0 overflow-x-auto relative">
+        <div className="card p-0 overflow-hidden">
+          <TablaDesplazable>
           <table className="w-full min-w-[720px]">
             <thead>
               <tr className="border-b border-gray-800">
@@ -314,6 +316,7 @@ export default function Campeonatos() {
               })}
             </tbody>
           </table>
+          </TablaDesplazable>
         </div>
       )}
 
