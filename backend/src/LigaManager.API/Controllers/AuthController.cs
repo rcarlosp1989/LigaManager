@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LigaManager.Application.Interfaces;
 using LigaManager.Application.DTOs.Auth;
+using LigaManager.API.Seguridad;
 
 [ApiController]
 [Route("api/auth")]
@@ -12,6 +13,7 @@ public class AuthController : ControllerBase
     public AuthController(IAuthService auth) => _auth = auth;
 
     /// <summary>Login y obtención de token JWT</summary>
+    [LimitarIntentos("login")]
     [HttpPost("login")]
     [ProducesResponseType(typeof(LoginResponse), 200)]
     [ProducesResponseType(400)]

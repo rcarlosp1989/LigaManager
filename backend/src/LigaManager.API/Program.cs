@@ -34,6 +34,20 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<VocalService>();
 
+// ── Límite de intentos fallidos (código de invitación, inicio de sesión) ──────
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<LigaManager.API.Seguridad.LimiteIntentos>();
+
+// Railway pasa la petición por su proxy: la IP real del visitante llega en X-Forwarded-For.
+// Se toma solo el último valor (el que agrega el proxy), así no se puede falsificar.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(opt =>
+{
+    opt.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor;
+    opt.ForwardLimit = 1;
+    opt.KnownNetworks.Clear();
+    opt.KnownProxies.Clear();
+});
+
 builder.Services.Configure<LigaManager.Application.Common.ReglasDisciplinariasOptions>(
     builder.Configuration.GetSection("ReglasDisciplinarias"));
 
@@ -157,6 +171,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // ── Middleware pipeline ───────────────────────────────────────────────────────
+app.UseForwardedHeaders();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
