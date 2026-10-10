@@ -693,7 +693,7 @@ Playwright sobre `npm run build`, a 390, 768 y 1.440 px:
 
 ## 2026-10-10 — Revisión de seguridad del servidor
 
-**Estado:** aplicada en la rama `mejora/seguridad-servidor`, creada desde `main`. Pendiente de que Roberto la apruebe. Cambia servidor y configuración de Vercel; **sin script de base de datos y sin variables nuevas** (Railway ya tiene `JwtSettings__SecretKey`).
+**Estado:** fusionada en `main` el 10 de octubre de 2026 (pull request #14). Publicada en producción. Cambia servidor y configuración de Vercel; **sin script de base de datos y sin variables nuevas** (Railway ya tiene `JwtSettings__SecretKey`).
 
 ### Qué se revisó y resultado
 
@@ -733,3 +733,37 @@ GitHub Actions con MySQL y el API real (rama temporal `ci/verificar-permisos`):
 - `prueba_seguridad.py`: encabezados; una «foto» HTML y un .exe dan 400; un PNG llamado .jpg se acepta y se guarda como .png.
 - Arranque publicado: sin clave sale con error; con la clave vieja sale con error; con clave propia arranca.
 - Las 81 pruebas de las fases 7 y 8, todas bien.
+## 2026-10-10 — Mejora: el mismo jugador o árbitro en dos ligas
+
+**Estado:** script `20261010_cedula_por_organizador.sql` aplicado en Railway por Roberto el 10 de octubre de 2026 (índice `idx_persona_cedula`, Non_unique = 1). Pendiente de fusionar el pull request #15.
+
+### Decisión de Roberto
+
+Un jugador sí puede jugar en ligas de distintos organizadores. Se eligió la opción **A: cada organizador tiene su propia ficha**. La alternativa, una ficha compartida, dejaba ver los datos del otro organizador.
+
+### Qué cambió
+
+- **Base de datos** (`20261010_cedula_por_organizador.sql`): `persona.cedula` deja de ser única en todo el sistema. Se cambia `uq_persona_cedula` por un índice normal, `idx_persona_cedula`.
+  - La reversa (`…_reversa.sql`) solo funciona si no hay cédulas repetidas. El archivo trae la consulta para encontrarlas.
+- **Servidor:**
+  - Jugadores: al crear o editar, la cédula no se puede repetir **entre los jugadores del mismo organizador**. El mensaje es «Ya tienes un jugador registrado con esa cédula».
+  - Árbitros: la misma regla entre los árbitros del mismo organizador. Antes, repetir una cédula daba un error del servidor.
+  - Un árbitro puede tener la misma cédula que un jugador.
+- Cada liga ve y edita solo su ficha: nombre, foto, dorsal e historial. Ya no se revela si la cédula existe en otra liga.
+
+### Cómo se verificó
+
+GitHub Actions (rama temporal `ci/verificar-cedula`), con la base en el estado de producción (`VARCHAR(20)` con `uq_persona_cedula`) y el script aplicado encima:
+- el índice queda `idx_persona_cedula`, no único;
+- org2 registra a un jugador que ya está en la liga de org1, cada uno ve solo su ficha y la de org1 no cambia;
+- repetir la cédula dentro de la misma liga da 400, también al editar; usar una cédula que solo existe en otra liga, se permite;
+- el mismo árbitro en dos ligas sí; repetido en la misma liga, 400; un árbitro con la cédula de un jugador, sí;
+- reversa: con cédulas repetidas falla; resueltas, funciona, y el script se vuelve a aplicar;
+- se repitieron las pruebas de permisos y seguridad, y las 81 de las fases 7 y 8, todas bien.
+
+### Orden para publicar
+
+1. En Railway, aplicar `backend/database/20261010_cedula_por_organizador.sql`.
+2. Fusionar el PR.
+
+Si se fusiona sin el script, el servidor nuevo deja pasar la cédula repetida y la base la rechaza con un error.
