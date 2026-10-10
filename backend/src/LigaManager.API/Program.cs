@@ -68,6 +68,8 @@ if (string.IsNullOrWhiteSpace(secretKey) || secretKey == ClaveVieja || Encoding.
     Console.WriteLine("Aviso: sin JwtSettings__SecretKey; se usa una clave de prueba solo para esta computadora.");
     secretKey = "solo-desarrollo-local-no-usar-en-produccion-0123456789";
 }
+// AuthService firma los tokens leyendo la configuración: se deja ahí la clave ya resuelta.
+builder.Configuration["JwtSettings:SecretKey"] = secretKey;
 var issuer    = builder.Configuration["JwtSettings:Issuer"]    ?? "LigaManagerAPI";
 var audience  = builder.Configuration["JwtSettings:Audience"]  ?? "LigaManagerClient";
 
