@@ -105,6 +105,43 @@ public class ArbitroService : IArbitroService
         return await GetByIdAsync(arbitro.IdArbitro);
     }
 
+    // Editar un oficial: mismos datos y reglas que al crearlo. El documento es opcional; si se
+    // deja vacío, se conserva el que tenía.
+    public async Task<ServiceResult<ArbitroDetalleDto>> UpdateAsync(int id, CreateArbitroRequest req)
+    {
+        var a = await _db.Arbitros.Include(x => x.Persona)
+            .FirstOrDefaultAsync(x => x.IdArbitro == id && x.IdUsuarioCreador == UsuarioActualId);
+        if (a is null) return ServiceResult<ArbitroDetalleDto>.Fail("Árbitro no encontrado.");
+
+        if (string.IsNullOrWhiteSpace(req.Nombre) || string.IsNullOrWhiteSpace(req.Apellido))
+            return ServiceResult<ArbitroDetalleDto>.Fail("El nombre y el apellido son obligatorios.");
+        if (!DateOnly.TryParse(req.FechaNac, out var fechaNac))
+            return ServiceResult<ArbitroDetalleDto>.Fail("Formato de fecha inválido. Use yyyy-MM-dd.");
+
+        var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
+        if (ubicacion.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(ubicacion.Error);
+
+        if (!string.IsNullOrWhiteSpace(req.Cedula))
+        {
+            var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
+            if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
+            var tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
+            if (await _db.Arbitros.AnyAsync(x => x.IdArbitro != id && x.IdUsuarioCreador == UsuarioActualId
+                    && x.Persona.Cedula == doc.Numero && x.Persona.TipoIdentificacion == tipoDoc))
+                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes otro árbitro registrado con ese documento.");
+            a.Persona.Cedula = doc.Numero;
+            a.Persona.TipoIdentificacion = tipoDoc;
+        }
+
+        a.Persona.Nombre   = req.Nombre.Trim();
+        a.Persona.Apellido = req.Apellido.Trim();
+        a.Persona.FechaNac = fechaNac;
+        a.Persona.IdPais   = req.IdPais;
+        a.Persona.IdCanton = ubicacion.IdCanton;
+        await _db.SaveChangesAsync();
+        return await GetByIdAsync(id);
+    }
+
     public async Task<ServiceResult> DeleteAsync(int id)
     {
         var a = await _db.Arbitros

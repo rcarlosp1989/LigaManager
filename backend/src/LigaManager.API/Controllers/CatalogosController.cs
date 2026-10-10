@@ -18,7 +18,8 @@ public class CatalogosController : ControllerBase
     [HttpGet("paises")]
     public async Task<IActionResult> GetPaises()
         => Ok(await _db.Paises
-            .OrderBy(p => p.Nombre)
+            .OrderBy(p => p.Nombre != "Ecuador")   // Ecuador primero: es el país de casi todos
+            .ThenBy(p => p.Nombre)
             .Select(p => new { p.IdPais, p.Nombre })
             .ToListAsync());
 

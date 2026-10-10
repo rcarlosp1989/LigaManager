@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { useEffect, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
 import EstadoError from './EstadoError'
@@ -32,6 +32,12 @@ export default function UbicacionSelector({ value, onChange }) {
   const provincias = qProvincias.data ?? []
   const cantones   = qCantones.data ?? []
   const catalogos  = erroresDe(qPaises, qProvincias, qCantones)
+
+  // Un formulario nuevo empieza con Ecuador elegido: es el país de casi todos.
+  const ecuador = paises.find(p => p.nombre === 'Ecuador')
+  useEffect(() => {
+    if (!idPais && ecuador) onChange({ idPais: String(ecuador.idPais), idProvincia: '', idCanton: '' })
+  }, [idPais, ecuador]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const tieneProvincias = !!idPais && provincias.length > 0
   // Si la consulta de provincias falló no se puede saber si el país es extranjero.
