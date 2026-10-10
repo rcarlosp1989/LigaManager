@@ -120,8 +120,10 @@ public class JugadorService : IJugadorService
         if (string.IsNullOrWhiteSpace(req.Cedula))
             return ServiceResult<JugadorDetalleDto>.Fail("La cédula es obligatoria.");
 
-        var cedulaExiste = await _db.Personas.AnyAsync(p => p.Cedula == req.Cedula.Trim());
-        if (cedulaExiste) return ServiceResult<JugadorDetalleDto>.Fail("Ya existe un jugador con esa cédula.");
+        // La cédula se repite solo dentro de la misma liga: el mismo jugador puede estar
+        // registrado por otro organizador con su propia ficha, sin que se vean entre ellas.
+        if (await CedulaDeJugadorPropioAsync(req.Cedula.Trim(), null))
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes un jugador registrado con esa cédula.");
 
         var equipoExiste = await _db.Equipos
             .AnyAsync(e => e.IdEquipo == req.IdEquipo && e.IdUsuarioCreador == UsuarioActualId);
@@ -175,9 +177,8 @@ public class JugadorService : IJugadorService
         if (string.IsNullOrWhiteSpace(req.Cedula))
             return ServiceResult<JugadorDetalleDto>.Fail("La cédula es obligatoria.");
 
-        var cedulaExiste = await _db.Personas.AnyAsync(p => p.Cedula == req.Cedula.Trim()
-                                                        && p.IdPersona != jugador.IdPersona);
-        if (cedulaExiste) return ServiceResult<JugadorDetalleDto>.Fail("Ya existe otro jugador con esa cédula.");
+        if (await CedulaDeJugadorPropioAsync(req.Cedula.Trim(), jugador.IdPersona))
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes otro jugador registrado con esa cédula.");
 
         var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
@@ -232,6 +233,12 @@ public class JugadorService : IJugadorService
         await _db.SaveChangesAsync();
         return ServiceResult.Ok();
     }
+
+    // ¿Este organizador ya tiene un jugador con esa cédula? (los de otras ligas no cuentan)
+    private Task<bool> CedulaDeJugadorPropioAsync(string cedula, int? excepto)
+        => _db.Jugadores.AnyAsync(j => j.Persona.Cedula == cedula
+                                    && (excepto == null || j.IdPersona != excepto)
+                                    && j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == UsuarioActualId));
 
     public async Task<ServiceResult> VincularEquipoAsync(int idJugador, VincularEquipoRequest req)
     {

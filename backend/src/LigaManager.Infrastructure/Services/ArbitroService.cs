@@ -67,6 +67,12 @@ public class ArbitroService : IArbitroService
         if (ubicacion.Error is not null)
             return ServiceResult<ArbitroDetalleDto>.Fail(ubicacion.Error);
 
+        // Igual que los jugadores: la cédula se repite solo entre los árbitros de este organizador.
+        var cedula = req.Cedula?.Trim();
+        if (!string.IsNullOrEmpty(cedula) && await _db.Arbitros.AnyAsync(a =>
+                a.IdUsuarioCreador == UsuarioActualId && a.Persona.Cedula == cedula))
+            return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes un árbitro registrado con esa cédula.");
+
         var persona = new Persona
         {
             Nombre    = req.Nombre.Trim(),
