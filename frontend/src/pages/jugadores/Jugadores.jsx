@@ -10,6 +10,8 @@ import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { Pencil, Search, User } from 'lucide-react'
+import CampoDocumento from '../../components/CampoDocumento'
+import { documentoValido } from '../../utils/documento'
 
 const posiciones = [
   'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
@@ -33,7 +35,7 @@ function calcularEdad(fechaNac) {
 function JugadorForm({ onSubmit, loading, error }) {
   const fid = useId()
   const [form, setForm] = useState({
-    nombre: '', apellido: '', cedula: '', fechaNac: '', posicion: '', foto: null,
+    nombre: '', apellido: '', tipoIdentificacion: 'Cedula', cedula: '', fechaNac: '', posicion: '', foto: null,
     idPais: '', idProvincia: '', idCanton: '', idEquipo: '', fechaDesde: new Date().toISOString().split('T')[0],
     dorsal: ''
   })
@@ -68,11 +70,8 @@ function JugadorForm({ onSubmit, loading, error }) {
             onChange={e => set('apellido', e.target.value)} placeholder="Pérez" />
         </div>
       </div>
-      <div>
-        <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
-        <input id={`${fid}-c4`} className="input-field" value={form.cedula} required maxLength="20"
-          onChange={e => set('cedula', e.target.value)} placeholder="0102030405" />
-      </div>
+      <CampoDocumento tipo={form.tipoIdentificacion} numero={form.cedula}
+        onChange={d => setForm(f => ({ ...f, tipoIdentificacion: d.tipo, cedula: d.numero }))} />
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
           <label htmlFor={`${fid}-c5`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha de nacimiento</label>
@@ -128,10 +127,12 @@ function JugadorForm({ onSubmit, loading, error }) {
 
 function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
   const fid = useId()
+  const [intento, setIntento] = useState(false)
   const [form, setForm] = useState({
     nombre:   jugador.nombre,
     apellido: jugador.apellido,
     cedula:    jugador.cedula,
+    tipoIdentificacion: jugador.tipoIdentificacion ?? 'Cedula',
     posicion:  jugador.historial?.find(h => !h.fechaHasta)?.posicion ?? '',
     foto:      null,
     fechaNac: jugador.fechaNac,
@@ -164,11 +165,8 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
           {posiciones.map(posicion => <option key={posicion} value={posicion}>{posicion}</option>)}
         </select>
       </div>
-      <div>
-        <label htmlFor={`${fid}-c14`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Número de cédula</label>
-        <input id={`${fid}-c14`} className="input-field" value={form.cedula} required maxLength="20"
-          onChange={e => set('cedula', e.target.value)} />
-      </div>
+      <CampoDocumento tipo={form.tipoIdentificacion} numero={form.cedula} forzar={intento}
+        onChange={d => setForm(f => ({ ...f, tipoIdentificacion: d.tipo, cedula: d.numero }))} />
       <div>
         <label htmlFor={`${fid}-c15`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Cambiar foto <span className="text-gray-600">(opcional)</span></label>
         <input id={`${fid}-c15`} type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
@@ -197,7 +195,11 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
       {error && (
         <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
       )}
-      <AccionesFormulario guardando={loading} texto="Guardar cambios" onGuardar={() => onSubmit(form)} />
+      <AccionesFormulario guardando={loading} texto="Guardar cambios" onGuardar={() => {
+        // Un documento inválido (por ejemplo, uno antiguo con letras) se corrige antes de guardar.
+        if (!documentoValido(form.tipoIdentificacion, form.cedula)) { setIntento(true); return }
+        onSubmit(form)
+      }} />
     </div>
   )
 }

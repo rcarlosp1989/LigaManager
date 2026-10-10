@@ -6,6 +6,8 @@ import UbicacionSelector from '../components/UbicacionSelector'
 import EstadoError from '../components/EstadoError'
 import AccionesFormulario from '../components/AccionesFormulario'
 import { useAviso, mensajeDeError } from '../feedback/contextos'
+import CampoDocumento from '../components/CampoDocumento'
+import { tipoDocumento } from '../utils/documento'
 
 const labelClass = 'block text-xs text-gray-400 uppercase tracking-wider mb-1.5'
 
@@ -16,13 +18,13 @@ export default function Arbitros({ standalone = false }) {
   const queryClient = useQueryClient()
   const aviso = useAviso()
   const [modal, setModal] = useState(false)
-  const [form, setForm] = useState({ nombre: '', apellido: '', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' })
+  const [form, setForm] = useState({ nombre: '', apellido: '', tipoIdentificacion: 'Cedula', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' })
   const [error, setError] = useState('')
   const { data: arbitros = [], isLoading, isError, refetch, isFetching } = useQuery({ queryKey: ['arbitros'], queryFn: () => api.get('/arbitros').then(r => r.data) })
   const mutation = useMutation({
     mutationFn: data => api.post('/arbitros', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['arbitros'] }); setModal(false); setForm({ nombre: '', apellido: '', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' }); setError('')
+      queryClient.invalidateQueries({ queryKey: ['arbitros'] }); setModal(false); setForm({ nombre: '', apellido: '', tipoIdentificacion: 'Cedula', cedula: '', fechaNac: '', idPais: '', idProvincia: '', idCanton: '' }); setError('')
       aviso.exito('Oficial registrado.')
     },
     onError: err => setError(mensajeDeError(err, 'Error al registrar oficial.')),
@@ -38,11 +40,11 @@ export default function Arbitros({ standalone = false }) {
       <EstadoError mensaje="No se pudieron cargar los oficiales." onReintentar={refetch} reintentando={isFetching} />
     ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {arbitros.map(a => <div className="card" key={a.idArbitro}><h3 className="text-white font-semibold">{a.nombre} {a.apellido}</h3><p className="text-gray-400 text-sm mt-1">Cédula: {a.cedula}</p><p className="text-gray-400 text-sm mt-1">{[a.canton, a.provincia, a.pais].filter(Boolean).join(', ')}</p></div>)}
+        {arbitros.map(a => <div className="card" key={a.idArbitro}><h3 className="text-white font-semibold">{a.nombre} {a.apellido}</h3>{a.cedula && !a.cedula.startsWith('AR-') && <p className="text-gray-400 text-sm mt-1">{tipoDocumento(a.tipoIdentificacion).corto}: {a.cedula}</p>}<p className="text-gray-400 text-sm mt-1">{[a.canton, a.provincia, a.pais].filter(Boolean).join(', ')}</p></div>)}
       </div>
     )}
     <Modal isOpen={modal} onClose={() => { setModal(false); setError('') }} title="NUEVO OFICIAL">
-      <form className="space-y-4" onSubmit={e => { e.preventDefault(); mutation.mutate({ nombre: form.nombre, apellido: form.apellido, cedula: form.cedula, fechaNac: form.fechaNac, idPais: parseInt(form.idPais), idCanton: form.idCanton ? parseInt(form.idCanton) : null }) }}>
+      <form className="space-y-4" onSubmit={e => { e.preventDefault(); mutation.mutate({ nombre: form.nombre, apellido: form.apellido, tipoIdentificacion: form.tipoIdentificacion, cedula: form.cedula, fechaNac: form.fechaNac, idPais: parseInt(form.idPais), idCanton: form.idCanton ? parseInt(form.idCanton) : null }) }}>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor={`${fid}-nombre`} className={labelClass}>Nombre</label>
@@ -53,10 +55,8 @@ export default function Arbitros({ standalone = false }) {
             <input id={`${fid}-apellido`} className="input-field" required value={form.apellido} onChange={e => setForm({ ...form, apellido: e.target.value })} />
           </div>
         </div>
-        <div>
-          <label htmlFor={`${fid}-cedula`} className={labelClass}>Número de cédula</label>
-          <input id={`${fid}-cedula`} className="input-field" inputMode="numeric" required value={form.cedula} onChange={e => setForm({ ...form, cedula: e.target.value })} />
-        </div>
+        <CampoDocumento tipo={form.tipoIdentificacion} numero={form.cedula} labelClass={labelClass}
+          onChange={d => setForm(f => ({ ...f, tipoIdentificacion: d.tipo, cedula: d.numero }))} />
         <div>
           <label htmlFor={`${fid}-fechanac`} className={labelClass}>Fecha de nacimiento</label>
           <input id={`${fid}-fechanac`} className="input-field" type="date" required value={form.fechaNac} onChange={e => setForm({ ...form, fechaNac: e.target.value })} />

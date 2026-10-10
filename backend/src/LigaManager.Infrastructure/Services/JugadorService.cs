@@ -46,6 +46,7 @@ public class JugadorService : IJugadorService
                 j.Persona.Nombre,
                 j.Persona.Apellido,
                 j.Persona.Cedula,
+                j.Persona.TipoIdentificacion,
                 j.Persona.FechaNac,
                 Canton = j.Persona.Canton != null ? j.Persona.Canton.Nombre : null,
                 Provincia = j.Persona.Canton != null ? j.Persona.Canton.Provincia.Nombre : null,
@@ -67,7 +68,7 @@ public class JugadorService : IJugadorService
             j.IdJugador, j.Nombre, j.Apellido, j.Cedula,
             j.FechaNac.ToString("yyyy-MM-dd"), CalcularEdad(j.FechaNac),
             j.Canton != null ? $"{j.Canton}, {j.Provincia}" : j.Pais,
-            j.EquipoActual, j.Dorsal, j.Posicion, j.FotoUrl)).ToList();
+            j.EquipoActual, j.Dorsal, j.Posicion, j.FotoUrl, j.TipoIdentificacion.ToString())).ToList();
     }
 
     public async Task<ServiceResult<JugadorDetalleDto>> GetByIdAsync(int id)
@@ -104,7 +105,8 @@ public class JugadorService : IJugadorService
                     je.FechaHasta?.ToString("yyyy-MM-dd"),
                     je.Dorsal,
                     je.Posicion
-                )).ToList()
+                )).ToList(),
+            j.Persona.TipoIdentificacion.ToString()
         ));
     }
 
@@ -117,13 +119,13 @@ public class JugadorService : IJugadorService
         var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
 
-        if (string.IsNullOrWhiteSpace(req.Cedula))
-            return ServiceResult<JugadorDetalleDto>.Fail("La cédula es obligatoria.");
+        var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
+        if (doc.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(doc.Error);
 
-        // La cédula se repite solo dentro de la misma liga: el mismo jugador puede estar
+        // El documento se repite solo dentro de la misma liga: el mismo jugador puede estar
         // registrado por otro organizador con su propia ficha, sin que se vean entre ellas.
-        if (await CedulaDeJugadorPropioAsync(req.Cedula.Trim(), null))
-            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes un jugador registrado con esa cédula.");
+        if (await CedulaDeJugadorPropioAsync(doc.Tipo, doc.Numero, null))
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes un jugador registrado con ese documento.");
 
         var equipoExiste = await _db.Equipos
             .AnyAsync(e => e.IdEquipo == req.IdEquipo && e.IdUsuarioCreador == UsuarioActualId);
@@ -133,7 +135,8 @@ public class JugadorService : IJugadorService
         {
             Nombre   = req.Nombre.Trim(),
             Apellido = req.Apellido.Trim(),
-            Cedula   = req.Cedula.Trim(),
+            Cedula   = doc.Numero,
+            TipoIdentificacion = Enum.Parse<TipoIdentificacion>(doc.Tipo),
             FechaNac = fechaNac,
             IdPais   = req.IdPais,
             IdCanton = ubicacion.IdCanton,
@@ -174,18 +177,19 @@ public class JugadorService : IJugadorService
         if (!DateOnly.TryParse(req.FechaNac, out var fechaNac))
             return ServiceResult<JugadorDetalleDto>.Fail("Formato de fecha inválido.");
 
-        if (string.IsNullOrWhiteSpace(req.Cedula))
-            return ServiceResult<JugadorDetalleDto>.Fail("La cédula es obligatoria.");
+        var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
+        if (doc.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(doc.Error);
 
-        if (await CedulaDeJugadorPropioAsync(req.Cedula.Trim(), jugador.IdPersona))
-            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes otro jugador registrado con esa cédula.");
+        if (await CedulaDeJugadorPropioAsync(doc.Tipo, doc.Numero, jugador.IdPersona))
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes otro jugador registrado con ese documento.");
 
         var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
 
         jugador.Persona.Nombre   = req.Nombre.Trim();
         jugador.Persona.Apellido = req.Apellido.Trim();
-        jugador.Persona.Cedula   = req.Cedula.Trim();
+        jugador.Persona.Cedula   = doc.Numero;
+        jugador.Persona.TipoIdentificacion = Enum.Parse<TipoIdentificacion>(doc.Tipo);
         jugador.Persona.FechaNac = fechaNac;
         jugador.Persona.IdPais   = req.IdPais;
         jugador.Persona.IdCanton = ubicacion.IdCanton;
@@ -234,11 +238,14 @@ public class JugadorService : IJugadorService
         return ServiceResult.Ok();
     }
 
-    // ¿Este organizador ya tiene un jugador con esa cédula? (los de otras ligas no cuentan)
-    private Task<bool> CedulaDeJugadorPropioAsync(string cedula, int? excepto)
-        => _db.Jugadores.AnyAsync(j => j.Persona.Cedula == cedula
+    // ¿Este organizador ya tiene un jugador con ese documento? (los de otras ligas no cuentan)
+    private Task<bool> CedulaDeJugadorPropioAsync(string tipo, string cedula, int? excepto)
+    {
+        var t = Enum.Parse<TipoIdentificacion>(tipo);
+        return _db.Jugadores.AnyAsync(j => j.Persona.Cedula == cedula && j.Persona.TipoIdentificacion == t
                                     && (excepto == null || j.IdPersona != excepto)
                                     && j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == UsuarioActualId));
+    }
 
     public async Task<ServiceResult> VincularEquipoAsync(int idJugador, VincularEquipoRequest req)
     {
