@@ -49,6 +49,9 @@ function PartidoBadge({ estado }) {
 function EstadoRegistro({ partido, onReabrir, reabriendo }) {
   const estado = partido.estadoRegistro
   if (!estado) return null
+  // Un partido jugado ya no está «en vivo», aunque el registro se haya empezado y no se cerrara
+  // desde el modo en vivo (por ejemplo, si se marcó como jugado en la tarjeta o la planilla).
+  if (partido.jugado && estado !== 'Cerrado') return null
   const hora = (t) => (t ? t.slice(11, 16) : '')
   return (
     <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
