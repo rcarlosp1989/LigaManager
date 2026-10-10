@@ -7,7 +7,8 @@ import EstadoError from '../../components/EstadoError'
 import MenuAcciones from '../../components/MenuAcciones'
 import { useAviso, useDialogos, mensajeDeError } from '../../feedback/contextos'
 import { useAtraparFoco } from '../../feedback/foco'
-import { ordenarPorDorsal, jugadoresEnCancha, suplentesDisponibles, marcadorDesdeEventos, ETIQUETA_EVENTO, ICONO_EVENTO } from '../../utils/planilla'
+import { ordenarPorDorsal, jugadoresEnCancha, suplentesDisponibles, marcadorDesdeEventos, ETIQUETA_EVENTO } from '../../utils/planilla'
+import IconoEvento from '../../components/IconoEvento'
 import { urlFoto } from '../../utils/fotos'
 import { formatearFecha } from '../../utils/fechas'
 import { leerLocal, guardarLocal } from './almacen'
@@ -304,7 +305,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
       uid, clase: 'evento', lado: ladoJugador,
       datos: { idJugador: jugador.idJugador, tipoEvento, minuto, idCliente: uid },
       conocidos: (partido.eventos ?? []).map(e => e.idEvento),
-    }, `${ETIQUETA_EVENTO[tipoEvento]} · ${nombreCorto(jugador)} · min ${minuto}`, ICONO_EVENTO[tipoEvento])
+    }, `${ETIQUETA_EVENTO[tipoEvento]} · ${nombreCorto(jugador)} · min ${minuto}`, tipoEvento)
     setHoja(null)
   }
 
@@ -314,7 +315,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
       uid, clase: 'cambio', lado: ladoJugador,
       datos: { idJugadorSale: sale.idJugador, idJugadorEntra: entra.idJugador, minuto, idCliente: uid },
       conocidos: (partido.cambios ?? []).map(c => c.idCambio),
-    }, `Cambio · sale ${nombreCorto(sale)}, entra ${nombreCorto(entra)} · min ${minuto}`, '🔄')
+    }, `Cambio · sale ${nombreCorto(sale)}, entra ${nombreCorto(entra)} · min ${minuto}`, 'CAMBIO')
     setHoja(null)
   }
 
@@ -481,7 +482,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
         {ultimo && (
           <div className="flex items-center gap-2 border-t border-neutral-800 bg-neutral-900 px-3 py-1.5">
             <p className="min-w-0 flex-1 truncate text-sm text-white">
-              <span aria-hidden="true" className="mr-1.5">{ultimo.icono}</span>{ultimo.texto}
+              <IconoEvento tipo={ultimo.icono} className="mr-1.5" />{ultimo.texto}
               {cola.items.some(i => i.uid === ultimo.uid) && <span className="ml-2 text-xs text-amber-300">por enviar</span>}
             </p>
             <button type="button" onClick={deshacer}
@@ -786,7 +787,7 @@ function Tarjetas({ eventos, idJugador }) {
   if (!goles && !amarillas && !rojas) return null
   return (
     <span className="mt-0.5 flex items-center gap-1.5 text-xs">
-      {goles > 0 && <span className="rounded bg-green-500 px-1.5 font-bold text-black">⚽ {goles}</span>}
+      {goles > 0 && <span className="flex items-center gap-1 rounded bg-green-500 px-1.5 font-bold text-black"><IconoEvento tipo="GOL" /> {goles}</span>}
       {amarillas > 0 && <span className="rounded bg-yellow-300 px-1.5 font-bold text-black">{amarillas} amarilla{amarillas > 1 ? 's' : ''}</span>}
       {(rojas > 0 || amarillas >= 2) && <span className="rounded bg-red-600 px-1.5 font-bold text-white">Expulsado</span>}
     </span>
@@ -874,10 +875,10 @@ function HojaJugador({ jugador, foto, minutoInicial, sinGoles, suplentes, tarjet
   const amarillas = tarjetas.filter(e => e.tipoEvento === 'TARJETA_AMARILLA').length
 
   const BOTONES = [
-    { tipo: 'GOL', texto: 'Gol', icono: '⚽', clase: 'bg-green-500 text-black', goles: true },
-    { tipo: 'TARJETA_AMARILLA', texto: amarillas ? '2.ª amarilla' : 'Amarilla', icono: '🟨', clase: 'bg-yellow-300 text-black' },
-    { tipo: 'TARJETA_ROJA', texto: 'Roja', icono: '🟥', clase: 'bg-red-600 text-white' },
-    { tipo: 'GOL_EN_CONTRA', texto: 'Gol en contra', icono: '🥅', clase: 'bg-neutral-200 text-black', goles: true },
+    { tipo: 'GOL', texto: 'Gol', clase: 'bg-green-500 text-black', goles: true },
+    { tipo: 'TARJETA_AMARILLA', texto: amarillas ? '2.ª amarilla' : 'Amarilla', clase: 'bg-yellow-300 text-black' },
+    { tipo: 'TARJETA_ROJA', texto: 'Roja', clase: 'bg-red-600 text-white' },
+    { tipo: 'GOL_EN_CONTRA', texto: 'Gol en contra', clase: 'bg-neutral-200 text-black', goles: true },
   ]
 
   return (
@@ -920,7 +921,7 @@ function HojaJugador({ jugador, foto, minutoInicial, sinGoles, suplentes, tarjet
                 return (
                   <button key={b.tipo} type="button" disabled={bloqueado} onClick={() => onEvento(b.tipo, numero)}
                     className={`flex h-20 flex-col items-center justify-center rounded-xl text-lg font-bold disabled:opacity-35 ${b.clase}`}>
-                    <span aria-hidden="true" className="text-2xl leading-none">{b.icono}</span>
+                    <span className="text-2xl leading-none"><IconoEvento tipo={b.tipo} /></span>
                     {b.texto}
                   </button>
                 )
@@ -1025,8 +1026,8 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
               <span className="w-9 shrink-0 font-display text-xl tabular-nums text-white">{r.minuto}&apos;</span>
               <span className="min-w-0 flex-1 text-sm text-gray-100">
                 {r.clase === 'evento'
-                  ? <><span aria-hidden="true" className="mr-1">{ICONO_EVENTO[r.tipoEvento]}</span>{ETIQUETA_EVENTO[r.tipoEvento]} · {r.jugador}</>
-                  : <><span aria-hidden="true" className="mr-1">🔄</span>Cambio · sale {r.jugadorSale}, entra {r.jugadorEntra}</>}
+                  ? <><IconoEvento tipo={r.tipoEvento} className="mr-1" />{ETIQUETA_EVENTO[r.tipoEvento]} · {r.jugador}</>
+                  : <><IconoEvento tipo="CAMBIO" className="mr-1" />Cambio · sale {r.jugadorSale}, entra {r.jugadorEntra}</>}
                 <span className="block text-xs text-gray-300">
                   {r.lado === 'local' ? partido.equipoLocal : r.lado === 'visitante' ? partido.equipoVisitante : ''}
                   {r.pendiente && <span className="ml-2 font-semibold text-amber-300">por enviar</span>}

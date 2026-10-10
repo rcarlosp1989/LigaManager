@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { Balon } from '../../components/IconoEvento'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
@@ -31,10 +33,10 @@ export default function TabGoleadores({ idCampeonato }) {
       </div>
 
       {goleadores.length === 0 ? (
-        <EmptyState icon="⚽" title="Aún no hay goles registrados" description="El ranking aparecerá cuando se registren goles en partidos jugados." />
+        <EmptyState icon={Balon} title="Aún no hay goles registrados" description="El ranking aparecerá cuando se registren goles en partidos jugados." />
       ) : (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
+          <TablaDesplazable>
             <table className="w-full text-sm min-w-[480px]">
               <thead>
                 <tr className="border-b border-gray-800">
@@ -56,7 +58,7 @@ export default function TabGoleadores({ idCampeonato }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TablaDesplazable>
         </div>
       )}
     </div>

@@ -9,6 +9,9 @@ import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback
 import { formatearFecha } from '../../utils/fechas'
 import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import IconoEvento from '../../components/IconoEvento'
+import { Armchair, CalendarDays, ClipboardList, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 
 // ── Badges ───────────────────────────────────────────────────────────────────
 
@@ -289,15 +292,15 @@ function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol'} disabled={sinGoles}
               aria-label={`Gol de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL')}
-              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">⚽</button>
+              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL" /></button>
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol en contra (suma al equipo rival, no cuenta como gol del jugador)'} disabled={sinGoles}
               aria-label={`Gol en contra de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL_EN_CONTRA')}
-              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity">🥅</button>
+              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL_EN_CONTRA" /></button>
             <button title="Tarjeta amarilla" aria-label={`Tarjeta amarilla a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
-              className="opacity-70 hover:opacity-100 transition-opacity">🟨</button>
+              className="opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_AMARILLA" /></button>
             <button title="Tarjeta roja" aria-label={`Tarjeta roja a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
-              className="opacity-70 hover:opacity-100 transition-opacity">🟥</button>
+              className="opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_ROJA" /></button>
           </>
         ) : (
           <span className="text-gray-600 italic">banca</span>
@@ -551,7 +554,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <AlineacionLado
-            label={`🏠 ${partido.equipoLocal}`}
+            label={`Local · ${partido.equipoLocal}`}
             equipo={equipoLocal}
             alineacion={alineacionLocal}
             enCanchaIds={enCanchaLocalIds}
@@ -562,7 +565,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             agregando={agregarMutation.isPending}
           />
           <AlineacionLado
-            label={`✈️ ${partido.equipoVisitante}`}
+            label={`Visitante · ${partido.equipoVisitante}`}
             equipo={equipoVisitante}
             alineacion={alineacionVisitante}
             enCanchaIds={enCanchaVisitanteIds}
@@ -594,12 +597,12 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 onChange={e => setCambioForm(f => ({ ...f, idJugadorSale: e.target.value, idJugadorEntra: '' }))}>
                 <option value="">Seleccionar...</option>
                 {enCanchaLocal.length > 0 && (
-                  <optgroup label={`🏠 ${partido.equipoLocal}`}>
+                  <optgroup label={`Local · ${partido.equipoLocal}`}>
                     {enCanchaLocal.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `(${a.dorsal}) ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
                 {enCanchaVisitante.length > 0 && (
-                  <optgroup label={`✈️ ${partido.equipoVisitante}`}>
+                  <optgroup label={`Visitante · ${partido.equipoVisitante}`}>
                     {enCanchaVisitante.map(a => <option key={a.idJugador} value={a.idJugador}>{a.dorsal != null ? `(${a.dorsal}) ` : ''}{a.jugador}</option>)}
                   </optgroup>
                 )}
@@ -625,8 +628,8 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
                 minuto:         parseInt(cambioForm.minuto),
               })}
               disabled={cambioMutation.isPending || !cambioForm.idJugadorSale || !cambioForm.idJugadorEntra || !cambioForm.minuto}
-              className="text-xs px-4 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap"
-            >🔄 Registrar cambio</button>
+              className="text-xs px-4 rounded border border-gray-700 text-gray-300 hover:border-gray-500 transition-colors disabled:opacity-40 whitespace-nowrap inline-flex items-center justify-center gap-1.5"
+            ><IconoEvento tipo="CAMBIO" /> Registrar cambio</button>
           </div>
         </div>
 
@@ -861,12 +864,6 @@ function PartidoCard({ partido, idCampeonato }) {
     if (ok) eliminarPartidoMutation.mutate()
   }
 
-  const iconoEvento = {
-    'GOL':              '⚽',
-    'GOL_EN_CONTRA':    '🥅',
-    'TARJETA_AMARILLA': '🟨',
-    'TARJETA_ROJA':     '🟥',
-  }
 
   const setE = (k, v) => setEditForm(f => ({ ...f, [k]: v }))
   const setEOficial = (idCargo, idArbitro) => setEditForm(f => ({
@@ -903,17 +900,17 @@ function PartidoCard({ partido, idCampeonato }) {
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-gray-500">
         {partido.estadio
-          ? <span>🏟️ {partido.estadio}</span>
-          : <span className="text-gray-700">🏟️ Sin estadio</span>}
+          ? <span className="inline-flex items-center gap-1"><MapPin size={13} aria-hidden="true" />{partido.estadio}</span>
+          : <span className="inline-flex items-center gap-1 text-gray-700"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
         {partido.arbitro
-          ? <span>👤 {partido.arbitro}</span>
-          : <span className="text-gray-700">👤 Sin árbitro</span>}
+          ? <span className="inline-flex items-center gap-1"><User size={13} aria-hidden="true" />{partido.arbitro}</span>
+          : <span className="inline-flex items-center gap-1 text-gray-700"><User size={13} aria-hidden="true" />Sin árbitro</span>}
       </div>
 
       <EstadoRegistro partido={partido} onReabrir={reabrir} reabriendo={reabrirMutation.isPending} />
 
       {partido.observaciones && (
-        <p className="mb-3 text-xs text-gray-400 italic whitespace-pre-line">📝 {partido.observaciones}</p>
+        <p className="mb-3 flex gap-1.5 text-xs text-gray-400 italic whitespace-pre-line"><NotebookPen size={13} aria-hidden="true" className="mt-0.5 shrink-0 not-italic" /><span>{partido.observaciones}</span></p>
       )}
 
       {partido.oficiales?.length > 0 && (
@@ -928,7 +925,7 @@ function PartidoCard({ partido, idCampeonato }) {
         <div className="mb-3 space-y-1">
           {partido.eventos.map(ev => (
             <div key={ev.idEvento} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1">
-              <span>{iconoEvento[ev.tipoEvento] ?? '📋'} {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span>{ev.registradoPor && <span className="text-gray-600"> · registrado por {ev.registradoPor}</span>}</span>
+              <span><IconoEvento tipo={ev.tipoEvento} className="mr-0.5" /> {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span>{ev.registradoPor && <span className="text-gray-600"> · registrado por {ev.registradoPor}</span>}</span>
               <button
                 onClick={() => eliminarEvento(ev)}
                 className="text-gray-600 hover:text-red-400 transition-colors ml-2"
@@ -953,8 +950,8 @@ function PartidoCard({ partido, idCampeonato }) {
         </button>
         <button
           onClick={() => setShowAlineacionModal(true)}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors"
-        >📋 Planilla</button>
+          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5"
+        ><ClipboardList size={13} aria-hidden="true" />Planilla</button>
         <Link
           to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}`}
           className="text-xs px-3 py-1.5 rounded border border-brand-700 text-brand-300 hover:bg-brand-900/30 transition-colors inline-flex items-center"
@@ -971,13 +968,13 @@ function PartidoCard({ partido, idCampeonato }) {
             })
             setShowEditModal(true)
           }}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-blue-700 hover:text-blue-400 transition-colors"
-        >✏️ Editar</button>
+          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-blue-700 hover:text-blue-400 transition-colors inline-flex items-center gap-1.5"
+        ><Pencil size={13} aria-hidden="true" />Editar</button>
         <button
           onClick={eliminarPartido}
           disabled={eliminarPartidoMutation.isPending}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500 hover:border-red-800 hover:text-red-400 transition-colors"
-        >🗑️ Eliminar</button>
+          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500 hover:border-red-800 hover:text-red-400 transition-colors inline-flex items-center gap-1.5"
+        ><Trash2 size={13} aria-hidden="true" />Eliminar</button>
       </div>
 
       {/* Modal editar partido */}
@@ -1159,8 +1156,8 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
           {jornada.grupo && <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">Grupo {jornada.grupo}</span>}
           <span className="text-xs text-gray-600">{jornada.totalPartidos} partido{jornada.totalPartidos !== 1 ? 's' : ''}</span>
           {jornada.equipoLibre && (
-            <span className="text-xs text-amber-400 bg-amber-900/20 border border-amber-800/50 px-2 py-0.5 rounded">
-              🛋️ Libre: {jornada.equipoLibre}
+            <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-900/20 border border-amber-800/50 px-2 py-0.5 rounded">
+              <Armchair size={12} aria-hidden="true" />Libre: {jornada.equipoLibre}
             </span>
           )}
         </span>
@@ -1177,8 +1174,8 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
       {expanded && (
         <div id={panelId} className="border-t border-gray-800 p-4 space-y-3">
           {jornadaDetalle?.equipoLibre && (
-            <p className="text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
-              🛋️ {jornadaDetalle.equipoLibre} queda libre en esta jornada.
+            <p className="flex items-center gap-1.5 text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
+              <Armchair size={13} aria-hidden="true" className="shrink-0" />{jornadaDetalle.equipoLibre} queda libre en esta jornada.
             </p>
           )}
           {cargandoDetalle ? (
@@ -1285,7 +1282,7 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
         </div>
         {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
         <AccionesFormulario
-          texto="📅 Generar calendario completo"
+          texto="Generar calendario completo"
           textoGuardando="Generando..."
           guardando={calendarioMutation.isPending}
           deshabilitado={!form.idInstancia || !form.fechaInicio}
@@ -1378,8 +1375,8 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
           <button
             onClick={() => setShowCalendarioModal(true)}
             disabled={(grupo.equipos?.length ?? 0) < 2}
-            className="text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors disabled:opacity-40"
-          >📅 Generar calendario</button>
+            className="text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors disabled:opacity-40 inline-flex items-center gap-1.5"
+          ><CalendarDays size={13} aria-hidden="true" />Generar calendario</button>
         </div>
       </div>
 
@@ -1401,7 +1398,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
 
       {/* Tabla de posiciones */}
       {grupo.posiciones?.length > 0 ? (
-        <div className="overflow-x-auto">
+        <TablaDesplazable>
         <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-800">
@@ -1435,7 +1432,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
             ))}
           </tbody>
         </table>
-        </div>
+        </TablaDesplazable>
       ) : (
         <div className="text-center py-6">
           <p className="text-gray-500 text-sm">Sin partidos jugados aún.</p>
@@ -1506,7 +1503,7 @@ function TablaCampeonato({ idCampeonato }) {
         <h2 className="text-xs text-gray-500 uppercase tracking-wider">Tabla general</h2>
         <span className="text-xs text-gray-500">Todos contra todos</span>
       </div>
-      <div className="overflow-x-auto">
+      <TablaDesplazable>
         <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-800">
@@ -1532,14 +1529,14 @@ function TablaCampeonato({ idCampeonato }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </TablaDesplazable>
     </div>
   )
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-const TABS_DETALLE = [['equipos', '🛡️ Equipos'], ['grupos', '🏅 Grupos'], ['jornadas', '📅 Jornadas'], ['vocales', '🎙️ Vocales']]
+const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['vocales', 'Vocales', Mic]]
 
 export default function CampeonatoDetalle() {
   const fid = useId()
@@ -1702,14 +1699,14 @@ export default function CampeonatoDetalle() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
-        {TABS_DETALLE.map(([key, label]) => (
+        {TABS_DETALLE.map(([key, label, Icono]) => (
           <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'true' : undefined}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 inline-flex items-center gap-2 ${
               tab === key
                 ? 'border-brand-400 text-white'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}>
-            {label}
+            <Icono size={15} aria-hidden="true" />{label}
           </button>
         ))}
       </div>
@@ -1774,11 +1771,11 @@ export default function CampeonatoDetalle() {
           )}
           {equiposInscritos.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-4xl mb-3">🛡️</p>
+              <Shield size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto mb-3 text-gray-600" />
               <p className="text-gray-400 text-sm">No hay equipos inscritos.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <TablaDesplazable>
             <table className="w-full min-w-[440px]">
               <thead>
                 <tr className="border-b border-gray-800">
@@ -1803,7 +1800,7 @@ export default function CampeonatoDetalle() {
                 ))}
               </tbody>
             </table>
-            </div>
+            </TablaDesplazable>
           )}
         </div>
       )}
@@ -1822,7 +1819,7 @@ export default function CampeonatoDetalle() {
             <EstadoError mensaje="No se pudieron cargar los grupos." onReintentar={qGrupos.refetch} reintentando={qGrupos.isFetching} />
           ) : grupos.length === 0 ? (
             <div className="card text-center py-12">
-              <p className="text-4xl mb-3">🏅</p>
+              <Medal size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto mb-3 text-gray-600" />
               <p className="text-gray-400 text-sm">No hay grupos creados.</p>
               <p className="text-gray-600 text-xs mt-1">
                 Crea grupos si vas a dividir por fases, o genera directamente el calendario de todos contra todos sin grupos.
@@ -1830,8 +1827,8 @@ export default function CampeonatoDetalle() {
               <button
                 onClick={() => setShowCalendarioCampeonatoModal(true)}
                 disabled={(camp.equipos?.length ?? 0) < 2}
-                className="mt-4 text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors disabled:opacity-40"
-              >📅 Generar calendario (todos contra todos)</button>
+                className="mt-4 text-xs px-3 py-1.5 rounded border border-blue-800 text-blue-400 hover:bg-blue-900/20 transition-colors disabled:opacity-40 inline-flex items-center gap-1.5"
+              ><CalendarDays size={13} aria-hidden="true" />Generar calendario (todos contra todos)</button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1858,7 +1855,7 @@ export default function CampeonatoDetalle() {
             <EstadoError mensaje="No se pudieron cargar las jornadas." onReintentar={qJornadas.refetch} reintentando={qJornadas.isFetching} />
           ) : jornadas.length === 0 ? (
             <div className="card text-center py-12">
-              <p className="text-4xl mb-3">📅</p>
+              <CalendarDays size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto mb-3 text-gray-600" />
               <p className="text-gray-400 text-sm">No hay jornadas creadas.</p>
               <p className="text-gray-600 text-xs mt-1">Crea jornadas manualmente o genera el calendario desde la pestaña Grupos.</p>
             </div>

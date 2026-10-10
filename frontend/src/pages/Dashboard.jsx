@@ -5,11 +5,12 @@ import PageHeader from '../components/PageHeader'
 import StatusBadge from '../components/StatusBadge'
 import EstadoError from '../components/EstadoError'
 import { formatearFecha } from '../utils/fechas'
+import { CirclePlay, MapPin, Shield, Trophy, Users } from 'lucide-react'
 
 // La jornada del partido dentro de su campeonato; la exacta cuando la API envíe idJornada.
 const rutaJornada = (p) => `/campeonatos/${p.idCampeonato}?tab=jornadas${p.idJornada ? `&jornada=${p.idJornada}` : ''}`
 
-function StatCard({ label, value, icon, color = 'blue' }) {
+function StatCard({ label, value, icon: Icono, color = 'blue' }) {
   const colors = {
     blue:   'from-brand-900/50 to-brand-800/20 border-brand-700/50',
     green:  'from-green-900/50 to-green-800/20 border-green-700/50',
@@ -19,7 +20,7 @@ function StatCard({ label, value, icon, color = 'blue' }) {
   return (
     <div className={`bg-gradient-to-br ${colors[color]} border rounded-xl p-5`}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-2xl">{icon}</span>
+        <Icono size={26} strokeWidth={1.75} aria-hidden="true" className="text-gray-300" />
       </div>
       <p className="font-display text-4xl text-white">{value ?? '–'}</p>
       <p className="text-gray-400 text-sm mt-1">{label}</p>
@@ -47,10 +48,10 @@ export default function Dashboard() {
       ) : (<>
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Campeonatos"  value={dash?.totalCampeonatos}   icon="🏆" color="blue"   />
-        <StatCard label="En Curso"     value={dash?.campeonatosEnCurso} icon="⚽" color="green"  />
-        <StatCard label="Equipos"      value={dash?.totalEquipos}       icon="🛡️" color="yellow" />
-        <StatCard label="Jugadores"    value={dash?.totalJugadores}     icon="👤" color="purple" />
+        <StatCard label="Campeonatos"  value={dash?.totalCampeonatos}   icon={Trophy} color="blue"   />
+        <StatCard label="En Curso"     value={dash?.campeonatosEnCurso} icon={CirclePlay} color="green"  />
+        <StatCard label="Equipos"      value={dash?.totalEquipos}       icon={Shield} color="yellow" />
+        <StatCard label="Jugadores"    value={dash?.totalJugadores}     icon={Users} color="purple" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -79,7 +80,7 @@ export default function Dashboard() {
                       <span className="text-gray-600 text-xs px-2">vs</span>
                       <span className="text-white font-medium text-sm text-right">{p.equipoVisitante}</span>
                     </div>
-                    <p className="text-gray-500 text-xs mt-1">🏟️ {p.estadio}</p>
+                    <p className="flex items-center gap-1 text-gray-500 text-xs mt-1"><MapPin size={12} aria-hidden="true" />{p.estadio}</p>
                   </Link>
                   {p.idJornada && (
                     <Link to={`/partidos/${p.idPartido}/en-vivo?jornada=${p.idJornada}`}

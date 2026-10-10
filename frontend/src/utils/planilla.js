@@ -32,13 +32,6 @@ export const ETIQUETA_EVENTO = {
   TARJETA_ROJA: 'Tarjeta roja',
 }
 
-export const ICONO_EVENTO = {
-  GOL: '⚽',
-  GOL_EN_CONTRA: '🥅',
-  TARJETA_AMARILLA: '🟨',
-  TARJETA_ROJA: '🟥',
-}
-
 // Marcador a partir de los eventos: el gol suma a su equipo; el gol en contra, al rival.
 // `equipoDe(idJugador)` devuelve 'local', 'visitante' o null.
 export function marcadorDesdeEventos(eventos, equipoDe) {

@@ -586,3 +586,46 @@ Pruebas con Playwright sobre `npm run build` + `vite preview`, celular a 390 px 
 - `npm run build` sin errores; lint con los mismos 5 errores previos; 0 errores de página.
 
 **Límite:** no se probó en un celular real ni en Vercel. Conviene probarlo en el celular: abrir la app con señal, activar el modo avión y recargar.
+
+---
+
+## 2026-10-10 — Mejoras: aviso «Desliza» en tablas e íconos en lugar de emojis
+
+**Estado:** aplicada en la rama `mejora/tablas-y-iconos`, creada desde `main` (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia la página web: **sin servidor ni base de datos**.
+
+### Tablas anchas
+
+- Pieza nueva `frontend/src/components/TablaDesplazable.jsx`, usada en las 12 tablas con desplazamiento lateral:
+  - Campeonatos y Jugadores;
+  - en el detalle del campeonato, la tabla general, las posiciones por grupo y los equipos;
+  - en Reportes, Posiciones, Nómina, Goleadores, las dos de Tarjetas y las dos de Suspensiones.
+- Si la tabla no cabe:
+  - el borde donde hay más columnas se difumina: a la derecha al inicio, y a los dos lados en el medio;
+  - arriba a la derecha aparece «Desliza ››», que se va al deslizar por primera vez.
+- Si cabe, no cambia nada. Medido: en 390 px aparece en todas; en 768 px solo en Jugadores; en 1.440 px en ninguna.
+
+### Íconos
+
+- Pieza nueva `frontend/src/components/IconoEvento.jsx` con los eventos del partido dibujados, iguales en Android, iPhone y Windows:
+  - balón para el gol;
+  - arco con red para el gol en contra;
+  - tarjeta amarilla y roja;
+  - flechas para el cambio.
+- Se usan en el modo en vivo (botones, último registro, registros del cierre, goles del jugador), en la planilla, en la tarjeta del partido y en los encabezados de Tarjetas.
+- El resto de emojis pasó a íconos de `lucide-react`, que la app ya usaba:
+  - pestañas del campeonato, Reportes y Mantenimiento;
+  - tarjetas del Dashboard;
+  - estados vacíos;
+  - estadio, árbitro, observaciones y equipo libre;
+  - botones Planilla, Editar, Eliminar, Generar calendario y Registrar cambio.
+- En la planilla, los equipos dicen «Local · …» y «Visitante · …», en lugar de 🏠 y ✈️.
+- Quedan ✓, ✕ y ↩: son símbolos de texto, no emojis, y se ven igual en todos lados.
+- `EmptyState` acepta un ícono (componente) o, como antes, un texto.
+
+### Cómo se verificó
+
+Playwright sobre `npm run build`, a 390, 768 y 1.440 px:
+- Pantallas revisadas: Dashboard, Campeonatos, Jugadores, Equipos, Mantenimiento, el detalle con jornadas y la tarjeta del partido con 4 eventos, la planilla, las 4 pestañas de Reportes y el modo en vivo (partido, hoja del jugador, último registro y cierre).
+- En todas: sin emojis en pantalla, sin desborde horizontal de la página y 0 errores.
+- Al deslizar, la pista se va y el difuminado pasa a la izquierda; al llegar al final, solo queda el izquierdo.
+- `npm run build` sin errores; lint con los mismos 5 errores previos.

@@ -2,6 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { RectangleVertical } from 'lucide-react'
+import IconoEvento from '../../components/IconoEvento'
+
+// Encabezado de columna: las tarjetas se dibujan, con su nombre para lectores de pantalla.
+const encabezado = (h) => (h.startsWith('TARJETA_')
+  ? <><IconoEvento tipo={h} className="text-sm" /><span className="sr-only">{h === 'TARJETA_ROJA' ? 'Rojas' : 'Amarillas'}</span></>
+  : h)
 
 export default function TabTarjetas({ idCampeonato }) {
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
@@ -17,7 +25,7 @@ export default function TabTarjetas({ idCampeonato }) {
   const porEquipo = data?.porEquipo ?? []
 
   if (porJugador.length === 0) {
-    return <EmptyState icon="🟨" title="Aún no hay tarjetas registradas" description="Las tablas aparecerán cuando se registren tarjetas en partidos jugados." />
+    return <EmptyState icon={RectangleVertical} title="Aún no hay tarjetas registradas" description="Las tablas aparecerán cuando se registren tarjetas en partidos jugados." />
   }
 
   return (
@@ -25,12 +33,12 @@ export default function TabTarjetas({ idCampeonato }) {
       <div>
         <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Por jugador</h3>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
+          <TablaDesplazable>
             <table className="w-full text-sm min-w-[420px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['Jugador', 'Equipo', '🟨', '🟥', 'Total'].map(h => (
-                    <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
+                  {['Jugador', 'Equipo', 'TARJETA_AMARILLA', 'TARJETA_ROJA', 'Total'].map(h => (
+                    <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{encabezado(h)}</th>
                   ))}
                 </tr>
               </thead>
@@ -46,7 +54,7 @@ export default function TabTarjetas({ idCampeonato }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TablaDesplazable>
         </div>
       </div>
 
@@ -54,12 +62,12 @@ export default function TabTarjetas({ idCampeonato }) {
         <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Fair play por equipo</h3>
         <p className="text-gray-600 text-xs mb-2">Amarilla = 1 punto · Roja = 3 puntos · Menor puntaje es mejor</p>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
+          <TablaDesplazable>
             <table className="w-full text-sm min-w-[380px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['Equipo', '🟨', '🟥', 'Pts'].map(h => (
-                    <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
+                  {['Equipo', 'TARJETA_AMARILLA', 'TARJETA_ROJA', 'Pts'].map(h => (
+                    <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{encabezado(h)}</th>
                   ))}
                 </tr>
               </thead>
@@ -74,7 +82,7 @@ export default function TabTarjetas({ idCampeonato }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TablaDesplazable>
         </div>
       </div>
     </div>

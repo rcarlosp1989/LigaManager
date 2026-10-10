@@ -8,6 +8,8 @@ import UbicacionSelector from '../../components/UbicacionSelector'
 import EstadoError from '../../components/EstadoError'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { Pencil, Search, User } from 'lucide-react'
 
 const posiciones = [
   'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
@@ -321,7 +323,7 @@ export default function Jugadores() {
       ) : isError ? (
         <EstadoError mensaje="No se pudieron cargar los jugadores." onReintentar={refetch} reintentando={isFetching} />
       ) : sinJugadores ? (
-        <EmptyState icon="👤" title="Sin jugadores"
+        <EmptyState icon={User} title="Sin jugadores"
           description="Registra el primer jugador del sistema."
           action={
             <button onClick={() => setModal(true)} className="btn-primary">
@@ -330,7 +332,7 @@ export default function Jugadores() {
           }
         />
       ) : filtered.length === 0 ? (
-        <EmptyState icon="🔍" title="Sin resultados para esa búsqueda"
+        <EmptyState icon={Search} title="Sin resultados para esa búsqueda"
           description={`Ningún jugador ni equipo coincide con «${search.trim()}».`}
           action={
             <button onClick={() => setSearch('')} className="btn-secundario">
@@ -339,7 +341,8 @@ export default function Jugadores() {
           }
         />
       ) : (
-        <div className="card p-0 overflow-x-auto">
+        <div className="card p-0 overflow-hidden">
+          <TablaDesplazable>
           <table className="w-full min-w-[780px]">
             <thead>
               <tr className="border-b border-gray-800">
@@ -372,9 +375,9 @@ export default function Jugadores() {
                   <td className="px-5 py-4 text-right flex items-center justify-end gap-3">
                     <button
                       onClick={() => abrirEditar(j)}
-                      className="text-gray-500 hover:text-blue-400 transition-colors text-sm"
+                      className="text-gray-500 hover:text-blue-400 transition-colors text-sm inline-flex items-center gap-1.5"
                     >
-                      {abriendo === j.idJugador ? 'Abriendo...' : '✏️ Editar'}
+                      {abriendo === j.idJugador ? 'Abriendo...' : <><Pencil size={14} aria-hidden="true" />Editar</>}
                     </button>
                     <button
                       onClick={() => eliminar(j)}
@@ -387,6 +390,7 @@ export default function Jugadores() {
               ))}
             </tbody>
           </table>
+          </TablaDesplazable>
         </div>
       )}
 

@@ -4,6 +4,8 @@ import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
+import TablaDesplazable from '../../components/TablaDesplazable'
+import { ClipboardList, User } from 'lucide-react'
 
 const COLUMNAS_EXPORT = [
   { titulo: 'Dorsal', ancho: 8 }, { titulo: 'Apellido', ancho: 20 }, { titulo: 'Nombre', ancho: 20 },
@@ -66,7 +68,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
       </div>
 
       {!idEquipo && (
-        <EmptyState icon="📋" title="Elige un equipo" description="Selecciona un equipo inscrito en este campeonato para ver su nómina." />
+        <EmptyState icon={ClipboardList} title="Elige un equipo" description="Selecciona un equipo inscrito en este campeonato para ver su nómina." />
       )}
 
       {idEquipo && isLoading && (
@@ -78,12 +80,12 @@ export default function TabNomina({ idCampeonato, campeonato }) {
       )}
 
       {idEquipo && !isLoading && !isError && jugadores.length === 0 && (
-        <EmptyState icon="👤" title="Sin jugadores" description="Este equipo todavía no tiene jugadores registrados." />
+        <EmptyState icon={User} title="Sin jugadores" description="Este equipo todavía no tiene jugadores registrados." />
       )}
 
       {idEquipo && !isLoading && !isError && jugadores.length > 0 && (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
+          <TablaDesplazable>
             <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-gray-800">
@@ -105,7 +107,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TablaDesplazable>
         </div>
       )}
     </div>
