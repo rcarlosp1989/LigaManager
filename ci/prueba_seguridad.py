@@ -5,6 +5,12 @@ BASE = "http://localhost:5080/api"
 D = json.load(open(sys.argv[1]))
 fallas = []
 
+def cedula_valida(n):
+    b = f"09{n:07d}"; s = 0
+    for i, ch in enumerate(b):
+        v = int(ch) * (2 if i % 2 == 0 else 1); s += v - 9 if v > 9 else v
+    return b + str((10 - s % 10) % 10)
+
 def llamar(metodo, ruta, token=None, cuerpo=None, campos=None, archivo=None):
     h = {}
     if campos is not None:
@@ -39,7 +45,7 @@ eq = json.loads(llamar("GET", "/equipos", tok)[1])[0]["idEquipo"]
 ced = [7000]
 def jugador(archivo):
     ced[0] += 1
-    return llamar("POST", "/jugadores", tok, campos={"Nombre": "Foto", "Apellido": "Prueba", "Cedula": str(ced[0]), "FechaNac": "1990-01-01",
+    return llamar("POST", "/jugadores", tok, campos={"Nombre": "Foto", "Apellido": "Prueba", "Cedula": cedula_valida(ced[0]), "FechaNac": "1990-01-01",
                   "IdPais": pais, "IdEquipo": eq, "FechaDesde": D["hoy"], "Dorsal": ced[0] % 90 + 10}, archivo=archivo)
 
 s, txt, _ = jugador(("foto.jpg", b"<html><script>alert(1)</script></html>"))
@@ -59,7 +65,7 @@ if s in (200, 201):
 esperar("se guarda con la extensión real (.png)", bool(url) and url.endswith(".png"), str(url))
 
 # Error interno: el mensaje no debe traer detalles técnicos
-s, txt, _ = llamar("POST", "/jugadores", tok, campos={"Nombre": "X", "Apellido": "Y", "Cedula": "8888", "FechaNac": "1990-01-01", "IdPais": 999999, "IdEquipo": eq, "FechaDesde": D["hoy"]})
+s, txt, _ = llamar("POST", "/jugadores", tok, campos={"Nombre": "X", "Apellido": "Y", "Cedula": cedula_valida(8888), "FechaNac": "1990-01-01", "IdPais": 999999, "IdEquipo": eq, "FechaDesde": D["hoy"]})
 print(f"INFO país inexistente: {s} {txt[:200]}")
 if s >= 500:
     esperar("un error 500 no muestra detalles técnicos", "inesperado" in txt and "MySql" not in txt and "Exception" not in txt and "constraint" not in txt.lower(), txt[:200])

@@ -5,6 +5,12 @@ BASE = "http://localhost:5080/api"
 D = json.load(open(sys.argv[1]))
 fallas = []
 
+def cedula_valida(n):
+    b = f"09{n:07d}"; s = 0
+    for i, ch in enumerate(b):
+        v = int(ch) * (2 if i % 2 == 0 else 1); s += v - 9 if v > 9 else v
+    return b + str((10 - s % 10) % 10)
+
 def llamar(metodo, ruta, token=None, cuerpo=None, campos=None):
     h = {}
     if campos is not None:
@@ -56,16 +62,16 @@ otro = json.loads(llamar("GET", f"/jugadores/{jug1[1]['idJugador']}", o1)[1])
 s, t = llamar("PUT", f"/jugadores/{otro['idJugador']}", o1, campos={"Nombre": otro["nombre"], "Apellido": otro["apellido"], "Cedula": ced,
     "FechaNac": "1990-01-01", "IdPais": pais})
 esperar("org1 no puede poner a un jugador la cédula de otro jugador suyo", s == 400 and "Ya tienes otro jugador" in t, f"{s} {t[:150]}")
-s, t = nuevo(o2, eq2, "5550001", "SoloLiga2", 73)
-s, t = llamar("PUT", f"/jugadores/{otro['idJugador']}", o1, campos={"Nombre": otro["nombre"], "Apellido": otro["apellido"], "Cedula": "5550001",
+s, t = nuevo(o2, eq2, cedula_valida(5550001), "SoloLiga2", 73)
+s, t = llamar("PUT", f"/jugadores/{otro['idJugador']}", o1, campos={"Nombre": otro["nombre"], "Apellido": otro["apellido"], "Cedula": cedula_valida(5550001),
     "FechaNac": "1990-01-01", "IdPais": pais})
 esperar("org1 puede usar una cédula que solo existe en la liga de org2", s == 200, f"{s} {t[:150]}")
 
 # Árbitros
 arb = lambda tok, cedula: llamar("POST", "/arbitros", tok, cuerpo={"nombre": "Juez", "apellido": "Compartido", "cedula": cedula, "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None})
-s1, t1 = arb(o1, "0912345678"); s2, t2 = arb(o2, "0912345678")
+s1, t1 = arb(o1, "0912345675"); s2, t2 = arb(o2, "0912345675")
 esperar("el mismo árbitro se registra en las dos ligas", s1 in (200, 201) and s2 in (200, 201), f"{s1} {s2} {t2[:150]}")
-s, t = arb(o2, "0912345678")
+s, t = arb(o2, "0912345675")
 esperar("un árbitro no se repite dentro de la misma liga (400, no 500)", s == 400 and "Ya tienes un árbitro" in t, f"{s} {t[:150]}")
 s, t = arb(o1, ced)
 esperar("un árbitro puede tener la cédula de un jugador", s in (200, 201), f"{s} {t[:150]}")

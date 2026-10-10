@@ -48,6 +48,13 @@ var org1 = Org("org1@prueba.ec"); var org2 = Org("org2@prueba.ec");
 db.Usuarios.AddRange(org1, org2); db.SaveChanges();
 
 int cedula = 1000;
+// Cédula ecuatoriana válida (provincia 09 y dígito verificador) a partir de un número.
+static string CedulaValida(int n)
+{
+    var b = $"09{n:D7}"; var suma = 0;
+    for (var i = 0; i < 9; i++) { var v = (b[i] - '0') * (i % 2 == 0 ? 2 : 1); suma += v > 9 ? v - 9 : v; }
+    return b + ((10 - suma % 10) % 10);
+}
 (Campeonato camp, Partido hoyP, Partido mananaP) Crear(Usuario org, string nombre)
 {
     var c = new Campeonato { Nombre = nombre, Anio = hoy.Year, FechaInicio = hoy.AddDays(-30), FechaFin = hoy.AddDays(60),
@@ -61,7 +68,7 @@ int cedula = 1000;
         db.CampeonatoEquipos.Add(new CampeonatoEquipo { IdCampeonato = c.IdCampeonato, IdEquipo = e.IdEquipo });
         for (var i = 1; i <= 8; i++)
         {
-            var per = new Persona { Nombre = $"J{i}", Apellido = e.Nombre, Cedula = (cedula++).ToString(), FechaNac = new DateOnly(1990, 1, 1), IdPais = pais.IdPais,
+            var per = new Persona { Nombre = $"J{i}", Apellido = e.Nombre, Cedula = CedulaValida(cedula++), FechaNac = new DateOnly(1990, 1, 1), IdPais = pais.IdPais,
                                     FotoUrl = i == 1 ? "/uploads/jugadores/x.jpg" : null };
             var jug = new Jugador { Persona = per };
             db.Jugadores.Add(jug);
@@ -85,7 +92,7 @@ if (fase8)
     foreach (var (t, c) in new[] { ("partido", "id_usuario_cierre"), ("partido", "cerrado_en"), ("partido", "iniciado_en"), ("partido", "estado_registro"),
                                    ("eventopartido", "id_cliente"), ("eventopartido", "id_usuario_registro"),
                                    ("cambio_partido", "id_cliente"), ("cambio_partido", "id_usuario_registro"),
-                                   ("alineacion_jugador", "id_usuario_registro") })
+                                   ("alineacion_jugador", "id_usuario_registro"), ("persona", "tipo_identificacion") })
         QuitarColumna(t, c);
 }
 File.WriteAllText(Environment.GetEnvironmentVariable("SALIDA")!, System.Text.Json.JsonSerializer.Serialize(new {

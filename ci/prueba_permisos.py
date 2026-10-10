@@ -48,7 +48,7 @@ jornadaA = llamar("GET", f"/campeonatos/{A}/jornadas", token=o1)[1][0]["idJornad
 PA = D["mananaA"]
 s, est, _ = llamar("POST", "/estadios", {"nombre": "Estadio Secreto Org1", "idPais": pais, "idCanton": None}, o1)
 estA = est["idEstadio"]
-s, arb, _ = llamar("POST", "/arbitros", {"nombre": "Arbitro", "apellido": "SecretoOrg1", "cedula": "0999999991", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}, o1)
+s, arb, _ = llamar("POST", "/arbitros", {"nombre": "Arbitro", "apellido": "SecretoOrg1", "cedula": "0912345675", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}, o1)
 arbA = arb["idArbitro"]
 s, gr, _ = llamar("POST", f"/campeonatos/{A}/grupos", {"nombre": "Grupo Secreto"}, o1)
 grA = gr["idGrupo"]
@@ -91,7 +91,7 @@ ataques = [
  ("editar estadio", "PUT", f"/estadios/{estA}", {"nombre": "Robado", "idPais": pais, "idCanton": None}),
  ("borrar estadio", "DELETE", f"/estadios/{estA}", None),
  ("ver árbitro", "GET", f"/arbitros/{arbA}", None),
- ("editar árbitro", "PUT", f"/arbitros/{arbA}", {"nombre": "R", "apellido": "R", "cedula": "0999999991", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}),
+ ("editar árbitro", "PUT", f"/arbitros/{arbA}", {"nombre": "R", "apellido": "R", "cedula": "0912345675", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}),
  ("borrar árbitro", "DELETE", f"/arbitros/{arbA}", None),
  ("ver grupos", "GET", f"/campeonatos/{A}/grupos", None),
  ("ver posiciones", "GET", f"/campeonatos/{A}/posiciones", None),

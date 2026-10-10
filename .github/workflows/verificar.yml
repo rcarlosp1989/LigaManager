@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-cedula' ] } }
+on: { push: { branches: [ 'ci/verificar-documento' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -32,6 +32,8 @@ jobs:
           # Como en producción: la cédula es única; luego el script nuevo quita esa regla.
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE persona MODIFY cedula VARCHAR(20) NOT NULL, ADD UNIQUE KEY uq_persona_cedula (cedula)"
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > tipo.txt
+          echo "::notice title=tipo::$(tr '\n' ' ' < tipo.txt | head -c 300)"
           echo "::notice title=indice::$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT CONCAT(index_name,' non_unique=',non_unique) FROM information_schema.statistics WHERE table_schema='liga_prueba' AND table_name='persona' AND column_name='cedula'")"
       - name: Arrancar API
         run: |
@@ -47,6 +49,7 @@ jobs:
           python3 ci/prueba_permisos.py datos.json > limite.txt 2>&1 || c=$?
           python3 ci/prueba_seguridad.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_cedula.py datos.json >> limite.txt 2>&1 || c=$?
+          python3 ci/prueba_documento.py datos.json >> limite.txt 2>&1 || c=$?
           echo "::notice title=permisos::$(grep -vE '^OK ' limite.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=ok::$(grep -c '^OK ' prueba.txt || true) + $(grep -c '^OK ' prueba8.txt || true) pruebas OK"
           if [ $c -ne 0 ]; then echo "::warning title=api::$(grep -iE 'exception|fail|error|at ' api.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; fi
@@ -76,4 +79,11 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador_reversa.sql
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql > idx.txt
           echo "::notice title=reversa2::sin repetidas la reversa funciona y el script se vuelve a aplicar: $(tr '\n' ' ' < idx.txt | head -c 200)"
+      - name: Reversa del tipo de documento
+        run: |
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento_reversa.sql
+          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='persona' AND column_name='tipo_identificacion'")
+          echo "::notice title=reversa_tipo::columna tras la reversa: $n"
+          [ "$n" = "0" ]
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > /dev/null
 
