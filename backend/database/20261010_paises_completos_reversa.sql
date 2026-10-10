@@ -1,0 +1,5 @@
+-- No tiene reversa automática: borrar países puede romper jugadores, árbitros y estadios que los usen.
+-- Si hiciera falta, quitar a mano solo los que no se usan:
+--   DELETE FROM pais WHERE id_pais NOT IN (SELECT id_pais FROM persona)
+--     AND id_pais NOT IN (SELECT id_pais FROM estadio) AND id_pais NOT IN (SELECT id_pais FROM equipo)
+--     AND id_pais NOT IN (SELECT id_pais FROM provincia);

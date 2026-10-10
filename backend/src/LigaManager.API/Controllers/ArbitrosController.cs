@@ -32,7 +32,14 @@ public class ArbitrosController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.IdArbitro }, result.Data);
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateArbitroRequest req)
+    {
+        var result = await _service.UpdateAsync(id, req);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+        [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _service.DeleteAsync(id);
