@@ -24,7 +24,7 @@ public class VocalesController : ControllerBase
     // Fase 8: un partido cerrado no acepta más registros del vocal (409). Corrige el organizador.
     private async Task<IActionResult?> SiCerrado(int? idPartido)
         => idPartido is int p && await _vocales.CerradoAsync(p)
-            ? Conflict(new { error = "El partido está cerrado. Las correcciones las hace el organizador desde la planilla." })
+            ? Conflict(new { error = "El partido ya está cerrado o marcado como jugado. Las correcciones las hace el organizador desde la planilla." })
             : null;
 
     // ── Organizador ──────────────────────────────────────────────────────────

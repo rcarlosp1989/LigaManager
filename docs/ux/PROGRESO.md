@@ -556,7 +556,7 @@ Si se fusiona la Fase 8 sin su script, el servidor nuevo falla al leer los parti
 
 ## 2026-10-10 — Mejora: la app abre sin señal
 
-**Estado:** aplicada en la rama `mejora/sin-senal`, creada desde `main` (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia la página web (Vercel): **sin servidor ni base de datos**.
+**Estado:** fusionada en `main` el 10 de octubre de 2026 (pull request #10). Publicada en producción. Solo cambia la página web (Vercel): **sin servidor ni base de datos**.
 
 ### Qué se cambió
 
@@ -591,7 +591,7 @@ Pruebas con Playwright sobre `npm run build` + `vite preview`, celular a 390 px 
 
 ## 2026-10-10 — Mejoras: aviso «Desliza» en tablas e íconos en lugar de emojis
 
-**Estado:** aplicada en la rama `mejora/tablas-y-iconos`, creada desde `main` (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia la página web: **sin servidor ni base de datos**.
+**Estado:** fusionada en `main` el 10 de octubre de 2026 (pull request #11). Publicada en producción. Solo cambia la página web: **sin servidor ni base de datos**.
 
 ### Tablas anchas
 
@@ -629,3 +629,51 @@ Playwright sobre `npm run build`, a 390, 768 y 1.440 px:
 - En todas: sin emojis en pantalla, sin desborde horizontal de la página y 0 errores.
 - Al deslizar, la pista se va y el difuminado pasa a la izquierda; al llegar al final, solo queda el izquierdo.
 - `npm run build` sin errores; lint con los mismos 5 errores previos.
+
+---
+
+## 2026-10-10 — Mejora: partido jugado en solo lectura en el modo en vivo
+
+**Estado:** aplicada en la rama `mejora/jugado-solo-lectura`, creada desde `main` (`c1009a4`). Pendiente de que Roberto la pruebe y la apruebe. Cambia servidor y página web; **sin script de base de datos**.
+
+### El problema
+
+- Para el organizador, el modo en vivo nunca se bloqueaba, aunque el partido ya estuviera jugado.
+- Para el vocal, solo se bloqueaba si el partido se había cerrado desde el modo en vivo. Si el organizador lo marcaba como jugado desde la tarjeta o la planilla, el vocal todavía podía registrar.
+
+### Regla nueva
+
+**Un partido jugado queda en solo lectura en el modo en vivo, para los dos, hasta que se desmarque.** Da igual cómo se marcó: cerrado en vivo, «Marcar jugado» en la tarjeta, desierto o perdido por reglamento.
+
+- **Modo en vivo**, con el partido jugado:
+  - se ve solo el resumen (marcador y registros), sin etapas, reloj ni botones de jugadores;
+  - el aviso dice «Partido cerrado por … a las …» o «Partido marcado como jugado. Solo se puede ver.»;
+  - el organizador tiene el botón **«Desmarcar jugado»**, con confirmación; al desmarcar vuelve a la vista del partido;
+  - el vocal ve «Las correcciones las hace el organizador».
+- **Tarjeta del partido:** si está jugado, el botón dice «Ver resumen» y abre el resumen; si no, sigue diciendo «● En vivo».
+- **Servidor:**
+  - el vocal recibe 409 («El partido ya está cerrado o marcado como jugado…») al registrar, convocar, iniciar o cerrar un partido jugado; puede seguir viéndolo;
+  - desmarcar un partido cerrado lo deja otra vez en vivo y borra quién y cuándo lo cerró;
+  - «Reabrir para el vocal» ahora también lo desmarca como jugado, porque si no seguiría bloqueado; el mensaje de confirmación lo explica.
+- **Sin cambios:** la planilla. El organizador sigue corrigiendo un partido jugado desde ahí, sin desmarcarlo.
+
+### Cómo se verificó
+
+- **Servidor:** GitHub Actions con MySQL y el API real (rama temporal `ci/verificar-jugado`). 15 pruebas nuevas, todas bien:
+  - desmarcar un partido cerrado lo reabre, y el vocal registra;
+  - jugado desde la tarjeta, 4 escrituras del vocal dan 409, pero el vocal todavía lo ve y el organizador corrige;
+  - reabrir lo desmarca, y el vocal vuelve a registrar.
+  - Se repitieron las 81 pruebas de las fases 7 y 8, todas bien.
+- **Pantallas:** Playwright, a 390 y 1.440 px.
+  - Organizador con partido jugado: solo el resumen, sin reloj ni jugadores, con «Desmarcar jugado».
+  - Al desmarcar se envía `jugado: false` y vuelven los 11 jugadores y el reloj.
+  - Partido cerrado por el vocal: «Partido cerrado por Juan Vocal a las 11:48».
+  - Vocal: solo el resumen, sin botón.
+  - Tarjeta: «Ver resumen» o «● En vivo» según el estado.
+  - 0 errores.
+- `npm run build` sin errores; lint con los mismos 5 errores previos.
+
+### Pendiente
+
+- Borrar en GitHub la rama temporal `ci/verificar-jugado`.
+

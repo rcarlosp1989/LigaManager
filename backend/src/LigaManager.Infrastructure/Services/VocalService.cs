@@ -368,8 +368,9 @@ public class VocalService
 
     // ── Bloqueo después del cierre (Fase 8) ──────────────────────────────────
 
+    // Cerrado para el vocal: cerrado desde el modo en vivo o marcado como jugado desde la planilla.
     public Task<bool> CerradoAsync(int idPartido)
-        => _db.Partidos.AnyAsync(p => p.IdPartido == idPartido && p.EstadoRegistro == EstadoRegistro.Cerrado);
+        => _db.Partidos.AnyAsync(p => p.IdPartido == idPartido && (p.Jugado || p.EstadoRegistro == EstadoRegistro.Cerrado));
 
     public Task<int?> PartidoDeEventoAsync(int idEvento)
         => _db.EventosPartido.Where(e => e.IdEvento == idEvento).Select(e => (int?)e.IdPartido).FirstOrDefaultAsync();

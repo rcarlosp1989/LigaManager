@@ -24,8 +24,13 @@ import { useAuth } from '../../context/AuthContext'
 const TIEMPO_ESPERA = 15000
 const VISTAS = [['convocatoria', 'Convocatoria'], ['partido', 'Partido'], ['cierre', 'Cierre']]
 
-// Fase 8: el servidor dice si el registro está cerrado; con uno anterior, se usa «jugado».
-const estaCerrado = (p) => (p?.estadoRegistro ? p.estadoRegistro === 'Cerrado' : !!p?.jugado)
+// Un partido jugado (cerrado desde aquí o marcado como jugado en la tarjeta o la planilla)
+// queda en solo lectura en el modo en vivo, para el vocal y para el organizador.
+const estaCerrado = (p) => !!p?.jugado || p?.estadoRegistro === 'Cerrado'
+// «Partido cerrado por Juan Vocal a las 11:48» o, si se marcó desde la planilla, «Partido marcado como jugado».
+const textoCerrado = (p) => (p?.estadoRegistro === 'Cerrado'
+  ? `Partido cerrado${p.cerradoPor ? ` por ${p.cerradoPor}` : ''}${p.cerradoEn ? ` a las ${p.cerradoEn.slice(11, 16)}` : ''}`
+  : 'Partido marcado como jugado')
 
 // Hora de Ecuador «yyyy-MM-dd HH:mm» del servidor → milisegundos.
 const msDesdeHoraEcuador = (t) => Date.parse(`${t.replace(' ', 'T')}:00-05:00`)
@@ -272,8 +277,8 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
 
   const lado = params.get('equipo') === 'visitante' ? 'visitante' : 'local'
   const hayConvocados = alineacion.local.length + alineacion.visitante.length > 0
-  // Fase 8: cerrado el partido, el vocal solo ve el resumen.
-  const bloqueado = vocal && estaCerrado(partido)
+  // Partido jugado: todos ven solo el resumen. El organizador puede desmarcarlo para volver a registrar.
+  const bloqueado = estaCerrado(partido)
   const vista = bloqueado ? 'cierre'
     : VISTAS.some(([v]) => v === params.get('vista')) ? params.get('vista') : (hayConvocados ? 'partido' : 'convocatoria')
 
@@ -396,6 +401,26 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
     },
     onError: (err) => aviso.error(err?.response ? mensajeDeError(err, 'No se pudo cerrar el partido.') : 'Sin conexión: cerrar el partido necesita señal.'),
   })
+
+  const desmarcarMutation = useMutation({
+    mutationFn: () => api.put(`/partidos/${idPartido}/jugado`, { jugado: false }, { timeout: TIEMPO_ESPERA }),
+    onSuccess: (r) => {
+      ponerPartido(r.data)
+      invalidarTablas()
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      setParam('vista', 'partido')
+      aviso.exito('Partido desmarcado como jugado. Ya se puede registrar en vivo.')
+    },
+    onError: (err) => aviso.error(err?.response ? mensajeDeError(err, 'No se pudo desmarcar el partido.') : 'Sin conexión: desmarcar el partido necesita señal.'),
+  })
+  const desmarcarJugado = async () => {
+    const ok = await confirmar({
+      titulo: '¿Desmarcar el partido como jugado?',
+      mensaje: 'Sale de la tabla de posiciones hasta que lo vuelvas a cerrar. Podrás registrar en vivo, y el vocal también.',
+      textoConfirmar: 'Desmarcar',
+    })
+    if (ok) desmarcarMutation.mutate()
+  }
 
   const cerrarPartido = async (observaciones) => {
     const ok = await confirmar({
@@ -523,10 +548,18 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
         </div>
       )}
       {bloqueado && (
-        <p role="status" className="mx-3 mt-3 rounded-lg border border-green-500/60 bg-green-950/60 px-3 py-2 text-sm text-green-50">
-          Partido cerrado{partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''}{partido.cerradoEn ? ` a las ${partido.cerradoEn.slice(11, 16)}` : ''}.
-          Ya no se pueden hacer registros; las correcciones las hace el organizador.
-        </p>
+        <div role="status" className="mx-3 mt-3 rounded-lg border border-green-500/60 bg-green-950/60 px-3 py-2 text-sm text-green-50">
+          <p>
+            {textoCerrado(partido)}. Solo se puede ver.{' '}
+            {vocal ? 'Las correcciones las hace el organizador.' : 'Para registrar en vivo, desmárcalo como jugado. Las correcciones también se pueden hacer en la planilla.'}
+          </p>
+          {!vocal && (
+            <button type="button" onClick={desmarcarJugado} disabled={desmarcarMutation.isPending}
+              className="mt-2 h-11 rounded-lg border border-green-300 px-4 text-sm font-semibold text-green-50 disabled:opacity-40">
+              {desmarcarMutation.isPending ? 'Desmarcando...' : 'Desmarcar jugado'}
+            </button>
+          )}
+        </div>
       )}
 
       {/* ── Vista ── */}
@@ -1001,7 +1034,9 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
         </div>
         {estaCerrado(partido) && (
           <p className="mt-2 text-sm font-semibold text-green-400">
-            Partido cerrado{partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''} y marcado como jugado.
+            {partido.estadoRegistro === 'Cerrado'
+              ? `Partido cerrado${partido.cerradoPor ? ` por ${partido.cerradoPor}` : ''} y marcado como jugado.`
+              : 'Partido marcado como jugado.'}
           </p>
         )}
         {(partido.desierto || partido.perdidaReglamento) && (

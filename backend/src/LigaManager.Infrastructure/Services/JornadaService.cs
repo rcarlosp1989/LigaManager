@@ -130,16 +130,13 @@ public class JornadaService : IJornadaService
     }
 
     // Solo el organizador: devuelve el partido al vocal para que siga registrando.
+    // Un partido jugado queda en solo lectura en el modo en vivo, así que reabrir también lo desmarca.
     public async Task<ServiceResult<PartidoDetalleDto>> ReabrirRegistroAsync(int idPartido)
     {
         if (EsVocal || !await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
         var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
         if (p.EstadoRegistro != EstadoRegistro.Cerrado) return ServiceResult<PartidoDetalleDto>.Fail("El partido no está cerrado.");
-        p.EstadoRegistro  = EstadoRegistro.EnVivo;
-        p.CerradoEn       = null;
-        p.IdUsuarioCierre = null;
-        await _db.SaveChangesAsync();
-        return await GetPartidoDetalleAsync(idPartido);
+        return await MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(false));
     }
 
     // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
@@ -528,6 +525,14 @@ public class JornadaService : IJornadaService
             p.IdEquipoSancionado = null;
             p.GolesLocal         = null;
             p.GolesVisitante     = null;
+        }
+
+        // Desmarcar un partido cerrado lo reabre: vuelve a estar en vivo para el vocal y el organizador.
+        if (!req.Jugado && p.EstadoRegistro == EstadoRegistro.Cerrado)
+        {
+            p.EstadoRegistro  = EstadoRegistro.EnVivo;
+            p.CerradoEn       = null;
+            p.IdUsuarioCierre = null;
         }
 
         p.Jugado = req.Jugado;
