@@ -838,7 +838,7 @@ function PartidoCard({ partido, idCampeonato }) {
   const reabrir = async () => {
     const ok = await confirmar({
       titulo: '¿Reabrir el partido para el vocal?',
-      mensaje: 'El vocal podrá volver a registrar y cerrarlo otra vez. El partido sigue marcado como jugado. Tú puedes corregir desde la planilla sin reabrirlo.',
+      mensaje: 'El partido se desmarca como jugado y sale de la tabla de posiciones hasta que se vuelva a cerrar. El vocal podrá registrar otra vez. Para corregir algo puntual, usa la planilla sin reabrirlo.',
       textoConfirmar: 'Reabrir',
     })
     if (ok) reabrirMutation.mutate()
@@ -952,10 +952,11 @@ function PartidoCard({ partido, idCampeonato }) {
           onClick={() => setShowAlineacionModal(true)}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5"
         ><ClipboardList size={13} aria-hidden="true" />Planilla</button>
+        {/* Jugado: el modo en vivo solo muestra el resumen. */}
         <Link
-          to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}`}
+          to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}${partido.jugado ? '&vista=cierre' : ''}`}
           className="text-xs px-3 py-1.5 rounded border border-brand-700 text-brand-300 hover:bg-brand-900/30 transition-colors inline-flex items-center"
-        >● En vivo</Link>
+        >{partido.jugado ? 'Ver resumen' : '● En vivo'}</Link>
         <button
           onClick={() => {
             setEditForm({
