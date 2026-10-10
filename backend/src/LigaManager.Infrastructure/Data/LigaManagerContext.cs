@@ -188,7 +188,11 @@ public class LigaManagerContext : DbContext
             e.Property(p => p.IdPersona).HasColumnName("id_persona");
             e.Property(p => p.Nombre)   .HasColumnName("nombre");
             e.Property(p => p.Apellido) .HasColumnName("apellido");
-            e.Property(p => p.Cedula)   .HasColumnName("cedula");
+            e.Property(p => p.Cedula)   .HasColumnName("cedula").HasMaxLength(20);
+            // El ENUM de MySQL guarda CEDULA/EXTRANJERO/PASAPORTE en mayúsculas.
+            e.Property(p => p.TipoIdentificacion).HasColumnName("tipo_identificacion")
+             .HasConversion(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TipoIdentificacion, string>(
+                 v => v.ToString().ToUpperInvariant(), v => Enum.Parse<TipoIdentificacion>(v, true)));
             e.Property(p => p.FechaNac) .HasColumnName("fecha_nac");
             e.Property(p => p.IdPais)   .HasColumnName("id_pais");
             e.Property(p => p.IdCanton) .HasColumnName("id_canton");

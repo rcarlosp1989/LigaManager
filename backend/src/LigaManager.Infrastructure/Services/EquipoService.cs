@@ -67,7 +67,8 @@ public class EquipoService : IEquipoService
                     je.Jugador.Persona.Cedula,
                     je.Posicion,
                     CalcularEdad(je.Jugador.Persona.FechaNac),
-                    je.Jugador.Persona.FotoUrl
+                    je.Jugador.Persona.FotoUrl,
+                    je.Jugador.Persona.TipoIdentificacion.ToString()
                 )).ToList()
         ));
     }

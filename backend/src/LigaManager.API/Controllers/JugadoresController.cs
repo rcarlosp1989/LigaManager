@@ -34,7 +34,7 @@ public class JugadoresController : ControllerBase
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new CreateJugadorRequest(
             form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton,
-            form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl);
+            form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.CreateAsync(request);
         if (!result.Success) return BadRequest(new { error = result.Error });
@@ -46,7 +46,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new UpdateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal);
+            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.UpdateAsync(id, request);
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
@@ -124,6 +124,7 @@ public sealed class CreateJugadorForm
     public string Nombre { get; set; } = "";
     public string Apellido { get; set; } = "";
     public string Cedula { get; set; } = "";
+    public string? TipoIdentificacion { get; set; }
     public string FechaNac { get; set; } = "";
     public int IdPais { get; set; }
     public int? IdCanton { get; set; }
@@ -139,6 +140,7 @@ public sealed class UpdateJugadorForm
     public string Nombre { get; set; } = "";
     public string Apellido { get; set; } = "";
     public string Cedula { get; set; } = "";
+    public string? TipoIdentificacion { get; set; }
     public string FechaNac { get; set; } = "";
     public int IdPais { get; set; }
     public int? IdCanton { get; set; }

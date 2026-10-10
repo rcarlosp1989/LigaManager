@@ -7,6 +7,8 @@ public class Persona
     public string   Nombre     { get; set; } = null!;
     public string   Apellido   { get; set; } = null!;
     public string   Cedula     { get; set; } = null!;
+    // Cedula (ecuatoriana), Extranjero o Pasaporte. Ver Application/Common/Identificacion.
+    public TipoIdentificacion TipoIdentificacion { get; set; } = TipoIdentificacion.Cedula;
     public DateOnly FechaNac   { get; set; }
     public int      IdPais     { get; set; }
     public int?     IdCanton   { get; set; }
@@ -17,3 +19,5 @@ public class Persona
     public Jugador? Jugador  { get; set; }
     public Arbitro? Arbitro  { get; set; }
 }
+
+public enum TipoIdentificacion { Cedula, Extranjero, Pasaporte }

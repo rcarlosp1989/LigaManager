@@ -25,7 +25,8 @@ public record JugadorEnEquipoDto(
     string Cedula,
     string? Posicion,
     int    Edad,
-    string? FotoUrl
+    string? FotoUrl,
+    string  TipoIdentificacion = "Cedula"
 );
 
 public record CreateEquipoRequest(string Nombre, int IdPais);

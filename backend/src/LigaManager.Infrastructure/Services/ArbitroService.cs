@@ -28,7 +28,8 @@ public class ArbitroService : IArbitroService
         a.Persona.Canton?.IdProvincia,
         a.Persona.Canton?.Provincia.Nombre,
         a.Persona.IdCanton,
-        a.Persona.Canton?.Nombre
+        a.Persona.Canton?.Nombre,
+        a.Persona.TipoIdentificacion.ToString()
     );
 
     public async Task<List<ArbitroListDto>> GetAllAsync()
@@ -43,7 +44,9 @@ public class ArbitroService : IArbitroService
                 a.Persona.Apellido,
                 a.Persona.Pais.Nombre,
                 a.Persona.Canton != null ? a.Persona.Canton.Provincia.Nombre : null,
-                a.Persona.Canton != null ? a.Persona.Canton.Nombre : null
+                a.Persona.Canton != null ? a.Persona.Canton.Nombre : null,
+                a.Persona.Cedula,
+                a.Persona.TipoIdentificacion.ToString()
             ))
             .ToListAsync();
 
@@ -67,19 +70,27 @@ public class ArbitroService : IArbitroService
         if (ubicacion.Error is not null)
             return ServiceResult<ArbitroDetalleDto>.Fail(ubicacion.Error);
 
-        // Igual que los jugadores: la cédula se repite solo entre los árbitros de este organizador.
-        var cedula = req.Cedula?.Trim();
-        if (!string.IsNullOrEmpty(cedula) && await _db.Arbitros.AnyAsync(a =>
-                a.IdUsuarioCreador == UsuarioActualId && a.Persona.Cedula == cedula))
-            return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes un árbitro registrado con esa cédula.");
+        // El documento es opcional para un oficial; si se escribe, debe ser válido. Igual que los
+        // jugadores, solo se repite entre los árbitros de este organizador.
+        var tipoDoc = TipoIdentificacion.Cedula;
+        string? cedula = null;
+        if (!string.IsNullOrWhiteSpace(req.Cedula))
+        {
+            var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
+            if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
+            tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
+            cedula  = doc.Numero;
+            if (await _db.Arbitros.AnyAsync(a => a.IdUsuarioCreador == UsuarioActualId
+                    && a.Persona.Cedula == cedula && a.Persona.TipoIdentificacion == tipoDoc))
+                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes un árbitro registrado con ese documento.");
+        }
 
         var persona = new Persona
         {
             Nombre    = req.Nombre.Trim(),
             Apellido  = req.Apellido.Trim(),
-            Cedula    = string.IsNullOrWhiteSpace(req.Cedula)
-                        ? $"AR-{DateTime.UtcNow.Ticks % 10000000000000000L}"
-                        : req.Cedula.Trim(),
+            Cedula    = cedula ?? $"AR-{DateTime.UtcNow.Ticks % 10000000000000000L}",
+            TipoIdentificacion = tipoDoc,
             FechaNac  = fechaNac,
             IdPais    = req.IdPais,
             IdCanton  = ubicacion.IdCanton,
