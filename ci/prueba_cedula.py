@@ -31,7 +31,7 @@ pais = json.loads(llamar("GET", "/catalogos/paises", o1)[1])[0]["idPais"]
 eq1 = json.loads(llamar("GET", "/equipos", o1)[1])[0]["idEquipo"]
 eq2 = json.loads(llamar("GET", "/equipos", o2)[1])[0]["idEquipo"]
 jug1 = json.loads(llamar("GET", f"/equipos/{eq1}", o1)[1])["jugadores"]
-j1 = json.loads(llamar("GET", f"/jugadores/{jug1[0]['idJugador']}", o1)[1])
+j1 = json.loads(llamar("GET", f"/jugadores/{jug1[3]['idJugador']}", o1)[1])
 ced = j1["cedula"]
 nuevo = lambda tok, eq, cedula, nombre, dorsal: llamar("POST", "/jugadores", tok, campos={"Nombre": nombre, "Apellido": "Liga2", "Cedula": cedula,
     "FechaNac": "1995-05-05", "IdPais": pais, "IdEquipo": eq, "FechaDesde": D["hoy"], "Dorsal": dorsal})
