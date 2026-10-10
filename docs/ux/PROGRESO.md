@@ -511,3 +511,38 @@ Si se fusiona la Fase 8 sin su script, el servidor nuevo falla al leer los parti
 - Probar el modo en vivo en un partido real, con el vocal (pedido del plan).
 - Borrar en GitHub las ramas temporales `ci/verificar-fase-6`, `ci/verificar-fase-7` y `ci/verificar-fase-8` (desde aquí no hay permiso para borrarlas).
 
+
+---
+
+## 2026-10-10 — Mejora: la app abre sin señal
+
+**Estado:** aplicada en la rama `mejora/sin-senal`, creada desde `main` (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia la página web (Vercel): **sin servidor ni base de datos**.
+
+### Qué se cambió
+
+- **Service worker** (`frontend/sw/sw.js`): la primera vez que se abre la app con señal, el navegador guarda en el celular todos los archivos de esa versión: JS, CSS, fuentes e íconos (19 archivos).
+  - Al abrir o recargar una página, primero se intenta la red, con 4 segundos de espera. Sin señal, o con una señal tan débil que no responde, abre la copia guardada.
+  - Las llamadas al servidor de Railway no pasan por ahí: los datos los sigue manejando cada pantalla.
+- `vite.config.js` genera `dist/sw.js` en cada `npm run build`, con la lista de archivos y una versión calculada sobre su contenido. Al publicar en Vercel, el celular descarga la versión nueva y borra la anterior. En `npm run dev` no se usa.
+- **Inicio del vocal** (`InicioVocal.jsx`): guarda una copia de sus partidos. Sin señal, muestra los partidos de hoy con el aviso «Sin conexión. Se muestra lo último que llegó.» y un botón «Reintentar». Una copia de otro día se ignora.
+- **Instalar en la pantalla de inicio:** `manifest.webmanifest` y los íconos `icono-180/192/512.png` y `icono-maskable-512.png`, hechos del mismo logo. En Android: menú de Chrome → «Agregar a la pantalla principal». En iPhone: Compartir → «Agregar a inicio».
+
+### Decisiones
+
+- Las páginas van **primero por la red**: con señal siempre se ve la versión publicada. La copia solo se usa si la red no responde en 4 segundos.
+- Las fotos de los jugadores vienen de Railway y no se guardan: sin señal se ven las iniciales.
+- Sin dependencias nuevas: el service worker es un archivo propio de unas 60 líneas.
+
+### Cómo se verificó
+
+Pruebas con Playwright sobre `npm run build` + `vite preview`, celular a 390 px y escritorio a 1.440 px, con la red cortada de verdad:
+- el service worker toma control y guarda 19 archivos;
+- sin señal, la recarga de `/vocal` sale del service worker y muestra los partidos de hoy con el aviso;
+- «Registrar» abre el partido con sus 11 jugadores, y la recarga directa de `/partidos/1/en-vivo` también abre;
+- un gol anotado sin señal queda pendiente y se envía solo al volver la conexión;
+- una copia de otro día no se usa: aparece «No se pudieron cargar tus partidos» con «Reintentar»;
+- el organizador sin señal ve el menú y el error con «Reintentar» de cada pantalla;
+- al publicar una versión nueva, el celular la toma en la siguiente visita, borra la anterior y sigue abriendo sin señal;
+- `npm run build` sin errores; lint con los mismos 5 errores previos; 0 errores de página.
+
+**Límite:** no se probó en un celular real ni en Vercel. Conviene probarlo en el celular: abrir la app con señal, activar el modo avión y recargar.
