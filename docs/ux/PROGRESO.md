@@ -365,7 +365,7 @@ Probar y, si se aprueba, fusionar `ux/fase-6-servidor` a `main`. Después, la Fa
 
 ## 2026-10-09 — Fase 7: Rol Vocal
 
-**Estado:** aplicada en la rama `ux/fase-7-vocal`, creada desde `main` con las fases 1 a 6 fusionadas (`8e0bc23`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere aplicar un script en la base de datos antes de publicar.**
+**Estado:** script `20261009_rol_vocal.sql` aplicado en Railway por Roberto y fusionada en `main` el 9 de octubre de 2026 (pull request #7). Publicada en producción.
 
 Diseño aprobado: `docs/ux/PROPUESTA_FASES_7_8.md`, con el ajuste de Roberto al punto 1 (código del titular vigente durante el campeonato y registro solo el día del partido; enlace de una vez para el reemplazo de un día).
 
@@ -432,7 +432,7 @@ Si se fusiona sin aplicar el script, el servidor nuevo falla al leer las tablas 
 
 ## 2026-10-09 — Fase 8: Modo en vivo, cierre y registro
 
-**Estado:** aplicada en la rama `ux/fase-8-registro`, creada **sobre la Fase 7** (`ux/fase-7-vocal`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere la Fase 7 y aplicar su propio script en la base de datos antes de publicar.**
+**Estado:** script `20261009_registro_en_vivo.sql` aplicado en Railway por Roberto y fusionada en `main` el 9 de octubre de 2026 (pull request #8). Publicada en producción. Falta la prueba en un partido real con el vocal.
 
 ### Base de datos
 
@@ -510,4 +510,45 @@ Si se fusiona la Fase 8 sin su script, el servidor nuevo falla al leer los parti
 
 - Probar el modo en vivo en un partido real, con el vocal (pedido del plan).
 - Borrar en GitHub las ramas temporales `ci/verificar-fase-6`, `ci/verificar-fase-7` y `ci/verificar-fase-8` (desde aquí no hay permiso para borrarlas).
+
+---
+
+## 2026-10-10 — Mejora: límite de intentos fallidos
+
+**Estado:** aplicada en la rama `mejora/limite-invitaciones`, creada desde `main` con las 8 fases (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia el servidor; **no necesita script de base de datos**.
+
+### Qué se cambió
+
+- Las rutas públicas donde se escribe un código o una clave cuentan los intentos fallidos por dirección IP:
+  - **invitación** (`GET /api/invitaciones/{codigo}` y `POST …/aceptar`);
+  - **inicio de sesión** (`POST /api/auth/login`).
+- Con **10 fallos en 15 minutos**, esa IP queda bloqueada en ese grupo hasta que pasen los 15 minutos. Recibe 429 con el mensaje «Demasiados intentos fallidos. Espera N minutos e inténtalo de nuevo.», que las pantallas ya muestran donde aparecen los demás errores.
+- Un intento correcto borra la cuenta de fallos. Los grupos son independientes: el bloqueo de invitación no impide iniciar sesión.
+- La IP real se lee de `X-Forwarded-For`, que agrega el proxy de Railway. Solo cuenta el último valor, así no se puede esquivar el bloqueo poniendo otra IP delante.
+- Archivos: `backend/src/LigaManager.API/Seguridad/LimiteIntentos.cs` (nuevo), `Program.cs`, `AuthController.cs`, `VocalesController.cs`.
+
+### Decisiones
+
+- Se cuentan solo los **fallos** (400, 401, 404), no todas las visitas, para no bloquear a varios vocales que comparten el wifi de la cancha.
+- Una invitación vencida o ya usada no es un fallo: el servidor responde 200 con el motivo.
+- Los contadores están en la memoria del servidor: si Railway reinicia el servicio, se borran. Basta para frenar a quien prueba códigos o claves al azar, y evita una tabla nueva.
+- El registro de organizadores (`/api/auth/register`) no se limitó: no hay nada que adivinar ahí.
+
+### Cómo se verificó
+
+- GitHub Actions con MySQL y el API real (rama temporal `ci/verificar-limite`): **15 pruebas nuevas**, todas bien:
+  - 10 códigos falsos dan 404 y el 11.º, 429 con el mensaje en español y `Retry-After` de unos 900 segundos;
+  - bloqueada, ni el código correcto ni aceptar pasan; otra IP sí entra;
+  - no se esquiva poniendo otra IP delante; 10 claves malas bloquean el login;
+  - con 9 fallos todavía entra, y un acierto reinicia la cuenta;
+  - sin `X-Forwarded-For` todo sigue funcionando.
+- Se repitieron las 81 pruebas de las fases 7 y 8, todas bien.
+
+### Pendiente
+
+- Borrar en GitHub la rama temporal `ci/verificar-limite`.
+
+## 2026-10-10 — Registro de avance
+
+- Las líneas de estado de las fases 7 y 8 decían «pendiente»; ya dicen que están publicadas.
 
