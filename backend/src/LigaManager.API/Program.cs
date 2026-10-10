@@ -52,8 +52,22 @@ builder.Services.Configure<LigaManager.Application.Common.ReglasDisciplinariasOp
     builder.Configuration.GetSection("ReglasDisciplinarias"));
 
 // ── JWT ───────────────────────────────────────────────────────────────────────
-var secretKey = builder.Configuration["JwtSettings:SecretKey"] 
-    ?? "LigaManager$2024#SecretKey!XyZ9@Kp12345678";
+// La clave que firma las sesiones nunca va en el código (el repositorio es público).
+// En Railway está en la variable JwtSettings__SecretKey. Publicado (Railway o contenedor), sin
+// esa variable o con la clave que antes estaba en appsettings.json, el servidor no arranca.
+// En la computadora (dotnet run) usa una clave de prueba para no estorbar el desarrollo.
+var secretKey = builder.Configuration["JwtSettings:SecretKey"];
+const string ClaveVieja = "LigaManager$2024#SecretKey!XyZ9@Kp12345678";
+var publicado = Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT") is not null
+             || Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+if (string.IsNullOrWhiteSpace(secretKey) || secretKey == ClaveVieja || Encoding.UTF8.GetByteCount(secretKey) < 32)
+{
+    if (publicado)
+        throw new InvalidOperationException(
+            "Falta la variable JwtSettings__SecretKey (mínimo 32 caracteres, distinta a la del código).");
+    Console.WriteLine("Aviso: sin JwtSettings__SecretKey; se usa una clave de prueba solo para esta computadora.");
+    secretKey = "solo-desarrollo-local-no-usar-en-produccion-0123456789";
+}
 var issuer    = builder.Configuration["JwtSettings:Issuer"]    ?? "LigaManagerAPI";
 var audience  = builder.Configuration["JwtSettings:Audience"]  ?? "LigaManagerClient";
 
@@ -182,22 +196,41 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseCors("FrontendPolicy");
-app.UseStaticFiles();
-app.UseAuthentication();
-app.UseAuthorization();
+// Encabezados de seguridad: el navegador no adivina tipos de archivo (una «foto» no se
+// ejecuta como página), la API no se puede incrustar en otro sitio y no se filtra la URL.
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["X-Frame-Options"]        = "DENY";
+    ctx.Response.Headers["Referrer-Policy"]        = "no-referrer";
+    await next();
+});
 
+app.UseCors("FrontendPolicy");
+
+// Errores: los de la petición (400) muestran su mensaje; los internos (500) se anotan en el
+// registro del servidor y al usuario solo le llega un mensaje genérico, sin detalles técnicos.
 app.Use(async (ctx, next) =>
 {
     try { await next(); }
-    catch (Exception ex)
+    catch (Exception ex) when (!ctx.Response.HasStarted)
     {
-        ctx.Response.StatusCode  = 500;
+        var peticion = ex as BadHttpRequestException;
+        if (peticion is null)
+            ctx.RequestServices.GetRequiredService<ILogger<Program>>()
+                .LogError(ex, "Error no controlado en {Metodo} {Ruta}", ctx.Request.Method, ctx.Request.Path);
+        ctx.Response.StatusCode  = peticion?.StatusCode ?? 500;
         ctx.Response.ContentType = "application/json";
-        var msg = ex.Message;
-        await ctx.Response.WriteAsync($"{{\"error\":\"{msg}\"}}");
+        await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+        {
+            error = peticion?.Message ?? "Ocurrió un error inesperado. Inténtalo de nuevo; si sigue pasando, avisa al administrador."
+        }));
     }
 });
+
+app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
