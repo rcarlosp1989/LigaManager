@@ -688,3 +688,48 @@ Playwright sobre `npm run build`, a 390, 768 y 1.440 px:
   - jugado y en vivo: sin el aviso, con «Ver resumen»;
   - cerrado: «Cerrado por …», con «Ver resumen»;
   - en vivo sin jugar: «En vivo desde…», con «● En vivo».
+
+---
+
+## 2026-10-10 — Revisión de seguridad del servidor
+
+**Estado:** aplicada en la rama `mejora/seguridad-servidor`, creada desde `main`. Pendiente de que Roberto la apruebe. Cambia servidor y configuración de Vercel; **sin script de base de datos y sin variables nuevas** (Railway ya tiene `JwtSettings__SecretKey`).
+
+### Qué se revisó y resultado
+
+| Área | Resultado |
+|---|---|
+| Rutas sin sesión | Solo login, registro e invitación, a propósito. ✅ |
+| Permisos entre organizadores | Ataque con dos cuentas: 61 intentos de ver, cambiar, borrar o mezclar datos ajenos. Todos rechazados; los listados no muestran nada ajeno. ✅ |
+| Contraseñas | Guardadas con BCrypt. ✅ |
+| Consultas a la base | Todas por EF Core, sin SQL armado a mano. ✅ |
+| Secretos en el historial de Git | Ninguna contraseña ni dirección de la base de producción. ✅ |
+| Clave de sesión | Railway usa una propia ✅, pero la vieja seguía en el código → **corregido** |
+| Mensajes de error | Devolvían el detalle técnico del error, en un JSON que podía quedar roto → **corregido** |
+| Subida de fotos | Solo miraba el nombre del archivo → **corregido** |
+| Encabezados de seguridad | No había → **agregados** |
+
+### Cambios
+
+- **Clave de sesión:** se quitó de `appsettings.json` y de `Program.cs`. Publicado (Railway o contenedor), el servidor **no arranca** sin `JwtSettings__SecretKey` o con la clave vieja. En la computadora (`dotnet run`) usa una clave de prueba y lo avisa en la consola.
+- **Errores:**
+  - los de la petición (400) muestran su mensaje; antes, una foto inválida daba 500;
+  - los internos (500) se anotan en el registro de Railway con el detalle, y al usuario le llega «Ocurrió un error inesperado…».
+- **Fotos:** se revisan los primeros bytes. Solo pasan JPG, PNG o WEBP de verdad, y se guardan con la extensión real.
+- **Encabezados:**
+  - en el servidor: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`;
+  - en Vercel (`vercel.json`): los mismos, con `strict-origin-when-cross-origin`.
+
+### Anotado, sin cambiar
+
+- Ocho reportes de un campeonato ajeno responden «vacío» en vez de «no existe». No muestran datos.
+- Registrar un jugador con una cédula que ya existe en otra liga responde «Ya existe un jugador con esa cédula». Revela que la cédula está registrada e impide inscribir al mismo jugador en dos ligas. **Decisión de diseño pendiente con Roberto.**
+- La contraseña mínima es de 6 caracteres. Se puede subir junto con la mejora de cuentas.
+
+### Cómo se verificó
+
+GitHub Actions con MySQL y el API real (rama temporal `ci/verificar-permisos`):
+- `prueba_permisos.py`: 61 ataques, 7 listados y la integridad de los datos de org1, todo bien.
+- `prueba_seguridad.py`: encabezados; una «foto» HTML y un .exe dan 400; un PNG llamado .jpg se acepta y se guarda como .png.
+- Arranque publicado: sin clave sale con error; con la clave vieja sale con error; con clave propia arranca.
+- Las 81 pruebas de las fases 7 y 8, todas bien.
