@@ -30,7 +30,7 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal.sql
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_registro_en_vivo.sql
           # Como en producción: la cédula es única; luego el script nuevo quita esa regla.
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE persona ADD UNIQUE KEY uq_persona_cedula (cedula)"
+          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE persona MODIFY cedula VARCHAR(20) NOT NULL, ADD UNIQUE KEY uq_persona_cedula (cedula)"
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql
           echo "::notice title=indice::$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT CONCAT(index_name,' non_unique=',non_unique) FROM information_schema.statistics WHERE table_schema='liga_prueba' AND table_name='persona' AND column_name='cedula'")"
       - name: Arrancar API
