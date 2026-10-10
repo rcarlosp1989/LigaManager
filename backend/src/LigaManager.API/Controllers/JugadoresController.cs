@@ -87,9 +87,16 @@ public class JugadoresController : ControllerBase
             throw new BadHttpRequestException("La foto no puede superar los 5 MB.");
 
         var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-        var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-        if (!allowed.Contains(extension))
+        if (!allowed.Contains(Path.GetExtension(photo.FileName).ToLowerInvariant()))
             throw new BadHttpRequestException("La foto debe ser JPG, PNG o WEBP.");
+
+        // No basta con el nombre del archivo: se revisan los primeros bytes para confirmar
+        // que de verdad es una imagen, y se guarda con la extensión de lo que es.
+        var cabecera = new byte[12];
+        await using (var lectura = photo.OpenReadStream())
+            _ = await lectura.ReadAtLeastAsync(cabecera, cabecera.Length, throwOnEndOfStream: false);
+        var extension = TipoDeImagen(cabecera)
+            ?? throw new BadHttpRequestException("El archivo no es una imagen JPG, PNG o WEBP válida.");
 
         var folder = Path.Combine(_environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot"), "uploads", "jugadores");
         Directory.CreateDirectory(folder);
@@ -98,7 +105,17 @@ public class JugadoresController : ControllerBase
         await using var stream = System.IO.File.Create(path);
         await photo.CopyToAsync(stream);
         return $"/uploads/jugadores/{fileName}";
-}
+    }
+
+    private static string? TipoDeImagen(byte[] b)
+    {
+        if (b.Length >= 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return ".jpg";
+        if (b.Length >= 8 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47
+            && b[4] == 0x0D && b[5] == 0x0A && b[6] == 0x1A && b[7] == 0x0A) return ".png";
+        if (b.Length >= 12 && b[0] == 'R' && b[1] == 'I' && b[2] == 'F' && b[3] == 'F'
+            && b[8] == 'W' && b[9] == 'E' && b[10] == 'B' && b[11] == 'P') return ".webp";
+        return null;
+    }
 }
 
 
