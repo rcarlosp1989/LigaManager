@@ -677,3 +677,14 @@ Playwright sobre `npm run build`, a 390, 768 y 1.440 px:
 
 - Borrar en GitHub la rama temporal `ci/verificar-jugado`.
 
+
+## 2026-10-10 — Ajuste: sin «En vivo desde…» en partidos jugados
+
+**Estado:** aplicado en la rama `mejora/chip-en-vivo-jugado`. Pendiente de que Roberto lo apruebe. Solo página web.
+
+- Roberto vio «Finalizado» y «En vivo desde las 22:22» en el mismo partido (C.D.E.F Ventarrón 9-1 León F.C.). El 9 de octubre, antes del PR #12, se abrió el modo en vivo de ese partido ya jugado. Ese registro lo dejó «en vivo» y quedó así, porque no se cerró desde el modo en vivo.
+- Ahora la tarjeta de un partido jugado no muestra «En vivo desde…». Si se cerró en vivo, sigue mostrando «Cerrado por …».
+- Verificado con Playwright a 390 px:
+  - jugado y en vivo: sin el aviso, con «Ver resumen»;
+  - cerrado: «Cerrado por …», con «Ver resumen»;
+  - en vivo sin jugar: «En vivo desde…», con «● En vivo».
