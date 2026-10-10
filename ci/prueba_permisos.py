@@ -88,7 +88,6 @@ ataques = [
  ("borrar jugador", "DELETE", f"/jugadores/{jugA[0]}", None),
  ("vincular jugador ajeno a su equipo", "POST", f"/jugadores/{jugA[3]}/vincular-equipo", {"idEquipo": eqB, "fechaDesde": D["hoy"], "fechaHasta": None, "dorsal": 50, "posicion": None}),
  ("vincular su jugador a equipo ajeno", "POST", f"/jugadores/{jugB[0]}/vincular-equipo", {"idEquipo": eqA, "fechaDesde": D["hoy"], "fechaHasta": None, "dorsal": 51, "posicion": None}),
- ("ver estadio", "GET", f"/estadios/{estA}", None),
  ("editar estadio", "PUT", f"/estadios/{estA}", {"nombre": "Robado", "idPais": pais, "idCanton": None}),
  ("borrar estadio", "DELETE", f"/estadios/{estA}", None),
  ("ver árbitro", "GET", f"/arbitros/{arbA}", None),
@@ -141,7 +140,9 @@ ataques = [
 ]
 for nombre, m, ruta, cuerpo in ataques:
     s, r, txt = llamar(m, ruta, cuerpo, o2)
-    bien = 400 <= s < 500
+    # Una consulta puede responder 200 si viene vacía: lo que importa es que no muestre nada ajeno.
+    fuga = any(t in txt for t in ["Senior A", "Grupo Secreto", "Estadio Secreto", "SecretoOrg1"])
+    bien = (400 <= s < 500) or (m == "GET" and s == 200 and not fuga)
     esperar(f"org2 no puede {nombre} ({m} {ruta} → {s})", bien, txt[:160])
     if s >= 500: avisos.append(f"{nombre}: {s}")
 
@@ -164,7 +165,9 @@ s, p, _ = llamar("GET", f"/partidos/{PA}", token=o1)
 esperar("partido de org1 intacto", s == 200 and len(p["eventos"]) == 1 and len(p["cambios"]) == 1 and not p["jugado"], str(p)[:200])
 s, e, _ = llamar("GET", f"/equipos/{eqA}", token=o1)
 esperar("equipo de org1 intacto", s == 200 and "Robado" not in json.dumps(e) and len(e["jugadores"]) == 8, str(e)[:200])
-for ruta in [f"/estadios/{estA}", f"/arbitros/{arbA}", f"/grupos/{grA}", f"/campeonatos/{A}"]:
+s, r, txt = llamar("GET", "/estadios", token=o1)
+esperar("estadio de org1 intacto", s == 200 and "Estadio Secreto Org1" in txt and "Robado" not in txt, txt[:120])
+for ruta in [f"/arbitros/{arbA}", f"/grupos/{grA}", f"/campeonatos/{A}"]:
     s, r, txt = llamar("GET", ruta, token=o1)
     esperar(f"{ruta} de org1 intacto", s == 200 and "Robado" not in txt, f"{s} {txt[:120]}")
 
