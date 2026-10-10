@@ -38,3 +38,10 @@ createRoot(document.getElementById('root')).render(
     </QueryClientProvider>
   </StrictMode>,
 )
+
+// Guarda la app en el dispositivo para que abra sin señal (sw/sw.js). Solo en la versión publicada.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}
