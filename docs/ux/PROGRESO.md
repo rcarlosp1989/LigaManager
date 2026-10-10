@@ -365,7 +365,7 @@ Probar y, si se aprueba, fusionar `ux/fase-6-servidor` a `main`. Después, la Fa
 
 ## 2026-10-09 — Fase 7: Rol Vocal
 
-**Estado:** aplicada en la rama `ux/fase-7-vocal`, creada desde `main` con las fases 1 a 6 fusionadas (`8e0bc23`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere aplicar un script en la base de datos antes de publicar.**
+**Estado:** script `20261009_rol_vocal.sql` aplicado en Railway por Roberto y fusionada en `main` el 9 de octubre de 2026 (pull request #7). Publicada en producción.
 
 Diseño aprobado: `docs/ux/PROPUESTA_FASES_7_8.md`, con el ajuste de Roberto al punto 1 (código del titular vigente durante el campeonato y registro solo el día del partido; enlace de una vez para el reemplazo de un día).
 
@@ -432,7 +432,7 @@ Si se fusiona sin aplicar el script, el servidor nuevo falla al leer las tablas 
 
 ## 2026-10-09 — Fase 8: Modo en vivo, cierre y registro
 
-**Estado:** aplicada en la rama `ux/fase-8-registro`, creada **sobre la Fase 7** (`ux/fase-7-vocal`). Pendiente de que Roberto la pruebe y la apruebe. **Requiere la Fase 7 y aplicar su propio script en la base de datos antes de publicar.**
+**Estado:** script `20261009_registro_en_vivo.sql` aplicado en Railway por Roberto y fusionada en `main` el 9 de octubre de 2026 (pull request #8). Publicada en producción. Falta la prueba en un partido real con el vocal.
 
 ### Base de datos
 
@@ -511,6 +511,81 @@ Si se fusiona la Fase 8 sin su script, el servidor nuevo falla al leer los parti
 - Probar el modo en vivo en un partido real, con el vocal (pedido del plan).
 - Borrar en GitHub las ramas temporales `ci/verificar-fase-6`, `ci/verificar-fase-7` y `ci/verificar-fase-8` (desde aquí no hay permiso para borrarlas).
 
+---
+
+## 2026-10-10 — Mejora: límite de intentos fallidos
+
+**Estado:** aprobada por Roberto y fusionada en `main` el 10 de octubre de 2026 (pull request #9). Publicada en producción. Solo cambia el servidor; **no necesitó script de base de datos**.
+
+### Qué se cambió
+
+- Las rutas públicas donde se escribe un código o una clave cuentan los intentos fallidos por dirección IP:
+  - **invitación** (`GET /api/invitaciones/{codigo}` y `POST …/aceptar`);
+  - **inicio de sesión** (`POST /api/auth/login`).
+- Con **10 fallos en 15 minutos**, esa IP queda bloqueada en ese grupo hasta que pasen los 15 minutos. Recibe 429 con el mensaje «Demasiados intentos fallidos. Espera N minutos e inténtalo de nuevo.», que las pantallas ya muestran donde aparecen los demás errores.
+- Un intento correcto borra la cuenta de fallos. Los grupos son independientes: el bloqueo de invitación no impide iniciar sesión.
+- La IP real se lee de `X-Forwarded-For`, que agrega el proxy de Railway. Solo cuenta el último valor, así no se puede esquivar el bloqueo poniendo otra IP delante.
+- Archivos: `backend/src/LigaManager.API/Seguridad/LimiteIntentos.cs` (nuevo), `Program.cs`, `AuthController.cs`, `VocalesController.cs`.
+
+### Decisiones
+
+- Se cuentan solo los **fallos** (400, 401, 404), no todas las visitas, para no bloquear a varios vocales que comparten el wifi de la cancha.
+- Una invitación vencida o ya usada no es un fallo: el servidor responde 200 con el motivo.
+- Los contadores están en la memoria del servidor: si Railway reinicia el servicio, se borran. Basta para frenar a quien prueba códigos o claves al azar, y evita una tabla nueva.
+- El registro de organizadores (`/api/auth/register`) no se limitó: no hay nada que adivinar ahí.
+
+### Cómo se verificó
+
+- GitHub Actions con MySQL y el API real (rama temporal `ci/verificar-limite`): **15 pruebas nuevas**, todas bien:
+  - 10 códigos falsos dan 404 y el 11.º, 429 con el mensaje en español y `Retry-After` de unos 900 segundos;
+  - bloqueada, ni el código correcto ni aceptar pasan; otra IP sí entra;
+  - no se esquiva poniendo otra IP delante; 10 claves malas bloquean el login;
+  - con 9 fallos todavía entra, y un acierto reinicia la cuenta;
+  - sin `X-Forwarded-For` todo sigue funcionando.
+- Se repitieron las 81 pruebas de las fases 7 y 8, todas bien.
+
+### Pendiente
+
+- Borrar en GitHub la rama temporal `ci/verificar-limite`.
+
+## 2026-10-10 — Registro de avance
+
+- Las líneas de estado de las fases 7 y 8 decían «pendiente»; ya dicen que están publicadas.
+
+---
+
+## 2026-10-10 — Mejora: la app abre sin señal
+
+**Estado:** aplicada en la rama `mejora/sin-senal`, creada desde `main` (`2595a98`). Pendiente de que Roberto la pruebe y la apruebe. Solo cambia la página web (Vercel): **sin servidor ni base de datos**.
+
+### Qué se cambió
+
+- **Service worker** (`frontend/sw/sw.js`): la primera vez que se abre la app con señal, el navegador guarda en el celular todos los archivos de esa versión: JS, CSS, fuentes e íconos (19 archivos).
+  - Al abrir o recargar una página, primero se intenta la red, con 4 segundos de espera. Sin señal, o con una señal tan débil que no responde, abre la copia guardada.
+  - Las llamadas al servidor de Railway no pasan por ahí: los datos los sigue manejando cada pantalla.
+- `vite.config.js` genera `dist/sw.js` en cada `npm run build`, con la lista de archivos y una versión calculada sobre su contenido. Al publicar en Vercel, el celular descarga la versión nueva y borra la anterior. En `npm run dev` no se usa.
+- **Inicio del vocal** (`InicioVocal.jsx`): guarda una copia de sus partidos. Sin señal, muestra los partidos de hoy con el aviso «Sin conexión. Se muestra lo último que llegó.» y un botón «Reintentar». Una copia de otro día se ignora.
+- **Instalar en la pantalla de inicio:** `manifest.webmanifest` y los íconos `icono-180/192/512.png` y `icono-maskable-512.png`, hechos del mismo logo. En Android: menú de Chrome → «Agregar a la pantalla principal». En iPhone: Compartir → «Agregar a inicio».
+
+### Decisiones
+
+- Las páginas van **primero por la red**: con señal siempre se ve la versión publicada. La copia solo se usa si la red no responde en 4 segundos.
+- Las fotos de los jugadores vienen de Railway y no se guardan: sin señal se ven las iniciales.
+- Sin dependencias nuevas: el service worker es un archivo propio de unas 60 líneas.
+
+### Cómo se verificó
+
+Pruebas con Playwright sobre `npm run build` + `vite preview`, celular a 390 px y escritorio a 1.440 px, con la red cortada de verdad:
+- el service worker toma control y guarda 19 archivos;
+- sin señal, la recarga de `/vocal` sale del service worker y muestra los partidos de hoy con el aviso;
+- «Registrar» abre el partido con sus 11 jugadores, y la recarga directa de `/partidos/1/en-vivo` también abre;
+- un gol anotado sin señal queda pendiente y se envía solo al volver la conexión;
+- una copia de otro día no se usa: aparece «No se pudieron cargar tus partidos» con «Reintentar»;
+- el organizador sin señal ve el menú y el error con «Reintentar» de cada pantalla;
+- al publicar una versión nueva, el celular la toma en la siguiente visita, borra la anterior y sigue abriendo sin señal;
+- `npm run build` sin errores; lint con los mismos 5 errores previos; 0 errores de página.
+
+**Límite:** no se probó en un celular real ni en Vercel. Conviene probarlo en el celular: abrir la app con señal, activar el modo avión y recargar.
 
 ---
 

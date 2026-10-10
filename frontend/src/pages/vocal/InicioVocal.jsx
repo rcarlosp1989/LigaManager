@@ -8,13 +8,31 @@ import EstadoError from '../../components/EstadoError'
 import InvitacionCreada from '../../components/InvitacionCreada'
 import { mensajeDeError } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
+import { leerLocal, guardarLocal } from '../vivo/almacen'
+
+// Fecha de hoy en Ecuador, «yyyy-MM-dd», igual que la manda el servidor.
+const hoyEcuador = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil' }).format(new Date())
 
 // Inicio del vocal: los partidos de hoy con «Registrar», sin el menú de administración.
 // Alto contraste, como el modo en vivo, porque se usa en la cancha.
 export default function InicioVocal() {
   const { user, logout } = useAuth()
-  const q = useQuery({ queryKey: ['vocal-inicio'], queryFn: () => api.get('/vocal/inicio').then(r => r.data), refetchInterval: 60000 })
+  // Copia local: sin señal se muestran los partidos de hoy que ya se habían cargado.
+  // Una copia de otro día no sirve (los partidos de «hoy» serían otros) y se ignora.
+  const copia = `vocal.inicio.${user?.nombre ?? ''}`
+  const q = useQuery({
+    queryKey: ['vocal-inicio'],
+    queryFn: () => api.get('/vocal/inicio').then(r => { guardarLocal(copia, r.data); return r.data }),
+    refetchInterval: 60000,
+    initialData: () => {
+      const d = leerLocal(copia, undefined)
+      return d?.hoy === hoyEcuador() ? d : undefined
+    },
+    initialDataUpdatedAt: 0,
+  })
   const datos = q.data
+  // El aviso sale apenas falla el primer intento, sin esperar los reintentos.
+  const sinSenal = !!datos && (q.isError || q.failureCount > 0)
 
   return (
     <div className="min-h-dvh bg-black text-white">
@@ -31,10 +49,19 @@ export default function InicioVocal() {
       <main className="mx-auto max-w-2xl space-y-8 px-4 pb-16 pt-5">
         {q.isLoading ? (
           <p className="py-10 text-center text-gray-300">Cargando tus partidos...</p>
-        ) : q.isError ? (
+        ) : q.isError && !datos ? (
           <EstadoError mensaje="No se pudieron cargar tus partidos." onReintentar={q.refetch} reintentando={q.isFetching} />
         ) : (
           <>
+            {sinSenal && (
+              <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/60 bg-amber-950/40 px-4 py-3">
+                <p className="text-sm text-amber-100">Sin conexión. Se muestra lo último que llegó.</p>
+                <button type="button" onClick={() => q.refetch()} disabled={q.isFetching}
+                  className="flex h-11 items-center rounded-lg border border-amber-400/70 px-3 text-sm font-semibold text-amber-100">
+                  {q.isFetching ? 'Reintentando...' : 'Reintentar'}
+                </button>
+              </div>
+            )}
             <section aria-labelledby="hoy-titulo">
               <h1 id="hoy-titulo" className="font-display text-3xl tracking-wide">HOY</h1>
               <p className="mb-4 text-sm text-gray-300">{formatearFecha(datos.hoy)}</p>

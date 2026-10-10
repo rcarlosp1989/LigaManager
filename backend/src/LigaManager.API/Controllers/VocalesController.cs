@@ -5,6 +5,7 @@ using LigaManager.Application.DTOs.Partidos;
 using LigaManager.Application.DTOs.Vocales;
 using LigaManager.Application.Interfaces;
 using LigaManager.Infrastructure.Services;
+using LigaManager.API.Seguridad;
 
 // Fase 7: vocales. Tres grupos de endpoints:
 //  - /api/campeonatos/{id}/vocales …  para el organizador (política por defecto: rechaza vocales).
@@ -50,6 +51,7 @@ public class VocalesController : ControllerBase
     // ── Invitación (pública) ─────────────────────────────────────────────────
 
     [AllowAnonymous]
+    [LimitarIntentos("invitacion")]
     [HttpGet("api/invitaciones/{codigo}")]
     public async Task<IActionResult> Consultar(string codigo)
     {
@@ -58,6 +60,7 @@ public class VocalesController : ControllerBase
     }
 
     [AllowAnonymous]
+    [LimitarIntentos("invitacion")]
     [HttpPost("api/invitaciones/{codigo}/aceptar")]
     public async Task<IActionResult> Aceptar(string codigo, [FromBody] AceptarInvitacionRequest req)
         => Resultado(await _vocales.AceptarAsync(codigo, req));
