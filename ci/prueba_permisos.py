@@ -48,7 +48,7 @@ jornadaA = llamar("GET", f"/campeonatos/{A}/jornadas", token=o1)[1][0]["idJornad
 PA = D["mananaA"]
 s, est, _ = llamar("POST", "/estadios", {"nombre": "Estadio Secreto Org1", "idPais": pais, "idCanton": None}, o1)
 estA = est["idEstadio"]
-s, arb, _ = llamar("POST", "/arbitros", {"nombre": "Arbitro", "apellido": "SecretoOrg1", "cedula": "0912345675", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}, o1)
+s, arb, _ = llamar("POST", "/arbitros", {"nombre": "Arbitro", "apellido": "SecretoOrg1", "cedula": "0919191916", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None}, o1)
 arbA = arb["idArbitro"]
 s, gr, _ = llamar("POST", f"/campeonatos/{A}/grupos", {"nombre": "Grupo Secreto"}, o1)
 grA = gr["idGrupo"]
