@@ -6,7 +6,9 @@ public record ArbitroListDto(
     string  Apellido,
     string  Pais,
     string? Provincia,
-    string? Canton
+    string? Canton,
+    string  Cedula = "",
+    string  TipoIdentificacion = "Cedula"
 );
 
 public record ArbitroDetalleDto(
@@ -21,7 +23,8 @@ public record ArbitroDetalleDto(
     int?    IdProvincia,
     string? Provincia,
     int?    IdCanton,
-    string? Canton
+    string? Canton,
+    string  TipoIdentificacion = "Cedula"
 );
 
 public record CreateArbitroRequest(
@@ -30,5 +33,6 @@ public record CreateArbitroRequest(
     string Cedula,
     string FechaNac,    // yyyy-MM-dd
     int    IdPais,
-    int?   IdCanton
+    int?   IdCanton,
+    string? TipoIdentificacion = null
 );

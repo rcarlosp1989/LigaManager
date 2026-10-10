@@ -6,10 +6,11 @@ import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { ClipboardList, User } from 'lucide-react'
+import { textoDocumento } from '../../utils/documento'
 
 const COLUMNAS_EXPORT = [
   { titulo: 'Dorsal', ancho: 8 }, { titulo: 'Apellido', ancho: 20 }, { titulo: 'Nombre', ancho: 20 },
-  { titulo: 'Cédula', ancho: 14 }, { titulo: 'Posición', ancho: 20 }, { titulo: 'Edad', ancho: 8 },
+  { titulo: 'Documento', ancho: 22 }, { titulo: 'Posición', ancho: 20 }, { titulo: 'Edad', ancho: 8 },
   { titulo: 'En el equipo desde', ancho: 16 },
 ]
 
@@ -38,7 +39,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
   })
 
   const filasExport = jugadores.map(j => ([
-    j.dorsal ?? '', j.apellido, j.nombre, j.cedula, j.posicion ?? 'Sin posición', j.edad, j.fechaDesde,
+    j.dorsal ?? '', j.apellido, j.nombre, textoDocumento(j.tipoIdentificacion, j.cedula), j.posicion ?? 'Sin posición', j.edad, j.fechaDesde,
   ]))
 
   return (
@@ -89,7 +90,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
             <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['#', 'Jugador', 'Cédula', 'Posición', 'Edad', 'En el equipo desde'].map(h => (
+                  {['#', 'Jugador', 'Documento', 'Posición', 'Edad', 'En el equipo desde'].map(h => (
                     <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
                   ))}
                 </tr>
@@ -99,7 +100,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
                   <tr key={j.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                     <td className="px-3 py-2 text-gray-400 text-xs text-left">{j.dorsal ?? '—'}</td>
                     <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{j.apellido}, {j.nombre}</td>
-                    <td className="px-3 py-2 text-gray-400 text-center">{j.cedula}</td>
+                    <td className="px-3 py-2 text-gray-400 text-center">{textoDocumento(j.tipoIdentificacion, j.cedula)}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.posicion ?? 'Sin posición'}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.edad}</td>
                     <td className="px-3 py-2 text-gray-500 text-center text-xs">{j.fechaDesde}</td>

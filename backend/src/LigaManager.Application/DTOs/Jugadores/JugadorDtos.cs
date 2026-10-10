@@ -11,7 +11,8 @@ public record JugadorListDto(
     string? EquipoActual,
     int?    Dorsal,
     string? Posicion,
-    string? FotoUrl
+    string? FotoUrl,
+    string  TipoIdentificacion = "Cedula"
 );
 
 public record JugadorDetalleDto(
@@ -29,7 +30,8 @@ public record JugadorDetalleDto(
     int?    IdCanton,
     string? Canton,
     string? FotoUrl,
-    List<HistorialEquipoDto> Historial
+    List<HistorialEquipoDto> Historial,
+    string  TipoIdentificacion = "Cedula"
 );
 
 public record HistorialEquipoDto(
@@ -52,7 +54,8 @@ public record CreateJugadorRequest(
     string FechaDesde,
     int?   Dorsal,
     string? Posicion,
-    string? FotoUrl
+    string? FotoUrl,
+    string? TipoIdentificacion = null
 );
 
 public record UpdateJugadorRequest(
@@ -64,7 +67,8 @@ public record UpdateJugadorRequest(
     int?   IdCanton,
     string? FotoUrl,
     string? Posicion,
-    int?    Dorsal
+    int?    Dorsal,
+    string? TipoIdentificacion = null
 );
 
 public record UpdateDorsalRequest(

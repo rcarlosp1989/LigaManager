@@ -767,3 +767,51 @@ GitHub Actions (rama temporal `ci/verificar-cedula`), con la base en el estado d
 2. Fusionar el PR.
 
 Si se fusiona sin el script, el servidor nuevo deja pasar la cédula repetida y la base la rechaza con un error.
+
+---
+
+## 2026-10-10 — Mejora: tipo de documento (cédula, extranjero, pasaporte)
+
+**Estado:** aplicada en la rama `mejora/tipo-documento`, creada desde `main`. Pendiente de que Roberto la apruebe. **Requiere un script en la base de datos antes de publicar.**
+
+### Decisiones de Roberto
+
+- Cédula ecuatoriana: 10 números **y dígito verificador**, como el Registro Civil.
+- «Cédula de extranjero» = documento de otro país (cédula o DNI): solo números, de 5 a 15.
+- Pasaporte: letras y números.
+
+### Qué cambió
+
+| Tipo | Regla |
+|---|---|
+| Cédula ecuatoriana | 10 números; provincia 01-24 o 30, tercer dígito menor a 6, verificador módulo 10 |
+| Documento extranjero | Solo números, de 5 a 15 |
+| Pasaporte | Letras y números, de 5 a 20, sin espacios ni símbolos; se guarda en mayúsculas |
+
+- **Base de datos** (`20261010_tipo_documento.sql`): columna `persona.tipo_identificacion` ENUM('CEDULA','EXTRANJERO','PASAPORTE'), por defecto CEDULA. Al final, el script muestra cuántos documentos actuales no cumplen el formato de cédula. Reversa en `…_reversa.sql`.
+- **Servidor:** `Application/Common/Identificacion.cs` valida y normaliza el documento (quita espacios y guiones).
+  - Se usa al crear y editar jugadores, y al crear árbitros (en ellos, el documento sigue siendo opcional).
+  - No se puede repetir el mismo **tipo y número** dentro de la liga.
+  - Sin tipo, se asume cédula, para que el servidor anterior y la app vieja sigan funcionando.
+  - El listado de árbitros ahora trae el documento; antes la tarjeta mostraba «Cédula:» vacía.
+- **Página web:** componente `CampoDocumento` (tipo + número) en Nuevo jugador, Editar jugador y Nuevo oficial.
+  - Para cédula y extranjero solo deja escribir números; para pasaporte, letras y números en mayúsculas.
+  - El aviso de error sale al salir del campo y bloquea el guardado.
+  - Al editar un jugador antiguo con documento inválido, pide corregirlo.
+  - Nómina (tabla, Excel y PDF): la columna «Cédula» pasa a llamarse «Documento» y muestra «Pasaporte AB123…» cuando no es cédula.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-documento`), con la base como en producción y los scripts aplicados encima:
+  - 12 casos de validación (letras, largo, dígito verificador, provincia, extranjero, pasaporte normalizado, tipo desconocido);
+  - repetidos por tipo y número; el listado y la nómina traen el tipo;
+  - editar un documento antiguo inválido se rechaza, y se puede cambiar a pasaporte;
+  - árbitros con cédula inválida, con pasaporte y sin documento;
+  - la reversa quita la columna;
+  - se repitieron las pruebas de permisos, seguridad, cédula por organizador y las 81 de las fases 7 y 8, todas bien.
+- Pantallas (Playwright, 390 y 1.440 px): limpieza de lo que se escribe, avisos, guardado bloqueado con cédula inválida, formulario de oficial, sin desborde y 0 errores.
+
+### Orden para publicar
+
+1. En Railway, ejecutar `backend/database/20261010_tipo_documento.sql`.
+2. Fusionar el PR.
