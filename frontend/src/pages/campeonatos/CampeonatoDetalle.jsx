@@ -13,6 +13,9 @@ import TablaDesplazable from '../../components/TablaDesplazable'
 import IconoEvento from '../../components/IconoEvento'
 import { Armchair, CalendarDays, ClipboardList, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 
+// «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
+const aFechaHoraLocal = (f) => (f ? f.replace(' ', 'T').slice(0, 16) : '')
+
 // ── Badges ───────────────────────────────────────────────────────────────────
 
 function EstadoBadge({ estado }) {
@@ -235,8 +238,8 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
         </div>
       )}
       <div>
-        <label htmlFor={`${fid}-c7`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha</label>
-        <input id={`${fid}-c7`} type="date" className="input-field" value={form.fecha}
+        <label htmlFor={`${fid}-c7`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</label>
+        <input id={`${fid}-c7`} type="datetime-local" className="input-field" value={form.fecha} required
           onChange={e => set('fecha', e.target.value)} />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -740,7 +743,7 @@ function PartidoCard({ partido, idCampeonato }) {
   const [editForm, setEditForm] = useState({
     idEstadio:         partido.idEstadio ?? '',
     idArbitro:         partido.idArbitro ?? '',
-    fecha:             partido.fecha ?? '',
+    fecha:             aFechaHoraLocal(partido.fecha),
     idEquipoLocal:     partido.idEquipoLocal ?? '',
     idEquipoVisitante: partido.idEquipoVisitante ?? '',
     oficiales:         Object.fromEntries((partido.oficiales ?? []).map(o => [o.idCargo, o.idArbitro])),
@@ -965,7 +968,7 @@ function PartidoCard({ partido, idCampeonato }) {
             setEditForm({
               idEstadio:         partido.idEstadio ?? '',
               idArbitro:         partido.idArbitro ?? '',
-              fecha:             partido.fecha ?? '',
+              fecha:             aFechaHoraLocal(partido.fecha),
               idEquipoLocal:     partido.idEquipoLocal ?? '',
               idEquipoVisitante: partido.idEquipoVisitante ?? '',
               oficiales:         Object.fromEntries((partido.oficiales ?? []).map(o => [o.idCargo, o.idArbitro])),

@@ -27,7 +27,8 @@ public class JornadaService : IJornadaService
         p.IdEquipoLocal,
         p.EquipoVisitante.Nombre,
         p.IdEquipoVisitante,
-        p.Fecha.ToString("yyyy-MM-dd"),
+        // Con la hora: «2026-10-12 15:00» (la página ya sabe leer este formato).
+        p.Fecha.ToString("yyyy-MM-dd HH:mm"),
         p.Jugado,
         p.GolesLocal,
         p.GolesVisitante,
@@ -83,7 +84,9 @@ public class JornadaService : IJornadaService
         p.EstadoRegistro.ToString(),
         HoraEcuador(p.IniciadoEn),
         HoraEcuador(p.CerradoEn),
-        p.UsuarioCierre?.Nombre
+        p.UsuarioCierre?.Nombre,
+        p.IdEstadio,
+        p.IdArbitro
     );
 
     private static string? HoraEcuador(DateTime? utc) => utc?.AddHours(-5).ToString("yyyy-MM-dd HH:mm");

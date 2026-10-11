@@ -44,7 +44,10 @@ public record PartidoDetalleDto(
     string  EstadoRegistro = "SinIniciar",
     string? IniciadoEn     = null,
     string? CerradoEn      = null,
-    string? CerradoPor     = null
+    string? CerradoPor     = null,
+    // Para precargar el formulario de edición: estadio y árbitro principal elegidos.
+    int?    IdEstadio      = null,
+    int?    IdArbitro      = null
 );
 
 public record AlineacionJugadorDto(

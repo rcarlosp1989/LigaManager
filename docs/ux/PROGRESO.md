@@ -856,3 +856,31 @@ Países, provincias y cantones son compartidos por todos los organizadores. En l
 
 1. (Recomendado) En Railway, ejecutar `backend/database/20261010_paises_completos.sql`.
 2. Fusionar el PR. Funciona aunque no se aplique el script; solo faltarían países.
+
+---
+
+## 2026-10-10 — Corrección: hora y estadio del partido
+
+**Estado:** aplicada en la rama `mejora/partido-hora-estadio`, creada desde `main`. Pendiente de que Roberto la apruebe. Servidor y página web; **sin script de base de datos**.
+
+### El problema (reportado por Roberto)
+
+- Al **crear** un partido solo se podía elegir la fecha, sin la hora.
+- Al **editar**, el estadio salía vacío y había que elegirlo otra vez.
+- Causa: la base sí guardaba la hora, pero el servidor devolvía el partido sin ella y sin el estadio ni el árbitro elegidos (solo sus nombres).
+
+### Qué cambió
+
+- **Servidor:** el partido trae la fecha **con hora** («2026-11-20 15:30»), `idEstadio` e `idArbitro`. Todas las pantallas ya sabían leer la fecha con hora.
+- **Crear partido:** el campo es «Fecha y hora» y es obligatorio.
+- **Editar partido:** se precargan la fecha, la hora, el estadio y el árbitro.
+- **Tarjeta del partido:** muestra la hora («sáb 10 oct 2026 · 15:30»). Los partidos creados antes, sin hora, siguen mostrando solo la fecha.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-partido`):
+  - crear con «2026-11-20T15:30» devuelve «2026-11-20 15:30», con el estadio y el árbitro;
+  - editar la hora y releer, bien;
+  - el plantel por fecha sigue funcionando;
+  - se repitieron todas las pruebas anteriores, todas bien.
+- Pantallas (390 y 1.440 px): la tarjeta muestra la hora, Editar trae «2026-10-10T15:30» y el estadio elegido, Crear tiene el campo de fecha y hora; 0 errores.
