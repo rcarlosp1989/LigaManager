@@ -884,3 +884,27 @@ Países, provincias y cantones son compartidos por todos los organizadores. En l
   - el plantel por fecha sigue funcionando;
   - se repitieron todas las pruebas anteriores, todas bien.
 - Pantallas (390 y 1.440 px): la tarjeta muestra la hora, Editar trae «2026-10-10T15:30» y el estadio elegido, Crear tiene el campo de fecha y hora; 0 errores.
+
+---
+
+## 2026-10-10 — Corrección: partido repetido en la jornada
+
+**Estado:** aplicada en la rama `mejora/partido-repetido`, creada desde `main`. Pendiente de que Roberto la apruebe. Solo servidor; **sin script de base de datos**.
+
+### El problema (reportado por Roberto)
+
+Al agregar un partido salía «Ocurrió un error inesperado». Los registros de Railway mostraron la causa: `Duplicate entry '21-17-20' for key 'partido.uq_partido'`. La base no admite dos partidos con los mismos equipos (local y visitante) en una jornada, y ese partido ya existía. Se había creado antes, sin hora, cuando el formulario no la pedía.
+
+### Qué cambió
+
+- Al **agregar** y al **editar** (si se cambian los equipos), el servidor revisa primero si ya existe ese partido en la jornada y responde: «Ese partido ya está registrado en esta jornada (mismos equipos de local y visitante). Para cambiar la fecha, la hora o el estadio, usa «Editar» en el partido existente.».
+- La vuelta, con local y visitante invertidos, sí se puede.
+- **Red de seguridad:** cualquier otro registro repetido que rechace la base responde 409 con «Ya existe un registro con esos mismos datos…», en lugar del error genérico.
+
+### Cómo se verificó
+
+GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_partido`):
+- crear el mismo partido otra vez da 400 con el aviso;
+- la vuelta sí se crea;
+- editar un partido para que quede repetido da 400;
+- se repitieron todas las pruebas anteriores (ahora cada una usa su propia jornada), todas bien.
