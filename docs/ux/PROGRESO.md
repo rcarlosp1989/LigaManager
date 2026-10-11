@@ -945,3 +945,30 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - El PDF de la nómina lleva el logo (35 KB).
   - 0 errores.
 - `npm run build` sin errores; `npm run lint` da los mismos 5 errores que ya había en `main`.
+
+---
+
+## 2026-10-10 — Mejora: fotos de los jugadores en reportes y listas
+
+**Estado:** aplicada en la rama `mejora/fotos-reportes`, creada desde `mejora/logos-equipos` (usa su almacén de imágenes): **se fusiona después del PR de logos**. Pendiente de que Roberto la apruebe. **Sin script de base de datos.**
+
+### Qué cambió
+
+- **Servidor:** los reportes de goleadores, tarjetas por jugador, suspensiones (sanciones y jugadores en riesgo) traen `fotoUrl` del jugador (campo nuevo al final, opcional; compatible).
+- **Pantallas:** foto en círculo junto al nombre en:
+  - Jugadores (lista);
+  - Reportes: Goleadores, Tarjetas, Suspensiones y Nómina;
+  - la planilla del partido (titulares, suplentes y lista para convocar).
+- Sin foto, o si no carga, se ven las iniciales del jugador sobre gris.
+- **Formulario de jugador:** el campo de foto tiene vista previa. Al editar se ve la foto actual, y están los botones «Cambiar foto» y «Dejar la anterior».
+- **PDF de la nómina:** primera columna «Foto» (las fotos se recortan cuadradas y se reducen para que el PDF pese poco; sin foto, las iniciales). El Excel no lleva imágenes.
+- El modo en vivo ya mostraba las fotos; no cambió.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-fotos`):
+  - los tres reportes responden y cada fila trae `fotoUrl`;
+  - al ponerle foto a un goleador, aparece en Goleadores y en Tarjetas;
+  - se repitieron todas las pruebas anteriores.
+- Pantallas (390 y 1.440 px), con datos de ejemplo: fotos e iniciales en Jugadores, Goleadores, Tarjetas, Suspensiones, Nómina y la planilla. Editar jugador muestra la foto actual y la vista previa de la nueva. PDF de la nómina con 13 jugadores: 53 KB. 0 errores.
+- `npm run build` sin errores; `npm run lint` da los mismos 5 errores que ya había en `main`.
