@@ -11,6 +11,8 @@ import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import IconoEvento from '../../components/IconoEvento'
+import LogoEquipo from '../../components/LogoEquipo'
+import { useLogosEquipos } from '../../utils/logos'
 import { Armchair, CalendarDays, ClipboardList, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 
 // «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
@@ -881,8 +883,11 @@ function PartidoCard({ partido, idCampeonato }) {
   return (
     <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 flex-1 min-w-0">
-          <span className="text-white font-medium text-sm">{partido.equipoLocal}</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 grow min-w-0">
+          <span className="flex items-center gap-2 text-white font-medium text-sm">
+            <LogoEquipo nombre={partido.equipoLocal} logoUrl={partido.logoLocal} tamano={24} />
+            {partido.equipoLocal}
+          </span>
           {partido.jugado && !partido.desierto && (
             <span className="text-white font-display text-sm">
               {partido.golesLocal ?? 0} - {partido.golesVisitante ?? 0}
@@ -891,7 +896,10 @@ function PartidoCard({ partido, idCampeonato }) {
           {partido.perdidaReglamento && <span className="text-amber-400 text-xs italic">por reglamento</span>}
           {partido.desierto && <span className="text-gray-500 text-xs italic">desierto</span>}
           {!partido.jugado && <span className="text-gray-600 text-xs">vs</span>}
-          <span className="text-white font-medium text-sm">{partido.equipoVisitante}</span>
+          <span className="flex items-center gap-2 text-white font-medium text-sm">
+            <LogoEquipo nombre={partido.equipoVisitante} logoUrl={partido.logoVisitante} tamano={24} />
+            {partido.equipoVisitante}
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {partido.grupo && (
@@ -1308,6 +1316,7 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
 // ── Tabla de posiciones de un grupo ──────────────────────────────────────────
 
 function TablaPosiciones({ idGrupo, idCampeonato }) {
+  const logos = useLogosEquipos()
   const fid = useId()
   const queryClient = useQueryClient()
   const aviso = useAviso()
@@ -1392,7 +1401,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
         <div className="px-4 py-2 border-b border-gray-800 flex flex-wrap gap-2">
           {grupo.equipos.map(e => (
             <div key={e.idEquipo} className="flex items-center gap-1.5 bg-gray-800 rounded px-2 py-1 text-xs">
-              <span className="text-gray-300">{e.nombre}</span>
+              <span className="flex items-center gap-1.5 text-gray-300"><LogoEquipo nombre={e.nombre} logoUrl={logos.get(e.idEquipo)} tamano={18} />{e.nombre}</span>
               <button
                 onClick={() => removerDelGrupo(e)}
                 className="text-gray-600 hover:text-red-400 transition-colors"
@@ -1426,7 +1435,12 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
                     {p.clasificado && <span className="text-green-400 text-xs">✓</span>}
                   </div>
                 </td>
-                <td className="px-3 py-2 text-white font-medium">{p.equipo}</td>
+                <td className="px-3 py-2 text-white font-medium">
+                  <span className="flex items-center gap-2 whitespace-nowrap">
+                    <LogoEquipo nombre={p.equipo} logoUrl={logos.get(p.idEquipo)} tamano={22} />
+                    {p.equipo}
+                  </span>
+                </td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pj}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pg}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pe}</td>
@@ -1492,6 +1506,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
 }
 
 function TablaCampeonato({ idCampeonato }) {
+  const logos = useLogosEquipos()
   const { data: posiciones = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['posiciones-campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}/posiciones`).then(r => r.data),
@@ -1523,7 +1538,12 @@ function TablaCampeonato({ idCampeonato }) {
             {posiciones.map(p => (
               <tr key={p.idEquipo} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                 <td className="px-3 py-2 text-gray-400 text-xs">{p.posicion}</td>
-                <td className="px-3 py-2 text-white font-medium">{p.equipo}</td>
+                <td className="px-3 py-2 text-white font-medium">
+                  <span className="flex items-center gap-2 whitespace-nowrap">
+                    <LogoEquipo nombre={p.equipo} logoUrl={logos.get(p.idEquipo)} tamano={22} />
+                    {p.equipo}
+                  </span>
+                </td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pj}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pg}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pe}</td>
@@ -1546,6 +1566,7 @@ function TablaCampeonato({ idCampeonato }) {
 const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['vocales', 'Vocales', Mic]]
 
 export default function CampeonatoDetalle() {
+  const logos = useLogosEquipos()
   const fid = useId()
   const { id } = useParams()
   const navigate = useNavigate()
@@ -1795,7 +1816,12 @@ export default function CampeonatoDetalle() {
                 {equiposInscritos.map((e, i) => (
                   <tr key={e.idEquipo} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                     <td className="px-3 py-3 text-gray-600 text-sm">{i + 1}</td>
-                    <td className="px-3 py-3 text-white font-medium">{e.nombre}</td>
+                    <td className="px-3 py-3 text-white font-medium">
+                      <span className="flex items-center gap-2">
+                        <LogoEquipo nombre={e.nombre} logoUrl={logos.get(e.idEquipo)} tamano={28} />
+                        {e.nombre}
+                      </span>
+                    </td>
                     <td className="px-3 py-3 text-gray-400 text-sm">{e.pais}</td>
                     <td className="px-3 py-3 text-right">
                       <button onClick={() => removerEquipo(e)}

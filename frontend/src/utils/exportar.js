@@ -15,17 +15,31 @@ export async function exportarExcel({ columnas, filas, archivo, hoja = 'Hoja1' }
 }
 
 // Exporta la misma tabla a un .pdf, con título y la fecha de generación.
-export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo }) {
+// logo (opcional): { dataUrl, ancho, alto } — se dibuja a la izquierda del título.
+export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo, logo }) {
   const doc = new jsPDF({ orientation: columnas.length > 6 ? 'landscape' : 'portrait' })
+  let x = 14
+  let inicioTabla = subtitulo ? 26 : 20
+  if (logo) {
+    const lado = 18   // mm: el lado mayor del logo
+    const escala = lado / Math.max(logo.ancho, logo.alto)
+    const ancho = logo.ancho * escala
+    const alto = logo.alto * escala
+    try {
+      doc.addImage(logo.dataUrl, 'PNG', 14 + (lado - ancho) / 2, 8 + (lado - alto) / 2, ancho, alto, undefined, 'FAST')
+      x = 14 + lado + 4
+      inicioTabla = Math.max(inicioTabla, 8 + lado + 4)
+    } catch { /* sin logo si la imagen no sirve */ }
+  }
   doc.setFontSize(14)
-  doc.text(titulo, 14, 15)
+  doc.text(titulo, x, 15)
   if (subtitulo) {
     doc.setFontSize(10)
     doc.setTextColor(100)
-    doc.text(subtitulo, 14, 21)
+    doc.text(subtitulo, x, 21)
   }
   autoTable(doc, {
-    startY: subtitulo ? 26 : 20,
+    startY: inicioTabla,
     head: [columnas.map(c => c.titulo)],
     body: filas,
     styles: { fontSize: 8 },

@@ -12,6 +12,7 @@ import TablaDesplazable from '../../components/TablaDesplazable'
 import { Pencil, Search, User } from 'lucide-react'
 import CampoDocumento from '../../components/CampoDocumento'
 import { documentoValido } from '../../utils/documento'
+import { achicarImagen, LADO_FOTO } from '../../utils/imagen'
 
 const posiciones = [
   'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
@@ -109,7 +110,7 @@ function JugadorForm({ onSubmit, loading, error }) {
         <label htmlFor={`${fid}-c10`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Foto del jugador <span className="text-gray-600">(opcional)</span></label>
         <input id={`${fid}-c10`} type="file" accept="image/jpeg,image/png,image/webp" className="input-field"
           onChange={e => set('foto', e.target.files?.[0] ?? null)} />
-        <p className="text-gray-500 text-xs mt-1">JPG, PNG o WEBP. Máximo 5 MB.</p>
+        <p className="text-gray-500 text-xs mt-1">JPG, PNG o WEBP. Se achica sola antes de subirla.</p>
       </div>
       {catalogos.hayError && (
         <EstadoError compacto mensaje="No se pudo cargar la lista de equipos."
@@ -232,13 +233,13 @@ export default function Jugadores() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       const body = new FormData()
       const { idProvincia, ...resto } = data
       Object.entries({ ...resto, dorsal: data.dorsal ? parseInt(data.dorsal) : '' })
         .filter(([, value]) => value !== null && value !== undefined && value !== '')
         .forEach(([key, value]) => key !== 'foto' && body.append(key, value))
-      if (data.foto) body.append('foto', data.foto)
+      if (data.foto) body.append('foto', await achicarImagen(data.foto, LADO_FOTO))
       return api.post('/jugadores', body)
     },
     onSuccess: () => {
@@ -250,10 +251,10 @@ export default function Jugadores() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       const body = new FormData()
       Object.entries(data).forEach(([key, value]) => key !== 'foto' && key !== 'idProvincia' && body.append(key, value ?? ''))
-      if (data.foto) body.append('foto', data.foto)
+      if (data.foto) body.append('foto', await achicarImagen(data.foto, LADO_FOTO))
       return api.put(`/jugadores/${jugadorEdit.idJugador}`, body)
     },
     onSuccess: () => {

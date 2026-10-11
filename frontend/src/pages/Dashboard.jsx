@@ -6,6 +6,7 @@ import StatusBadge from '../components/StatusBadge'
 import EstadoError from '../components/EstadoError'
 import { formatearFecha } from '../utils/fechas'
 import { CirclePlay, MapPin, Shield, Trophy, Users } from 'lucide-react'
+import LogoEquipo from '../components/LogoEquipo'
 
 // La jornada del partido dentro de su campeonato; la exacta cuando la API envíe idJornada.
 const rutaJornada = (p) => `/campeonatos/${p.idCampeonato}?tab=jornadas${p.idJornada ? `&jornada=${p.idJornada}` : ''}`
@@ -76,9 +77,15 @@ export default function Dashboard() {
                       <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-medium text-sm">{p.equipoLocal}</span>
+                      <span className="flex min-w-0 items-center gap-2 text-white font-medium text-sm">
+                      <LogoEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} tamano={24} />
+                      <span className="truncate">{p.equipoLocal}</span>
+                    </span>
                       <span className="text-gray-600 text-xs px-2">vs</span>
-                      <span className="text-white font-medium text-sm text-right">{p.equipoVisitante}</span>
+                      <span className="flex min-w-0 items-center justify-end gap-2 text-white font-medium text-sm text-right">
+                      <span className="truncate">{p.equipoVisitante}</span>
+                      <LogoEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} tamano={24} />
+                    </span>
                     </div>
                     <p className="flex items-center gap-1 text-gray-500 text-xs mt-1"><MapPin size={12} aria-hidden="true" />{p.estadio}</p>
                   </Link>
@@ -116,13 +123,19 @@ export default function Dashboard() {
                     <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">{p.equipoLocal}</span>
+                    <span className="flex min-w-0 items-center gap-2 text-white font-medium text-sm">
+                    <LogoEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} tamano={24} />
+                    <span className="truncate">{p.equipoLocal}</span>
+                  </span>
                     <div className="flex items-center gap-2">
                       <span className="text-white font-display text-lg">{p.golesLocal}</span>
                       <span className="text-gray-600 text-xs">-</span>
                       <span className="text-white font-display text-lg">{p.golesVisitante}</span>
                     </div>
-                    <span className="text-white font-medium text-sm text-right">{p.equipoVisitante}</span>
+                    <span className="flex min-w-0 items-center justify-end gap-2 text-white font-medium text-sm text-right">
+                    <span className="truncate">{p.equipoVisitante}</span>
+                    <LogoEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} tamano={24} />
+                  </span>
                   </div>
                 </Link>
               ))}
