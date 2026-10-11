@@ -385,6 +385,10 @@ public class JornadaService : IJornadaService
                     "Los dos equipos del partido deben pertenecer al grupo asignado a la jornada.");
         }
 
+        // La base no admite dos partidos con los mismos equipos (local y visitante) en una jornada.
+        if (await PartidoRepetidoAsync(idJornada, req.IdEquipoLocal, req.IdEquipoVisitante, null))
+            return ServiceResult<PartidoDetalleDto>.Fail(MensajePartidoRepetido);
+
         if (req.IdArbitro.HasValue)
         {
             var arbitroExiste = await _db.Arbitros.AnyAsync(a => a.IdArbitro == req.IdArbitro && a.IdUsuarioCreador == UsuarioActualId);
@@ -463,6 +467,9 @@ public class JornadaService : IJornadaService
         {
             if (p.Eventos.Any())
                 return ServiceResult<PartidoDetalleDto>.Fail("No se pueden cambiar los equipos: el partido ya tiene eventos registrados.");
+
+            if (await PartidoRepetidoAsync(p.IdJornada, req.IdEquipoLocal ?? p.IdEquipoLocal, req.IdEquipoVisitante ?? p.IdEquipoVisitante, p.IdPartido))
+                return ServiceResult<PartidoDetalleDto>.Fail(MensajePartidoRepetido);
 
             if (req.IdEquipoLocal.HasValue)
                 p.IdEquipoLocal = req.IdEquipoLocal.Value;
@@ -868,6 +875,13 @@ public class JornadaService : IJornadaService
     }
 
     // ── Helper privado ───────────────────────────────────────────────────────
+
+    private const string MensajePartidoRepetido =
+        "Ese partido ya está registrado en esta jornada (mismos equipos de local y visitante). Para cambiar la fecha, la hora o el estadio, usa «Editar» en el partido existente.";
+
+    private Task<bool> PartidoRepetidoAsync(int idJornada, int local, int visitante, int? excepto)
+        => _db.Partidos.AnyAsync(x => x.IdJornada == idJornada && x.IdEquipoLocal == local
+                                   && x.IdEquipoVisitante == visitante && (excepto == null || x.IdPartido != excepto));
 
     private async Task<ServiceResult> ValidarDesignacionesAsync(List<DesignacionPartidoRequest>? solicitudes, int idModalidad)
     {
