@@ -13,7 +13,8 @@ public class JugadorService : IJugadorService
     private readonly LigaManagerContext _db;
     private readonly IHttpContextAccessor _http;
     private readonly Ubicaciones _ubicaciones;
-    public JugadorService(LigaManagerContext db, IHttpContextAccessor http, Ubicaciones ubicaciones) { _db = db; _http = http; _ubicaciones = ubicaciones; }
+    private readonly IAlmacenImagenes _imagenes;
+    public JugadorService(LigaManagerContext db, IHttpContextAccessor http, Ubicaciones ubicaciones, IAlmacenImagenes imagenes) { _db = db; _http = http; _ubicaciones = ubicaciones; _imagenes = imagenes; }
 
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
@@ -193,6 +194,8 @@ public class JugadorService : IJugadorService
         jugador.Persona.FechaNac = fechaNac;
         jugador.Persona.IdPais   = req.IdPais;
         jugador.Persona.IdCanton = ubicacion.IdCanton;
+        // Foto nueva: la anterior se borra después de guardar.
+        var fotoAnterior = req.FotoUrl is not null ? jugador.Persona.FotoUrl : null;
         if (req.FotoUrl is not null) jugador.Persona.FotoUrl = req.FotoUrl;
 
         var vinculoActual = await _db.JugadorEquipos
@@ -203,6 +206,7 @@ public class JugadorService : IJugadorService
             vinculoActual.Dorsal = req.Dorsal;
 
         await _db.SaveChangesAsync();
+        if (fotoAnterior != jugador.Persona.FotoUrl) await _imagenes.BorrarAsync(fotoAnterior);
         return await GetByIdAsync(id);
     }
 
@@ -233,8 +237,10 @@ public class JugadorService : IJugadorService
         if (tieneEventos)
             return ServiceResult.Fail("No se puede eliminar: el jugador tiene eventos registrados en partidos.");
 
+        var foto = await _db.Personas.Where(p => p.IdPersona == jugador.IdPersona).Select(p => p.FotoUrl).FirstOrDefaultAsync();
         _db.Jugadores.Remove(jugador);
         await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(foto);
         return ServiceResult.Ok();
     }
 

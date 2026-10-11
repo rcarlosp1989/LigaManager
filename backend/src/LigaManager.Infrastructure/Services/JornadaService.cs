@@ -86,7 +86,9 @@ public class JornadaService : IJornadaService
         HoraEcuador(p.CerradoEn),
         p.UsuarioCierre?.Nombre,
         p.IdEstadio,
-        p.IdArbitro
+        p.IdArbitro,
+        p.EquipoLocal.LogoUrl,
+        p.EquipoVisitante.LogoUrl
     );
 
     private static string? HoraEcuador(DateTime? utc) => utc?.AddHours(-5).ToString("yyyy-MM-dd HH:mm");

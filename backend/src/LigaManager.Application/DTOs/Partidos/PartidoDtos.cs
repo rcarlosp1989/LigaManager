@@ -47,7 +47,9 @@ public record PartidoDetalleDto(
     string? CerradoPor     = null,
     // Para precargar el formulario de edición: estadio y árbitro principal elegidos.
     int?    IdEstadio      = null,
-    int?    IdArbitro      = null
+    int?    IdArbitro      = null,
+    string? LogoLocal      = null,
+    string? LogoVisitante  = null
 );
 
 public record AlineacionJugadorDto(
