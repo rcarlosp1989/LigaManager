@@ -218,6 +218,18 @@ app.Use(async (ctx, next) =>
     catch (Exception ex) when (!ctx.Response.HasStarted)
     {
         var peticion = ex as BadHttpRequestException;
+        // Un registro repetido (clave única de la base): no es un error interno, es un dato que ya existe.
+        if (peticion is null && ex is Microsoft.EntityFrameworkCore.DbUpdateException
+            && ex.InnerException?.Message.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            ctx.Response.StatusCode  = 409;
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                error = "Ya existe un registro con esos mismos datos. Revisa la lista: puede que ya esté guardado."
+            }));
+            return;
+        }
         if (peticion is null)
             ctx.RequestServices.GetRequiredService<ILogger<Program>>()
                 .LogError(ex, "Error no controlado en {Metodo} {Ruta}", ctx.Request.Method, ctx.Request.Path);
