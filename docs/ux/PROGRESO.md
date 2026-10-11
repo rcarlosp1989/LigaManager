@@ -908,3 +908,40 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - la vuelta sí se crea;
 - editar un partido para que quede repetido da 400;
 - se repitieron todas las pruebas anteriores (ahora cada una usa su propia jornada), todas bien.
+
+---
+
+## 2026-10-10 — Mejora: logos de los equipos (y fotos de jugadores en la base)
+
+**Estado:** aplicada en la rama `mejora/logos-equipos`, creada desde `main`. Pendiente de que Roberto la apruebe. **Lleva script de base de datos:** `backend/database/20261010_imagenes_logos.sql` (reversa: `20261010_imagenes_logos_reversa.sql`). Orden: base → servidor → pantallas.
+
+### Qué cambió
+
+- **Dónde se guardan las imágenes:** en una tabla nueva `imagen` de MySQL, detrás de `IAlmacenImagenes`. Si algún día las imágenes pasan de ~1 GB, se cambia a Cloudflare R2 escribiendo otra clase con esa misma interfaz; el resto del código no cambia.
+- Se sirven en `GET /api/imagenes/{id}` sin sesión (para que se vean en `<img>` y en el PDF), con caché de un año: el id es aleatorio y cambia si se cambia la imagen.
+- **Logo del equipo:** `POST /api/equipos/{id}/logo` y `DELETE /api/equipos/{id}/logo`. Máximo 300 KB; se revisa que sea JPG, PNG o WEBP de verdad (por su contenido, no por el nombre). Al cambiar, quitar o borrar el equipo se borra la imagen anterior.
+- **Fotos de jugadores:** ahora también van a la base (antes iban a una carpeta del servidor que Railway borra en cada publicación). Máximo 1 MB.
+- **Pantallas:**
+  - Formulario de equipo (crear y editar): campo «Logo» con vista previa, «Subir logo», «Cambiar» y «Quitar».
+  - En el celular, la imagen se achica antes de subirla (logo a 256 px, foto a 512 px, en WEBP): una foto de 5 MB llega como unos pocos KB.
+  - El logo se ve en las tarjetas de Equipos, la pestaña Equipos y los grupos del campeonato, las tarjetas de partido, las tablas de posiciones (campeonato y Reportes), el Dashboard, el modo en vivo (marcador, selector de equipo y cierre), el inicio del vocal y el encabezado del PDF de la nómina. El Excel no lleva logo.
+  - Sin logo, o si no carga (por ejemplo sin señal), se ve un círculo con las iniciales del equipo.
+- De paso: en la tarjeta del partido, en el celular, los nombres de los equipos ya no se parten en dos líneas.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-logos`):
+  - subir el logo y verlo sin sesión, con caché de un año;
+  - el logo llega en la lista, el partido y el Dashboard;
+  - otro organizador no puede cambiarlo;
+  - se rechaza un archivo que no es imagen y uno de más de 300 KB;
+  - cambiar borra el anterior y quitar funciona;
+  - la foto del jugador se guarda en la base, se reemplaza y se borra; se rechaza una de más de 1 MB;
+  - la reversa borra la tabla;
+  - se repitieron todas las pruebas anteriores, todas bien.
+- Pantallas (390 y 1.440 px), con datos de ejemplo:
+  - Logos e iniciales en Equipos, Dashboard, campeonato, posiciones, Reportes, modo en vivo e inicio del vocal; nada se sale de la pantalla.
+  - Al crear un equipo con una imagen de 1.600 × 1.000, se subió un WEBP de 2,5 KB, y Quitar envía `DELETE`.
+  - El PDF de la nómina lleva el logo (35 KB).
+  - 0 errores.
+- `npm run build` sin errores; `npm run lint` da los mismos 5 errores que ya había en `main`.

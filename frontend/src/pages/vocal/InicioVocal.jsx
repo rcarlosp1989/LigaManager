@@ -9,6 +9,7 @@ import InvitacionCreada from '../../components/InvitacionCreada'
 import { mensajeDeError } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
 import { leerLocal, guardarLocal } from '../vivo/almacen'
+import LogoEquipo from '../../components/LogoEquipo'
 
 // Fecha de hoy en Ecuador, «yyyy-MM-dd», igual que la manda el servidor.
 const hoyEcuador = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil' }).format(new Date())
@@ -111,7 +112,11 @@ function TarjetaPartido({ partido: p }) {
         <p className="text-xs uppercase tracking-wider text-gray-300">{p.campeonato} · {p.jornada}</p>
         <p className="text-sm text-gray-200">{p.esHoy ? hora : formatearFecha(p.fecha)}</p>
       </div>
-      <p className="mt-1 text-lg font-semibold leading-snug">{p.equipoLocal} <span className="text-gray-400">vs</span> {p.equipoVisitante}</p>
+      <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-lg font-semibold leading-snug">
+        <span className="flex items-center gap-2"><LogoEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} tamano={28} />{p.equipoLocal}</span>
+        <span className="text-gray-400">vs</span>
+        <span className="flex items-center gap-2"><LogoEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} tamano={28} />{p.equipoVisitante}</span>
+      </p>
       {p.estadio && <p className="mt-0.5 flex items-center gap-1 text-sm text-gray-300"><MapPin size={14} aria-hidden="true" />{p.estadio}</p>}
       {p.esHoy && (
         p.jugado ? (
