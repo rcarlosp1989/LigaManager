@@ -44,23 +44,23 @@ tar = llamar("GET", f"/campeonatos/{camp}/estadisticas/tarjetas", o1)
 sus = llamar("GET", f"/campeonatos/{camp}/estadisticas/suspensiones", o1)
 esperar("los tres reportes responden", gol[0] == 200 and tar[0] == 200 and sus[0] == 200, f"{gol[0]} {tar[0]} {sus[0]}")
 filas = gol[1] + tar[1]["porJugador"] + sus[1]["sanciones"] + sus[1]["enRiesgo"]
-esperar("cada fila trae el campo fotoUrl", all("fotoUrl" in f for f in filas), str(filas[:2])[:300])
 print("filas:", len(gol[1]), len(tar[1]["porJugador"]), len(sus[1]["sanciones"]), len(sus[1]["enRiesgo"]))
-
-if gol[1]:
-    idj = gol[1][0]["idJugador"]
-    det = llamar("GET", f"/jugadores/{idj}", o1)[1]
-    s, j2 = llamar("PUT", f"/jugadores/{idj}", o1, campos={"Nombre": det["nombre"], "Apellido": det["apellido"], "Cedula": det["cedula"],
-                   "TipoIdentificacion": det.get("tipoIdentificacion", "Cedula"), "FechaNac": det["fechaNac"], "IdPais": det["idPais"],
-                   **({"IdCanton": det["idCanton"]} if det.get("idCanton") else {})},
-                   archivo=("Foto", "foto.png", PNG))
-    foto = j2.get("fotoUrl") if isinstance(j2, dict) else None
-    esperar("se le pone foto al goleador", s == 200 and (foto or "").startswith("/api/imagenes/"), f"{s} {str(j2)[:200]}")
-    g2 = llamar("GET", f"/campeonatos/{camp}/estadisticas/goleadores", o1)[1]
-    esperar("el reporte de goleadores trae su foto", any(x["idJugador"] == idj and x.get("fotoUrl") == foto for x in g2), str(g2[:2])[:300])
-    t2 = llamar("GET", f"/campeonatos/{camp}/estadisticas/tarjetas", o1)[1]["porJugador"]
-    esperar("si tiene tarjetas, el reporte de tarjetas trae su foto", all(x.get("fotoUrl") == foto for x in t2 if x["idJugador"] == idj))
-else:
-    print("AVISO sin goleadores en la semilla: solo se revisó el campo")
+# El servidor omite los campos vacíos: una fila sin foto no trae «fotoUrl».
+esperar("hay filas para revisar", len(filas) > 0)
+idj = (gol[1] or tar[1]["porJugador"] or sus[1]["sanciones"])[0]["idJugador"]
+det = llamar("GET", f"/jugadores/{idj}", o1)[1]
+s, j2 = llamar("PUT", f"/jugadores/{idj}", o1, campos={"Nombre": det["nombre"], "Apellido": det["apellido"], "Cedula": det["cedula"],
+               "TipoIdentificacion": det.get("tipoIdentificacion", "Cedula"), "FechaNac": det["fechaNac"], "IdPais": det["idPais"],
+               **({"IdCanton": det["idCanton"]} if det.get("idCanton") else {})},
+               archivo=("Foto", "foto.png", PNG))
+foto = j2.get("fotoUrl") if isinstance(j2, dict) else None
+esperar("se le pone foto al jugador", s == 200 and (foto or "").startswith("/api/imagenes/"), f"{s} {str(j2)[:200]}")
+g2 = llamar("GET", f"/campeonatos/{camp}/estadisticas/goleadores", o1)[1]
+t2 = llamar("GET", f"/campeonatos/{camp}/estadisticas/tarjetas", o1)[1]["porJugador"]
+s2 = llamar("GET", f"/campeonatos/{camp}/estadisticas/suspensiones", o1)[1]
+todas = [("goleadores", x) for x in g2] + [("tarjetas", x) for x in t2] + [("sanciones", x) for x in s2["sanciones"]] + [("riesgo", x) for x in s2["enRiesgo"]]
+suyas = [(n, x.get("fotoUrl")) for n, x in todas if x["idJugador"] == idj]
+esperar("sus filas en los reportes traen la foto nueva", suyas and all(f == foto for _, f in suyas), str(suyas))
+print("reportes con su foto:", sorted({n for n, _ in suyas}))
 print(f"RESUMEN {'TODO OK' if not fallas else str(len(fallas)) + ' FALLAS: ' + '; '.join(fallas)}")
 sys.exit(1 if fallas else 0)
