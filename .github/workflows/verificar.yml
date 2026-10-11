@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-mantenimiento' ] } }
+on: { push: { branches: [ 'ci/verificar-partido' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -56,6 +56,7 @@ jobs:
           python3 ci/prueba_cedula.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_documento.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_mantenimiento.py datos.json >> limite.txt 2>&1 || c=$?
+          python3 ci/prueba_partido.py datos.json >> limite.txt 2>&1 || c=$?
           echo "::notice title=permisos::$(grep -vE '^OK ' limite.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=ok::$(grep -c '^OK ' prueba.txt || true) + $(grep -c '^OK ' prueba8.txt || true) pruebas OK"
           if [ $c -ne 0 ]; then echo "::warning title=api::$(grep -iE 'exception|fail|error|at ' api.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; fi
