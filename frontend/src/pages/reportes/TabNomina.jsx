@@ -7,6 +7,7 @@ import BotonExportar from '../../components/BotonExportar'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { ClipboardList, User } from 'lucide-react'
 import { textoDocumento } from '../../utils/documento'
+import FotoJugador from '../../components/FotoJugador'
 
 const COLUMNAS_EXPORT = [
   { titulo: 'Dorsal', ancho: 8 }, { titulo: 'Apellido', ancho: 20 }, { titulo: 'Nombre', ancho: 20 },
@@ -65,6 +66,8 @@ export default function TabNomina({ idCampeonato, campeonato }) {
             filas={filasExport}
             archivoBase={`nomina_${(equipoNombre ?? 'equipo').replace(/\s+/g, '_')}`}
             logoUrl={equipoDetalle?.logoUrl}
+            fotos={jugadores.map(j => j.fotoUrl ?? null)}
+            iniciales={jugadores.map(j => `${j.nombre?.[0] ?? ''}${j.apellido?.[0] ?? ''}`.toUpperCase())}
           />
         )}
       </div>
@@ -100,7 +103,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
                 {jugadores.map(j => (
                   <tr key={j.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                     <td className="px-3 py-2 text-gray-400 text-xs text-left">{j.dorsal ?? '—'}</td>
-                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{j.apellido}, {j.nombre}</td>
+                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} />{j.apellido}, {j.nombre}</span></td>
                     <td className="px-3 py-2 text-gray-400 text-center">{textoDocumento(j.tipoIdentificacion, j.cedula)}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.posicion ?? 'Sin posición'}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.edad}</td>

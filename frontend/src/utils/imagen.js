@@ -56,20 +56,34 @@ export async function achicarImagen(archivo, lado) {
   return new File([blob], nombre, { type: blob.type })
 }
 
-// Descarga una imagen del servidor y la convierte a PNG (data URL) para meterla en un PDF:
-// jsPDF no lee WEBP en todos los navegadores. Devuelve { dataUrl, ancho, alto } o null si falla.
-export async function imagenParaPdf(url) {
+// Descarga una imagen del servidor y la convierte a PNG/JPEG (data URL) para meterla en un PDF:
+// jsPDF no lee WEBP en todos los navegadores. Devuelve { dataUrl, ancho, alto, formato } o null.
+//  - lado: medida máxima en píxeles (para que el PDF no pese de más).
+//  - cuadrado: recorta al centro en un cuadrado (fotos de jugadores).
+export async function imagenParaPdf(url, { lado = 256, cuadrado = false } = {}) {
   try {
     const r = await fetch(url)
     if (!r.ok) return null
     const img = await cargar(await r.blob())
+    let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight
+    if (!sw || !sh) return null
+    if (cuadrado) {
+      const m = Math.min(sw, sh)
+      sx = (sw - m) / 2; sy = (sh - m) / 2; sw = m; sh = m
+    }
+    const escala = Math.min(1, lado / Math.max(sw, sh))
     const canvas = document.createElement('canvas')
-    canvas.width = img.naturalWidth
-    canvas.height = img.naturalHeight
+    canvas.width = Math.max(1, Math.round(sw * escala))
+    canvas.height = Math.max(1, Math.round(sh * escala))
     const ctx = canvas.getContext('2d')
-    if (!ctx || !canvas.width || !canvas.height) return null
-    ctx.drawImage(img, 0, 0)
-    return { dataUrl: canvas.toDataURL('image/png'), ancho: canvas.width, alto: canvas.height }
+    if (!ctx) return null
+    if (cuadrado) {   // la foto va en JPEG (más liviano); sin transparencia, fondo blanco
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
+    const formato = cuadrado ? 'JPEG' : 'PNG'
+    return { dataUrl: canvas.toDataURL(cuadrado ? 'image/jpeg' : 'image/png', 0.85), ancho: canvas.width, alto: canvas.height, formato }
   } catch {
     return null
   }

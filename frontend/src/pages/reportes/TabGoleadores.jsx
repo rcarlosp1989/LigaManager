@@ -5,6 +5,7 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { Balon } from '../../components/IconoEvento'
+import FotoJugador from '../../components/FotoJugador'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
@@ -49,7 +50,7 @@ export default function TabGoleadores({ idCampeonato }) {
                 {goleadores.map((g, i) => (
                   <tr key={g.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
                     <td className="px-3 py-2 text-gray-400 text-xs">{i + 1}</td>
-                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{g.jugador}</td>
+                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={g.jugador} fotoUrl={g.fotoUrl} tamano={28} />{g.jugador}</span></td>
                     <td className="px-3 py-2 text-gray-400">{g.equipo}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{g.partidosJugados}</td>
                     <td className="px-3 py-2 text-white font-semibold text-center">{g.goles}</td>

@@ -37,7 +37,8 @@ public record GoleadorDto(
     string Equipo,
     int    Goles,
     int    PartidosJugados,
-    double PromedioPorPartido
+    double PromedioPorPartido,
+    string? FotoUrl = null
 );
 
 // ── Módulo B: Tarjetas ────────────────────────────────────────────────────────
@@ -48,7 +49,8 @@ public record TarjetasJugadorDto(
     string Equipo,
     int    Amarillas,
     int    Rojas,
-    int    Total
+    int    Total,
+    string? FotoUrl = null
 );
 
 public record FairPlayEquipoDto(
@@ -77,14 +79,16 @@ public record SuspensionDto(
     int     PartidosCumplidos,   // cuántos de los PartidosSancion ya los jugó el equipo
     string  Estado,              // "Suspendido" | "Cumplida"
     bool    Manual,               // true si la agregó la comisión disciplinaria, no una tarjeta
-    int?    IdSancion = null      // solo en una sanción manual: id para poder eliminarla
+    int?    IdSancion = null,     // solo en una sanción manual: id para poder eliminarla
+    string? FotoUrl = null
 );
 
 public record JugadorEnRiesgoDto(
     int    IdJugador,
     string Jugador,
     string Equipo,
-    int    AmarillasAcumuladas
+    int    AmarillasAcumuladas,
+    string? FotoUrl = null
 );
 
 public record SuspensionesDto(

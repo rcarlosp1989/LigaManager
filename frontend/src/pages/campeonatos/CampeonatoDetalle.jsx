@@ -12,6 +12,7 @@ import TabVocales from './TabVocales'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import IconoEvento from '../../components/IconoEvento'
 import LogoEquipo from '../../components/LogoEquipo'
+import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
 import { Armchair, CalendarDays, ClipboardList, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 
@@ -290,9 +291,12 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
 function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 bg-gray-800 rounded px-2 py-1.5 text-xs text-gray-300">
-      <span className="truncate min-w-0 flex-1 pointer-coarse:basis-full">
-        {jugador.dorsal != null && <span className="text-gray-500 mr-1.5">({jugador.dorsal})</span>}
-        {jugador.jugador}
+      <span className="flex items-center gap-2 min-w-0 flex-1 pointer-coarse:basis-full">
+        <FotoJugador nombre={jugador.jugador} fotoUrl={jugador.fotoUrl} tamano={24} />
+        <span className="truncate">
+          {jugador.dorsal != null && <span className="text-gray-500 mr-1.5">({jugador.dorsal})</span>}
+          {jugador.jugador}
+        </span>
       </span>
       <div className="flex items-center gap-2 shrink-0 pointer-coarse:ml-auto">
         {enCancha ? (
@@ -368,6 +372,7 @@ function AlineacionLado({ label, equipo, alineacion, enCanchaIds, sinGoles, onAg
               }`}>
               <input type="checkbox" checked={marcado} className="h-3.5 w-3.5 accent-brand-500"
                 onChange={() => setJugadoresSel(actual => marcado ? actual.filter(x => x !== id) : [...actual, id])} />
+              <FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={22} />
               <span>{j.dorsal != null && <span className="text-gray-500">({j.dorsal}) </span>}{j.apellido}, {j.nombre}</span>
             </label>
           )
