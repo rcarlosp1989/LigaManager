@@ -62,7 +62,12 @@ if s in (200, 201):
     if not url:
         j = [x for x in json.loads(llamar("GET", "/jugadores", tok)[1]) if x.get("apellido") == "Prueba" or "Prueba" in json.dumps(x)]
         url = next((x.get("fotoUrl") for x in j if x.get("fotoUrl")), None)
-esperar("se guarda con la extensión real (.png)", bool(url) and url.endswith(".png"), str(url))
+tipo_servido = None
+if url:
+    try:
+        with urllib.request.urlopen(BASE.replace("/api", "") + url) as r: tipo_servido = r.headers.get("Content-Type")
+    except Exception as e: tipo_servido = str(e)
+esperar("se guarda y se sirve como PNG", bool(url) and url.startswith("/api/imagenes/") and (tipo_servido or "").startswith("image/png"), f"{url} {tipo_servido}")
 
 # Error interno: el mensaje no debe traer detalles técnicos
 s, txt, _ = llamar("POST", "/jugadores", tok, campos={"Nombre": "X", "Apellido": "Y", "Cedula": cedula_valida(8888), "FechaNac": "1990-01-01", "IdPais": 999999, "IdEquipo": eq, "FechaDesde": D["hoy"]})

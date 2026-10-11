@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-partido' ] } }
+on: { push: { branches: [ 'ci/verificar-logos' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -33,6 +33,10 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE persona MODIFY cedula VARCHAR(20) NOT NULL, ADD UNIQUE KEY uq_persona_cedula (cedula)"
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > tipo.txt
+          # Imágenes: la base de prueba ya trae la tabla (la crea EF); se quita para aplicar el script real.
+          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "DROP TABLE imagen; ALTER TABLE equipo DROP COLUMN logo_url;"
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_imagenes_logos.sql > img.txt
+          echo "::notice title=imagenes::$(tr '\n' ' ' < img.txt | head -c 200)"
           # Como en producción: no puede haber dos partidos con los mismos equipos en una jornada.
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE partido ADD UNIQUE KEY uq_partido (id_jornada, id_equipo_local, id_equipo_visitante)"
           # Países: simula un «Peru» sin tilde ya existente; el script no debe duplicarlo. Se aplica dos veces.
@@ -59,6 +63,7 @@ jobs:
           python3 ci/prueba_documento.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_mantenimiento.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_partido.py datos.json >> limite.txt 2>&1 || c=$?
+          python3 ci/prueba_logos.py datos.json >> limite.txt 2>&1 || c=$?
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "INSERT INTO cargo_oficial (codigo, nombre) VALUES ('CENTRAL','Árbitro central'),('CUARTO','Cuarto árbitro'),('COMISARIO','Comisario'); INSERT INTO modalidad_cargo (id_modalidad, id_cargo, obligatorio) SELECT 1, id_cargo, codigo='CENTRAL' FROM cargo_oficial;" || echo "::warning::no se pudieron cargar cargos"
           python3 ci/prueba_oficiales.py datos.json >> limite.txt 2>&1 || c=$?
           echo "::notice title=permisos::$(grep -vE '^OK ' limite.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
@@ -97,4 +102,10 @@ jobs:
           echo "::notice title=reversa_tipo::columna tras la reversa: $n"
           [ "$n" = "0" ]
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > /dev/null
+      - name: Reversa de imágenes
+        run: |
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_imagenes_logos_reversa.sql
+          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name='imagen'")
+          echo "::notice title=reversa_img::tabla imagen tras la reversa: $n"
+          [ "$n" = "0" ]
 
