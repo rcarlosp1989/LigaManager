@@ -13,6 +13,7 @@ public class LigaManagerContext : DbContext
     public DbSet<Canton>             Cantones              { get; set; }
     public DbSet<Persona>            Personas              { get; set; }
     public DbSet<Equipo>             Equipos               { get; set; }
+    public DbSet<Imagen> Imagenes => Set<Imagen>();
     public DbSet<Jugador>            Jugadores             { get; set; }
     public DbSet<JugadorEquipo>      JugadorEquipos        { get; set; }
     public DbSet<Arbitro>            Arbitros              { get; set; }
@@ -171,6 +172,7 @@ public class LigaManagerContext : DbContext
             e.Property(eq => eq.Nombre)  .HasColumnName("nombre");
             e.Property(eq => eq.IdPais)  .HasColumnName("id_pais");
             e.Property(eq => eq.IdUsuarioCreador).HasColumnName("id_usuario_creador");
+            e.Property(eq => eq.LogoUrl).HasColumnName("logo_url").HasMaxLength(200);
 
             e.HasOne(eq => eq.UsuarioCreador)
                 .WithMany()
@@ -576,6 +578,19 @@ public class LigaManagerContext : DbContext
                 .WithMany()
                 .HasForeignKey(s => s.IdJugador)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Imágenes (logos y fotos) ─────────────────────────────────────────
+        modelBuilder.Entity<Imagen>(e =>
+        {
+            e.ToTable("imagen");
+            e.HasKey(i => i.IdImagen);
+            e.Property(i => i.IdImagen).HasColumnName("id_imagen").HasMaxLength(32);
+            e.Property(i => i.Contenido).HasColumnName("contenido").HasColumnType("mediumblob");
+            e.Property(i => i.TipoMime).HasColumnName("tipo_mime").HasMaxLength(20);
+            e.Property(i => i.Bytes).HasColumnName("bytes");
+            e.Property(i => i.IdUsuarioCreador).HasColumnName("id_usuario_creador");
+            e.Property(i => i.CreadoEn).HasColumnName("creado_en");
         });
 
         // ── Vocales (Fase 7) ─────────────────────────────────────────────────

@@ -12,7 +12,8 @@ public class EquipoService : IEquipoService
 {
     private readonly LigaManagerContext _db;
     private readonly IHttpContextAccessor _http;
-    public EquipoService(LigaManagerContext db, IHttpContextAccessor http) { _db = db; _http = http; }
+    private readonly IAlmacenImagenes _imagenes;
+    public EquipoService(LigaManagerContext db, IHttpContextAccessor http, IAlmacenImagenes imagenes) { _db = db; _http = http; _imagenes = imagenes; }
 
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
@@ -35,7 +36,8 @@ public class EquipoService : IEquipoService
                 e.IdEquipo,
                 e.Nombre,
                 e.Pais.Nombre,
-                e.JugadorEquipos.Count(je => je.FechaHasta == null)
+                e.JugadorEquipos.Count(je => je.FechaHasta == null),
+                e.LogoUrl
             ))
             .ToListAsync();
 
@@ -69,7 +71,8 @@ public class EquipoService : IEquipoService
                     CalcularEdad(je.Jugador.Persona.FechaNac),
                     je.Jugador.Persona.FotoUrl,
                     je.Jugador.Persona.TipoIdentificacion.ToString()
-                )).ToList()
+                )).ToList(),
+            e.LogoUrl
         ));
     }
 
@@ -119,8 +122,41 @@ public class EquipoService : IEquipoService
         if (enPartido)
             return ServiceResult.Fail("No se puede eliminar: el equipo tiene partidos registrados.");
 
+        var logo = equipo.LogoUrl;
         _db.Equipos.Remove(equipo);
         await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(logo);
         return ServiceResult.Ok();
+    }
+
+    // Logo del equipo. La pantalla lo achica antes de subirlo (256 px); aquí se revisa que sea
+    // una imagen de verdad y que no pese más de 300 KB. El logo anterior se borra.
+    public const int MaxBytesLogo = 300 * 1024;
+
+    public async Task<ServiceResult<EquipoDetalleDto>> CambiarLogoAsync(int id, byte[] datos)
+    {
+        var equipo = await _db.Equipos.FirstOrDefaultAsync(e => e.IdEquipo == id && e.IdUsuarioCreador == UsuarioActualId);
+        if (equipo is null) return ServiceResult<EquipoDetalleDto>.Fail("Equipo no encontrado.");
+        if (datos.Length == 0) return ServiceResult<EquipoDetalleDto>.Fail("Elige una imagen para el logo.");
+        if (datos.Length > MaxBytesLogo) return ServiceResult<EquipoDetalleDto>.Fail("El logo no puede pesar más de 300 KB.");
+        var tipo = ArchivoImagen.TipoMime(datos);
+        if (tipo is null) return ServiceResult<EquipoDetalleDto>.Fail("El archivo no es una imagen JPG, PNG o WEBP válida.");
+
+        var anterior = equipo.LogoUrl;
+        equipo.LogoUrl = await _imagenes.GuardarAsync(datos, tipo);
+        await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(anterior);
+        return await GetByIdAsync(id);
+    }
+
+    public async Task<ServiceResult<EquipoDetalleDto>> QuitarLogoAsync(int id)
+    {
+        var equipo = await _db.Equipos.FirstOrDefaultAsync(e => e.IdEquipo == id && e.IdUsuarioCreador == UsuarioActualId);
+        if (equipo is null) return ServiceResult<EquipoDetalleDto>.Fail("Equipo no encontrado.");
+        var anterior = equipo.LogoUrl;
+        equipo.LogoUrl = null;
+        await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(anterior);
+        return await GetByIdAsync(id);
     }
 }

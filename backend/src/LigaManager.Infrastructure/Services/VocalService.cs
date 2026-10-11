@@ -316,7 +316,8 @@ public class VocalService
                 p.EquipoLocal.Nombre, p.EquipoVisitante.Nombre,
                 p.Fecha.ToString("yyyy-MM-dd HH:mm"),
                 p.Estadio != null ? p.Estadio.Nombre : null,
-                p.Jugado, esHoy));
+                p.Jugado, esHoy,
+                p.EquipoLocal.LogoUrl, p.EquipoVisitante.LogoUrl));
 
     // ── Partido del vocal ────────────────────────────────────────────────────
 

@@ -7,6 +7,7 @@ public class Equipo
     public string Nombre   { get; set; } = null!;
     public int    IdPais   { get; set; }
     public int?   IdUsuarioCreador { get; set; }
+    public string? LogoUrl { get; set; }   // «/api/imagenes/…» o null
 
     public Pais                          Pais              { get; set; } = null!;
     public Usuario?                      UsuarioCreador    { get; set; }

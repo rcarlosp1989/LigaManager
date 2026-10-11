@@ -47,4 +47,23 @@ public class EquiposController : ControllerBase
         var result = await _service.DeleteAsync(id);
         return result.Success ? NoContent() : BadRequest(new { error = result.Error });
     }
+
+    // Logo: multipart con el campo «logo».
+    [HttpPost("{id:int}/logo")]
+    [RequestSizeLimit(1024 * 1024)]
+    public async Task<IActionResult> CambiarLogo(int id, IFormFile? logo)
+    {
+        if (logo is null) return BadRequest(new { error = "Elige una imagen para el logo." });
+        using var ms = new MemoryStream();
+        await logo.CopyToAsync(ms);
+        var result = await _service.CambiarLogoAsync(id, ms.ToArray());
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpDelete("{id:int}/logo")]
+    public async Task<IActionResult> QuitarLogo(int id)
+    {
+        var result = await _service.QuitarLogoAsync(id);
+        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
 }

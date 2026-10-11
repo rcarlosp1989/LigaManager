@@ -2,6 +2,7 @@ namespace LigaManager.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LigaManager.Application.Interfaces;
+using LigaManager.Application.Common;
 using LigaManager.Application.DTOs.Jugadores;
 
 [ApiController]
@@ -11,10 +12,12 @@ public class JugadoresController : ControllerBase
 {
     private readonly IJugadorService _service;
     private readonly IWebHostEnvironment _environment;
-    public JugadoresController(IJugadorService service, IWebHostEnvironment environment)
+    private readonly IAlmacenImagenes _imagenes;
+    public JugadoresController(IJugadorService service, IWebHostEnvironment environment, IAlmacenImagenes imagenes)
     {
         _service = service;
         _environment = environment;
+        _imagenes = imagenes;
     }
 
     [HttpGet]
@@ -37,7 +40,7 @@ public class JugadoresController : ControllerBase
             form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.CreateAsync(request);
-        if (!result.Success) return BadRequest(new { error = result.Error });
+        if (!result.Success) { await _imagenes.BorrarAsync(fotoUrl); return BadRequest(new { error = result.Error }); }
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.IdJugador }, result.Data);
     }
 
@@ -49,6 +52,7 @@ public class JugadoresController : ControllerBase
             form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.UpdateAsync(id, request);
+        if (!result.Success) await _imagenes.BorrarAsync(fotoUrl);
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
     }
 
@@ -80,41 +84,24 @@ public class JugadoresController : ControllerBase
         return result.Success ? Ok() : BadRequest(new { error = result.Error });
     }
 
+    // Foto del jugador: la pantalla la achica antes de subirla (512 px). Se guarda en el almacén
+    // de imágenes (la base de datos), no en una carpeta del servidor, que Railway borra al publicar.
     private async Task<string?> SavePhotoAsync(IFormFile? photo)
     {
         if (photo is null || photo.Length == 0) return null;
-        if (photo.Length > 5 * 1024 * 1024)
-            throw new BadHttpRequestException("La foto no puede superar los 5 MB.");
+        if (photo.Length > 1024 * 1024)
+            throw new BadHttpRequestException("La foto no puede superar 1 MB. La app la achica sola: vuelve a elegirla.");
 
         var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
         if (!allowed.Contains(Path.GetExtension(photo.FileName).ToLowerInvariant()))
             throw new BadHttpRequestException("La foto debe ser JPG, PNG o WEBP.");
 
-        // No basta con el nombre del archivo: se revisan los primeros bytes para confirmar
-        // que de verdad es una imagen, y se guarda con la extensión de lo que es.
-        var cabecera = new byte[12];
-        await using (var lectura = photo.OpenReadStream())
-            _ = await lectura.ReadAtLeastAsync(cabecera, cabecera.Length, throwOnEndOfStream: false);
-        var extension = TipoDeImagen(cabecera)
+        using var ms = new MemoryStream();
+        await photo.CopyToAsync(ms);
+        var datos = ms.ToArray();
+        var tipo = ArchivoImagen.TipoMime(datos)
             ?? throw new BadHttpRequestException("El archivo no es una imagen JPG, PNG o WEBP válida.");
-
-        var folder = Path.Combine(_environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot"), "uploads", "jugadores");
-        Directory.CreateDirectory(folder);
-        var fileName = $"{Guid.NewGuid():N}{extension}";
-        var path = Path.Combine(folder, fileName);
-        await using var stream = System.IO.File.Create(path);
-        await photo.CopyToAsync(stream);
-        return $"/uploads/jugadores/{fileName}";
-    }
-
-    private static string? TipoDeImagen(byte[] b)
-    {
-        if (b.Length >= 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return ".jpg";
-        if (b.Length >= 8 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47
-            && b[4] == 0x0D && b[5] == 0x0A && b[6] == 0x1A && b[7] == 0x0A) return ".png";
-        if (b.Length >= 12 && b[0] == 'R' && b[1] == 'I' && b[2] == 'F' && b[3] == 'F'
-            && b[8] == 'W' && b[9] == 'E' && b[10] == 'B' && b[11] == 'P') return ".webp";
-        return null;
+        return await _imagenes.GuardarAsync(datos, tipo);
     }
 }
 
