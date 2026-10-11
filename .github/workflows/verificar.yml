@@ -33,6 +33,8 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE persona MODIFY cedula VARCHAR(20) NOT NULL, ADD UNIQUE KEY uq_persona_cedula (cedula)"
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > tipo.txt
+          # Como en producción: no puede haber dos partidos con los mismos equipos en una jornada.
+          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "ALTER TABLE partido ADD UNIQUE KEY uq_partido (id_jornada, id_equipo_local, id_equipo_visitante)"
           # Países: simula un «Peru» sin tilde ya existente; el script no debe duplicarlo. Se aplica dos veces.
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "INSERT INTO pais (nombre) VALUES ('Peru')"
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_paises_completos.sql > p1.txt

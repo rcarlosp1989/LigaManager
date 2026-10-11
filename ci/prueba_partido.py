@@ -18,7 +18,13 @@ def esperar(nombre, cond, detalle=""):
 tok = llamar("POST", "/auth/login", cuerpo={"email": "org1@prueba.ec", "password": "clave123"})[1]["token"]
 pais = llamar("GET", "/catalogos/paises", tok)[1][0]["idPais"]
 eqs = [e["idEquipo"] for e in llamar("GET", "/equipos", tok)[1]]
-jornada = llamar("GET", f"/campeonatos/{D['campA']}/jornadas", tok)[1][0]["idJornada"]
+
+inst = llamar("GET", "/catalogos/instancias", tok)[1][0]["idInstancia"]
+import random
+def jornada_nueva():
+    s, j = llamar("POST", f"/campeonatos/{D['campA']}/jornadas", tok, {"numero": random.randint(100, 9999), "idInstancia": inst, "idGrupo": None})
+    return j["idJornada"]
+jornada = jornada_nueva()
 est = llamar("POST", "/estadios", tok, {"nombre": "Estadio Hora", "idPais": pais, "idCanton": None})[1]["idEstadio"]
 arb = llamar("POST", "/arbitros", tok, {"nombre": "Juez", "apellido": "Hora", "cedula": "", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None})[1]["idArbitro"]
 s, j = llamar("POST", f"/jornadas/{jornada}/partidos", tok, {"idEquipoLocal": eqs[0], "idEquipoVisitante": eqs[1], "fecha": "2026-11-20T15:30", "idEstadio": est, "idArbitro": arb})
@@ -33,5 +39,14 @@ s2, d = llamar("GET", f"/partidos/{p['idPartido']}", tok)
 esperar("editar la hora y releer", s == 200 and d["fecha"] == "2026-11-20 18:45" and d["idEstadio"] == est, f"{s} {str(d)[:160]}")
 s, e = llamar("GET", f"/equipos/{eqs[0]}?fecha=2026-11-20", tok)
 esperar("el plantel por fecha sigue funcionando", s == 200 and len(e["jugadores"]) > 0, f"{s}")
+# Repetido: mismos equipos en la misma jornada
+s, r = llamar("POST", f"/jornadas/{jornada}/partidos", tok, {"idEquipoLocal": eqs[0], "idEquipoVisitante": eqs[1], "fecha": "2026-11-21T10:00", "idEstadio": est, "idArbitro": arb})
+esperar("crear el mismo partido otra vez → 400 con aviso claro", s == 400 and "ya está registrado" in str(r), f"{s} {r}")
+s, r2 = llamar("POST", f"/jornadas/{jornada}/partidos", tok, {"idEquipoLocal": eqs[1], "idEquipoVisitante": eqs[0], "fecha": "2026-11-21T10:00", "idEstadio": est, "idArbitro": arb})
+esperar("la vuelta (local y visitante invertidos) sí se puede", s in (200, 201), f"{s} {r2}")
+s, jd = llamar("GET", f"/jornadas/{jornada}", tok)
+vuelta = next(x for x in jd["partidos"] if x["idEquipoLocal"] == eqs[1])
+s, r = llamar("PUT", f"/partidos/{vuelta['idPartido']}", tok, {"idEquipoLocal": eqs[0], "idEquipoVisitante": eqs[1], "fecha": "2026-11-21T10:00", "idEstadio": est, "idArbitro": arb})
+esperar("editar un partido para que quede repetido → 400 con aviso", s == 400 and "ya está registrado" in str(r), f"{s} {r}")
 print(f"RESUMEN {'TODO OK' if not fallas else str(len(fallas)) + ' FALLAS: ' + '; '.join(fallas)}")
 sys.exit(1 if fallas else 0)

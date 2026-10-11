@@ -21,7 +21,13 @@ cargos = llamar("GET", f"/catalogos/cargos-oficiales?modalidadId={camp['idModali
 print("INFO cargos:", cargos)
 pais = llamar("GET", "/catalogos/paises", tok)[1][0]["idPais"]
 eqs = [e["idEquipo"] for e in llamar("GET", "/equipos", tok)[1]]
-jornada = llamar("GET", f"/campeonatos/{D['campA']}/jornadas", tok)[1][0]["idJornada"]
+
+inst = llamar("GET", "/catalogos/instancias", tok)[1][0]["idInstancia"]
+import random
+def jornada_nueva():
+    s, j = llamar("POST", f"/campeonatos/{D['campA']}/jornadas", tok, {"numero": random.randint(100, 9999), "idInstancia": inst, "idGrupo": None})
+    return j["idJornada"]
+jornada = jornada_nueva()
 est = llamar("POST", "/estadios", tok, {"nombre": "Estadio Ofi", "idPais": pais, "idCanton": None})[1]["idEstadio"]
 arbs = [llamar("POST", "/arbitros", tok, {"nombre": f"Of{i}", "apellido": "Cargo", "cedula": "", "fechaNac": "1980-01-01", "idPais": pais, "idCanton": None})[1]["idArbitro"] for i in range(3)]
 central = next((c["idCargo"] for c in cargos if c.get("obligatorio")), cargos[0]["idCargo"] if cargos else None)
@@ -35,10 +41,10 @@ p = [x for x in jd["partidos"] if x["fecha"].startswith("2026-11-10")]
 esperar("quedó guardado con la hora", p and p[0]["fecha"] == "2026-11-10 14:40", str([x["fecha"] for x in p]))
 otros = [c["idCargo"] for c in cargos if c["idCargo"] != central]
 cuerpo2 = {**cuerpo, "fecha": "2026-11-11T09:15", "oficiales": [{"idCargo": central, "idArbitro": arbs[0]}] + [{"idCargo": c, "idArbitro": arbs[i + 1]} for i, c in enumerate(otros[:2])]}
-s, r = llamar("POST", f"/jornadas/{jornada}/partidos", tok, cuerpo2)
+s, r = llamar("POST", f"/jornadas/{jornada_nueva()}/partidos", tok, cuerpo2)
 esperar("crear partido con todos los cargos", s in (200, 201), f"{s} {str(r)[:300]}")
 cuerpo3 = {**cuerpo, "fecha": "2026-11-12T10:00", "idArbitro": None}
-s, r = llamar("POST", f"/jornadas/{jornada}/partidos", tok, cuerpo3)
+s, r = llamar("POST", f"/jornadas/{jornada_nueva()}/partidos", tok, cuerpo3)
 esperar("crear partido sin idArbitro (solo cargos)", s in (200, 201), f"{s} {str(r)[:300]}")
 print(f"RESUMEN {'TODO OK' if not fallas else str(len(fallas)) + ' FALLAS: ' + '; '.join(fallas)}")
 sys.exit(1 if fallas else 0)
