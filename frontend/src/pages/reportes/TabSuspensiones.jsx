@@ -5,6 +5,7 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import TablaDesplazable from '../../components/TablaDesplazable'
+import FotoJugador from '../../components/FotoJugador'
 
 function hoy() {
   return new Date().toISOString().slice(0, 10)
@@ -176,7 +177,7 @@ export default function TabSuspensiones({ idCampeonato }) {
                 <tbody>
                   {sanciones.map((s, i) => (
                     <tr key={`${s.idJugador}-${s.idPartidoSancion ?? 'manual'}-${i}`} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{s.jugador}</td>
+                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={s.jugador} fotoUrl={s.fotoUrl} tamano={28} />{s.jugador}</span></td>
                       <td className="px-3 py-2 text-gray-400">{s.equipo}</td>
                       <td className="px-3 py-2 text-gray-300">
                         {s.motivo}
@@ -225,7 +226,7 @@ export default function TabSuspensiones({ idCampeonato }) {
                 <tbody>
                   {enRiesgo.map(r => (
                     <tr key={r.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{r.jugador}</td>
+                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={r.jugador} fotoUrl={r.fotoUrl} tamano={28} />{r.jugador}</span></td>
                       <td className="px-3 py-2 text-gray-400">{r.equipo}</td>
                       <td className="px-3 py-2 text-yellow-400 text-center font-semibold">{r.amarillasAcumuladas}</td>
                     </tr>

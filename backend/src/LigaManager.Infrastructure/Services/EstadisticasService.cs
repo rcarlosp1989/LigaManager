@@ -203,7 +203,8 @@ public class EstadisticasService : IEstadisticasService
                 EquipoActual(jugador),
                 g.Goles,
                 pj,
-                pj > 0 ? Math.Round((double)g.Goles / pj, 2) : 0
+                pj > 0 ? Math.Round((double)g.Goles / pj, 2) : 0,
+                jugador.Persona.FotoUrl
             );
         })
         .OrderByDescending(x => x.Goles).ThenByDescending(x => x.PromedioPorPartido)
@@ -254,7 +255,7 @@ public class EstadisticasService : IEstadisticasService
             var jugador = infoPorJugador[g.Key];
             var amarillas = g.Count(e => e.TipoEvento == "TARJETA_AMARILLA");
             var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA");
-            return new TarjetasJugadorDto(g.Key, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", EquipoActual(jugador), amarillas, rojas, amarillas + rojas);
+            return new TarjetasJugadorDto(g.Key, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", EquipoActual(jugador), amarillas, rojas, amarillas + rojas, jugador.Persona.FotoUrl);
         })
         .OrderByDescending(x => x.Total).ThenByDescending(x => x.Rojas)
         .ToList();
@@ -430,7 +431,7 @@ public class EstadisticasService : IEstadisticasService
                 sancionesDeEsteJugador.Add(new SuspensionDto(
                     grupoJugador.Key, nombreJugador, equipoNombre, motivo,
                     partidoGrupo.Key.IdPartido, fechaSancion.ToString("yyyy-MM-dd"),
-                    partidosSancion, partidosCumplidos, estado, Manual: false));
+                    partidosSancion, partidosCumplidos, estado, Manual: false, FotoUrl: jugador.Persona.FotoUrl));
             }
 
             sanciones.AddRange(sancionesDeEsteJugador);
@@ -438,7 +439,7 @@ public class EstadisticasService : IEstadisticasService
             var tieneSuspensionActiva = sancionesDeEsteJugador.Any(s => s.Estado == "Suspendido");
             if (!tieneSuspensionActiva && acumuladasEnCiclo == _reglas.AmarillasParaSuspension - 1)
             {
-                enRiesgo.Add(new JugadorEnRiesgoDto(grupoJugador.Key, nombreJugador, EquipoActual(jugador), acumuladasEnCiclo));
+                enRiesgo.Add(new JugadorEnRiesgoDto(grupoJugador.Key, nombreJugador, EquipoActual(jugador), acumuladasEnCiclo, jugador.Persona.FotoUrl));
             }
         }
 
@@ -453,7 +454,7 @@ public class EstadisticasService : IEstadisticasService
             sanciones.Add(new SuspensionDto(
                 s.IdJugador, nombreJugador, equipoNombre, s.Motivo,
                 null, s.FechaDecision.ToString("yyyy-MM-dd"),
-                s.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: s.IdSancion));
+                s.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: s.IdSancion, FotoUrl: jugador.Persona.FotoUrl));
         }
 
         return new SuspensionesDto(
@@ -519,7 +520,7 @@ public class EstadisticasService : IEstadisticasService
 
         return ServiceResult<SuspensionDto>.Ok(new SuspensionDto(
             jugador.IdJugador, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", equipoNombre, sancion.Motivo,
-            null, sancion.FechaDecision.ToString("yyyy-MM-dd"), sancion.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: sancion.IdSancion));
+            null, sancion.FechaDecision.ToString("yyyy-MM-dd"), sancion.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: sancion.IdSancion, FotoUrl: jugador.Persona.FotoUrl));
     }
 
     public async Task<ServiceResult> EliminarSancionManualAsync(int idCampeonato, int idSancion)

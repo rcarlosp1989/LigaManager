@@ -5,6 +5,7 @@ import EmptyState from '../../components/EmptyState'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { RectangleVertical } from 'lucide-react'
 import IconoEvento from '../../components/IconoEvento'
+import FotoJugador from '../../components/FotoJugador'
 
 // Encabezado de columna: las tarjetas se dibujan, con su nombre para lectores de pantalla.
 const encabezado = (h) => (h.startsWith('TARJETA_')
@@ -45,7 +46,7 @@ export default function TabTarjetas({ idCampeonato }) {
               <tbody>
                 {porJugador.map(j => (
                   <tr key={j.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{j.jugador}</td>
+                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={j.jugador} fotoUrl={j.fotoUrl} tamano={28} />{j.jugador}</span></td>
                     <td className="px-3 py-2 text-gray-400">{j.equipo}</td>
                     <td className="px-3 py-2 text-yellow-400 text-center">{j.amarillas}</td>
                     <td className="px-3 py-2 text-red-400 text-center">{j.rojas}</td>
