@@ -9,4 +9,6 @@ public interface IEquipoService
     Task<ServiceResult<EquipoDetalleDto>> CreateAsync(CreateEquipoRequest req);
     Task<ServiceResult<EquipoDetalleDto>> UpdateAsync(int id, UpdateEquipoRequest req);
     Task<ServiceResult>                   DeleteAsync(int id);
+    Task<ServiceResult<EquipoDetalleDto>> CambiarLogoAsync(int id, byte[] datos);
+    Task<ServiceResult<EquipoDetalleDto>> QuitarLogoAsync(int id);
 }

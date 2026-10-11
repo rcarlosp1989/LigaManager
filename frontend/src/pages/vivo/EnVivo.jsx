@@ -10,6 +10,7 @@ import { useAtraparFoco } from '../../feedback/foco'
 import { ordenarPorDorsal, jugadoresEnCancha, suplentesDisponibles, marcadorDesdeEventos, ETIQUETA_EVENTO } from '../../utils/planilla'
 import IconoEvento from '../../components/IconoEvento'
 import { urlFoto } from '../../utils/fotos'
+import LogoEquipo from '../../components/LogoEquipo'
 import { formatearFecha } from '../../utils/fechas'
 import { leerLocal, guardarLocal } from './almacen'
 import { useReloj, NOMBRE_FASE } from './reloj'
@@ -244,6 +245,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
   const plantel = { local: qLocal.data?.jugadores ?? [], visitante: qVisitante.data?.jugadores ?? [] }
   const idEquipo = { local: partido?.idEquipoLocal, visitante: partido?.idEquipoVisitante }
   const nombreEquipo = { local: partido?.equipoLocal, visitante: partido?.equipoVisitante }
+  const logoEquipo = { local: partido?.logoLocal, visitante: partido?.logoVisitante }
 
   const ladoDe = (idJugador) => {
     for (const lado of ['local', 'visitante']) {
@@ -483,11 +485,17 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
           <div className="min-w-0 flex-1" aria-live="polite">
             <p className="sr-only">Marcador</p>
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-              <span className="truncate text-right text-sm font-semibold text-gray-200">{partido.equipoLocal}</span>
+              <span className="flex min-w-0 items-center justify-end gap-1.5 text-sm font-semibold text-gray-200">
+                <span className="truncate">{partido.equipoLocal}</span>
+                <LogoEquipo nombre={partido.equipoLocal} logoUrl={partido.logoLocal} tamano={24} />
+              </span>
               <span className="font-display text-3xl leading-none tracking-wide text-white tabular-nums">
                 {marcador.local}<span className="mx-1.5 text-gray-400">–</span>{marcador.visitante}
               </span>
-              <span className="truncate text-sm font-semibold text-gray-200">{partido.equipoVisitante}</span>
+              <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-gray-200">
+                <LogoEquipo nombre={partido.equipoVisitante} logoUrl={partido.logoVisitante} tamano={24} />
+                <span className="truncate">{partido.equipoVisitante}</span>
+              </span>
             </div>
           </div>
           <EstadoEnvio pendientes={pendientes} sinConexion={cola.sinConexion} enviando={cola.enviando} onReintentar={cola.reintentar} />
@@ -579,8 +587,13 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
               className={`min-h-12 rounded-lg border-2 px-2 py-1.5 text-left transition-colors ${
                 lado === l ? 'border-brand-300 bg-brand-900/70 text-white' : 'border-neutral-700 bg-neutral-900 text-gray-300'
               }`}>
-              <span className="block text-[11px] uppercase tracking-wider text-gray-300">{l === 'local' ? 'Local' : 'Visitante'}</span>
-              <span className="block truncate text-sm font-semibold">{nombreEquipo[l]}</span>
+              <span className="flex items-center gap-2">
+                <LogoEquipo nombre={nombreEquipo[l]} logoUrl={logoEquipo[l]} tamano={28} />
+                <span className="min-w-0">
+                  <span className="block text-[11px] uppercase tracking-wider text-gray-300">{l === 'local' ? 'Local' : 'Visitante'}</span>
+                  <span className="block truncate text-sm font-semibold">{nombreEquipo[l]}</span>
+                </span>
+              </span>
             </button>
           ))}
         </div>
@@ -1028,9 +1041,15 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
       <div className="rounded-2xl border border-neutral-600 bg-neutral-900 p-4 text-center">
         <p className="text-xs uppercase tracking-wider text-gray-300">{formatearFecha(partido.fecha)}{partido.estadio ? ` · ${partido.estadio}` : ''}</p>
         <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <p className="text-right text-base font-semibold text-white">{partido.equipoLocal}</p>
+          <div className="flex flex-col items-end gap-1.5">
+            <LogoEquipo nombre={partido.equipoLocal} logoUrl={partido.logoLocal} tamano={44} />
+            <p className="text-right text-base font-semibold text-white">{partido.equipoLocal}</p>
+          </div>
           <p className="font-display text-5xl tabular-nums text-white">{marcador.local} – {marcador.visitante}</p>
-          <p className="text-left text-base font-semibold text-white">{partido.equipoVisitante}</p>
+          <div className="flex flex-col items-start gap-1.5">
+            <LogoEquipo nombre={partido.equipoVisitante} logoUrl={partido.logoVisitante} tamano={44} />
+            <p className="text-left text-base font-semibold text-white">{partido.equipoVisitante}</p>
+          </div>
         </div>
         {estaCerrado(partido) && (
           <p className="mt-2 text-sm font-semibold text-green-400">

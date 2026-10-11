@@ -64,6 +64,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
             columnas={COLUMNAS_EXPORT}
             filas={filasExport}
             archivoBase={`nomina_${(equipoNombre ?? 'equipo').replace(/\s+/g, '_')}`}
+            logoUrl={equipoDetalle?.logoUrl}
           />
         )}
       </div>

@@ -49,7 +49,9 @@ public class DashboardService
                 p.EquipoVisitante.Nombre,
                 p.Fecha.ToString("yyyy-MM-dd HH:mm"),
                 p.Estadio.Nombre,
-                p.IdJornada
+                p.IdJornada,
+                p.EquipoLocal.LogoUrl,
+                p.EquipoVisitante.LogoUrl
             ))
             .ToListAsync();
 
@@ -96,7 +98,9 @@ public class DashboardService
                 p.EquipoVisitante.Nombre,
                 golesVisitante,
                 p.Fecha.ToString("yyyy-MM-dd"),
-                p.IdJornada
+                p.IdJornada,
+                p.EquipoLocal.LogoUrl,
+                p.EquipoVisitante.LogoUrl
             );
         }).ToList();
 

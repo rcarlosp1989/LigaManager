@@ -6,6 +6,8 @@ import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { Trophy } from 'lucide-react'
+import LogoEquipo from '../../components/LogoEquipo'
+import { useLogosEquipos } from '../../utils/logos'
 
 const COLOR_FORMA = {
   V: 'bg-green-500 text-green-950',
@@ -28,6 +30,7 @@ function CirculosForma({ forma }) {
 }
 
 function TablaGrupo({ grupo }) {
+  const logos = useLogosEquipos()
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden mb-6">
       {grupo.grupo && (
@@ -56,7 +59,12 @@ function TablaGrupo({ grupo }) {
                     {p.clasificado && <span className="text-green-400 text-xs">✓</span>}
                   </div>
                 </td>
-                <td className="px-3 py-2 text-white font-medium whitespace-nowrap">{p.equipo}</td>
+                <td className="px-3 py-2 text-white font-medium whitespace-nowrap">
+                  <span className="flex items-center gap-2">
+                    <LogoEquipo nombre={p.equipo} logoUrl={logos.get(p.idEquipo)} tamano={22} />
+                    {p.equipo}
+                  </span>
+                </td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pj}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pg}</td>
                 <td className="px-3 py-2 text-gray-400 text-center">{p.pe}</td>

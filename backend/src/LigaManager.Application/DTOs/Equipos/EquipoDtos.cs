@@ -4,7 +4,8 @@ public record EquipoListDto(
     int    IdEquipo,
     string Nombre,
     string Pais,
-    int    TotalJugadores
+    int    TotalJugadores,
+    string? LogoUrl = null
 );
 
 public record EquipoDetalleDto(
@@ -12,7 +13,8 @@ public record EquipoDetalleDto(
     string Nombre,
     int    IdPais,
     string Pais,
-    List<JugadorEnEquipoDto> Jugadores
+    List<JugadorEnEquipoDto> Jugadores,
+    string? LogoUrl = null
 );
 
 public record JugadorEnEquipoDto(

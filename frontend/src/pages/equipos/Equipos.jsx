@@ -9,11 +9,15 @@ import MenuAcciones from '../../components/MenuAcciones'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import { Globe, Shield } from 'lucide-react'
+import LogoEquipo from '../../components/LogoEquipo'
+import CampoLogo from '../../components/CampoLogo'
 
 // Mismo formulario para crear y editar; al editar llega `inicial`.
 function EquipoForm({ inicial, onSubmit, loading, error, textoGuardar = 'Guardar Equipo' }) {
   const id = useId()
   const [form, setForm] = useState(() => ({ nombre: inicial?.nombre ?? '', idPais: inicial?.idPais ?? '' }))
+  const [logo, setLogo] = useState({ archivo: null, quitar: false })
+  const [preparandoLogo, setPreparandoLogo] = useState(false)
   const qPaises = useQuery({
     queryKey: ['paises'],
     queryFn:  () => api.get('/catalogos/paises').then(r => r.data),
@@ -23,7 +27,7 @@ function EquipoForm({ inicial, onSubmit, loading, error, textoGuardar = 'Guardar
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSubmit({ nombre: form.nombre.trim(), idPais: Number(form.idPais) }) }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); onSubmit({ nombre: form.nombre.trim(), idPais: Number(form.idPais), logo }) }} className="space-y-4">
       {catalogos.hayError && (
         <EstadoError compacto mensaje="No se pudo cargar la lista de países."
           onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
@@ -48,13 +52,32 @@ function EquipoForm({ inicial, onSubmit, loading, error, textoGuardar = 'Guardar
           ))}
         </select>
       </div>
+      <CampoLogo nombre={form.nombre} logoActual={inicial?.logoUrl} valor={logo}
+        onChange={setLogo} onProcesando={setPreparandoLogo} />
       {error && (
         <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400
                         rounded-lg px-4 py-3 text-sm">{error}</div>
       )}
-      <AccionesFormulario guardando={loading} texto={textoGuardar} />
+      <AccionesFormulario guardando={loading || preparandoLogo} texto={textoGuardar} />
     </form>
   )
+}
+
+// Sube o quita el logo después de guardar los datos del equipo. Si falla, el equipo ya quedó
+// guardado: se avisa solo lo del logo.
+async function guardarLogo(idEquipo, logo) {
+  try {
+    if (logo?.archivo) {
+      const body = new FormData()
+      body.append('logo', logo.archivo)
+      await api.post(`/equipos/${idEquipo}/logo`, body)
+    } else if (logo?.quitar) {
+      await api.delete(`/equipos/${idEquipo}/logo`)
+    }
+    return null
+  } catch (err) {
+    return mensajeDeError(err, 'No se pudo guardar el logo.')
+  }
 }
 
 export default function Equipos() {
@@ -72,22 +95,30 @@ export default function Equipos() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (data) => api.post('/equipos', data),
-    onSuccess: () => {
+    mutationFn: async ({ logo, ...data }) => {
+      const { data: creado } = await api.post('/equipos', data)
+      return guardarLogo(creado.idEquipo, logo)
+    },
+    onSuccess: (errorLogo) => {
       queryClient.invalidateQueries({ queryKey: ['equipos'] })
       cerrarModal()
-      aviso.exito('Equipo creado.')
+      if (errorLogo) aviso.error(`Equipo creado, pero el logo no se guardó: ${errorLogo}`)
+      else aviso.exito('Equipo creado.')
     },
     onError: (err) => setFormError(mensajeDeError(err, 'Error al guardar.')),
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ idEquipo, ...data }) => api.put(`/equipos/${idEquipo}`, data),
-    onSuccess: () => {
-      // El nombre del equipo aparece en campeonatos, jornadas y reportes: se refresca todo.
+    mutationFn: async ({ idEquipo, logo, ...data }) => {
+      await api.put(`/equipos/${idEquipo}`, data)
+      return guardarLogo(idEquipo, logo)
+    },
+    onSuccess: (errorLogo) => {
+      // El nombre y el logo del equipo aparecen en campeonatos, jornadas y reportes: se refresca todo.
       queryClient.invalidateQueries()
       cerrarModal()
-      aviso.exito('Cambios guardados.')
+      if (errorLogo) aviso.error(`Cambios guardados, pero el logo no se guardó: ${errorLogo}`)
+      else aviso.exito('Cambios guardados.')
     },
     onError: (err) => setFormError(mensajeDeError(err, 'Error al guardar los cambios.')),
   })
@@ -154,7 +185,8 @@ export default function Equipos() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {equipos.map(e => (
             <div key={e.idEquipo} className="card flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <LogoEquipo nombre={e.nombre} logoUrl={e.logoUrl} tamano={48} />
+              <div className="min-w-0 flex-1">
                 <h3 className="text-white font-semibold">{e.nombre}</h3>
                 <p className="flex items-center gap-1.5 text-gray-400 text-sm mt-1"><Globe size={14} aria-hidden="true" />{e.pais}</p>
                 <p className="text-gray-500 text-xs mt-2">

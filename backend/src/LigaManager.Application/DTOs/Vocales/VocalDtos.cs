@@ -64,7 +64,9 @@ public record VocalPartidoDto(
     string  Fecha,          // yyyy-MM-dd HH:mm
     string? Estadio,
     bool    Jugado,
-    bool    EsHoy
+    bool    EsHoy,
+    string? LogoLocal     = null,
+    string? LogoVisitante = null
 );
 
 public record VocalCampeonatoDto(
