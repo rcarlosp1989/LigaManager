@@ -64,6 +64,7 @@ jobs:
           python3 ci/prueba_mantenimiento.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_partido.py datos.json >> limite.txt 2>&1 || c=$?
           python3 ci/prueba_logos.py datos.json >> limite.txt 2>&1 || c=$?
+          python3 ci/prueba_fotos.py datos.json >> limite.txt 2>&1 || c=$?
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "INSERT INTO cargo_oficial (codigo, nombre) VALUES ('CENTRAL','Árbitro central'),('CUARTO','Cuarto árbitro'),('COMISARIO','Comisario'); INSERT INTO modalidad_cargo (id_modalidad, id_cargo, obligatorio) SELECT 1, id_cargo, codigo='CENTRAL' FROM cargo_oficial;" || echo "::warning::no se pudieron cargar cargos"
           python3 ci/prueba_oficiales.py datos.json >> limite.txt 2>&1 || c=$?
           echo "::notice title=permisos::$(grep -vE '^OK ' limite.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
