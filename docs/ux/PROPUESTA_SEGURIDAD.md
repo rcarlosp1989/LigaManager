@@ -1,6 +1,6 @@
 # LigaManager — Seguridad de cuentas (propuesta aprobada, en pausa)
 
-**Fecha:** 10 de octubre de 2026. **Estado:** diseño aprobado por Roberto; programación sin empezar. En pausa hasta terminar la configuración de Brevo (falta verificar el celular).
+**Fecha:** 10 de octubre de 2026. **Estado:** diseño aprobado por Roberto; programación sin empezar. En pausa hasta terminar la configuración de Brevo (faltan la clave de API y el bloqueo de IP).
 
 ## Revisado
 
@@ -53,8 +53,8 @@
 ## Configuración de Brevo: dónde quedó
 
 - [x] Cuenta creada; plan Gratis activo («Plan actual», 300/día).
-- [ ] **A.** Verificar el celular: franja morada «Verifica ahora», +593 sin el 0. ← *se quedó aquí (sin señal)*
-- [ ] **B.** Remitente: «Liga Manager ▾» → Remitentes, dominios e IP dedicadas → Añadir remitente (`LigaManager` + Gmail) → confirmar en Gmail.
-- [ ] **C.** Clave de API: «Liga Manager ▾» o ⚙ → SMTP y API → Claves API → Generar (`ligamanager-railway`). Guardarla aparte; no pegarla en el chat.
+- [ ] **A.** Verificar el celular: el SMS no llega (12 oct). Se dejó para después; se probará si Brevo envía igual. Si no, pedir ayuda al soporte de Brevo o cambiar de servicio.
+- [x] **B.** (12 oct) Remitente `LigaManager` + Gmail, verificado. Brevo avisó que, con Gmail, algunos correos pueden ir a Spam: la pantalla dirá «revisa Spam o Promociones»; más adelante, dominio propio. Antes: «Liga Manager ▾» → Remitentes, dominios e IP dedicadas → Añadir remitente (`LigaManager` + Gmail) → confirmar en Gmail.
+- [ ] **C.** ← *se quedó aquí (12 oct)*. Clave de API (en Configuración → SMTP y API): «Liga Manager ▾» o ⚙ → SMTP y API → Claves API → Generar (`ligamanager-railway`). Guardarla aparte; no pegarla en el chat.
 - [ ] **D.** «Liga Manager ▾» o ⚙ → Seguridad → IP autorizadas → desactivar el bloqueo.
 - [ ] Pasar a Claude la dirección de la app en Vercel.
