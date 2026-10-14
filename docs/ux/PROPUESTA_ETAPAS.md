@@ -1,6 +1,6 @@
-# LigaManager — Etapas del campeonato (propuesta para aprobar)
+# LigaManager — Temporadas, configuración y etapas del campeonato (propuesta para aprobar)
 
-**Fecha:** 14 de octubre de 2026 (versión 2). **Estado:** diseño para que Roberto lo apruebe. Todavía no se programó nada.
+**Fecha:** 14 de octubre de 2026 (versión 3: se suman temporadas y configuración previa). **Estado:** diseño para que Roberto lo apruebe. Todavía no se programó nada.
 
 ## Decisiones de Roberto
 
@@ -15,6 +15,83 @@
 | Visto ✓ | Configurable en cada campeonato; puede ser **«Ninguno»**. |
 | Cantidad de equipos | **La decide el organizador.** La app no impone 4, 8, 16 ni 32; solo avisa si una ronda queda impar. |
 | Sorteo | **Bien hecho y sin dudas** (ver «Sorteo»). |
+
+## A. Campeonato y temporadas
+
+**Idea:** el **campeonato** es la competencia que se repite cada año (por ejemplo, «Liga Barrial Recuspro — Senior»). Cada edición es una **temporada** («2026», «2027», «Apertura 2026», «Clausura 2026»…). Primero se crea el campeonato y después se le agregan temporadas.
+
+**¿Es viable?** Sí. Hoy cada «campeonato» de la app ya funciona como una temporada: tiene año, fechas, equipos, jornadas y estado. Solo hace falta un nivel arriba que las agrupe:
+
+```
+Liga Barrial Recuspro — Senior          ← campeonato (nuevo)
+ ├─ Temporada 2025  (Finalizada · campeón: Ventarrón)
+ ├─ Temporada 2026  (En curso)          ← lo que hoy la app llama «campeonato»
+ └─ Temporada 2027  (Planificada)
+```
+
+**Qué aporta:**
+
+- **«Nueva temporada» a partir de la anterior.** Se copian:
+  - los equipos inscritos (se pueden quitar o agregar);
+  - la configuración (sección B);
+  - los vocales titulares, si se elige.
+
+  No se copian los partidos, las jornadas ni las sanciones cumplidas.
+- **Historial:**
+  - campeones por temporada;
+  - goleadores e historial de cada equipo en el campeonato;
+  - tabla histórica (opcional, más adelante).
+- **Suspensiones pendientes:**
+  - el organizador elige si **pasan a la temporada siguiente**: «Arrastrar suspensiones pendientes: Sí / No»;
+  - por defecto Sí, como en la mayoría de los reglamentos.
+- **Jugadores:** no cambia nada. Los jugadores ya pertenecen a un equipo con fechas desde y hasta, así que siguen igual entre temporadas.
+
+**En pantalla:**
+
+- **Campeonatos:** lista de campeonatos, cada uno con su temporada actual destacada.
+- Al entrar a un campeonato, un **selector de temporada** muestra todo lo de hoy (equipos, grupos, jornadas, vocales), filtrado por la temporada elegida.
+- Los reportes se filtran por temporada; por defecto, la actual.
+
+**Campeonatos que ya existen:** cada uno se convierte en un campeonato con **una temporada**, que conserva su nombre y su año. El organizador puede después **juntar** temporadas sueltas en un mismo campeonato (por ejemplo, «Senior 2025» y «Senior 2026»).
+
+## B. Configuración de la temporada antes de iniciarla
+
+Al crear una temporada (o con **Editar → Configuración**) se definen sus reglas. Los valores iniciales vienen de la **modalidad** elegida (Fútbol 11, Indor, Fútbol 7), o de la temporada anterior si se usa «Nueva temporada».
+
+| Sección | Qué se configura | Por defecto |
+|---|---|---|
+| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Según la modalidad (por ejemplo, Fútbol 11: 11, 45 min, 2 tiempos) |
+| **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol 11: 5 cambios, sin reingreso · Indor: ilimitados, con reingreso |
+| **Puntos** | Ganado · empatado · perdido | 3 · 1 · 0 |
+| **Tabla** | Orden de desempate (sección 4) · equipos con visto ✓ (o «Ninguno») | El propuesto · Ninguno |
+| **Disciplina** | Amarillas para suspensión · fechas por roja, por doble amarilla y por acumulación · arrastrar suspensiones a la temporada siguiente | 5 · 2 · 1 · 1 · Sí (son los valores fijos de hoy) |
+| **Etapa 1** | Formato: todos contra todos o grupos · número de grupos · una vuelta o ida y vuelta · clasifican por grupo | Todos contra todos, una vuelta |
+| **Faltas acumuladas** (indor) | Activar · cada cuántas faltas hay tiro libre sin barrera | Desactivado |
+
+**Cuándo se puede cambiar:**
+
+- **Antes de que se juegue el primer partido:** todo se puede cambiar.
+- **Ya iniciada la temporada:**
+  - se sigue pudiendo cambiar, pero la app **avisa** qué se recalcula (tabla, suspensiones);
+  - cada cambio queda registrado con fecha y usuario;
+  - jugadores en cancha, minutos y cambios solo afectan a los partidos que todavía no se jugaron.
+
+**Dónde se usa cada regla:**
+
+- **Reloj en vivo:** arranca con los minutos de la temporada, no siempre en 45.
+- **Planilla y modo en vivo:** respetan el máximo de titulares y de cambios, y permiten o no el reingreso.
+- **Tabla:** usa los puntos y el desempate de la temporada.
+- **Suspensiones:** usan las reglas de disciplina de la temporada. Hoy son iguales para todos los campeonatos.
+
+**Configuración → Modalidades** (menú del organizador): ahí se editan los valores por defecto de cada modalidad, que se copian a cada temporada nueva. Cambiar una modalidad **no** modifica las temporadas que ya existen.
+
+**Asistente al crear la temporada** (3 pasos, todos con valores ya llenados):
+
+1. **Datos:** nombre, año, fechas, modalidad.
+2. **Reglas:** juego, cambios, puntos, disciplina; se puede saltar y quedan los valores por defecto.
+3. **Formato de la etapa 1:** todos contra todos o grupos, vueltas, clasificados.
+
+Después se inscriben los equipos y se genera el calendario, como hoy.
 
 ## 1. Etapas
 
@@ -113,6 +190,20 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
 
 ## 6. Base de datos (borrador; el script y su reversa van con el PR)
 
+**Temporadas y configuración:**
+- Tabla nueva **`torneo`** (el «campeonato» que agrupa temporadas): nombre, organizador, modalidad por defecto.
+- `campeonato` (que pasa a mostrarse como «temporada»):
+  - `id_torneo`;
+  - `nombre_temporada`;
+  - reglas: `jugadores_en_cancha`, `minutos_por_tiempo`, `num_tiempos`, `cambios_maximos` (vacío = ilimitados), `permite_reingreso`, `puntos_ganado` / `puntos_empate` / `puntos_perdido`, `orden_desempate`, `clasifican_visto`;
+  - reglas de disciplina (`amarillas_para_suspension`…), `arrastrar_suspensiones`, faltas acumuladas.
+- `modalidaddeportiva`: los mismos valores por defecto (ya tiene jugadores por lado, minutos y número de tiempos; se agregan cambios y reingreso).
+- Tabla **`cambio_configuracion`**: historial de cambios de reglas con la temporada iniciada (fecha, usuario, qué cambió).
+- **Datos que ya existen:** cada campeonato recibe su `torneo` con el mismo nombre. Sus reglas se llenan con los valores de hoy: puntos 3·1·0, disciplina 5·2·1·1, minutos y jugadores de su modalidad, y cambios ilimitados (como ahora). Así **nada cambia** hasta que el organizador lo ajuste.
+- **Nota:** en la base, la tabla se sigue llamando `campeonato`, para no romper nada; solo cambia lo que se ve en pantalla.
+
+**Etapas:**
+
 - `fase_campeonato`, que ya existe y nunca se usó:
   - `nombre`, `ida_y_vuelta`, `empate_global` (PENALES / MEJOR_UBICADO);
   - el orden de desempate, como texto;
@@ -135,24 +226,35 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
 
 ## 7. Plan de trabajo (un PR por parte)
 
-1. **Etapas y tabla:**
-   - etapas en la base y en pantalla;
+1. **Temporadas:**
+   - el nivel «campeonato → temporadas»;
+   - selector de temporada;
+   - «Nueva temporada» copiando equipos y configuración;
+   - juntar temporadas sueltas.
+2. **Configuración de la temporada:**
+   - asistente al crear y «Editar → Configuración»;
+   - Configuración → Modalidades;
+   - reglas usadas en el reloj, la planilla, los cambios, la tabla y las suspensiones;
+   - historial de cambios.
+3. **Etapas y tabla:**
+   - etapas;
    - tabla por etapa;
-   - visto configurable («Ninguno»);
+   - visto configurable;
    - desempate nuevo con fair play;
    - mover una jornada a otra etapa.
-2. **«Iniciar siguiente etapa» con eliminatoria:**
+4. **«Iniciar siguiente etapa» con eliminatoria:**
    - clasificados;
    - armado por posición o manual;
    - ida y vuelta, global, penales;
    - «Definir a mano»;
    - rondas siguientes.
-3. **Liguilla:** serpentina, manual y calendario.
-4. **Sorteo:** bombos, en vivo, código de garantía, historial y acta en PDF.
-5. **Reportes:** Posiciones por etapa y llave en PDF.
+5. **Liguilla:** serpentina, manual y calendario.
+6. **Sorteo:** bombos, en vivo, código de garantía, historial y acta en PDF.
+7. **Reportes:** por temporada y por etapa, llave en PDF e historial del campeonato.
 
 ## Para después
 
 - Puntos de bonificación.
 - Gol de visitante.
-- Reglas por modalidad: minutos, cambios, faltas acumuladas.
+- Tabla histórica de todas las temporadas.
+- Ascensos y descensos entre categorías.
