@@ -15,6 +15,7 @@
 | Visto ✓ | Configurable en cada campeonato; puede ser **«Ninguno»**. |
 | Cantidad de equipos | **La decide el organizador.** La app no impone 4, 8, 16 ni 32; solo avisa si una ronda queda impar. |
 | Sorteo | **Bien hecho y sin dudas** (ver «Sorteo»). |
+| Modalidades | **Solo Fútbol e Indor.** Otra modalidad que ya exista en la base (por ejemplo, Fútbol 7) sigue funcionando en sus campeonatos, pero no se ofrece en los nuevos. |
 
 ## A. Campeonato y temporadas
 
@@ -56,12 +57,12 @@ Liga Barrial Recuspro — Senior          ← campeonato (nuevo)
 
 ## B. Configuración de la temporada antes de iniciarla
 
-Al crear una temporada (o con **Editar → Configuración**) se definen sus reglas. Los valores iniciales vienen de la **modalidad** elegida (Fútbol 11, Indor, Fútbol 7), o de la temporada anterior si se usa «Nueva temporada».
+Al crear una temporada (o con **Editar → Configuración**) se definen sus reglas. Los valores iniciales vienen de la **modalidad** elegida (**Fútbol** o **Indor**), o de la temporada anterior si se usa «Nueva temporada».
 
 | Sección | Qué se configura | Por defecto |
 |---|---|---|
-| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Según la modalidad (por ejemplo, Fútbol 11: 11, 45 min, 2 tiempos) |
-| **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol 11: 5 cambios, sin reingreso · Indor: ilimitados, con reingreso |
+| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Según la modalidad (Fútbol: 11 jugadores, 45 min, 2 tiempos · Indor: valores a confirmar por Roberto) |
+| **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol: 5 cambios, sin reingreso · Indor: ilimitados, con reingreso |
 | **Puntos** | Ganado · empatado · perdido | 3 · 1 · 0 |
 | **Tabla** | Orden de desempate (sección 4) · equipos con visto ✓ (o «Ninguno») | El propuesto · Ninguno |
 | **Disciplina** | Amarillas para suspensión · fechas por roja, por doble amarilla y por acumulación · arrastrar suspensiones a la temporada siguiente | 5 · 2 · 1 · 1 · Sí (son los valores fijos de hoy) |
