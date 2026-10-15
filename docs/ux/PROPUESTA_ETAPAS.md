@@ -1,6 +1,6 @@
-# LigaManager — Temporadas, configuración y etapas del campeonato (propuesta para aprobar)
+# LigaManager — Ligas, categorías, temporadas, configuración y etapas (propuesta para aprobar)
 
-**Fecha:** 14 de octubre de 2026 (versión 3: se suman temporadas y configuración previa). **Estado:** diseño para que Roberto lo apruebe. Todavía no se programó nada.
+**Fecha:** 14 de octubre de 2026 (versión 4: Liga → Categoría → Temporada). **Estado:** diseño para que Roberto lo apruebe. Todavía no se programó nada.
 
 ## Decisiones de Roberto
 
@@ -17,51 +17,60 @@
 | Sorteo | **Bien hecho y sin dudas** (ver «Sorteo»). |
 | Modalidades | **Solo Fútbol e Indor.** Otra modalidad que ya exista en la base (por ejemplo, Fútbol 7) sigue funcionando en sus campeonatos, pero no se ofrece en los nuevos. |
 
-## A. Campeonato y temporadas
+## A. Liga → Categoría → Temporada
 
-**Idea:** el **campeonato** es la competencia que se repite cada año (por ejemplo, «Liga Barrial Recuspro — Senior»). Cada edición es una **temporada** («2026», «2027», «Apertura 2026», «Clausura 2026»…). Primero se crea el campeonato y después se le agregan temporadas.
-
-**¿Es viable?** Sí. Hoy cada «campeonato» de la app ya funciona como una temporada: tiene año, fechas, equipos, jornadas y estado. Solo hace falta un nivel arriba que las agrupe:
+**Decisión de Roberto:** tres niveles.
 
 ```
-Liga Barrial Recuspro — Senior          ← campeonato (nuevo)
- ├─ Temporada 2025  (Finalizada · campeón: Ventarrón)
- ├─ Temporada 2026  (En curso)          ← lo que hoy la app llama «campeonato»
- └─ Temporada 2027  (Planificada)
+Liga Barrial Recuspro                     ← LIGA (la organización)
+ ├─ Senior · Fútbol                       ← CATEGORÍA (con su modalidad)
+ │   ├─ Temporada 2025  (Finalizada · campeón: Ventarrón)
+ │   └─ Temporada 2026  (En curso)        ← lo que hoy la app llama «campeonato»
+ ├─ Máster · Fútbol
+ │   └─ Temporada 2026
+ └─ Senior · Indor
+     └─ Temporada 2026
 ```
+
+| Nivel | Qué es | Qué guarda |
+|---|---|---|
+| **Liga** | La organización. Un organizador puede tener una o varias ligas. | Nombre, logo (opcional), ciudad. |
+| **Categoría** | Senior, Máster, Juvenil, Femenino…, cada una con su **modalidad** (Fútbol o Indor). | Nombre, modalidad y **reglas por defecto** de la categoría (sección B). |
+| **Temporada** | Cada edición: «2026», «Apertura 2026»… | Fechas, estado, equipos inscritos, reglas de la temporada, etapas, jornadas, vocales. |
+
+**Viabilidad:** sí. Lo que hoy la app llama «campeonato» ya funciona como una temporada; se agregan los dos niveles de arriba.
 
 **Qué aporta:**
 
-- **«Nueva temporada» a partir de la anterior.** Se copian:
-  - los equipos inscritos (se pueden quitar o agregar);
-  - la configuración (sección B);
-  - los vocales titulares, si se elige.
-
-  No se copian los partidos, las jornadas ni las sanciones cumplidas.
-- **Historial:**
+- **«Nueva temporada»** dentro de una categoría, a partir de la anterior.
+  - Se copian los equipos inscritos (se pueden quitar o agregar), las reglas y, si se quiere, los vocales titulares.
+  - No se copian partidos, jornadas ni sanciones cumplidas.
+- **Historial por categoría:**
   - campeones por temporada;
-  - goleadores e historial de cada equipo en el campeonato;
-  - tabla histórica (opcional, más adelante).
-- **Suspensiones pendientes:**
-  - el organizador elige si **pasan a la temporada siguiente**: «Arrastrar suspensiones pendientes: Sí / No»;
-  - por defecto Sí, como en la mayoría de los reglamentos.
-- **Jugadores:** no cambia nada. Los jugadores ya pertenecen a un equipo con fechas desde y hasta, así que siguen igual entre temporadas.
+  - goleadores e historial de cada equipo;
+  - tabla histórica (más adelante).
+- **Suspensiones pendientes:** «Arrastrar a la temporada siguiente: Sí / No», por defecto Sí. Solo dentro de la misma categoría.
+- **Jugadores:** no cambia nada. Un jugador puede estar en equipos de distintas categorías o ligas, como hoy.
 
 **En pantalla:**
 
-- **Campeonatos:** lista de campeonatos, cada uno con su temporada actual destacada.
-- Al entrar a un campeonato, un **selector de temporada** muestra todo lo de hoy (equipos, grupos, jornadas, vocales), filtrado por la temporada elegida.
-- Los reportes se filtran por temporada; por defecto, la actual.
+- **Menú «Ligas»:** sus categorías y, en cada una, su temporada actual destacada.
+- **Dentro de una categoría:** un selector de temporada. Al entrar a la temporada se ve todo lo de hoy (equipos, grupos, jornadas, vocales, reportes).
+- **Ruta en la parte de arriba,** por ejemplo «Recuspro › Senior · Fútbol › 2026», para saber siempre dónde se está.
 
-**Campeonatos que ya existen:** cada uno se convierte en un campeonato con **una temporada**, que conserva su nombre y su año. El organizador puede después **juntar** temporadas sueltas en un mismo campeonato (por ejemplo, «Senior 2025» y «Senior 2026»).
+**Datos que ya existen:**
+
+- Cada organizador recibe **una liga** con un nombre provisional («Mi liga», que puede renombrar).
+- Cada campeonato actual se convierte en **una categoría con una temporada**. Conserva su nombre, su modalidad y su año.
+- Después el organizador puede **juntar** temporadas en la misma categoría (por ejemplo, «Senior 2025» y «Senior 2026») y **mover** categorías a otra liga.
 
 ## B. Configuración de la temporada antes de iniciarla
 
-Al crear una temporada (o con **Editar → Configuración**) se definen sus reglas. Los valores iniciales vienen de la **modalidad** elegida (**Fútbol** o **Indor**), o de la temporada anterior si se usa «Nueva temporada».
+Al crear una temporada (o con **Editar → Configuración**) se definen sus reglas. Los valores iniciales vienen, en este orden, de la **temporada anterior** de la misma categoría, de las **reglas por defecto de la categoría** o de la **modalidad** (Fútbol o Indor).
 
 | Sección | Qué se configura | Por defecto |
 |---|---|---|
-| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Fútbol: 11, 45 min, 2 tiempos · Indor: 6, 20 min (o 15), 2 tiempos |
+| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Fútbol: 11, 45 min, 2 tiempos · Indor: 6, 20 min, 2 tiempos. **Los minutos se pueden cambiar libremente en cada temporada** (por ejemplo, Fútbol a 30 min o Indor a 15), de 5 a 60 min. |
 | **Inscripción** | Máximo de jugadores inscritos por equipo (vacío = sin límite) | Fútbol: sin límite · Indor: 12 |
 | **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol: 5 cambios, sin reingreso · Indor: 3 cambios, sin reingreso |
 | **Puntos** | Ganado · empatado · perdido | 3 · 1 · 0 |
@@ -193,16 +202,17 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
 ## 6. Base de datos (borrador; el script y su reversa van con el PR)
 
 **Temporadas y configuración:**
-- Tabla nueva **`torneo`** (el «campeonato» que agrupa temporadas): nombre, organizador, modalidad por defecto.
+- Tabla nueva **`liga`**: nombre, organizador, logo, ciudad.
+- Tabla nueva **`categoria`**: liga, nombre, modalidad y reglas por defecto (las mismas columnas de reglas que la temporada).
 - `campeonato` (que pasa a mostrarse como «temporada»):
-  - `id_torneo`;
+  - `id_categoria`;
   - `nombre_temporada`;
   - reglas: `jugadores_en_cancha`, `minutos_por_tiempo`, `num_tiempos`, `cambios_maximos` (vacío = ilimitados), `permite_reingreso`, `puntos_ganado` / `puntos_empate` / `puntos_perdido`, `orden_desempate`, `clasifican_visto`;
   - `max_inscritos`;
   - reglas de disciplina (`amarillas_para_suspension`…), `arrastrar_suspensiones`.
 - `modalidaddeportiva`: los mismos valores por defecto (ya tiene jugadores por lado, minutos y número de tiempos; se agregan cambios y reingreso).
 - Tabla **`cambio_configuracion`**: historial de cambios de reglas con la temporada iniciada (fecha, usuario, qué cambió).
-- **Datos que ya existen:** cada campeonato recibe su `torneo` con el mismo nombre. Sus reglas se llenan con los valores de hoy: puntos 3·1·0, disciplina 5·2·1·1, minutos y jugadores de su modalidad, y cambios ilimitados (como ahora). Así **nada cambia** hasta que el organizador lo ajuste.
+- **Datos que ya existen:** una `liga` por organizador («Mi liga»); cada campeonato recibe su `categoria`, con su mismo nombre y modalidad. Sus reglas se llenan con los valores de hoy: puntos 3·1·0, disciplina 5·2·1·1, minutos y jugadores de su modalidad, y cambios ilimitados (como ahora). Así **nada cambia** hasta que el organizador lo ajuste.
 - **Nota:** en la base, la tabla se sigue llamando `campeonato`, para no romper nada; solo cambia lo que se ve en pantalla.
 
 **Etapas:**
@@ -229,11 +239,12 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
 
 ## 7. Plan de trabajo (un PR por parte)
 
-1. **Temporadas:**
-   - el nivel «campeonato → temporadas»;
-   - selector de temporada;
+1. **Liga → Categoría → Temporada:**
+   - los dos niveles nuevos;
+   - menú «Ligas»;
+   - selector de temporada y ruta en la parte de arriba;
    - «Nueva temporada» copiando equipos y configuración;
-   - juntar temporadas sueltas.
+   - juntar temporadas sueltas y mover categorías.
 2. **Configuración de la temporada:**
    - asistente al crear y «Editar → Configuración»;
    - Configuración → Modalidades;
