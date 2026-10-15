@@ -61,13 +61,13 @@ Al crear una temporada (o con **Editar → Configuración**) se definen sus regl
 
 | Sección | Qué se configura | Por defecto |
 |---|---|---|
-| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Según la modalidad (Fútbol: 11 jugadores, 45 min, 2 tiempos · Indor: valores a confirmar por Roberto) |
-| **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol: 5 cambios, sin reingreso · Indor: ilimitados, con reingreso |
+| **Juego** | Jugadores en cancha · minutos por tiempo · número de tiempos | Fútbol: 11, 45 min, 2 tiempos · Indor: 6, 20 min (o 15), 2 tiempos |
+| **Inscripción** | Máximo de jugadores inscritos por equipo (vacío = sin límite) | Fútbol: sin límite · Indor: 12 |
+| **Cambios** | Máximo por partido o ilimitados · si un jugador puede volver a entrar | Fútbol: 5 cambios, sin reingreso · Indor: 3 cambios, sin reingreso |
 | **Puntos** | Ganado · empatado · perdido | 3 · 1 · 0 |
 | **Tabla** | Orden de desempate (sección 4) · equipos con visto ✓ (o «Ninguno») | El propuesto · Ninguno |
-| **Disciplina** | Amarillas para suspensión · fechas por roja, por doble amarilla y por acumulación · arrastrar suspensiones a la temporada siguiente | 5 · 2 · 1 · 1 · Sí (son los valores fijos de hoy) |
+| **Disciplina** | Amarillas para suspensión · fechas por roja, por doble amarilla y por acumulación · arrastrar suspensiones a la temporada siguiente | 5 · 2 · 1 · 1 · Sí (los valores de hoy; **iguales en Fútbol e Indor**, según Roberto) |
 | **Etapa 1** | Formato: todos contra todos o grupos · número de grupos · una vuelta o ida y vuelta · clasifican por grupo | Todos contra todos, una vuelta |
-| **Faltas acumuladas** (indor) | Activar · cada cuántas faltas hay tiro libre sin barrera | Desactivado |
 
 **Cuándo se puede cambiar:**
 
@@ -81,6 +81,7 @@ Al crear una temporada (o con **Editar → Configuración**) se definen sus regl
 
 - **Reloj en vivo:** arranca con los minutos de la temporada, no siempre en 45.
 - **Planilla y modo en vivo:** respetan el máximo de titulares y de cambios, y permiten o no el reingreso.
+- **Inscripción de jugadores:** no deja inscribir más del máximo por equipo en la temporada, y la app avisa al intentarlo.
 - **Tabla:** usa los puntos y el desempate de la temporada.
 - **Suspensiones:** usan las reglas de disciplina de la temporada. Hoy son iguales para todos los campeonatos.
 
@@ -197,7 +198,8 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
   - `id_torneo`;
   - `nombre_temporada`;
   - reglas: `jugadores_en_cancha`, `minutos_por_tiempo`, `num_tiempos`, `cambios_maximos` (vacío = ilimitados), `permite_reingreso`, `puntos_ganado` / `puntos_empate` / `puntos_perdido`, `orden_desempate`, `clasifican_visto`;
-  - reglas de disciplina (`amarillas_para_suspension`…), `arrastrar_suspensiones`, faltas acumuladas.
+  - `max_inscritos`;
+  - reglas de disciplina (`amarillas_para_suspension`…), `arrastrar_suspensiones`.
 - `modalidaddeportiva`: los mismos valores por defecto (ya tiene jugadores por lado, minutos y número de tiempos; se agregan cambios y reingreso).
 - Tabla **`cambio_configuracion`**: historial de cambios de reglas con la temporada iniciada (fecha, usuario, qué cambió).
 - **Datos que ya existen:** cada campeonato recibe su `torneo` con el mismo nombre. Sus reglas se llenan con los valores de hoy: puntos 3·1·0, disciplina 5·2·1·1, minutos y jugadores de su modalidad, y cambios ilimitados (como ahora). Así **nada cambia** hasta que el organizador lo ajuste.
@@ -257,5 +259,6 @@ Cruce 3   San Juan  1-0 · —    Palmeiras      Falta la vuelta
 
 - Puntos de bonificación.
 - Gol de visitante.
+- Faltas acumuladas en Indor.
 - Tabla histórica de todas las temporadas.
 - Ascensos y descensos entre categorías.
