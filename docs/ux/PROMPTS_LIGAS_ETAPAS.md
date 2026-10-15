@@ -1,6 +1,6 @@
 # LigaManager — Prompts por fases: Ligas, categorías, temporadas, configuración y etapas
 
-**Para qué sirve:** son los textos que hay que pegar en Claude Code, dentro de VS Code, para programar el diseño de `docs/ux/PROPUESTA_ETAPAS.md` (versión 4) **primero en tu computadora**, con una copia de la base de producción, y solo después subirlo.
+**Para qué sirve:** son los textos que hay que pegar en Claude Code, dentro de VS Code, para programar el diseño de `docs/ux/PROPUESTA_ETAPAS.md` (versión 4) **primero en tu computadora**, con tu base local, y solo después subirlo.
 
 **Cómo usarlo:**
 1. Abre la carpeta del proyecto en VS Code y abre Claude Code.
@@ -84,38 +84,34 @@ ci/verificar-fotos), úsalas también contra la API local.
 
 ---
 
-## FASE 0 — Preparar el entorno local (una sola vez)
+## FASE 0 — Revisar el entorno local (una sola vez)
+
+Roberto ya tiene la app y la base funcionando en su computadora. Esta fase solo revisa que la base local esté **al día** con producción y deja un respaldo para poder volver atrás.
 
 ```text
-FASE 0: preparar el entorno local. No cambies código de la app en esta fase.
+FASE 0: revisar el entorno local. No cambies código de la app en esta fase.
+Ya tengo la app y la base de datos funcionando en mi computadora.
 
-Objetivo: tener en mi computadora la app funcionando con una COPIA de la base de
-producción, para probar todo lo nuevo sin tocar Railway.
-
-1. Revisa qué tengo instalado (dotnet --version, node --version, mysql --version)
-   y dime qué falta y cómo instalarlo en Windows, paso a paso.
-2. Guíame para sacar un respaldo de la base de Railway SOLO EN MODO LECTURA:
-   - yo copio los datos de conexión pública desde Railway → MySQL → Connect
-     (no me los pidas en el chat; yo los escribo en mi terminal);
-   - mysqldump con --routines --triggers --single-transaction --no-tablespaces
-     --set-gtid-purged=OFF;
-   - quitar los DEFINER del archivo (ver database/EXPORTAR_BD.txt);
-   - el archivo .sql NO se sube a GitHub (confirma que está en .gitignore).
-3. Crea una base local nueva (por ejemplo `liga_local`) e importa el respaldo.
-4. Configura la API para usar la base local SIN subir esa configuración
-   (appsettings.Development.json en .gitignore o variables de entorno), y el
-   frontend con frontend/.env.local → VITE_API_URL=http://localhost:5000/api.
-5. Arranca la API (dotnet run) y el frontend (npm run dev) y confirma que puedo
-   entrar con mi usuario y ver mis campeonatos reales.
-6. Ejecuta `SHOW TRIGGERS;` y explícame qué hace cada trigger.
-7. Trae a una carpeta local las pruebas en Python de ci/ (rama ci/verificar-fotos)
+1. Revisa que la base LOCAL tenga aplicados todos los scripts de
+   backend/database/ que ya están en producción (los de octubre: registro en vivo,
+   rol vocal, cédula por organizador, tipo de documento, países completos,
+   imágenes/logos). Para cada uno, comprueba si sus tablas o columnas existen en mi
+   base local, dime cuáles faltan y aplícalos SOLO en la base local, en orden de fecha.
+2. Antes de aplicar nada, haz un respaldo de mi base local (mysqldump con
+   --routines --triggers) y dime dónde quedó y cómo restaurarlo.
+   El archivo .sql no se sube a GitHub: confirma que está en .gitignore.
+3. Confirma que la API (dotnet run) y el frontend (npm run dev) arrancan contra la
+   base local y que puedo entrar y ver mis campeonatos.
+4. Ejecuta `SHOW TRIGGERS;` en la base local y explícame qué hace cada trigger.
+5. Trae a una carpeta local las pruebas en Python de ci/ (rama ci/verificar-fotos)
    y prepara un comando para correrlas contra la API local. No las subas a main.
-8. Escribe en un archivo docs/ux/LOCAL.md (sin datos secretos) los pasos para
-   volver a levantar todo en el futuro y para «resetear» la base local
-   (borrarla y volver a importar el respaldo).
+6. Escribe en docs/ux/LOCAL.md (sin contraseñas) cómo levantar todo y cómo restaurar
+   el respaldo de la base local.
 
-Al terminar: dime qué funcionó, qué no, y espera.
+Al terminar: dime qué encontraste y espera.
 ```
+
+*Opcional:* si en algún momento quieres probar con los datos reales de producción, se puede traer una copia de la base de Railway a tu PC (solo lectura sobre Railway). No es obligatorio.
 
 ---
 
