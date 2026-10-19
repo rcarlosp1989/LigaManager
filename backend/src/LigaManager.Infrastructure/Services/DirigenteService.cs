@@ -263,7 +263,7 @@ public class DirigenteService
     private static IQueryable<DirigentePartidoDto> AProyeccion(IQueryable<Partido> q)
         => q.Select(p => new DirigentePartidoDto(
             p.IdPartido, p.IdJornada, p.Jornada.Numero,
-            p.EquipoLocal.Nombre, p.EquipoVisitante.Nombre,
+            p.IdEquipoLocal, p.EquipoLocal.Nombre, p.IdEquipoVisitante, p.EquipoVisitante.Nombre,
             p.EquipoLocal.LogoUrl, p.EquipoVisitante.LogoUrl,
             p.Fecha.ToString("yyyy-MM-dd HH:mm"),
             p.Estadio != null ? p.Estadio.Nombre : null,

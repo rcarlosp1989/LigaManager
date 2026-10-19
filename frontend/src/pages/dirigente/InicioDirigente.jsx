@@ -113,7 +113,10 @@ export default function InicioDirigente() {
 
                 {tab === 'resumen' && <Resumen camp={camp} />}
                 {tab === 'jornadas' && <Jornadas base={base} idEquipoPropio={camp.idEquipoPropio} />}
-                {tab === 'posiciones' && <TabPosiciones idCampeonato={idCampeonato} campeonato={camp} base={base} />}
+                {tab === 'posiciones' && (
+                  <TabPosiciones idCampeonato={idCampeonato} campeonato={camp} base={base}
+                    logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
+                )}
                 {tab === 'nomina' && (
                   <TabNomina idCampeonato={idCampeonato} campeonato={camp} base={base} idEquipoPropio={camp.idEquipoPropio}
                     rutaEquipo={(id) => `${base}/equipos/${id}`} />

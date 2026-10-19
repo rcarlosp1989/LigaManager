@@ -12,10 +12,10 @@ const encabezado = (h) => (h.startsWith('TARJETA_')
   ? <><IconoEvento tipo={h} className="text-sm" /><span className="sr-only">{h === 'TARJETA_ROJA' ? 'Rojas' : 'Amarillas'}</span></>
   : h)
 
-export default function TabTarjetas({ idCampeonato }) {
+export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCampeonato}` }) {
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['estadisticas-tarjetas', idCampeonato],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/tarjetas`).then(r => r.data),
+    queryKey: ['estadisticas-tarjetas', idCampeonato, base],
+    queryFn: () => api.get(`${base}/estadisticas/tarjetas`).then(r => r.data),
     enabled: !!idCampeonato,
   })
 
