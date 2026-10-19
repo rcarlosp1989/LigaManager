@@ -3,6 +3,7 @@ on: { push: { branches: [ 'ci/verificar-dirigente' ] } }
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    permissions: { contents: write }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,9 +36,14 @@ jobs:
           c=0; node capturas.mjs > capturas.txt 2>&1 || c=$?
           echo "::notice title=capturas::$(grep -c '^OK ' capturas.txt || true) OK · $(grep -vE '^OK ' capturas.txt | tail -30 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           exit $c
-      - uses: actions/upload-artifact@v4
+      - name: Subir capturas a una rama temporal
         if: always()
-        with: { name: capturas, path: frontend/capturas }
+        run: |
+          cd frontend/capturas
+          cp ../capturas.txt . 2>/dev/null || true
+          git init -q -b capturas && git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm "capturas ${{ github.sha }}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-dirigente
   backend:
     runs-on: ubuntu-latest
     services:
