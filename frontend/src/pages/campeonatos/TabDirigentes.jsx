@@ -114,7 +114,8 @@ export default function TabDirigentes({ camp }) {
                   <li key={d.idUsuario} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5">
                     <LogoEquipo nombre={d.equipo} logoUrl={logos.get(d.idEquipo)} tamano={28} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-white text-sm font-medium">{d.nombre} <span className="text-gray-400 font-normal">· {d.equipo}</span></p>
+                      <p className="text-white text-sm font-medium">{d.nombre}</p>
+                      <p className="text-gray-300 text-xs">{d.equipo}</p>
                       <p className="text-gray-500 text-xs break-all">{d.email} · desde el {formatearFecha(d.desde)}</p>
                     </div>
                     <button type="button" onClick={() => quitar(d)} className="text-sm text-gray-400 hover:text-red-400 px-2">Quitar acceso</button>
