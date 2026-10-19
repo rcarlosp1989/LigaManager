@@ -135,7 +135,7 @@ export default function InicioDirigente() {
 
 function Resumen({ camp }) {
   return (
-    <div className="grid gap-5 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
       <section aria-labelledby="proximos-titulo" className="card">
         <h2 id="proximos-titulo" className="mb-3 text-xs uppercase tracking-wider text-gray-500">Próximos partidos de {camp.equipoPropio}</h2>
         {camp.proximos.length === 0
