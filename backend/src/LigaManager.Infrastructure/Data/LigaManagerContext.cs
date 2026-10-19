@@ -41,6 +41,8 @@ public class LigaManagerContext : DbContext
     public DbSet<SancionManual>      SancionesManuales     { get; set; }
     public DbSet<CampeonatoVocal>    CampeonatoVocales     { get; set; }
     public DbSet<InvitacionVocal>    InvitacionesVocal     { get; set; }
+    public DbSet<CampeonatoDirigente> CampeonatoDirigentes  { get; set; }
+    public DbSet<InvitacionDirigente> InvitacionesDirigente { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +82,8 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<SancionManual>()     .ToTable("sancion_manual");
         modelBuilder.Entity<CampeonatoVocal>()   .ToTable("campeonato_vocal");
         modelBuilder.Entity<InvitacionVocal>()   .ToTable("invitacion_vocal");
+        modelBuilder.Entity<CampeonatoDirigente>().ToTable("campeonato_dirigente");
+        modelBuilder.Entity<InvitacionDirigente>().ToTable("invitacion_dirigente");
 
         // ── Enums como string ────────────────────────────────────────────────
         modelBuilder.Entity<Usuario>()
@@ -615,6 +619,27 @@ public class LigaManagerContext : DbContext
             e.Property(i => i.CreatedAt).ValueGeneratedOnAdd();
             e.HasIndex(i => i.TokenHash).IsUnique();
             e.HasOne(i => i.Campeonato).WithMany().HasForeignKey(i => i.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.Creador).WithMany().HasForeignKey(i => i.CreadaPor).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.UsuarioQueUso).WithMany().HasForeignKey(i => i.UsadaPor).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── Dirigentes (solo lectura) ────────────────────────────────────────
+        modelBuilder.Entity<CampeonatoDirigente>(e =>
+        {
+            e.HasKey(d => d.IdHabilitacion);
+            e.Property(d => d.CreatedAt).ValueGeneratedOnAdd();
+            e.HasOne(d => d.Campeonato).WithMany().HasForeignKey(d => d.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(d => d.Usuario).WithMany().HasForeignKey(d => d.IdUsuario).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(d => d.Equipo).WithMany().HasForeignKey(d => d.IdEquipo).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InvitacionDirigente>(e =>
+        {
+            e.HasKey(i => i.IdInvitacion);
+            e.Property(i => i.CreatedAt).ValueGeneratedOnAdd();
+            e.HasIndex(i => i.TokenHash).IsUnique();
+            e.HasOne(i => i.Campeonato).WithMany().HasForeignKey(i => i.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.Equipo).WithMany().HasForeignKey(i => i.IdEquipo).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(i => i.Creador).WithMany().HasForeignKey(i => i.CreadaPor).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(i => i.UsuarioQueUso).WithMany().HasForeignKey(i => i.UsadaPor).OnDelete(DeleteBehavior.SetNull);
         });

@@ -59,7 +59,7 @@ public class GrupoService : IGrupoService
     // ── CRUD Grupos ───────────────────────────────────────────────────────────
 
     public async Task<List<GrupoListDto>> GetByCampeonatoAsync(int idCampeonato)
-        => !await _acceso.CampeonatoAsync(idCampeonato) ? [] : await _db.Grupos
+        => !await _acceso.LecturaCampeonatoAsync(idCampeonato) ? [] : await _db.Grupos
             .Where(g => g.IdCampeonato == idCampeonato)
             .Include(g => g.Equipos)
             .OrderBy(g => g.Nombre)
@@ -68,7 +68,7 @@ public class GrupoService : IGrupoService
 
     public async Task<List<PosicionGrupoDto>> GetPosicionesCampeonatoAsync(int idCampeonato)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return [];
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return [];
         var equipos = await _db.CampeonatoEquipos
             .Where(ce => ce.IdCampeonato == idCampeonato)
             .Include(ce => ce.Equipo)

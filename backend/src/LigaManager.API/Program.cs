@@ -33,6 +33,7 @@ builder.Services.AddScoped<IEstadisticasService, EstadisticasService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<VocalService>();
+builder.Services.AddScoped<DirigenteService>();
 builder.Services.AddScoped<IAlmacenImagenes, AlmacenImagenesBd>();
 
 // ── Límite de intentos fallidos (código de invitación, inicio de sesión) ──────
@@ -110,16 +111,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // ── Permisos por rol ─────────────────────────────────────────────────────────
-// Por defecto ([Authorize]) se rechaza el rol Vocal: el vocal solo usa /api/vocal,
-// que pide la política SoloVocal. Así todo lo que el vocal no puede hacer (editar o borrar
-// partidos, tocar jugadores, ver otros campeonatos) lo bloquea el servidor.
+// Por defecto ([Authorize]) se rechazan los roles Vocal y Dirigente: el vocal solo usa /api/vocal
+// y el dirigente solo /api/dirigente (solo lectura), cada uno con su política. Así todo lo que
+// no pueden hacer (editar o borrar, tocar jugadores, ver otros campeonatos) lo bloquea el servidor.
 builder.Services.AddAuthorization(opt =>
 {
     opt.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
-        .RequireAssertion(ctx => !ctx.User.IsInRole("Vocal"))
+        .RequireAssertion(ctx => !ctx.User.IsInRole("Vocal") && !ctx.User.IsInRole("Dirigente"))
         .Build();
     opt.AddPolicy(LigaManager.API.Controllers.Politicas.SoloVocal, p => p.RequireRole("Vocal"));
+    opt.AddPolicy(LigaManager.API.Controllers.Politicas.SoloDirigente, p => p.RequireRole("Dirigente"));
 });
 
 // ── Controllers con enums como strings ───────────────────────────────────────

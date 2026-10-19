@@ -26,7 +26,7 @@ public class EstadisticasService : IEstadisticasService
 
     public async Task<TablaPosicionesDto> GetPosicionesAsync(int idCampeonato, int? idGrupo)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return new TablaPosicionesDto(false, []);
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return new TablaPosicionesDto(false, []);
 
         // "Forma": últimos 5 partidos jugados y no desiertos, calculado una sola vez para todo
         // el campeonato (evita una consulta por equipo).
@@ -152,7 +152,7 @@ public class EstadisticasService : IEstadisticasService
 
     public async Task<List<GoleadorDto>> GetGoleadoresAsync(int idCampeonato, int? top)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return [];
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return [];
 
         // El autogol (GOL_EN_CONTRA) no cuenta para el goleador: solo "GOL".
         var goles = await _db.EventosPartido
@@ -230,7 +230,7 @@ public class EstadisticasService : IEstadisticasService
 
     public async Task<TarjetasDto> GetTarjetasAsync(int idCampeonato)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return new TarjetasDto([], []);
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return new TarjetasDto([], []);
 
         var eventos = await _db.EventosPartido
             .AsNoTracking()
@@ -298,7 +298,7 @@ public class EstadisticasService : IEstadisticasService
 
     public async Task<SuspensionesDto> GetSuspensionesAsync(int idCampeonato)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return new SuspensionesDto([], []);
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return new SuspensionesDto([], []);
 
         var eventos = await _db.EventosPartido
             .AsNoTracking()

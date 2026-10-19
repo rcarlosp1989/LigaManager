@@ -232,7 +232,7 @@ public class JornadaService : IJornadaService
 
     public async Task<List<JornadaListDto>> GetByCampeonatoAsync(int idCampeonato)
     {
-        if (!await _acceso.CampeonatoAsync(idCampeonato)) return [];
+        if (!await _acceso.LecturaCampeonatoAsync(idCampeonato)) return [];
         var jornadas = await _db.Jornadas
             .Where(j => j.IdCampeonato == idCampeonato)
             .Include(j => j.Instancia)
@@ -261,7 +261,7 @@ public class JornadaService : IJornadaService
 
     public async Task<ServiceResult<JornadaDetalleDto>> GetByIdAsync(int id)
     {
-        if (!await _acceso.JornadaAsync(id)) return ServiceResult<JornadaDetalleDto>.Fail("Jornada no encontrada.");
+        if (!await _acceso.LecturaJornadaAsync(id)) return ServiceResult<JornadaDetalleDto>.Fail("Jornada no encontrada.");
         var j = await _db.Jornadas
             .Include(j => j.Instancia)
             .Include(j => j.Grupo)
