@@ -1,0 +1,56 @@
+OK   01_dirigente_resumen @390: sin desplazamiento lateral
+OK   02_dirigente_jornadas @390: sin desplazamiento lateral
+OK   03_dirigente_posiciones @390: sin desplazamiento lateral
+OK   nómina propia con documentos @390
+OK   nómina propia sin aviso de privacidad @390
+OK   04_dirigente_nomina_propia @390: sin desplazamiento lateral
+OK   nómina rival sin documentos @390
+OK   nómina rival muestra «—» @390
+OK   nómina rival con aviso de privacidad @390
+OK   05_dirigente_nomina_rival @390: sin desplazamiento lateral
+OK   suspensiones sin «Agregar sanción» @390
+OK   suspensiones sin botón para borrar @390
+OK   06_dirigente_suspensiones @390: sin desplazamiento lateral
+OK   administración redirige al dirigente @390
+OK   modo en vivo redirige al dirigente @390
+OK   el dirigente solo llama a /api/dirigente @390
+OK   sin errores en la página del dirigente @390
+OK   07_invitacion_dirigente @390: sin desplazamiento lateral
+OK   sin errores en la invitación @390
+OK   08_organizador_dirigentes @390: sin desplazamiento lateral
+OK   la invitación creada muestra el equipo @390
+OK   09_organizador_invitacion_creada @390: sin desplazamiento lateral
+OK   organizador ve documentos de cualquier equipo @390
+OK   organizador sin aviso de privacidad @390
+OK   organizador conserva «Agregar sanción» @390
+OK   10_organizador_suspensiones @390: sin desplazamiento lateral
+OK   sin errores en las páginas del organizador @390
+OK   01_dirigente_resumen @1440: sin desplazamiento lateral
+OK   02_dirigente_jornadas @1440: sin desplazamiento lateral
+OK   03_dirigente_posiciones @1440: sin desplazamiento lateral
+OK   nómina propia con documentos @1440
+OK   nómina propia sin aviso de privacidad @1440
+OK   04_dirigente_nomina_propia @1440: sin desplazamiento lateral
+OK   nómina rival sin documentos @1440
+OK   nómina rival muestra «—» @1440
+OK   nómina rival con aviso de privacidad @1440
+OK   05_dirigente_nomina_rival @1440: sin desplazamiento lateral
+OK   suspensiones sin «Agregar sanción» @1440
+OK   suspensiones sin botón para borrar @1440
+OK   06_dirigente_suspensiones @1440: sin desplazamiento lateral
+OK   administración redirige al dirigente @1440
+OK   modo en vivo redirige al dirigente @1440
+OK   el dirigente solo llama a /api/dirigente @1440
+OK   sin errores en la página del dirigente @1440
+OK   07_invitacion_dirigente @1440: sin desplazamiento lateral
+OK   sin errores en la invitación @1440
+OK   08_organizador_dirigentes @1440: sin desplazamiento lateral
+OK   la invitación creada muestra el equipo @1440
+OK   09_organizador_invitacion_creada @1440: sin desplazamiento lateral
+OK   organizador ve documentos de cualquier equipo @1440
+OK   organizador sin aviso de privacidad @1440
+OK   organizador conserva «Agregar sanción» @1440
+OK   10_organizador_suspensiones @1440: sin desplazamiento lateral
+OK   sin errores en las páginas del organizador @1440
+
+Todo bien
