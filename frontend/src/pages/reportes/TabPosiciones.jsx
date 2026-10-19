@@ -29,8 +29,10 @@ function CirculosForma({ forma }) {
   )
 }
 
-function TablaGrupo({ grupo }) {
-  const logos = useLogosEquipos()
+// logos: Map idEquipo → logo. Si no llega (organizador), se piden los del organizador.
+function TablaGrupo({ grupo, logos: logosDados = null }) {
+  const logosOrganizador = useLogosEquipos(!logosDados)
+  const logos = logosDados ?? logosOrganizador
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden mb-6">
       {grupo.grupo && (
@@ -91,7 +93,7 @@ const COLUMNAS_EXPORT = [
 ]
 
 // base: dónde leer los datos (organizador: /campeonatos/{id}; dirigente: /dirigente/campeonatos/{id}).
-export default function TabPosiciones({ idCampeonato, campeonato, base = `/campeonatos/${idCampeonato}` }) {
+export default function TabPosiciones({ idCampeonato, campeonato, base = `/campeonatos/${idCampeonato}`, logos = null }) {
   const fid = useId()
   const [idGrupo, setIdGrupo] = useState('')
 
@@ -144,7 +146,7 @@ export default function TabPosiciones({ idCampeonato, campeonato, base = `/campe
       ) : (
         <>
           {gruposConDatos.map(g => (
-            <TablaGrupo key={g.idGrupo ?? 'sin-grupo'} grupo={g} />
+            <TablaGrupo key={g.idGrupo ?? 'sin-grupo'} grupo={g} logos={logos} />
           ))}
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mt-2">
