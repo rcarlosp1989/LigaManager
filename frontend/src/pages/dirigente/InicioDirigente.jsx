@@ -164,7 +164,7 @@ function FilaPartido({ p, idEquipoPropio }) {
     <li className="rounded-lg border border-gray-800 bg-gray-900/60 px-3 py-2.5">
       <div className="flex items-center gap-2">
         <span className={`flex min-w-0 flex-1 items-center justify-end gap-2 text-right text-sm ${propioLocal ? 'font-semibold text-white' : 'text-gray-200'}`}>
-          <span className="truncate">{local}</span>
+          <span className="min-w-0 truncate">{local}</span>
           <LogoEquipo nombre={local} logoUrl={p.logoLocal} tamano={24} />
         </span>
         <span className="shrink-0 rounded bg-gray-800 px-2 py-0.5 font-mono text-sm tabular-nums text-white">
@@ -172,7 +172,7 @@ function FilaPartido({ p, idEquipoPropio }) {
         </span>
         <span className={`flex min-w-0 flex-1 items-center gap-2 text-sm ${propioVisita ? 'font-semibold text-white' : 'text-gray-200'}`}>
           <LogoEquipo nombre={visitante} logoUrl={p.logoVisitante} tamano={24} />
-          <span className="truncate">{visitante}</span>
+          <span className="min-w-0 truncate">{visitante}</span>
         </span>
       </div>
       <p className="mt-1 flex flex-wrap justify-center gap-x-3 text-xs text-gray-500">
