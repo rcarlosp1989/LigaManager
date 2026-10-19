@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { inicioDeRol } from './utils/roles'
 import Layout            from './components/Layout'
 import LoginPage         from './pages/LoginPage'
 import RegisterPage      from './pages/RegisterPage'
@@ -13,24 +14,28 @@ import Mantenimiento     from './pages/mantenimiento/Mantenimiento'
 import EnVivo            from './pages/vivo/EnVivo'
 import InicioVocal       from './pages/vocal/InicioVocal'
 import Invitacion        from './pages/vocal/Invitacion'
+import InicioDirigente   from './pages/dirigente/InicioDirigente'
+import InvitacionDirigente from './pages/dirigente/InvitacionDirigente'
 
-function ProtectedRoute({ children }) {
-  const { user } = useAuth()
-  return user ? children : <Navigate to="/login" replace />
-}
-
-// La administración no es para el vocal: lo lleva a su lista de partidos.
+// La administración no es para el vocal ni para el dirigente: los lleva a su propia pantalla.
 // (El servidor igual rechaza sus llamadas; esto solo evita pantallas de error.)
 function SoloGestion({ children }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  return user.rol === 'Vocal' ? <Navigate to="/vocal" replace /> : children
+  return user.rol === 'Vocal' || user.rol === 'Dirigente' ? <Navigate to={inicioDeRol(user.rol)} replace /> : children
 }
 
-function SoloVocal({ children }) {
+function SoloRol({ rol, children }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  return user.rol === 'Vocal' ? children : <Navigate to="/dashboard" replace />
+  return user.rol === rol ? children : <Navigate to={inicioDeRol(user.rol)} replace />
+}
+
+// Modo en vivo: organizador o vocal. El dirigente solo mira.
+function SinDirigente({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  return user.rol === 'Dirigente' ? <Navigate to="/dirigente" replace /> : children
 }
 
 export default function App() {
@@ -41,12 +46,16 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/invitacion" element={<Invitacion />} />
         <Route path="/invitacion/:codigo" element={<Invitacion />} />
-        <Route path="/vocal" element={<SoloVocal><InicioVocal /></SoloVocal>} />
+        <Route path="/invitacion-dirigente" element={<InvitacionDirigente />} />
+        <Route path="/invitacion-dirigente/:codigo" element={<InvitacionDirigente />} />
+        <Route path="/vocal" element={<SoloRol rol="Vocal"><InicioVocal /></SoloRol>} />
+        <Route path="/dirigente" element={<SoloRol rol="Dirigente"><InicioDirigente /></SoloRol>} />
+        <Route path="/dirigente/:idCampeonato" element={<SoloRol rol="Dirigente"><InicioDirigente /></SoloRol>} />
         {/* Modo en vivo: pantalla completa, sin el menú de administración. */}
         <Route path="/partidos/:idPartido/en-vivo" element={
-          <ProtectedRoute>
+          <SinDirigente>
             <EnVivo />
-          </ProtectedRoute>
+          </SinDirigente>
         } />
         <Route path="/" element={
           <SoloGestion>

@@ -15,19 +15,27 @@ const COLUMNAS_EXPORT = [
   { titulo: 'En el equipo desde', ancho: 16 },
 ]
 
-export default function TabNomina({ idCampeonato, campeonato }) {
+// base: dónde leer el campeonato; rutaEquipo: dónde leer la nómina de un equipo.
+// El dirigente usa sus rutas: el servidor solo le envía los documentos de su propio equipo
+// (idEquipoPropio), así que tampoco aparecen en el PDF ni en el Excel de otros equipos.
+export default function TabNomina({
+  idCampeonato, campeonato,
+  base = `/campeonatos/${idCampeonato}`,
+  rutaEquipo = (id) => `/equipos/${id}`,
+  idEquipoPropio = null,
+}) {
   const fid = useId()
-  const [idEquipo, setIdEquipo] = useState('')
+  const [idEquipo, setIdEquipo] = useState(idEquipoPropio ? String(idEquipoPropio) : '')
 
   const { data: equipos = [], isError: errorEquipos, refetch: recargarEquipos, isFetching: cargandoEquipos } = useQuery({
-    queryKey: ['campeonato-equipos-select', idCampeonato],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data.equipos ?? []),
+    queryKey: ['campeonato-equipos-select', idCampeonato, base],
+    queryFn: () => api.get(base).then(r => r.data.equipos ?? []),
     enabled: !!idCampeonato,
   })
 
   const { data: equipoDetalle, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['equipo-nomina', idEquipo],
-    queryFn: () => api.get(`/equipos/${idEquipo}`).then(r => r.data),
+    queryKey: ['equipo-nomina', idEquipo, base],
+    queryFn: () => api.get(rutaEquipo(idEquipo)).then(r => r.data),
     enabled: !!idEquipo,
   })
 
@@ -50,7 +58,7 @@ export default function TabNomina({ idCampeonato, campeonato }) {
           <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
           <select id={`${fid}-c1`} className="input-field w-64" value={idEquipo} onChange={e => setIdEquipo(e.target.value)}>
             <option value="">Selecciona un equipo...</option>
-            {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
+            {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}{Number(e.idEquipo) === Number(idEquipoPropio) ? ' (tu equipo)' : ''}</option>)}
           </select>
           {errorEquipos && (
             <div className="mt-2">
@@ -86,6 +94,10 @@ export default function TabNomina({ idCampeonato, campeonato }) {
 
       {idEquipo && !isLoading && !isError && jugadores.length === 0 && (
         <EmptyState icon={User} title="Sin jugadores" description="Este equipo todavía no tiene jugadores registrados." />
+      )}
+
+      {idEquipo && idEquipoPropio && Number(idEquipo) !== Number(idEquipoPropio) && (
+        <p className="text-xs text-gray-500 mb-3">Por privacidad, los documentos de identidad solo se muestran en la nómina de tu equipo.</p>
       )}
 
       {idEquipo && !isLoading && !isError && jugadores.length > 0 && (

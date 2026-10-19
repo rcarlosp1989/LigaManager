@@ -9,13 +9,13 @@ import FotoJugador from '../../components/FotoJugador'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
-export default function TabGoleadores({ idCampeonato }) {
+export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idCampeonato}` }) {
   const fid = useId()
   const [top, setTop] = useState(10)
 
   const { data: goleadores = [], isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['estadisticas-goleadores', idCampeonato, top],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/goleadores`, {
+    queryKey: ['estadisticas-goleadores', idCampeonato, top, base],
+    queryFn: () => api.get(`${base}/estadisticas/goleadores`, {
       params: top > 0 ? { top } : {},
     }).then(r => r.data),
     enabled: !!idCampeonato,

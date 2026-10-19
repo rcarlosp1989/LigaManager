@@ -90,19 +90,20 @@ const COLUMNAS_EXPORT = [
   { titulo: 'Clasificado', ancho: 12 }, { titulo: 'Forma (reciente → antiguo)', ancho: 20 },
 ]
 
-export default function TabPosiciones({ idCampeonato, campeonato }) {
+// base: dónde leer los datos (organizador: /campeonatos/{id}; dirigente: /dirigente/campeonatos/{id}).
+export default function TabPosiciones({ idCampeonato, campeonato, base = `/campeonatos/${idCampeonato}` }) {
   const fid = useId()
   const [idGrupo, setIdGrupo] = useState('')
 
   const { data: grupos = [] } = useQuery({
-    queryKey: ['grupos', idCampeonato],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/grupos`).then(r => r.data),
+    queryKey: ['grupos', idCampeonato, base],
+    queryFn: () => api.get(`${base}/grupos`).then(r => r.data),
     enabled: !!idCampeonato,
   })
 
   const { data: tabla, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['estadisticas-posiciones', idCampeonato, idGrupo],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/posiciones`, {
+    queryKey: ['estadisticas-posiciones', idCampeonato, idGrupo, base],
+    queryFn: () => api.get(`${base}/estadisticas/posiciones`, {
       params: idGrupo ? { idGrupo } : {},
     }).then(r => r.data),
     enabled: !!idCampeonato,

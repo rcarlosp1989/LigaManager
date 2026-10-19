@@ -122,7 +122,7 @@ function DetalleInvitacion({ codigo }) {
       ) : user ? (
         <div className="space-y-3">
           <p className="text-gray-300 text-sm">
-            Entraste como <strong className="text-white">{user.nombre}</strong>, una cuenta de organizador.
+            Entraste como <strong className="text-white">{user.nombre}</strong>, una cuenta de {user.rol === 'Dirigente' ? 'dirigente' : 'organizador'}.
             La invitación necesita una cuenta de vocal, con otro correo.
           </p>
           <button type="button" onClick={logout} className="btn-secundario w-full">Cerrar sesión y continuar</button>
