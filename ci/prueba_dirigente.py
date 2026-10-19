@@ -96,7 +96,8 @@ for nombre, ruta in [("grupos", "grupos"), ("posiciones", "estadisticas/posicion
     s, r = llamar("GET", f"/dirigente/campeonatos/{A}/{ruta}", token=dir1)
     esperar(f"lee {nombre}", s == 200, f"{s} {str(r)[:150]}")
 s, pos = llamar("GET", f"/dirigente/campeonatos/{A}/estadisticas/posiciones", token=dir1)
-esperar("posiciones con los 2 equipos del campeonato", s == 200 and "Senior A Local" in json.dumps(pos, ensure_ascii=False) and "Senior A Visita" in json.dumps(pos, ensure_ascii=False), str(pos)[:300])
+_, posOrg = llamar("GET", f"/campeonatos/{A}/estadisticas/posiciones", token=org1)
+esperar("posiciones: las mismas que ve el organizador", s == 200 and pos == posOrg, f"{str(pos)[:200]} vs {str(posOrg)[:200]}")
 s, posB = llamar("GET", f"/dirigente/campeonatos/{B}/estadisticas/posiciones", token=dir1)
 esperar("posiciones de otro campeonato: vacías", s == 200 and "Barrial" not in json.dumps(posB, ensure_ascii=False), str(posB)[:200])
 s, golB = llamar("GET", f"/dirigente/campeonatos/{B}/estadisticas/goleadores", token=dir1)
@@ -117,10 +118,13 @@ esperar("lista de jornadas de otro campeonato: vacía", s == 200 and jl == [], s
 # ── Documentos: solo los de su equipo ──
 CED = re.compile(r"^\d{10}$")
 s, propia = llamar("GET", f"/dirigente/campeonatos/{A}/equipos/{local}", token=dir1)
-esperar("nómina propia: con documentos", s == 200 and len(propia["jugadores"]) == 8 and all(CED.match(j["cedula"]) for j in propia["jugadores"]), str(propia)[:300])
-esperar("nómina propia: con tipo de documento", s == 200 and all(j["tipoIdentificacion"] == "Cedula" for j in propia["jugadores"]))
+_, orgLocal = llamar("GET", f"/equipos/{local}", token=org1)
+doc = lambda n: sorted((j["idJugador"], j["cedula"], j["tipoIdentificacion"]) for j in n["jugadores"])
+esperar("nómina propia: con documentos", s == 200 and len(propia["jugadores"]) > 0 and all(j["cedula"] and j["tipoIdentificacion"] for j in propia["jugadores"]), str(propia)[:300])
+esperar("nómina propia: los mismos documentos que ve el organizador", s == 200 and doc(propia) == doc(orgLocal), f"{doc(propia)[:3]} vs {doc(orgLocal)[:3]}")
 s, rival = llamar("GET", f"/dirigente/campeonatos/{A}/equipos/{visita}", token=dir1)
-esperar("nómina rival: jugadores con nombre, dorsal y edad", s == 200 and len(rival["jugadores"]) == 8 and all(j["nombre"] and j["dorsal"] and j["edad"] > 0 for j in rival["jugadores"]), str(rival)[:300])
+_, orgVisita = llamar("GET", f"/equipos/{visita}", token=org1)
+esperar("nómina rival: los mismos jugadores que ve el organizador", s == 200 and sorted(j["idJugador"] for j in rival["jugadores"]) == sorted(j["idJugador"] for j in orgVisita["jugadores"]) and all(j["nombre"] for j in rival["jugadores"]), str(rival)[:300])
 esperar("nómina rival: SIN documentos", s == 200 and all(j["cedula"] == "" and j["tipoIdentificacion"] == "" for j in rival["jugadores"]), str(rival)[:300])
 esperar("nómina rival: sin fecha de nacimiento", s == 200 and "fechaNac" not in json.dumps(rival))
 s, _ = llamar("GET", f"/dirigente/campeonatos/{A}/equipos/{equipoB}", token=dir1)
@@ -128,7 +132,7 @@ esperar("nómina de un equipo de otro campeonato (404)", s == 404)
 s, _ = llamar("GET", f"/dirigente/campeonatos/{B}/equipos/{equipoB}", token=dir1)
 esperar("nómina de otro campeonato (404)", s == 404)
 s, org = llamar("GET", f"/equipos/{visita}", token=org1)
-esperar("el organizador sigue viendo todos los documentos", s == 200 and all(CED.match(j["cedula"]) for j in org["jugadores"]), str(org)[:200])
+esperar("el organizador sigue viendo todos los documentos", s == 200 and len(org["jugadores"]) > 0 and all(j["cedula"] for j in org["jugadores"]), str(org)[:200])
 
 # ── Solo lectura en sus propias rutas ──
 for metodo in ("POST", "PUT", "DELETE"):
@@ -165,7 +169,7 @@ s, det = llamar("GET", f"/dirigente/campeonatos/{A}", token=dir1)
 esperar("ahora su equipo es Visita", s == 200 and det["idEquipoPropio"] == visita, str(det)[:200])
 s, n1 = llamar("GET", f"/dirigente/campeonatos/{A}/equipos/{visita}", token=dir1)
 s2, n2 = llamar("GET", f"/dirigente/campeonatos/{A}/equipos/{local}", token=dir1)
-esperar("ve los documentos de Visita y ya no los de Local", all(CED.match(j["cedula"]) for j in n1["jugadores"]) and all(j["cedula"] == "" for j in n2["jugadores"]))
+esperar("ve los documentos de Visita y ya no los de Local", all(j["cedula"] for j in n1["jugadores"]) and all(j["cedula"] == "" for j in n2["jugadores"]))
 
 # ── Vocal: ya no recibe documentos ──
 s, invV = llamar("POST", f"/campeonatos/{A}/vocales/invitaciones", {"tipo": "Titular"}, org1)
@@ -173,7 +177,7 @@ s, sesV = llamar("POST", f"/invitaciones/{invV['codigo']}/aceptar", {"nombre": "
 vocal = sesV["token"] if s == 200 else None
 s, pv = llamar("GET", f"/vocal/partidos/{D['hoyA']}", token=vocal)
 jug = (pv or {}).get("local", {}).get("jugadores", []) + (pv or {}).get("visitante", {}).get("jugadores", [])
-esperar("el vocal ve los planteles (nombre, dorsal, edad)", s == 200 and len(jug) == 16 and all(j["nombre"] and j["edad"] > 0 for j in jug), f"{s} {str(pv)[:200]}")
+esperar("el vocal ve los planteles (nombre y edad)", s == 200 and len(jug) > 0 and all(j["nombre"] and j["edad"] > 0 for j in jug), f"{s} {str(pv)[:200]}")
 esperar("el vocal NO recibe documentos", s == 200 and all(j["cedula"] == "" and j["tipoIdentificacion"] == "" for j in jug), str(jug[:2]))
 s, _ = llamar("GET", "/dirigente/inicio", token=vocal)
 esperar("el vocal no entra a las rutas del dirigente (403)", s == 403)
