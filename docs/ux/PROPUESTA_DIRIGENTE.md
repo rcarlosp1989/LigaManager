@@ -1,6 +1,6 @@
 # Propuesta: rol Dirigente (solo lectura) y protección de documentos
 
-Estado: **pendiente de aprobación**. No se ha programado nada.
+Estado: **aprobado y programado** (rama `mejora/rol-dirigente`).
 Fecha: 19 de octubre de 2026.
 
 ## Decisiones ya tomadas

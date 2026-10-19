@@ -972,3 +972,33 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - se repitieron todas las pruebas anteriores.
 - Pantallas (390 y 1.440 px), con datos de ejemplo: fotos e iniciales en Jugadores, Goleadores, Tarjetas, Suspensiones, Nómina y la planilla. Editar jugador muestra la foto actual y la vista previa de la nueva. PDF de la nómina con 13 jugadores: 53 KB. 0 errores.
 - `npm run build` sin errores; `npm run lint` da los mismos 5 errores que ya había en `main`.
+
+---
+
+## 2026-10-19 — Rol Dirigente (solo lectura) y protección de documentos
+
+**Estado:** aplicada en la rama `mejora/rol-dirigente`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261019_rol_dirigente.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño aprobado: `docs/ux/PROPUESTA_DIRIGENTE.md`.
+
+### Qué cambió
+
+- **Rol Dirigente:** el dirigente de un equipo ve el campeonato con su propia cuenta, sin poder cambiar nada.
+  - El organizador lo invita desde la pestaña nueva **«Dirigentes»** del campeonato, eligiendo su equipo. El enlace sirve una vez y vence a los 7 días; se guarda solo su hash.
+  - Desde la pestaña se ve quién tiene acceso, se le quita y se anulan invitaciones.
+  - El dirigente crea su cuenta en `/invitacion-dirigente/{código}` y entra a `/dirigente`: su equipo, próximos partidos y resultados, jornadas, posiciones, nómina, goleadores, tarjetas y suspensiones (con descarga en PDF y Excel).
+  - Una invitación nueva al mismo dirigente en el mismo campeonato cambia su equipo.
+- **Permisos en el servidor:** rutas `/api/dirigente` (solo GET). Todo lo demás lo rechaza (403), igual que con el vocal. Las comprobaciones de escritura lo rechazan siempre.
+- **Documentos de identidad:**
+  - el dirigente recibe el documento solo de los jugadores de su equipo; de los demás llega vacío y la pantalla muestra «—» (también en PDF y Excel);
+  - el vocal ya no recibe los documentos en el modo en vivo (la pantalla no los usaba);
+  - el dirigente y el vocal reciben la edad, nunca la fecha de nacimiento.
+- **Reportes:** reciben la ruta de sus datos, así los usan el organizador y el dirigente. Suspensiones tiene modo de solo lectura. Para el organizador no cambia nada.
+- Un mismo correo no sirve para dos tipos de cuenta (organizador, vocal o dirigente).
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-dirigente`), con MySQL y el script real:
+  - 75 pruebas nuevas: invitación (crear, consultar, aceptar, una sola vez, anulada, vencida, de otro organizador, equipo no inscrito), 14 rutas de administración y del vocal rechazadas con 403, lectura de los reportes iguales a los del organizador, jornadas y nóminas de otros campeonatos rechazadas, documentos solo del equipo propio, cambio de equipo, quitar acceso, cuentas cruzadas vocal/dirigente, y el vocal sin documentos;
+  - todas las pruebas anteriores siguen pasando;
+  - la reversa del script funciona y el script se vuelve a aplicar.
+- Pantallas, en GitHub Actions con datos simulados, a 390 y 1.440 px: resumen, jornadas, posiciones, nómina propia y rival, suspensiones, invitación, pestaña Dirigentes e invitación creada; el organizador conserva documentos y «Agregar sanción»; el dirigente solo llama a `/api/dirigente` y vuelve a su pantalla si abre la administración o el modo en vivo; sin desplazamiento lateral y sin errores.
+- `npm run build` sin errores; el lint da los mismos 5 errores que `main`.
