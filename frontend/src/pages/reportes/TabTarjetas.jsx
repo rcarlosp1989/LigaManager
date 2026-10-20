@@ -56,7 +56,7 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
         </p>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className="tabla w-full text-sm min-w-[540px]">
+            <table className="tabla w-full text-sm min-w-[500px]">
               <thead>
                 <tr className="border-b border-gray-800">
                   <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
