@@ -45,7 +45,8 @@ export function errorDocumento(tipo, numero) {
 }
 
 // «0912345675» o «Pasaporte AB1234567», para tablas y reportes.
-export const textoDocumento = (tipo, numero) => (!tipo || tipo === 'Cedula' ? numero : `${tipoDocumento(tipo).corto} ${numero}`)
+// Sin número (el servidor no lo envía a quien no debe verlo): «—».
+export const textoDocumento = (tipo, numero) => (!numero ? '—' : !tipo || tipo === 'Cedula' ? numero : `${tipoDocumento(tipo).corto} ${numero}`)
 
 // Para bloquear el guardado si el documento no es válido.
 export const documentoValido = (tipo, numero, opcional = false) => (opcional && !numero) || !errorDocumento(tipo, numero)

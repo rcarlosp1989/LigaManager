@@ -110,15 +110,16 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
   )
 }
 
-export default function TabSuspensiones({ idCampeonato }) {
+// soloLectura: el dirigente ve las sanciones, pero no las agrega ni las borra.
+export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${idCampeonato}`, soloLectura = false }) {
   const queryClient = useQueryClient()
   const aviso = useAviso()
   const { confirmar } = useDialogos()
   const [showForm, setShowForm] = useState(false)
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['estadisticas-suspensiones', idCampeonato],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/suspensiones`).then(r => r.data),
+    queryKey: ['estadisticas-suspensiones', idCampeonato, base],
+    queryFn: () => api.get(`${base}/estadisticas/suspensiones`).then(r => r.data),
     enabled: !!idCampeonato,
   })
 
@@ -152,7 +153,7 @@ export default function TabSuspensiones({ idCampeonato }) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider">Sanciones</h3>
-          {!showForm && (
+          {!showForm && !soloLectura && (
             <button onClick={() => setShowForm(true)} className="btn-primary text-xs py-1.5 px-3">
               + Agregar sanción
             </button>
@@ -191,7 +192,7 @@ export default function TabSuspensiones({ idCampeonato }) {
                         }`}>{s.estado}</span>
                       </td>
                       <td className="px-3 py-2 text-center">
-                        {s.manual && (
+                        {s.manual && !soloLectura && (
                           <button
                             onClick={() => eliminar(s)}
                             className="text-gray-600 hover:text-red-400 transition-colors"

@@ -223,7 +223,7 @@ public class VocalService
                 if (!usuario.Activo || !BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash))
                     return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email y la contraseña no coincide.");
                 if (usuario.Rol != RolUsuario.Vocal)
-                    return ServiceResult<LoginResponse>.Fail("Ese email ya pertenece a una cuenta de organizador. Usa otro email para la cuenta de vocal.");
+                    return ServiceResult<LoginResponse>.Fail("Ese email ya pertenece a otra cuenta (organizador o dirigente). Usa otro email para la cuenta de vocal.");
             }
             else
             {
@@ -338,18 +338,19 @@ public class VocalService
     }
 
     // Jugadores habilitados en el equipo el día del partido (mismo criterio que GET /api/equipos/{id}?fecha=).
+    // Sin documento de identidad: el vocal identifica al jugador por foto, nombre, dorsal y edad.
     private async Task<EquipoDetalleDto> PlantelAsync(int idEquipo, DateOnly fecha)
     {
         var e = await _db.Equipos.Include(x => x.Pais).FirstAsync(x => x.IdEquipo == idEquipo);
         var jugadores = await _db.JugadorEquipos
             .Where(je => je.IdEquipo == idEquipo && je.FechaDesde <= fecha && (je.FechaHasta == null || je.FechaHasta >= fecha))
             .Select(je => new { je.IdJugador, je.Jugador.Persona.Nombre, je.Jugador.Persona.Apellido, je.FechaDesde, je.FechaHasta,
-                                je.Dorsal, je.Jugador.Persona.Cedula, je.Posicion, je.Jugador.Persona.FechaNac, je.Jugador.Persona.FotoUrl })
+                                je.Dorsal, je.Posicion, je.Jugador.Persona.FechaNac, je.Jugador.Persona.FotoUrl })
             .ToListAsync();
         return new EquipoDetalleDto(e.IdEquipo, e.Nombre, e.IdPais, e.Pais.Nombre,
             jugadores.Select(j => new JugadorEnEquipoDto(
                 j.IdJugador, j.Nombre, j.Apellido, j.FechaDesde.ToString("yyyy-MM-dd"), j.FechaHasta?.ToString("yyyy-MM-dd"),
-                j.Dorsal, j.Cedula, j.Posicion, Edad(j.FechaNac), j.FotoUrl)).ToList());
+                j.Dorsal, "", j.Posicion, Edad(j.FechaNac), j.FotoUrl, "")).ToList());
     }
 
     private static int Edad(DateOnly nacimiento)

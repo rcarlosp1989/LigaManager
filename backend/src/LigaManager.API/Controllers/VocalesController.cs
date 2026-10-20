@@ -133,4 +133,5 @@ public class VocalesController : ControllerBase
 public static class Politicas
 {
     public const string SoloVocal = "SoloVocal";
+    public const string SoloDirigente = "SoloDirigente";
 }

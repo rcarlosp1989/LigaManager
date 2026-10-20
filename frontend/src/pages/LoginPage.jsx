@@ -1,6 +1,7 @@
 import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { inicioDeRol } from '../utils/roles'
 
 export default function LoginPage() {
   const fid = useId()
@@ -16,8 +17,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const sesion = await login(form.email, form.password)
-      // El vocal entra directo a sus partidos, sin el menú de administración.
-      navigate(sesion?.rol === 'Vocal' ? '/vocal' : '/dashboard')
+      // El vocal entra directo a sus partidos y el dirigente a su campeonato, sin el menú de administración.
+      navigate(inicioDeRol(sesion?.rol))
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión.')
     } finally {

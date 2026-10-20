@@ -9,12 +9,13 @@ import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback
 import { formatearFecha } from '../../utils/fechas'
 import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
+import TabDirigentes from './TabDirigentes'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import IconoEvento from '../../components/IconoEvento'
 import LogoEquipo from '../../components/LogoEquipo'
 import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
-import { Armchair, CalendarDays, ClipboardList, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
+import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 
 // «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
 const aFechaHoraLocal = (f) => (f ? f.replace(' ', 'T').slice(0, 16) : '')
@@ -1568,7 +1569,7 @@ function TablaCampeonato({ idCampeonato }) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['vocales', 'Vocales', Mic]]
+const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['vocales', 'Vocales', Mic], ['dirigentes', 'Dirigentes', Eye]]
 
 export default function CampeonatoDetalle() {
   const logos = useLogosEquipos()
@@ -1910,6 +1911,7 @@ export default function CampeonatoDetalle() {
       )}
 
       {tab === 'vocales' && <TabVocales camp={camp} />}
+      {tab === 'dirigentes' && <TabDirigentes camp={camp} />}
 
       {/* Modal nueva jornada */}
       <Modal isOpen={showJornadaModal}

@@ -4,11 +4,15 @@ import { formatearFecha } from '../utils/fechas'
 
 // Muestra un código de invitación recién creado, con su enlace para copiar o compartir.
 // El servidor no lo vuelve a mostrar: solo guarda su huella.
-export default function InvitacionCreada({ invitacion, campeonato }) {
+//  - Vocal (por defecto): titular o reemplazo, enlace /invitacion/{código}.
+//  - Dirigente: pasa ruta="/invitacion-dirigente" y equipo.
+export default function InvitacionCreada({ invitacion, campeonato, ruta = '/invitacion', equipo = null }) {
   const [copiado, setCopiado] = useState(null)
-  const enlace = `${window.location.origin}/invitacion/${invitacion.codigo}`
+  const enlace = `${window.location.origin}${ruta}/${invitacion.codigo}`
   const titular = invitacion.tipo === 'Titular'
-  const mensaje = titular
+  const mensaje = equipo
+    ? `Te invito como dirigente de ${equipo} para ver el campeonato «${campeonato}» en LigaManager (posiciones, nómina, goleadores y sanciones). Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
+    : titular
     ? `Te invito como vocal del campeonato «${campeonato}» en LigaManager. Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
     : `Te pido reemplazarme como vocal del campeonato «${campeonato}» el ${formatearFecha(invitacion.soloFecha)}. Abre este enlace: ${enlace} (código ${invitacion.codigo}).`
 
@@ -25,7 +29,7 @@ export default function InvitacionCreada({ invitacion, campeonato }) {
   return (
     <div className="space-y-3 rounded-xl border border-brand-700 bg-brand-900/30 p-4">
       <p className="text-sm text-white">
-        {titular ? 'Invitación de vocal titular' : `Invitación de reemplazo para el ${formatearFecha(invitacion.soloFecha)}`}.
+        {equipo ? `Invitación de dirigente de ${equipo}` : titular ? 'Invitación de vocal titular' : `Invitación de reemplazo para el ${formatearFecha(invitacion.soloFecha)}`}.
         Sirve una sola vez y vence el {formatearFecha(invitacion.venceEn)}.
       </p>
       <p className="text-center font-mono text-2xl tracking-[0.2em] text-white select-all" aria-label={`Código ${invitacion.codigo.split('').join(' ')}`}>

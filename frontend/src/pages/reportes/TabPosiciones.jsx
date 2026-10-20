@@ -29,8 +29,10 @@ function CirculosForma({ forma }) {
   )
 }
 
-function TablaGrupo({ grupo }) {
-  const logos = useLogosEquipos()
+// logos: Map idEquipo → logo. Si no llega (organizador), se piden los del organizador.
+function TablaGrupo({ grupo, logos: logosDados = null }) {
+  const logosOrganizador = useLogosEquipos(!logosDados)
+  const logos = logosDados ?? logosOrganizador
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden mb-6">
       {grupo.grupo && (
@@ -90,19 +92,20 @@ const COLUMNAS_EXPORT = [
   { titulo: 'Clasificado', ancho: 12 }, { titulo: 'Forma (reciente → antiguo)', ancho: 20 },
 ]
 
-export default function TabPosiciones({ idCampeonato, campeonato }) {
+// base: dónde leer los datos (organizador: /campeonatos/{id}; dirigente: /dirigente/campeonatos/{id}).
+export default function TabPosiciones({ idCampeonato, campeonato, base = `/campeonatos/${idCampeonato}`, logos = null }) {
   const fid = useId()
   const [idGrupo, setIdGrupo] = useState('')
 
   const { data: grupos = [] } = useQuery({
-    queryKey: ['grupos', idCampeonato],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/grupos`).then(r => r.data),
+    queryKey: ['grupos', idCampeonato, base],
+    queryFn: () => api.get(`${base}/grupos`).then(r => r.data),
     enabled: !!idCampeonato,
   })
 
   const { data: tabla, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ['estadisticas-posiciones', idCampeonato, idGrupo],
-    queryFn: () => api.get(`/campeonatos/${idCampeonato}/estadisticas/posiciones`, {
+    queryKey: ['estadisticas-posiciones', idCampeonato, idGrupo, base],
+    queryFn: () => api.get(`${base}/estadisticas/posiciones`, {
       params: idGrupo ? { idGrupo } : {},
     }).then(r => r.data),
     enabled: !!idCampeonato,
@@ -143,7 +146,7 @@ export default function TabPosiciones({ idCampeonato, campeonato }) {
       ) : (
         <>
           {gruposConDatos.map(g => (
-            <TablaGrupo key={g.idGrupo ?? 'sin-grupo'} grupo={g} />
+            <TablaGrupo key={g.idGrupo ?? 'sin-grupo'} grupo={g} logos={logos} />
           ))}
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mt-2">

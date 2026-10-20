@@ -25,6 +25,32 @@ public class AccesoCampeonato
     private bool EsVocal => string.Equals(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Vocal", StringComparison.OrdinalIgnoreCase);
 
+    private bool EsDirigente => string.Equals(
+        _http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Dirigente", StringComparison.OrdinalIgnoreCase);
+
+    // ── Dirigente: solo lectura ──────────────────────────────────────────────
+    // El dirigente solo llega a los servicios desde /api/dirigente (el resto de los controladores
+    // lo rechaza por política). Las comprobaciones de escritura de abajo lo rechazan siempre.
+
+    // Equipo del dirigente actual en el campeonato, o null si no está habilitado.
+    public async Task<int?> EquipoDelDirigenteAsync(int idCampeonato)
+        => EsDirigente && UsuarioId is int u
+            ? await _db.CampeonatoDirigentes
+                .Where(d => d.IdCampeonato == idCampeonato && d.IdUsuario == u && d.Activo)
+                .Select(d => (int?)d.IdEquipo).FirstOrDefaultAsync()
+            : null;
+
+    // Lectura: organizador dueño / Admin, o dirigente habilitado en el campeonato.
+    public async Task<bool> LecturaCampeonatoAsync(int idCampeonato)
+        => EsDirigente ? await EquipoDelDirigenteAsync(idCampeonato) is not null : await CampeonatoAsync(idCampeonato);
+
+    public async Task<bool> LecturaJornadaAsync(int idJornada)
+    {
+        if (!EsDirigente) return await JornadaAsync(idJornada);
+        var idCampeonato = await _db.Jornadas.Where(j => j.IdJornada == idJornada).Select(j => (int?)j.IdCampeonato).FirstOrDefaultAsync();
+        return idCampeonato is int c && await LecturaCampeonatoAsync(c);
+    }
+
     // Campeonatos en los que el vocal puede registrar hoy.
     public async Task<List<int>> CampeonatosDelVocalHoyAsync(int idUsuario)
     {
@@ -54,37 +80,38 @@ public class AccesoCampeonato
         => idPartido is int p && UsuarioId is int u && await VocalPuedePartidoAsync(u, p);
 
     public async Task<bool> CampeonatoAsync(int idCampeonato)
-        => !EsVocal && (EsAdmin || (UsuarioId is int u
+        => !EsVocal && !EsDirigente && (EsAdmin || (UsuarioId is int u
             && await _db.Campeonatos.AnyAsync(c => c.IdCampeonato == idCampeonato && c.IdUsuarioCreador == u)));
 
     public async Task<bool> JornadaAsync(int idJornada)
-        => !EsVocal && (EsAdmin || (UsuarioId is int u
+        => !EsVocal && !EsDirigente && (EsAdmin || (UsuarioId is int u
             && await _db.Jornadas.AnyAsync(j => j.IdJornada == idJornada && j.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> PartidoAsync(int idPartido)
-        => EsVocal ? await VocalPuedePartidoAsync(idPartido) : EsAdmin || (UsuarioId is int u
-            && await _db.Partidos.AnyAsync(p => p.IdPartido == idPartido && p.Jornada.Campeonato.IdUsuarioCreador == u));
+        => EsVocal ? await VocalPuedePartidoAsync(idPartido)
+        : !EsDirigente && (EsAdmin || (UsuarioId is int u
+            && await _db.Partidos.AnyAsync(p => p.IdPartido == idPartido && p.Jornada.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> EventoAsync(int idEvento)
         => EsVocal ? await VocalPuedePartidoAsync(await _db.EventosPartido.Where(e => e.IdEvento == idEvento).Select(e => (int?)e.IdPartido).FirstOrDefaultAsync())
-        : EsAdmin || (UsuarioId is int u
-            && await _db.EventosPartido.AnyAsync(e => e.IdEvento == idEvento && e.Partido.Jornada.Campeonato.IdUsuarioCreador == u));
+        : !EsDirigente && (EsAdmin || (UsuarioId is int u
+            && await _db.EventosPartido.AnyAsync(e => e.IdEvento == idEvento && e.Partido.Jornada.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> AlineacionAsync(int idAlineacion)
         => EsVocal ? await VocalPuedePartidoAsync(await _db.Alineaciones.Where(a => a.IdAlineacion == idAlineacion).Select(a => (int?)a.IdPartido).FirstOrDefaultAsync())
-        : EsAdmin || (UsuarioId is int u
-            && await _db.Alineaciones.AnyAsync(a => a.IdAlineacion == idAlineacion && a.Partido.Jornada.Campeonato.IdUsuarioCreador == u));
+        : !EsDirigente && (EsAdmin || (UsuarioId is int u
+            && await _db.Alineaciones.AnyAsync(a => a.IdAlineacion == idAlineacion && a.Partido.Jornada.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> CambioAsync(int idCambio)
         => EsVocal ? await VocalPuedePartidoAsync(await _db.CambiosPartido.Where(c => c.IdCambio == idCambio).Select(c => (int?)c.IdPartido).FirstOrDefaultAsync())
-        : EsAdmin || (UsuarioId is int u
-            && await _db.CambiosPartido.AnyAsync(c => c.IdCambio == idCambio && c.Partido.Jornada.Campeonato.IdUsuarioCreador == u));
+        : !EsDirigente && (EsAdmin || (UsuarioId is int u
+            && await _db.CambiosPartido.AnyAsync(c => c.IdCambio == idCambio && c.Partido.Jornada.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> GrupoAsync(int idGrupo)
-        => !EsVocal && (EsAdmin || (UsuarioId is int u
+        => !EsVocal && !EsDirigente && (EsAdmin || (UsuarioId is int u
             && await _db.Grupos.AnyAsync(g => g.IdGrupo == idGrupo && g.Campeonato.IdUsuarioCreador == u)));
 
     public async Task<bool> FaseAsync(int idFase)
-        => !EsVocal && (EsAdmin || (UsuarioId is int u
+        => !EsVocal && !EsDirigente && (EsAdmin || (UsuarioId is int u
             && await _db.FasesCampeonato.AnyAsync(f => f.IdFase == idFase && f.Campeonato.IdUsuarioCreador == u)));
 }
