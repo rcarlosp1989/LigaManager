@@ -4,7 +4,8 @@ import { ChevronsRight } from 'lucide-react'
 // Contenedor para tablas más anchas que la pantalla. Si la tabla no cabe:
 //  - el borde por donde hay más columnas se difumina (a la derecha, y a la izquierda
 //    cuando ya se deslizó);
-//  - aparece «Desliza» arriba a la derecha hasta que se desliza por primera vez.
+//  - en pantallas táctiles (celular y tablet) aparece «Desliza» arriba a la derecha hasta que
+//    se desliza por primera vez. Con mouse no aparece: ahí ya se ve la barra de desplazamiento.
 // Si la tabla cabe, no se ve nada distinto.
 //
 // Columna fija: si la tabla tiene celdas .fija (nombre del equipo o del jugador), esas no se
@@ -59,7 +60,7 @@ export default function TablaDesplazable({ children, className = '' }) {
       </div>
       {lados.der && !deslizada && (
         <span aria-hidden="true"
-          className="pointer-events-none absolute right-2 top-1.5 flex items-center gap-0.5 rounded-full border border-brand-500/40 bg-gray-950/90 px-2 py-0.5 text-[11px] font-medium text-brand-300 shadow">
+          className="pointer-events-none absolute right-2 top-1.5 hidden [@media(pointer:coarse)]:flex items-center gap-0.5 rounded-full border border-brand-500/40 bg-gray-950/90 px-2 py-0.5 text-[11px] font-medium text-brand-300 shadow">
           Desliza <ChevronsRight size={12} />
         </span>
       )}

@@ -1090,3 +1090,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - se repitieron todas las pruebas anteriores.
 - Pantallas a 390 y 1.440 px: «2/5» y «4/5» visibles, la explicación sobre la tabla, sin desbordes ni errores.
 - `npm run build` sin errores; lint igual que `main`.
+
+---
+
+## 2026-10-19 — Ajuste: «Desliza» solo en pantallas táctiles
+
+**Estado:** aplicada en la rama `mejora/desliza-solo-tactil`. Pendiente de que Roberto la apruebe. Solo la página web.
+
+- El aviso «Desliza» de las tablas anchas ahora aparece solo en celulares y tablets (pantalla táctil). En la computadora tapaba el título de la última columna visible, y ahí ya se ven la barra de desplazamiento y el borde difuminado.
+- Verificado en GitHub Actions (rama temporal `ci/verificar-desliza`): a 390 px táctil se ve; a 1.440 px con mouse no, aunque la tabla se desliza. 64 comprobaciones de pantalla bien; build correcto y lint igual que `main`.
