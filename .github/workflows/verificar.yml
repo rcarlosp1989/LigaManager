@@ -1,6 +1,50 @@
 name: verificar
 on: { push: { branches: [ 'ci/verificar-acumuladas' ] } }
 jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Instalar
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+      - name: Lint (comparado con main)
+        run: |
+          git fetch -q --depth=1 origin main
+          git worktree add -q /tmp/main FETCH_HEAD
+          ln -s $PWD/frontend/node_modules /tmp/main/frontend/node_modules
+          (cd frontend && npx eslint src > ../lint_rama.txt 2>&1 || true)
+          (cd /tmp/main/frontend && npx eslint src > $GITHUB_WORKSPACE/lint_main.txt 2>&1 || true)
+          r=$(grep -oE '[0-9]+ errors?' lint_rama.txt | head -1 | grep -oE '[0-9]+' || echo 0)
+          m=$(grep -oE '[0-9]+ errors?' lint_main.txt | head -1 | grep -oE '[0-9]+' || echo 0)
+          echo "::notice title=lint::errores en main: $m · en la rama: $r"
+          if [ "$r" -gt "$m" ]; then echo "::error::la rama agrega errores de lint"; cat lint_rama.txt | tail -40; exit 1; fi
+      - name: Compilar
+        working-directory: frontend
+        run: npm run build
+      - name: Capturas
+        working-directory: frontend
+        run: |
+          npm i --no-save --no-audit --no-fund playwright@1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+          nohup npx vite preview --port 4173 --strictPort > preview.txt 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:4173 && break; sleep 1; done
+          cp ../ci/capturas.mjs .
+          c=0; node capturas.mjs > capturas.txt 2>&1 || c=$?
+          echo "::notice title=capturas::$(grep -c '^OK ' capturas.txt || true) OK · $(grep -vE '^OK ' capturas.txt | tail -30 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
+          exit $c
+      - name: Subir capturas a una rama temporal
+        if: always()
+        run: |
+          cd frontend/capturas
+          cp ../capturas.txt . 2>/dev/null || true
+          git init -q -b capturas && git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm "capturas ${{ github.sha }}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-acumuladas
+
   backend:
     runs-on: ubuntu-latest
     services:
