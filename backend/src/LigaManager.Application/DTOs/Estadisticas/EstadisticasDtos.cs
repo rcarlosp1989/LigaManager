@@ -53,7 +53,10 @@ public record TarjetasJugadorDto(
     string? FotoUrl = null,
     // Amarillas que todavía cuentan para la próxima suspensión por acumulación (vuelven a 0
     // cuando se llega al límite). Amarillas y Rojas son el historial completo.
-    int    AmarillasAcumuladas = 0
+    int    AmarillasAcumuladas = 0,
+    // Rojas que vienen de una doble amarilla (ya incluidas en Rojas): la expulsión no siempre
+    // se registra como un evento de roja aparte.
+    int    RojasPorDobleAmarilla = 0
 );
 
 public record FairPlayEquipoDto(
