@@ -28,6 +28,7 @@ const partido = (id, l, v, fecha, jugado, gl, gv, jornada = 1) => ({
   fecha, estadio: 'Estadio Recuspro', jugado, desierto: false, golesLocal: gl, golesVisitante: gv,
   estado: jugado ? 'Jugado' : 'Programado', oficiales: [], eventos: [], alineacionLocal: [], alineacionVisitante: [], cambios: [],
 })
+const pendiente = (j) => (j.idJugador === 1105 ? { ...j, cedula: '', tipoIdentificacion: 'Pendiente' } : j)
 const jugadores = (idEquipo, conDoc) => Array.from({ length: 6 }, (_, i) => ({
   idJugador: idEquipo * 100 + i, nombre: ['Carlos', 'Luis', 'Andrés', 'Jorge', 'Bryan', 'Kevin'][i],
   apellido: ['Mendoza', 'Quiñónez', 'Bustamante Villacís', 'Ortiz', 'Cedeño', 'Plúas'][i],
@@ -95,7 +96,7 @@ function respuesta(metodo, ruta) {
   if (metodo === 'GET') {
     if (r === '/dirigente/inicio') return { campeonatos: [{ idCampeonato: 1, nombre: 'Liga Barrial Recuspro', anio: 2026, estado: 'EnCurso', fechaInicio: '2026-09-01', fechaFin: '2026-12-20', idEquipo: 11, equipo: 'Ventarrón FC', logoEquipo: null }] }
     if (r === d) return campDirigente
-    if (r === `${d}/equipos/11`) return { idEquipo: 11, nombre: 'Ventarrón FC', idPais: 1, pais: 'Ecuador', jugadores: jugadores(11, true), logoUrl: null }
+    if (r === `${d}/equipos/11`) return { idEquipo: 11, nombre: 'Ventarrón FC', idPais: 1, pais: 'Ecuador', jugadores: jugadores(11, true).map(pendiente), logoUrl: null }
     if (r.startsWith(`${d}/equipos/`)) { const id = Number(r.split('/').pop()); return { idEquipo: id, nombre: nombre(id), idPais: 1, pais: 'Ecuador', jugadores: jugadores(id, false), logoUrl: null } }
     if (r === `${d}/jornadas`) return jornadas
     if (r.startsWith(`${d}/jornadas/`)) return detalleJornada(Number(r.split('/').pop()))
@@ -110,9 +111,9 @@ function respuesta(metodo, ruta) {
     if (r === '/campeonatos/1/dirigentes') return dirigentes
     if (r === '/campeonatos/1/vocales') return { vocales: [], invitaciones: [] }
     if (r === '/campeonatos/1/posiciones') return posiciones.grupos[0].posiciones
-    if (r === '/jugadores') return equipos.flatMap(e => jugadores(e.idEquipo, true).map(j => ({ ...j, ubicacion: 'Guayaquil, Guayas', equipoActual: e.nombre })))
+    if (r === '/jugadores') return equipos.flatMap(e => jugadores(e.idEquipo, true).map(pendiente).map(j => ({ ...j, ubicacion: 'Guayaquil, Guayas', equipoActual: e.nombre })))
     if (r === '/equipos') return equipos.map(e => ({ ...e, totalJugadores: 6 }))
-    if (r.startsWith('/equipos/')) { const id = Number(r.split('/').pop()); return { idEquipo: id, nombre: nombre(id), idPais: 1, pais: 'Ecuador', jugadores: jugadores(id, true), logoUrl: null } }
+    if (r.startsWith('/equipos/')) { const id = Number(r.split('/').pop()); return { idEquipo: id, nombre: nombre(id), idPais: 1, pais: 'Ecuador', jugadores: jugadores(id, true).map(pendiente), logoUrl: null } }
     return []
   }
   if (metodo === 'POST' && r === '/campeonatos/1/dirigentes/invitaciones') return { idInvitacion: 9, codigo: 'K7M2P-QX9RT', idEquipo: 14, equipo: 'Leones del Guasmo', venceEn: '2026-10-26 15:02' }
@@ -181,7 +182,7 @@ const dirigente = [
   ['goleadores', 'Carlos Mendoza'],
   ['tarjetas', 'Acumuladas'],
   ['suspensiones', 'Agresión verbal'],
-  ['nomina', '0911123450'],
+  ['nomina', 'Pendiente'],
 ]
 for (const ancho of [390, 1440]) {
   {
@@ -192,6 +193,10 @@ for (const ancho of [390, 1440]) {
       await captura(page, `dir_${tab}`, ancho)
       await revisarFija(page, `dirigente ${tab}`, ancho)
       if (ancho < 500) await page.screenshot({ path: `capturas/dir_${tab}_deslizada_${ancho}.png`, fullPage: true })
+      if (tab === 'nomina') {
+        ok(`nómina @${ancho}: el jugador pendiente muestra «Pendiente»`, await page.locator('td span', { hasText: /^Pendiente$/ }).count() === 1)
+        ok(`nómina @${ancho}: los demás conservan su cédula`, await page.getByText('0911123450').count() === 1)
+      }
       if (tab === 'tarjetas') {
         ok(`tarjetas @${ancho}: muestra «2/5» y «4/5»`, await page.getByText('2/5').count() === 1 && await page.getByText('4/5').count() === 1)
         ok(`tarjetas @${ancho}: explica el historial y las acumuladas`, await page.getByText(/vuelven a 0 al llegar a 5/).isVisible())
@@ -215,6 +220,7 @@ for (const ancho of [390, 1440]) {
       await captura(page, nombre, ancho)
       await revisarFija(page, nombre, ancho)
       if (ancho < 500) await page.screenshot({ path: `capturas/${nombre}_deslizada_${ancho}.png`, fullPage: true })
+      if (nombre === 'org_jugadores') ok(`jugadores @${ancho}: «Doc. pendiente» en la lista`, await page.getByText('Doc. pendiente').count() >= 1)
     }
     ok(`sin errores (organizador) @${ancho}`, errores.length === 0, errores.join(' | '))
     await ctx.close()
