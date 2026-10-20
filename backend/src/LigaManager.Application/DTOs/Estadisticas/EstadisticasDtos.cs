@@ -50,7 +50,10 @@ public record TarjetasJugadorDto(
     int    Amarillas,
     int    Rojas,
     int    Total,
-    string? FotoUrl = null
+    string? FotoUrl = null,
+    // Amarillas que todavía cuentan para la próxima suspensión por acumulación (vuelven a 0
+    // cuando se llega al límite). Amarillas y Rojas son el historial completo.
+    int    AmarillasAcumuladas = 0
 );
 
 public record FairPlayEquipoDto(
@@ -63,7 +66,8 @@ public record FairPlayEquipoDto(
 
 public record TarjetasDto(
     List<TarjetasJugadorDto> PorJugador,
-    List<FairPlayEquipoDto>  PorEquipo
+    List<FairPlayEquipoDto>  PorEquipo,
+    int                      AmarillasParaSuspension = 0   // límite de la acumulación (p. ej. 5)
 );
 
 // ── Módulo B: Suspensiones ────────────────────────────────────────────────────
