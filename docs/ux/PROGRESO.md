@@ -1026,3 +1026,24 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - GitHub Actions (rama temporal `ci/verificar-tablas`), con datos simulados, a 390 y 1.440 px: 56 comprobaciones. En cada tabla que se desliza en el celular, después de deslizarla hasta el final, el nombre sigue entero a la vista y aparece la sombra; sin desplazamiento lateral de la página y sin errores.
 - La parte fija tiene el mismo tono que el resto de la fila (medido en las capturas).
 - `npm run build` sin errores; el lint da los mismos 5 errores que `main`.
+
+---
+
+## 2026-10-19 — Mejora: nombres cortos de jugadores en la vista del dirigente
+
+**Estado:** aplicada en la rama `mejora/nombres-cortos-dirigente`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+
+### Qué cambió
+
+- En la vista del dirigente, cada jugador aparece con su **primer nombre y primer apellido**: «Carlos Andrés» «Mendoza Pérez» → «Carlos Mendoza».
+  - Goleadores, Tarjetas, Suspensiones (sanciones y en riesgo) y Nómina, y por lo tanto también sus PDF y Excel.
+  - Los apellidos con partícula se respetan: «De la Cruz Pérez» → «De la Cruz», «Del Pezo» → «Del Pezo».
+- Lo hace el servidor (`Application/Common/NombreCorto.cs`) solo para el rol Dirigente; el organizador sigue viendo los nombres completos.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-nombres`), con MySQL: un jugador «Carlos Andrés De la Cruz Pérez» con una sanción.
+  - El dirigente lo ve como «Carlos De la Cruz» en la nómina y en suspensiones.
+  - Todos los nombres de Goleadores, Tarjetas, Suspensiones y Nómina del dirigente son el nombre corto del completo.
+  - El organizador ve los nombres completos.
+  - Se repitieron todas las pruebas anteriores, incluidas las 75 del rol Dirigente.
