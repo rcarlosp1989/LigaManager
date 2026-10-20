@@ -341,26 +341,28 @@ export default function Jugadores() {
       ) : (
         <div className="card p-0 overflow-hidden">
           <TablaDesplazable>
-          <table className="w-full min-w-[780px]">
+          <table className="tabla w-full min-w-[780px]">
             <thead>
               <tr className="border-b border-gray-800">
-                {['#', 'Jugador', 'Ubicación', 'Edad', 'Posición', 'Equipo Actual', ''].map(h => (
-                  <th key={h} className="text-left text-xs text-gray-400 uppercase tracking-wider px-5 py-3">{h}</th>
+                <th scope="col" className="fija w-16 min-w-16 text-left text-xs uppercase tracking-wider px-5 py-3">#</th>
+                <th scope="col" className="fija fija-2 fija-borde text-left text-xs uppercase tracking-wider px-5 py-3" style={{ '--ancho-fija-1': '4rem' }}>Jugador</th>
+                {['Ubicación', 'Edad', 'Posición', 'Equipo Actual', ''].map(h => (
+                  <th key={h} scope="col" className="text-left text-xs uppercase tracking-wider px-5 py-3">{h || <span className="sr-only">Acciones</span>}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map(j => (
                 <tr key={j.idJugador} className="table-row">
-                  <td className="px-5 py-4 text-gray-500 text-sm font-mono">
+                  <td className="fija w-16 min-w-16 px-5 py-4 text-gray-500 text-sm font-mono">
                     {j.dorsal ? `#${j.dorsal}` : '–'}
                   </td>
-                  <td className="px-5 py-4 min-w-60">
-                    <p className="flex items-center gap-2.5 text-white font-medium">
+                  <th scope="row" className="fija fija-2 fija-borde px-5 py-4 text-left font-normal" style={{ '--ancho-fija-1': '4rem' }}>
+                    <p className="flex items-center gap-2.5 text-white font-medium" title={`${j.apellido}, ${j.nombre}`}>
                       <FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} />
-                      {j.apellido}, {j.nombre}
+                      <span className="min-w-0 max-w-[8rem] truncate sm:max-w-[16rem]">{j.apellido}, {j.nombre}</span>
                     </p>
-                  </td>
+                  </th>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.ubicacion}</td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.edad} años</td>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.posicion || 'Sin posición'}</td>

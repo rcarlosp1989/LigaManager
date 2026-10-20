@@ -11,6 +11,7 @@ import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
 import TabDirigentes from './TabDirigentes'
 import TablaDesplazable from '../../components/TablaDesplazable'
+import TablaDePosiciones from '../../components/TablaPosiciones'
 import IconoEvento from '../../components/IconoEvento'
 import LogoEquipo from '../../components/LogoEquipo'
 import FotoJugador from '../../components/FotoJugador'
@@ -1420,46 +1421,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
 
       {/* Tabla de posiciones */}
       {grupo.posiciones?.length > 0 ? (
-        <TablaDesplazable>
-        <table className="w-full text-sm min-w-[560px]">
-          <thead>
-            <tr className="border-b border-gray-800">
-              {['#', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'].map(h => (
-                <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {grupo.posiciones.map(p => (
-              <tr key={p.idEquipo}
-                className={`border-b border-gray-800/50 transition-colors ${
-                  p.clasificado ? 'bg-green-900/10 hover:bg-green-900/20' : 'hover:bg-gray-800/30'
-                }`}>
-                <td className="px-3 py-2 text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-400 text-xs">{p.posicion}</span>
-                    {p.clasificado && <span className="text-green-400 text-xs">✓</span>}
-                  </div>
-                </td>
-                <td className="px-3 py-2 text-white font-medium">
-                  <span className="flex items-center gap-2 whitespace-nowrap">
-                    <LogoEquipo nombre={p.equipo} logoUrl={logos.get(p.idEquipo)} tamano={22} />
-                    {p.equipo}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pj}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pg}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pe}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pp}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.gf}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.gc}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.dg > 0 ? `+${p.dg}` : p.dg}</td>
-                <td className="px-3 py-2 text-white font-bold text-center">{p.pts}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </TablaDesplazable>
+        <TablaDePosiciones posiciones={grupo.posiciones} logos={logos} />
       ) : (
         <div className="text-center py-6">
           <p className="text-gray-500 text-sm">Sin partidos jugados aún.</p>
@@ -1531,38 +1493,7 @@ function TablaCampeonato({ idCampeonato }) {
         <h2 className="text-xs text-gray-500 uppercase tracking-wider">Tabla general</h2>
         <span className="text-xs text-gray-500">Todos contra todos</span>
       </div>
-      <TablaDesplazable>
-        <table className="w-full text-sm min-w-[560px]">
-          <thead>
-            <tr className="border-b border-gray-800">
-              {['#', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'].map(h => (
-                <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {posiciones.map(p => (
-              <tr key={p.idEquipo} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                <td className="px-3 py-2 text-gray-400 text-xs">{p.posicion}</td>
-                <td className="px-3 py-2 text-white font-medium">
-                  <span className="flex items-center gap-2 whitespace-nowrap">
-                    <LogoEquipo nombre={p.equipo} logoUrl={logos.get(p.idEquipo)} tamano={22} />
-                    {p.equipo}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pj}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pg}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pe}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.pp}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.gf}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.gc}</td>
-                <td className="px-3 py-2 text-gray-400 text-center">{p.dg}</td>
-                <td className="px-3 py-2 text-white font-semibold text-center">{p.pts}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </TablaDesplazable>
+      <TablaDePosiciones posiciones={posiciones} logos={logos} />
     </div>
   )
 }
@@ -1810,24 +1741,26 @@ export default function CampeonatoDetalle() {
             </div>
           ) : (
             <TablaDesplazable>
-            <table className="w-full min-w-[440px]">
+            <table className="tabla w-full min-w-[440px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['#', 'Equipo', 'País', ''].map(h => (
-                    <th key={h} className="text-left text-xs text-gray-500 uppercase tracking-wider px-3 py-2">{h}</th>
+                  <th scope="col" className="fija w-11 min-w-11 text-left text-xs uppercase tracking-wider px-3 py-2">#</th>
+                  <th scope="col" className="fija fija-2 fija-borde text-left text-xs uppercase tracking-wider px-3 py-2">Equipo</th>
+                  {['País', ''].map(h => (
+                    <th key={h} scope="col" className="text-left text-xs uppercase tracking-wider px-3 py-2">{h || <span className="sr-only">Acciones</span>}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {equiposInscritos.map((e, i) => (
-                  <tr key={e.idEquipo} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                    <td className="px-3 py-3 text-gray-600 text-sm">{i + 1}</td>
-                    <td className="px-3 py-3 text-white font-medium">
-                      <span className="flex items-center gap-2">
+                  <tr key={e.idEquipo} className="border-b border-gray-800/50">
+                    <td className="fija w-11 min-w-11 px-3 py-3 text-gray-500 text-sm tabular-nums">{i + 1}</td>
+                    <th scope="row" className="fija fija-2 fija-borde px-3 py-3 text-left text-white font-medium">
+                      <span className="flex items-center gap-2" title={e.nombre}>
                         <LogoEquipo nombre={e.nombre} logoUrl={logos.get(e.idEquipo)} tamano={28} />
-                        {e.nombre}
+                        <span className="min-w-0 max-w-[9rem] truncate sm:max-w-[18rem]">{e.nombre}</span>
                       </span>
-                    </td>
+                    </th>
                     <td className="px-3 py-3 text-gray-400 text-sm">{e.pais}</td>
                     <td className="px-3 py-3 text-right">
                       <button onClick={() => removerEquipo(e)}
