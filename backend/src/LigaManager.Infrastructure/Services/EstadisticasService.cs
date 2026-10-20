@@ -240,10 +240,10 @@ public class EstadisticasService : IEstadisticasService
             .AsNoTracking()
             .Where(e => (e.TipoEvento == "TARJETA_AMARILLA" || e.TipoEvento == "TARJETA_ROJA")
                      && e.Partido.Jugado && e.Partido.Jornada.IdCampeonato == idCampeonato)
-            .Select(e => new { e.IdJugador, e.TipoEvento, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante })
+            .Select(e => new { e.IdJugador, e.TipoEvento, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante })
             .ToListAsync();
 
-        if (eventos.Count == 0) return new TarjetasDto([], []);
+        if (eventos.Count == 0) return new TarjetasDto([], [], _reglas.AmarillasParaSuspension);
 
         var idsJugadores = eventos.Select(e => e.IdJugador).Distinct().ToList();
         var jugadoresInfo = await _db.Jugadores
@@ -259,7 +259,9 @@ public class EstadisticasService : IEstadisticasService
             var jugador = infoPorJugador[g.Key];
             var amarillas = g.Count(e => e.TipoEvento == "TARJETA_AMARILLA");
             var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA");
-            return new TarjetasJugadorDto(g.Key, NombreJugador(jugador.Persona), EquipoActual(jugador), amarillas, rojas, amarillas + rojas, jugador.Persona.FotoUrl);
+            var acumuladas = AmarillasEnCiclo(g.Select(e => (e.IdPartido, e.Fecha, e.TipoEvento)));
+            return new TarjetasJugadorDto(g.Key, NombreJugador(jugador.Persona), EquipoActual(jugador), amarillas, rojas, amarillas + rojas,
+                jugador.Persona.FotoUrl, acumuladas);
         })
         .OrderByDescending(x => x.Total).ThenByDescending(x => x.Rojas)
         .ToList();
@@ -295,7 +297,25 @@ public class EstadisticasService : IEstadisticasService
         .OrderBy(x => x.PuntosFairPlay)
         .ToList();
 
-        return new TarjetasDto(porJugador, porEquipo);
+        return new TarjetasDto(porJugador, porEquipo, _reglas.AmarillasParaSuspension);
+    }
+
+    // Amarillas que hoy cuentan para la próxima suspensión por acumulación. Misma regla que
+    // GetSuspensionesAsync, partido por partido y en orden:
+    //  - 2 amarillas en el mismo partido (doble amarilla): no suman; generan su propia sanción.
+    //  - 1 amarilla y 1 roja en el mismo partido: la amarilla suma.
+    //  - al llegar al límite se genera la suspensión y la cuenta vuelve a 0.
+    private int AmarillasEnCiclo(IEnumerable<(int IdPartido, DateTime Fecha, string Tipo)> eventos)
+    {
+        var enCiclo = 0;
+        foreach (var partido in eventos.GroupBy(e => (e.IdPartido, e.Fecha)).OrderBy(g => g.Key.Fecha))
+        {
+            var amarillas = partido.Count(e => e.Tipo == "TARJETA_AMARILLA");
+            if (amarillas != 1) continue;
+            enCiclo++;
+            if (enCiclo >= _reglas.AmarillasParaSuspension) enCiclo = 0;
+        }
+        return enCiclo;
     }
 
     // ── Módulo B: Suspensiones ────────────────────────────────────────────────

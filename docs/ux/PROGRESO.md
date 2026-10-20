@@ -1049,7 +1049,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - Se repitieron todas las pruebas anteriores, incluidas las 75 del rol Dirigente.
 ## 2026-10-19 — Corrección: sin visto de clasificados por defecto
 
-**Estado:** aplicada en la rama `mejora/sin-clasificados-por-defecto`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+**Estado:** publicada (PR #25). **Sin script de base de datos**: solo cambia el servidor.
 
 ### Qué cambió
 
@@ -1063,3 +1063,30 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - sin fase: Reportes (con y sin grupos), la tabla del grupo y la tabla general no marcan a nadie;
   - con una fase de 1 clasificado: se marca solo al primero en el grupo y en Reportes;
   - se repitieron todas las pruebas anteriores.
+
+---
+
+## 2026-10-19 — Mejora: amarillas acumuladas en la pestaña Tarjetas
+
+**Estado:** aplicada en la rama `mejora/tarjetas-acumuladas`. Pendiente de que Roberto la apruebe. **Sin script de base de datos.**
+
+### Qué cambió
+
+- La pestaña Tarjetas mostraba solo el historial (todas las amarillas y rojas del campeonato), y podía confundirse con las que cuentan para la suspensión.
+- Ahora, junto al historial, cada jugador tiene la columna **«Acumuladas»** (p. ej. «2/5»): las amarillas que cuentan para la próxima suspensión. Usa la misma regla que Suspensiones:
+  - al llegar a 5 se genera la suspensión y la cuenta vuelve a 0;
+  - la doble amarilla en un partido no suma (tiene su propia sanción);
+  - una amarilla con roja directa en el mismo partido sí suma.
+- A una amarilla de la suspensión, «Acumuladas» se resalta en ámbar.
+- Una línea sobre la tabla explica la diferencia entre las dos cosas.
+- La tabla por jugador ocupa más ancho para que «Acumuladas» se vea sin deslizar en la computadora.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-acumuladas`), con MySQL y partidos de prueba:
+  - un jugador con 5 amarillas (suspensión), 1 más, una doble amarilla y una amarilla con roja: historial 9 amarillas y 2 rojas, acumuladas 2;
+  - un jugador con 4 amarillas: acumuladas 4, igual al número que muestra «En riesgo» en Suspensiones;
+  - todos los jugadores en riesgo coinciden con su columna Acumuladas;
+  - se repitieron todas las pruebas anteriores.
+- Pantallas a 390 y 1.440 px: «2/5» y «4/5» visibles, la explicación sobre la tabla, sin desbordes ni errores.
+- `npm run build` sin errores; lint igual que `main`.
