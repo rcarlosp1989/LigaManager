@@ -31,7 +31,7 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
     <div>
       <div className="flex items-center justify-end gap-2 mb-3">
         <label htmlFor={`${fid}-c1`} className="text-xs text-gray-400 uppercase tracking-wider">Top</label>
-        <select id={`${fid}-c1`} className="input-field w-28" value={top} onChange={e => setTop(Number(e.target.value))}>
+        <select id={`${fid}-c1`} className="input-field" style={{ width: '7rem' }} value={top} onChange={e => setTop(Number(e.target.value))}>
           {TOPS.map(t => <option key={t} value={t}>{t === 0 ? 'Todos' : t}</option>)}
         </select>
       </div>
