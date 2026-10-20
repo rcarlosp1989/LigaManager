@@ -178,6 +178,10 @@ jobs:
           [ "$n" = "2" ]
       - name: Reversa de documento pendiente
         run: |
+          # La reversa del tipo de documento (paso anterior) recrea la columna: se vuelve a aplicar
+          # el script y se deja un jugador pendiente.
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente.sql > /dev/null
+          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE persona SET tipo_identificacion='PENDIENTE', cedula='' WHERE id_persona = (SELECT m FROM (SELECT MIN(id_persona) m FROM persona) x)"
           if mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente_reversa.sql 2>err.txt; then echo "::error::la reversa debía fallar con jugadores pendientes"; exit 1; fi
           echo "::notice title=reversa_pendiente1::con pendientes falla: $(grep -o 'ERROR.*' err.txt | head -c 150)"
           mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE persona SET tipo_identificacion='EXTRANJERO', cedula=CONCAT('99999', id_persona) WHERE tipo_identificacion='PENDIENTE'"
