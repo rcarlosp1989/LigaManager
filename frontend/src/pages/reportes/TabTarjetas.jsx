@@ -47,12 +47,12 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-6">
       <div>
         <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Por jugador</h3>
         <p className="text-gray-500 text-xs mb-2">
-          Amarillas, rojas y total: todas las del campeonato. <strong className="font-semibold text-gray-300">Acumuladas</strong>: las
-          amarillas que cuentan para la próxima suspensión; vuelven a 0 al llegar a {limite}.
+          <strong className="font-semibold text-gray-300">Acumuladas</strong>: las amarillas que cuentan para la próxima suspensión;
+          vuelven a 0 al llegar a {limite}. Amarillas, rojas y total: todas las del campeonato.
         </p>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
@@ -60,7 +60,7 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
               <thead>
                 <tr className="border-b border-gray-800">
                   <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
-                  {['Equipo', 'TARJETA_AMARILLA', 'TARJETA_ROJA', 'Total', 'Acumuladas'].map(h => (
+                  {['Equipo', 'Acumuladas', 'TARJETA_AMARILLA', 'TARJETA_ROJA', 'Total'].map(h => (
                     <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'}`}>{encabezado(h)}</th>
                   ))}
                 </tr>
@@ -72,10 +72,10 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
                       <span className="flex items-center gap-2" title={j.jugador}><FotoJugador nombre={j.jugador} fotoUrl={j.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[9rem] truncate sm:max-w-[14rem]">{j.jugador}</span></span>
                     </th>
                     <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{j.equipo}</td>
+                    <td className="px-3 py-2 text-center"><Acumuladas valor={j.amarillasAcumuladas ?? 0} limite={limite} /></td>
                     <td className="px-3 py-2 text-center"><ConteoTarjetas valor={j.amarillas} tipo="amarilla" /></td>
                     <td className="px-3 py-2 text-center"><ConteoTarjetas valor={j.rojas} tipo="roja" /></td>
                     <td className="px-3 py-2 text-white font-semibold text-center tabular-nums">{j.total}</td>
-                    <td className="px-3 py-2 text-center"><Acumuladas valor={j.amarillasAcumuladas ?? 0} limite={limite} /></td>
                   </tr>
                 ))}
               </tbody>
