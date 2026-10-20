@@ -41,12 +41,12 @@ public class EstadisticasService : IEstadisticasService
             .ToListAsync();
 
         // Equipos que clasifican: los de la primera fase del campeonato (si existe alguna), igual
-        // que ya hace GrupoService para la tabla existente. Si no hay fases, 2 por defecto.
+        // que GrupoService. Si no hay fases, no clasifica nadie (no se marca el visto).
         var equiposClasifican = await _db.FasesCampeonato
             .Where(f => f.IdCampeonato == idCampeonato)
             .OrderBy(f => f.Orden)
             .Select(f => (int?)f.EquiposClasifican)
-            .FirstOrDefaultAsync() ?? 2;
+            .FirstOrDefaultAsync() ?? 0;
 
         var grupos = await _db.Grupos
             .AsNoTracking()

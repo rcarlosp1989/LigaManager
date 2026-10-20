@@ -977,7 +977,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-19 — Rol Dirigente (solo lectura) y protección de documentos
 
-**Estado:** aplicada en la rama `mejora/rol-dirigente`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261019_rol_dirigente.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño aprobado: `docs/ux/PROPUESTA_DIRIGENTE.md`.
+**Estado:** publicada (PR #22, fusionado el 19 de octubre; script aplicado en Railway). **Necesita script de base de datos** (`backend/database/20261019_rol_dirigente.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño aprobado: `docs/ux/PROPUESTA_DIRIGENTE.md`.
 
 ### Qué cambió
 
@@ -1007,7 +1007,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-19 — Mejora: tablas con nombre fijo al deslizar y más color
 
-**Estado:** aplicada en la rama `mejora/tablas-visuales`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia la página web.
+**Estado:** publicada (PR #23). **Sin script de base de datos**: solo cambia la página web.
 
 ### Qué cambió
 
@@ -1031,7 +1031,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-19 — Mejora: nombres cortos de jugadores en la vista del dirigente
 
-**Estado:** aplicada en la rama `mejora/nombres-cortos-dirigente`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+**Estado:** publicada (PR #24). **Sin script de base de datos**: solo cambia el servidor.
 
 ### Qué cambió
 
@@ -1047,3 +1047,19 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - Todos los nombres de Goleadores, Tarjetas, Suspensiones y Nómina del dirigente son el nombre corto del completo.
   - El organizador ve los nombres completos.
   - Se repitieron todas las pruebas anteriores, incluidas las 75 del rol Dirigente.
+## 2026-10-19 — Corrección: sin visto de clasificados por defecto
+
+**Estado:** aplicada en la rama `mejora/sin-clasificados-por-defecto`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+
+### Qué cambió
+
+- Sin fase configurada, el servidor marcaba **2 clasificados por defecto** (✓ en los dos primeros) en Reportes → Posiciones y en la tabla de cada grupo. Ahora, sin configuración, no se marca ninguno.
+- El visto aparecerá solo cuando un campeonato tenga configurado cuántos clasifican (futuro módulo de configuración; hoy, una fase con `equipos_clasifican`).
+- La tabla general del campeonato ya no marcaba clasificados; no cambia.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-clasificados`), con MySQL:
+  - sin fase: Reportes (con y sin grupos), la tabla del grupo y la tabla general no marcan a nadie;
+  - con una fase de 1 clasificado: se marca solo al primero en el grupo y en Reportes;
+  - se repitieron todas las pruebas anteriores.

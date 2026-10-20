@@ -23,14 +23,15 @@ public class GrupoService : IGrupoService
 
         if (g is null) return null!;
 
-        // Si no se pasa equiposClasifican, buscar en la fase
+        // Si no se pasa equiposClasifican, buscar en la fase. Sin fase configurada no clasifica
+        // nadie (no se marca el visto): se configurará por campeonato en el módulo de configuración.
         if (equiposClasifican is null)
         {
             var fase = await _db.FasesCampeonato
                 .Where(f => f.IdCampeonato == g.IdCampeonato)
                 .OrderBy(f => f.Orden)
                 .FirstOrDefaultAsync();
-            equiposClasifican = fase?.EquiposClasifican ?? 2;
+            equiposClasifican = fase?.EquiposClasifican ?? 0;
         }
 
         var equipos = g.Equipos.Select(ge => new EquipoGrupoDto(
