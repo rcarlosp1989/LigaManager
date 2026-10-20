@@ -1002,3 +1002,27 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - la reversa del script funciona y el script se vuelve a aplicar.
 - Pantallas, en GitHub Actions con datos simulados, a 390 y 1.440 px: resumen, jornadas, posiciones, nómina propia y rival, suspensiones, invitación, pestaña Dirigentes e invitación creada; el organizador conserva documentos y «Agregar sanción»; el dirigente solo llama a `/api/dirigente` y vuelve a su pantalla si abre la administración o el modo en vivo; sin desplazamiento lateral y sin errores.
 - `npm run build` sin errores; el lint da los mismos 5 errores que `main`.
+
+---
+
+## 2026-10-19 — Mejora: tablas con nombre fijo al deslizar y más color
+
+**Estado:** aplicada en la rama `mejora/tablas-visuales`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia la página web.
+
+### Qué cambió
+
+- **Nombre fijo al deslizar:** en el celular, la columna del equipo o del jugador (y su puesto o dorsal) queda fija mientras se desliza la tabla, con una sombra que la separa. Los nombres largos se cortan con «…» y el nombre completo aparece al mantener el puntero encima.
+  - Tablas: Posiciones (Reportes, Grupos y tabla general), Goleadores, Tarjetas, Suspensiones, Nómina, Jugadores, Campeonatos y equipos inscritos.
+- **Estilo común (clase `.tabla` en `index.css`):** encabezado con tinte azul, filas alternadas muy suaves, resaltado con el turquesa de la marca al pasar el mouse.
+- **Posiciones:** una sola tabla para las tres pantallas (antes eran tres copias). Puesto en recuadro turquesa y ✓ para los clasificados, fila clasificada con tono turquesa, diferencia de goles en verde o rojo, columna de puntos resaltada.
+- **Goleadores:** medallas de oro, plata y bronce para los tres primeros y una barra que muestra los goles respecto al líder. El selector «Top» ya no ocupa todo el ancho.
+- **Tarjetas:** cantidades en recuadros amarillos y rojos (en gris si son 0).
+- **Suspensiones:** barra de partidos cumplidos (roja mientras falta cumplir, verde al terminar) y amarillas acumuladas en recuadro amarillo.
+- **Nómina:** dorsal en un círculo turquesa.
+- El color siempre va acompañado del número o el texto: no es lo único que da la información.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-tablas`), con datos simulados, a 390 y 1.440 px: 56 comprobaciones. En cada tabla que se desliza en el celular, después de deslizarla hasta el final, el nombre sigue entero a la vista y aparece la sombra; sin desplazamiento lateral de la página y sin errores.
+- La parte fija tiene el mismo tono que el resto de la fila (medido en las capturas).
+- `npm run build` sin errores; el lint da los mismos 5 errores que `main`.
