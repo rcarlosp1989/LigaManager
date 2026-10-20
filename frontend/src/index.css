@@ -18,7 +18,7 @@
   --accent: #f2c66d;
   /* Fondo sólido detrás de la columna fija de las tablas: el de la página.
      Dentro de una .card se cambia por el de la tarjeta. */
-  --fondo-tabla: var(--color-gray-950);
+  --fondo-tabla: var(--surface-950);
 }
 
 body {
@@ -246,7 +246,10 @@ select {
   z-index: 1;
   background: linear-gradient(var(--fila, transparent), var(--fila, transparent)), var(--fondo-tabla);
 }
-.tabla thead .fija { z-index: 2; }
+.tabla thead .fija {
+  z-index: 2;
+  background: linear-gradient(rgba(21, 38, 59, 0.75), rgba(21, 38, 59, 0.75)), var(--fondo-tabla);
+}
 .tabla .fija-2 { left: var(--ancho-fija-1, 2.75rem); }
 .tabla .fija-borde { transition: box-shadow 150ms ease; }
 [data-desplazada] .tabla .fija-borde { box-shadow: 10px 0 10px -10px rgba(0, 0, 0, 0.85), inset -1px 0 0 var(--line); }
