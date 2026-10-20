@@ -28,6 +28,9 @@ public class AccesoCampeonato
     private bool EsDirigente => string.Equals(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.Role), "Dirigente", StringComparison.OrdinalIgnoreCase);
 
+    // Para las respuestas: el dirigente ve los nombres cortos (primer nombre y primer apellido).
+    public bool EsDirigenteActual => EsDirigente;
+
     // ── Dirigente: solo lectura ──────────────────────────────────────────────
     // El dirigente solo llega a los servicios desde /api/dirigente (el resto de los controladores
     // lo rechaza por política). Las comprobaciones de escritura de abajo lo rechazan siempre.

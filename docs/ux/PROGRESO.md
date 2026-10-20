@@ -977,7 +977,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-19 — Rol Dirigente (solo lectura) y protección de documentos
 
-**Estado:** aplicada en la rama `mejora/rol-dirigente`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261019_rol_dirigente.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño aprobado: `docs/ux/PROPUESTA_DIRIGENTE.md`.
+**Estado:** publicada (PR #22, fusionado el 19 de octubre; script aplicado en Railway). **Necesita script de base de datos** (`backend/database/20261019_rol_dirigente.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño aprobado: `docs/ux/PROPUESTA_DIRIGENTE.md`.
 
 ### Qué cambió
 
@@ -1007,7 +1007,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-19 — Mejora: tablas con nombre fijo al deslizar y más color
 
-**Estado:** aplicada en la rama `mejora/tablas-visuales`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia la página web.
+**Estado:** publicada (PR #23). **Sin script de base de datos**: solo cambia la página web.
 
 ### Qué cambió
 
@@ -1029,6 +1029,24 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ---
 
+## 2026-10-19 — Mejora: nombres cortos de jugadores en la vista del dirigente
+
+**Estado:** publicada (PR #24). **Sin script de base de datos**: solo cambia el servidor.
+
+### Qué cambió
+
+- En la vista del dirigente, cada jugador aparece con su **primer nombre y primer apellido**: «Carlos Andrés» «Mendoza Pérez» → «Carlos Mendoza».
+  - Goleadores, Tarjetas, Suspensiones (sanciones y en riesgo) y Nómina, y por lo tanto también sus PDF y Excel.
+  - Los apellidos con partícula se respetan: «De la Cruz Pérez» → «De la Cruz», «Del Pezo» → «Del Pezo».
+- Lo hace el servidor (`Application/Common/NombreCorto.cs`) solo para el rol Dirigente; el organizador sigue viendo los nombres completos.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-nombres`), con MySQL: un jugador «Carlos Andrés De la Cruz Pérez» con una sanción.
+  - El dirigente lo ve como «Carlos De la Cruz» en la nómina y en suspensiones.
+  - Todos los nombres de Goleadores, Tarjetas, Suspensiones y Nómina del dirigente son el nombre corto del completo.
+  - El organizador ve los nombres completos.
+  - Se repitieron todas las pruebas anteriores, incluidas las 75 del rol Dirigente.
 ## 2026-10-19 — Corrección: sin visto de clasificados por defecto
 
 **Estado:** aplicada en la rama `mejora/sin-clasificados-por-defecto`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
