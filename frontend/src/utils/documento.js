@@ -7,11 +7,16 @@ export const TIPOS_DOCUMENTO = [
   { valor: 'Pasaporte',  texto: 'Pasaporte',          corto: 'Pasaporte',  ayuda: 'Letras y números, de 5 a 20',         ejemplo: 'AB1234567' },
 ]
 
-export const tipoDocumento = (valor) => TIPOS_DOCUMENTO.find(t => t.valor === valor) ?? TIPOS_DOCUMENTO[0]
+// Jugador registrado sin documento: se guarda sin número y se completa después.
+// Solo para jugadores (los oficiales ya pueden guardarse sin documento).
+export const TIPO_PENDIENTE = { valor: 'Pendiente', texto: 'Documento pendiente', corto: 'Pendiente', ayuda: 'Se guarda sin número; complétalo cuando lo tengas.', ejemplo: '' }
+
+export const tipoDocumento = (valor) => (valor === 'Pendiente' ? TIPO_PENDIENTE : TIPOS_DOCUMENTO.find(t => t.valor === valor) ?? TIPOS_DOCUMENTO[0])
 
 // Lo que se deja escribir en el campo: números para cédula y extranjero; letras y números
 // (en mayúsculas) para pasaporte.
 export function limpiarDocumento(tipo, texto) {
+  if (tipo === 'Pendiente') return ''
   const t = (texto ?? '').toUpperCase()
   if (tipo === 'Pasaporte') return t.replace(/[^A-Z0-9]/g, '').slice(0, 20)
   return t.replace(/\D/g, '').slice(0, tipo === 'Cedula' ? 10 : 15)
@@ -33,6 +38,7 @@ export function cedulaEcuatorianaValida(c) {
 
 // Mensaje de error, o null si el número es válido.
 export function errorDocumento(tipo, numero) {
+  if (tipo === 'Pendiente') return null
   const n = (numero ?? '').trim()
   if (!n) return 'Escribe el número de documento.'
   if (tipo === 'Cedula') {
@@ -46,7 +52,7 @@ export function errorDocumento(tipo, numero) {
 
 // «0912345675» o «Pasaporte AB1234567», para tablas y reportes.
 // Sin número (el servidor no lo envía a quien no debe verlo): «—».
-export const textoDocumento = (tipo, numero) => (!numero ? '—' : !tipo || tipo === 'Cedula' ? numero : `${tipoDocumento(tipo).corto} ${numero}`)
+export const textoDocumento = (tipo, numero) => (tipo === 'Pendiente' ? 'Pendiente' : !numero ? '—' : !tipo || tipo === 'Cedula' ? numero : `${tipoDocumento(tipo).corto} ${numero}`)
 
 // Para bloquear el guardado si el documento no es válido.
 export const documentoValido = (tipo, numero, opcional = false) => (opcional && !numero) || !errorDocumento(tipo, numero)

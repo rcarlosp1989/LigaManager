@@ -248,6 +248,7 @@ public class JugadorService : IJugadorService
     private Task<bool> CedulaDeJugadorPropioAsync(string tipo, string cedula, int? excepto)
     {
         var t = Enum.Parse<TipoIdentificacion>(tipo);
+        if (t == TipoIdentificacion.Pendiente) return Task.FromResult(false);   // sin número: no se compara
         return _db.Jugadores.AnyAsync(j => j.Persona.Cedula == cedula && j.Persona.TipoIdentificacion == t
                                     && (excepto == null || j.IdPersona != excepto)
                                     && j.JugadorEquipos.Any(je => je.Equipo.IdUsuarioCreador == UsuarioActualId));

@@ -20,4 +20,5 @@ public class Persona
     public Arbitro? Arbitro  { get; set; }
 }
 
-public enum TipoIdentificacion { Cedula, Extranjero, Pasaporte }
+// Pendiente: el jugador se registró sin documento; se completa después (solo jugadores).
+public enum TipoIdentificacion { Cedula, Extranjero, Pasaporte, Pendiente }

@@ -124,7 +124,11 @@ export default function TabNomina({
                     <th scope="row" className="fija fija-2 fija-borde px-3 py-2 text-left font-medium text-white" style={{ '--ancho-fija-1': '3rem' }}>
                       <span className="flex items-center gap-2" title={`${j.apellido}, ${j.nombre}`}><FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} /><span className="min-w-0 max-w-[8rem] truncate sm:max-w-[16rem]">{j.apellido}, {j.nombre}</span></span>
                     </th>
-                    <td className="px-3 py-2 text-gray-400 text-center">{textoDocumento(j.tipoIdentificacion, j.cedula)}</td>
+                    <td className="px-3 py-2 text-gray-400 text-center">
+                      {j.tipoIdentificacion === 'Pendiente'
+                        ? <span className="rounded px-1.5 py-0.5 text-xs font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/40 bg-amber-400/10">Pendiente</span>
+                        : textoDocumento(j.tipoIdentificacion, j.cedula)}
+                    </td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.posicion ?? 'Sin posición'}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.edad}</td>
                     <td className="px-3 py-2 text-gray-500 text-center text-xs">{j.fechaDesde}</td>

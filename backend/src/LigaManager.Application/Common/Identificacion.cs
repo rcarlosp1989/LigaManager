@@ -4,16 +4,18 @@ namespace LigaManager.Application.Common;
 //  - Cedula:     cédula ecuatoriana, 10 números con provincia y dígito verificador válidos.
 //  - Extranjero: documento de otro país (cédula, DNI…), solo números, de 5 a 15.
 //  - Pasaporte:  letras y números, sin espacios ni símbolos, de 5 a 20; se guarda en mayúsculas.
+//  - Pendiente:  todavía no se conoce; se guarda sin número (solo jugadores) y se completa después.
 public static class Identificacion
 {
-    public static readonly string[] Tipos = { "Cedula", "Extranjero", "Pasaporte" };
+    public static readonly string[] Tipos = { "Cedula", "Extranjero", "Pasaporte", "Pendiente" };
 
     // Devuelve el tipo y el número listos para guardar, o el mensaje de error.
     public static (string Tipo, string Numero, string? Error) Validar(string? tipo, string? numero)
     {
         var t = Tipos.FirstOrDefault(x => string.Equals(x, tipo?.Trim(), StringComparison.OrdinalIgnoreCase))
                 ?? (string.IsNullOrWhiteSpace(tipo) ? "Cedula" : null);
-        if (t is null) return ("", "", "Tipo de documento inválido. Usa Cédula, Extranjero o Pasaporte.");
+        if (t is null) return ("", "", "Tipo de documento inválido. Usa Cédula, Extranjero, Pasaporte o Pendiente.");
+        if (t == "Pendiente") return (t, "", null);   // sin número: se completa al tenerlo
 
         // Se toleran espacios y guiones al escribir.
         var n = new string((numero ?? "").Where(c => c != ' ' && c != '-').ToArray()).ToUpperInvariant();

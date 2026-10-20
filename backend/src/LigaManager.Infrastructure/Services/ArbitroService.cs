@@ -78,6 +78,7 @@ public class ArbitroService : IArbitroService
         {
             var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
             if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
+            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deja el número vacío.");
             tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
             cedula  = doc.Numero;
             if (await _db.Arbitros.AnyAsync(a => a.IdUsuarioCreador == UsuarioActualId
@@ -125,6 +126,7 @@ public class ArbitroService : IArbitroService
         {
             var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
             if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
+            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deja el número vacío.");
             var tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
             if (await _db.Arbitros.AnyAsync(x => x.IdArbitro != id && x.IdUsuarioCreador == UsuarioActualId
                     && x.Persona.Cedula == doc.Numero && x.Persona.TipoIdentificacion == tipoDoc))
