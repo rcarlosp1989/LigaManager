@@ -78,6 +78,14 @@ Al crear una temporada (o con **Editar → Configuración**) se definen sus regl
 | **Disciplina** | Amarillas para suspensión · fechas por roja, por doble amarilla y por acumulación · arrastrar suspensiones a la temporada siguiente | 5 · 2 · 1 · 1 · Sí (los valores de hoy; **iguales en Fútbol e Indor**, según Roberto) |
 | **Etapa 1** | Formato: todos contra todos o grupos · número de grupos · una vuelta o ida y vuelta · clasifican por grupo | Todos contra todos, una vuelta |
 
+> **Pendiente de verificar al hacer este módulo (19 oct 2026):** el campeonato actual de Roberto suspende con **3 amarillas**, no 5.
+> Mientras no existe la configuración por temporada, se fijó para todos los campeonatos con la variable de Railway
+> `ReglasDisciplinarias__AmarillasParaSuspension=3` (servicio upbeat-cooperation). Al terminar este módulo hay que:
+>
+> 1. confirmar que «Amarillas para suspensión» se configura por temporada y que Suspensiones, «En riesgo» y la columna «Acumuladas» de Tarjetas usan ese valor;
+> 2. poner 3 en la temporada de ese campeonato;
+> 3. quitar la variable de Railway (el valor general vuelve a ser 5).
+
 **Cuándo se puede cambiar:**
 
 - **Antes de que se juegue el primer partido:** todo se puede cambiar.
