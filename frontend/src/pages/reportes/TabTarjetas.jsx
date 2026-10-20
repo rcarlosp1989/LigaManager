@@ -52,7 +52,7 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
         <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Por jugador</h3>
         <p className="text-gray-500 text-xs mb-2">
           <strong className="font-semibold text-gray-300">Acumuladas</strong>: las amarillas que cuentan para la próxima suspensión;
-          vuelven a 0 al llegar a {limite}. Amarillas, rojas y total: todas las del campeonato.
+          vuelven a 0 al llegar a {limite}. Amarillas, rojas y total: todas las del campeonato; «DA» es una roja por doble amarilla.
         </p>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
@@ -74,7 +74,11 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
                     <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{j.equipo}</td>
                     <td className="px-3 py-2 text-center"><Acumuladas valor={j.amarillasAcumuladas ?? 0} limite={limite} /></td>
                     <td className="px-3 py-2 text-center"><ConteoTarjetas valor={j.amarillas} tipo="amarilla" /></td>
-                    <td className="px-3 py-2 text-center"><ConteoTarjetas valor={j.rojas} tipo="roja" /></td>
+                    <td className="px-3 py-2 text-center"
+                      title={j.rojasPorDobleAmarilla > 0 ? `Incluye ${j.rojasPorDobleAmarilla} por doble amarilla` : undefined}>
+                      <ConteoTarjetas valor={j.rojas} tipo="roja" />
+                      {j.rojasPorDobleAmarilla > 0 && <span className="ml-1 align-middle text-[10px] text-gray-500">({j.rojasPorDobleAmarilla} DA)</span>}
+                    </td>
                     <td className="px-3 py-2 text-white font-semibold text-center tabular-nums">{j.total}</td>
                   </tr>
                 ))}

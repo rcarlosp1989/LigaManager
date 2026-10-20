@@ -258,10 +258,14 @@ public class EstadisticasService : IEstadisticasService
         {
             var jugador = infoPorJugador[g.Key];
             var amarillas = g.Count(e => e.TipoEvento == "TARJETA_AMARILLA");
-            var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA");
+            // Una doble amarilla en un partido es una expulsión: cuenta como roja en el historial,
+            // salvo que la roja ya esté registrada en ese partido (para no contarla dos veces).
+            var porDobleAmarilla = g.GroupBy(e => e.IdPartido)
+                .Count(p => p.Count(e => e.TipoEvento == "TARJETA_AMARILLA") >= 2 && !p.Any(e => e.TipoEvento == "TARJETA_ROJA"));
+            var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA") + porDobleAmarilla;
             var acumuladas = AmarillasEnCiclo(g.Select(e => (e.IdPartido, e.Fecha, e.TipoEvento)));
             return new TarjetasJugadorDto(g.Key, NombreJugador(jugador.Persona), EquipoActual(jugador), amarillas, rojas, amarillas + rojas,
-                jugador.Persona.FotoUrl, acumuladas);
+                jugador.Persona.FotoUrl, acumuladas, porDobleAmarilla);
         })
         .OrderByDescending(x => x.Total).ThenByDescending(x => x.Rojas)
         .ToList();
@@ -282,6 +286,23 @@ public class EstadisticasService : IEstadisticasService
             porEquipoAcumulado[vinculo.IdEquipo] = e.TipoEvento == "TARJETA_AMARILLA"
                 ? (actual.Amarillas + 1, actual.Rojas)
                 : (actual.Amarillas, actual.Rojas + 1);
+        }
+
+        // Doble amarilla sin roja registrada: la expulsión cuenta como roja también en el fair play,
+        // igual que si se hubiera registrado (así pesa lo mismo de las dos formas).
+        foreach (var dobles in eventos
+                     .GroupBy(e => (e.IdJugador, e.IdPartido))
+                     .Where(p => p.Count(e => e.TipoEvento == "TARJETA_AMARILLA") >= 2 && !p.Any(e => e.TipoEvento == "TARJETA_ROJA")))
+        {
+            var e = dobles.First();
+            var jugador = infoPorJugador[e.IdJugador];
+            var fecha = DateOnly.FromDateTime(e.Fecha);
+            var vinculo = jugador.JugadorEquipos.FirstOrDefault(je =>
+                (je.IdEquipo == e.IdEquipoLocal || je.IdEquipo == e.IdEquipoVisitante)
+                && je.FechaDesde <= fecha && (je.FechaHasta == null || je.FechaHasta >= fecha));
+            if (vinculo is null) continue;
+            if (!porEquipoAcumulado.TryGetValue(vinculo.IdEquipo, out var actual)) actual = (0, 0);
+            porEquipoAcumulado[vinculo.IdEquipo] = (actual.Amarillas, actual.Rojas + 1);
         }
 
         var idsEquipo = porEquipoAcumulado.Keys.ToList();
