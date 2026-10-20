@@ -51,6 +51,8 @@ export default function TabPosiciones({ idCampeonato, campeonato, base = `/campe
   })
 
   const gruposConDatos = tabla?.grupos?.filter(g => g.posiciones.length > 0) ?? []
+  // La leyenda «Clasificado» solo si el campeonato tiene configurado cuántos clasifican.
+  const hayClasificados = gruposConDatos.some(g => g.posiciones.some(p => p.clasificado))
   const filasExport = gruposConDatos.flatMap(g => g.posiciones.map(p => ([
     g.grupo ?? '—', p.posicion, p.equipo, p.pj, p.pg, p.pe, p.pp, p.gf, p.gc, p.dg, p.pts,
     p.clasificado ? 'Sí' : 'No', (p.forma ?? []).join(', '),
@@ -89,7 +91,7 @@ export default function TabPosiciones({ idCampeonato, campeonato, base = `/campe
           ))}
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mt-2">
-            <span className="flex items-center gap-1.5"><span className="inline-flex h-4 w-4 items-center justify-center rounded bg-brand-500/15 text-[9px] font-semibold text-brand-300 ring-1 ring-inset ring-brand-500/40">1</span> Clasificado</span>
+            {hayClasificados && <span className="flex items-center gap-1.5"><span className="inline-flex h-4 w-4 items-center justify-center rounded bg-brand-500/15 text-[9px] font-semibold text-brand-300 ring-1 ring-inset ring-brand-500/40">1</span> Clasificado</span>}
             <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-green-500 inline-flex items-center justify-center text-[8px] text-green-950 font-bold">V</span> Victoria</span>
             <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-yellow-500 inline-flex items-center justify-center text-[8px] text-yellow-950 font-bold">E</span> Empate</span>
             <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-red-500 inline-flex items-center justify-center text-[8px] text-red-950 font-bold">D</span> Derrota</span>
