@@ -1026,3 +1026,22 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - GitHub Actions (rama temporal `ci/verificar-tablas`), con datos simulados, a 390 y 1.440 px: 56 comprobaciones. En cada tabla que se desliza en el celular, después de deslizarla hasta el final, el nombre sigue entero a la vista y aparece la sombra; sin desplazamiento lateral de la página y sin errores.
 - La parte fija tiene el mismo tono que el resto de la fila (medido en las capturas).
 - `npm run build` sin errores; el lint da los mismos 5 errores que `main`.
+
+---
+
+## 2026-10-19 — Corrección: sin visto de clasificados por defecto
+
+**Estado:** aplicada en la rama `mejora/sin-clasificados-por-defecto`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+
+### Qué cambió
+
+- Sin fase configurada, el servidor marcaba **2 clasificados por defecto** (✓ en los dos primeros) en Reportes → Posiciones y en la tabla de cada grupo. Ahora, sin configuración, no se marca ninguno.
+- El visto aparecerá solo cuando un campeonato tenga configurado cuántos clasifican (futuro módulo de configuración; hoy, una fase con `equipos_clasifican`).
+- La tabla general del campeonato ya no marcaba clasificados; no cambia.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-clasificados`), con MySQL:
+  - sin fase: Reportes (con y sin grupos), la tabla del grupo y la tabla general no marcan a nadie;
+  - con una fase de 1 clasificado: se marca solo al primero en el grupo y en Reportes;
+  - se repitieron todas las pruebas anteriores.
