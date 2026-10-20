@@ -1099,3 +1099,15 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 - El aviso «Desliza» de las tablas anchas ahora aparece solo en celulares y tablets (pantalla táctil). En la computadora tapaba el título de la última columna visible, y ahí ya se ven la barra de desplazamiento y el borde difuminado.
 - Verificado en GitHub Actions (rama temporal `ci/verificar-desliza`): a 390 px táctil se ve; a 1.440 px con mouse no, aunque la tabla se desliza. 64 comprobaciones de pantalla bien; build correcto y lint igual que `main`.
+
+---
+
+## 2026-10-19 — Corrección: la doble amarilla cuenta como roja en el historial
+
+**Estado:** aplicada en la rama `mejora/roja-doble-amarilla`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Al registrar una doble amarilla, la roja que provoca no siempre queda como evento propio, y la pestaña Tarjetas mostraba 2 amarillas y 0 rojas.
+- Ahora, en el historial por jugador y en el fair play por equipo, un partido con dos amarillas del mismo jugador suma también **1 roja**. Si la roja ya estaba registrada en ese partido, no se cuenta dos veces.
+- En la tabla por jugador se indica con «(1 DA)» junto a las rojas.
+- Las amarillas acumuladas no cambian: la doble amarilla sigue sin sumar a la acumulación, y Suspensiones ya la reconocía como «Doble amarilla».
+- Verificado en GitHub Actions (rama temporal `ci/verificar-doble-amarilla`): doble amarilla sin roja registrada (2 amarillas, 1 roja, total 3, acumuladas 0); con roja registrada no se duplica; el fair play del equipo suma la roja; Suspensiones la muestra como «Doble amarilla». Todas las pruebas anteriores y 62 comprobaciones de pantalla bien.
