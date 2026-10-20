@@ -73,7 +73,7 @@ function JugadorForm({ onSubmit, loading, error }) {
             onChange={e => set('apellido', e.target.value)} placeholder="Pérez" />
         </div>
       </div>
-      <CampoDocumento tipo={form.tipoIdentificacion} numero={form.cedula}
+      <CampoDocumento conPendiente tipo={form.tipoIdentificacion} numero={form.cedula}
         onChange={d => setForm(f => ({ ...f, tipoIdentificacion: d.tipo, cedula: d.numero }))} />
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
@@ -164,7 +164,7 @@ function EditarJugadorForm({ jugador, onSubmit, loading, error }) {
           {posiciones.map(posicion => <option key={posicion} value={posicion}>{posicion}</option>)}
         </select>
       </div>
-      <CampoDocumento tipo={form.tipoIdentificacion} numero={form.cedula} forzar={intento}
+      <CampoDocumento conPendiente tipo={form.tipoIdentificacion} numero={form.cedula} forzar={intento}
         onChange={d => setForm(f => ({ ...f, tipoIdentificacion: d.tipo, cedula: d.numero }))} />
       <CampoFoto id={`${fid}-c15`} nombre={`${form.nombre} ${form.apellido}`.trim()} fotoActual={jugador.fotoUrl}
         archivo={form.foto} onChange={f => set('foto', f)} />
@@ -361,6 +361,9 @@ export default function Jugadores() {
                     <p className="flex items-center gap-2.5 text-white font-medium" title={`${j.apellido}, ${j.nombre}`}>
                       <FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} />
                       <span className="min-w-0 max-w-[8rem] truncate sm:max-w-[16rem]">{j.apellido}, {j.nombre}</span>
+                      {j.tipoIdentificacion === 'Pendiente' && (
+                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/40 bg-amber-400/10">Doc. pendiente</span>
+                      )}
                     </p>
                   </th>
                   <td className="px-5 py-4 text-gray-400 text-sm">{j.ubicacion}</td>

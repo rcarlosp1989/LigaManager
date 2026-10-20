@@ -36,7 +36,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new CreateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton,
+            form.Nombre, form.Apellido, form.Cedula ?? "", form.FechaNac, form.IdPais, form.IdCanton,
             form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.CreateAsync(request);
@@ -49,7 +49,7 @@ public class JugadoresController : ControllerBase
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new UpdateJugadorRequest(
-            form.Nombre, form.Apellido, form.Cedula, form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal, form.TipoIdentificacion);
+            form.Nombre, form.Apellido, form.Cedula ?? "", form.FechaNac, form.IdPais, form.IdCanton, fotoUrl, form.Posicion, form.Dorsal, form.TipoIdentificacion);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.UpdateAsync(id, request);
         if (!result.Success) await _imagenes.BorrarAsync(fotoUrl);
@@ -110,7 +110,7 @@ public sealed class CreateJugadorForm
 {
     public string Nombre { get; set; } = "";
     public string Apellido { get; set; } = "";
-    public string Cedula { get; set; } = "";
+    public string? Cedula { get; set; }   // vacío si el documento está pendiente
     public string? TipoIdentificacion { get; set; }
     public string FechaNac { get; set; } = "";
     public int IdPais { get; set; }
@@ -126,7 +126,7 @@ public sealed class UpdateJugadorForm
 {
     public string Nombre { get; set; } = "";
     public string Apellido { get; set; } = "";
-    public string Cedula { get; set; } = "";
+    public string? Cedula { get; set; }   // vacío si el documento está pendiente
     public string? TipoIdentificacion { get; set; }
     public string FechaNac { get; set; } = "";
     public int IdPais { get; set; }

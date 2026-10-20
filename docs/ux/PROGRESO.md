@@ -1111,3 +1111,26 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En la tabla por jugador se indica con «(1 DA)» junto a las rojas.
 - Las amarillas acumuladas no cambian: la doble amarilla sigue sin sumar a la acumulación, y Suspensiones ya la reconocía como «Doble amarilla».
 - Verificado en GitHub Actions (rama temporal `ci/verificar-doble-amarilla`): doble amarilla sin roja registrada (2 amarillas, 1 roja, total 3, acumuladas 0); con roja registrada no se duplica; el fair play del equipo suma la roja; Suspensiones la muestra como «Doble amarilla». Todas las pruebas anteriores y 62 comprobaciones de pantalla bien.
+
+---
+
+## 2026-10-19 — Mejora: documento pendiente para jugadores
+
+**Estado:** aplicada en la rama `mejora/documento-pendiente`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261019_documento_pendiente.sql`), que se ejecuta en Railway **antes** de fusionar.
+
+### Qué cambió
+
+- Tipo de documento nuevo **«Documento pendiente»** en el formulario del jugador (crear y editar), para quien todavía no tiene su cédula a mano. Se guarda sin número y el formulario explica que se completa después.
+- No cuenta para la regla de documentos repetidos: puede haber varios jugadores pendientes.
+- En la **nómina** (y sus PDF y Excel) aparece «Pendiente» en ámbar; en la **lista de Jugadores**, «Doc. pendiente» junto al nombre.
+- Al completarlo con Editar se valida como siempre (cédula con dígito verificador, extranjero o pasaporte).
+- Solo jugadores: un oficial sin documento ya se puede guardar dejando el número vacío; el servidor rechaza «Pendiente» para oficiales.
+- Dirigente: ve «Pendiente» en la nómina de su equipo; en la de los rivales, «—», como cualquier documento.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-pendiente`), con MySQL y el script real:
+  - 11 pruebas: registrar pendiente con número vacío o sin enviarlo, varios pendientes sin chocar, el número que llegue se descarta, con tipo Cédula el número sigue siendo obligatorio y se valida, la nómina y la lista traen el tipo, completar la cédula, la regla de repetidos sigue funcionando, volver a dejarlo pendiente, oficiales rechazados;
+  - el script agrega el tipo; la reversa se niega mientras haya jugadores pendientes y funciona cuando ya no los hay;
+  - todas las pruebas anteriores siguen pasando.
+- Pantallas a 390 y 1.440 px: «Pendiente» en la nómina y «Doc. pendiente» en la lista; 68 comprobaciones sin errores. Build correcto y lint igual que `main`.
