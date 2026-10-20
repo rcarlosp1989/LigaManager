@@ -189,17 +189,20 @@ for (const ancho of [390, 1440]) {
     for (const [tab, texto] of dirigente) {
       await page.goto(`${APP}/dirigente?tab=${tab}`)
       await page.getByText(texto).first().waitFor()
+      if (tab === 'tarjetas') {
+        await page.waitForTimeout(300)
+          // La tabla se desliza en los dos tamaños; «Desliza» solo debe verse con pantalla táctil.
+          const seDesliza = await page.evaluate(() => [...document.querySelectorAll('table.tabla')].some(t => t.parentElement.scrollWidth > t.parentElement.clientWidth + 2))
+          const visible = await page.getByText('Desliza', { exact: true }).first().isVisible().catch(() => false)
+          if (ancho < 500) ok(`tarjetas @${ancho} (táctil): se ve «Desliza»`, visible)
+          else ok(`tarjetas @${ancho} (mouse): no se ve «Desliza»${seDesliza ? ' aunque la tabla se desliza' : ''}`, !visible)
+      }
       await captura(page, `dir_${tab}`, ancho)
       await revisarFija(page, `dirigente ${tab}`, ancho)
       if (ancho < 500) await page.screenshot({ path: `capturas/dir_${tab}_deslizada_${ancho}.png`, fullPage: true })
       if (tab === 'tarjetas') {
         ok(`tarjetas @${ancho}: muestra «2/5» y «4/5»`, await page.getByText('2/5').count() === 1 && await page.getByText('4/5').count() === 1)
         ok(`tarjetas @${ancho}: explica el historial y las acumuladas`, await page.getByText(/vuelven a 0 al llegar a 5/).isVisible())
-        // La tabla se desliza en los dos tamaños; «Desliza» solo debe verse con pantalla táctil.
-        const seDesliza = await page.evaluate(() => [...document.querySelectorAll('table.tabla')].some(t => t.parentElement.scrollWidth > t.parentElement.clientWidth + 2))
-        const visible = await page.getByText('Desliza', { exact: true }).first().isVisible().catch(() => false)
-        if (ancho < 500) ok(`tarjetas @${ancho} (táctil): se ve «Desliza»`, visible)
-        else ok(`tarjetas @${ancho} (mouse): no se ve «Desliza»${seDesliza ? ' aunque la tabla se desliza' : ''}`, !visible)
       }
     }
     ok(`sin errores (dirigente) @${ancho}`, errores.length === 0, errores.join(' | '))
