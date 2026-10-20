@@ -33,7 +33,10 @@ esperar("el servidor informa el límite de acumulación", L == 5, str(L))
 
 _, camp = llamar("GET", f"/campeonatos/{B}", org2)
 local, visita = [e["idEquipo"] for e in camp["equipos"]][:2]
-jug = [j["idJugador"] for j in llamar("GET", f"/equipos/{local}", org2)[1]["jugadores"]]
+hoy0 = datetime.date.fromisoformat(D["hoy"])
+# Jugadores inscritos desde antes de los partidos de prueba (otras pruebas agregan jugadores con fecha de hoy).
+jug = [j["idJugador"] for j in llamar("GET", f"/equipos/{local}", org2)[1]["jugadores"]
+       if datetime.date.fromisoformat(j["fechaDesde"]) <= hoy0 - datetime.timedelta(days=60)]
 P1, P2 = jug[-1], jug[-2]
 inst = sql(f"SELECT id_instancia FROM jornada WHERE id_campeonato={B} LIMIT 1")
 hoy = datetime.date.fromisoformat(D["hoy"])
