@@ -259,12 +259,12 @@ export default function Campeonatos() {
       ) : (
         <div className="card p-0 overflow-hidden">
           <TablaDesplazable>
-          <table className="w-full min-w-[720px]">
+          <table className="tabla w-full min-w-[720px]">
             <thead>
               <tr className="border-b border-gray-800">
-                {columnas.map(h => (
-                  <th key={h || 'acciones'} className="text-left text-xs text-gray-400 uppercase
-                                         tracking-wider px-5 py-3">
+                {columnas.map((h, i) => (
+                  <th key={h || 'acciones'} scope="col" className={`text-left text-xs uppercase
+                                         tracking-wider px-5 py-3 ${i === 0 ? 'fija fija-borde' : ''}`}>
                     {h || <span className="sr-only">Acciones</span>}
                   </th>
                 ))}
@@ -277,7 +277,7 @@ export default function Campeonatos() {
                   <tr key={c.idCampeonato}
                     className="table-row cursor-pointer"
                     onClick={() => navigate(`/campeonatos/${c.idCampeonato}`)}>
-                    <td className="px-5 py-4 min-w-48">
+                    <td className="fija fija-borde px-5 py-4 min-w-40 max-w-[11rem] sm:min-w-48 sm:max-w-none">
                       <Link
                         to={`/campeonatos/${c.idCampeonato}`}
                         onClick={e => e.stopPropagation()}

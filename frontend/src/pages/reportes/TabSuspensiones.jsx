@@ -6,6 +6,7 @@ import EmptyState from '../../components/EmptyState'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import FotoJugador from '../../components/FotoJugador'
+import { Avance, ConteoTarjetas } from '../../components/Indicadores'
 
 function hoy() {
   return new Date().toISOString().slice(0, 10)
@@ -167,25 +168,28 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
             <TablaDesplazable>
-              <table className="w-full text-sm min-w-[620px]">
+              <table className="tabla w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="border-b border-gray-800">
-                    {['Jugador', 'Equipo', 'Motivo', 'Fecha', 'Partidos', 'Estado', ''].map(h => (
-                      <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
+                    <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
+                    {['Equipo', 'Motivo', 'Fecha', 'Partidos', 'Estado', ''].map(h => (
+                      <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' || h === 'Motivo' ? 'text-left' : 'text-center'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {sanciones.map((s, i) => (
-                    <tr key={`${s.idJugador}-${s.idPartidoSancion ?? 'manual'}-${i}`} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={s.jugador} fotoUrl={s.fotoUrl} tamano={28} />{s.jugador}</span></td>
-                      <td className="px-3 py-2 text-gray-400">{s.equipo}</td>
+                    <tr key={`${s.idJugador}-${s.idPartidoSancion ?? 'manual'}-${i}`} className="border-b border-gray-800/50">
+                      <th scope="row" className="fija fija-borde px-3 py-2 text-left font-medium text-white">
+                        <span className="flex items-center gap-2" title={s.jugador}><FotoJugador nombre={s.jugador} fotoUrl={s.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[9rem] truncate sm:max-w-[14rem]">{s.jugador}</span></span>
+                      </th>
+                      <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{s.equipo}</td>
                       <td className="px-3 py-2 text-gray-300">
                         {s.motivo}
                         {s.manual && <span className="ml-1.5 text-[10px] text-brand-400 border border-brand-700/50 rounded px-1 py-0.5 align-middle">Comisión</span>}
                       </td>
                       <td className="px-3 py-2 text-gray-500 text-center text-xs">{s.fechaPartidoSancion}</td>
-                      <td className="px-3 py-2 text-gray-400 text-center">{s.partidosCumplidos}/{s.partidosSancion}</td>
+                      <td className="px-3 py-2 text-center"><Avance hecho={s.partidosCumplidos} total={s.partidosSancion} /></td>
                       <td className="px-3 py-2 text-center">
                         <span className={`text-xs px-2 py-0.5 rounded ${
                           s.estado === 'Suspendido' ? 'bg-red-900/30 text-red-400' : 'bg-green-900/30 text-green-400'
@@ -216,20 +220,23 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
             <TablaDesplazable>
-              <table className="w-full text-sm min-w-[380px]">
+              <table className="tabla w-full text-sm min-w-[380px]">
                 <thead>
                   <tr className="border-b border-gray-800">
-                    {['Jugador', 'Equipo', 'Amarillas acumuladas'].map(h => (
-                      <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
+                    <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
+                    {['Equipo', 'Amarillas acumuladas'].map(h => (
+                      <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {enRiesgo.map(r => (
-                    <tr key={r.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={r.jugador} fotoUrl={r.fotoUrl} tamano={28} />{r.jugador}</span></td>
-                      <td className="px-3 py-2 text-gray-400">{r.equipo}</td>
-                      <td className="px-3 py-2 text-yellow-400 text-center font-semibold">{r.amarillasAcumuladas}</td>
+                    <tr key={r.idJugador} className="border-b border-gray-800/50">
+                      <th scope="row" className="fija fija-borde px-3 py-2 text-left font-medium text-white">
+                        <span className="flex items-center gap-2" title={r.jugador}><FotoJugador nombre={r.jugador} fotoUrl={r.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[9rem] truncate sm:max-w-[16rem]">{r.jugador}</span></span>
+                      </th>
+                      <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{r.equipo}</td>
+                      <td className="px-3 py-2 text-center"><ConteoTarjetas valor={r.amarillasAcumuladas} tipo="amarilla" /></td>
                     </tr>
                   ))}
                 </tbody>

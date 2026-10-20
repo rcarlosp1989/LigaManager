@@ -6,6 +6,7 @@ import EmptyState from '../../components/EmptyState'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { Balon } from '../../components/IconoEvento'
 import FotoJugador from '../../components/FotoJugador'
+import { Puesto, ValorConBarra } from '../../components/Indicadores'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
@@ -21,6 +22,8 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
     enabled: !!idCampeonato,
   })
 
+  const maxGoles = Math.max(0, ...goleadores.map(g => g.goles))
+
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando goleadores...</p>
   if (isError) return <EstadoError mensaje="No se pudieron cargar los goleadores." onReintentar={refetch} reintentando={isFetching} />
 
@@ -28,7 +31,7 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
     <div>
       <div className="flex items-center justify-end gap-2 mb-3">
         <label htmlFor={`${fid}-c1`} className="text-xs text-gray-400 uppercase tracking-wider">Top</label>
-        <select id={`${fid}-c1`} className="input-field w-28" value={top} onChange={e => setTop(Number(e.target.value))}>
+        <select id={`${fid}-c1`} className="input-field" style={{ width: '7rem' }} value={top} onChange={e => setTop(Number(e.target.value))}>
           {TOPS.map(t => <option key={t} value={t}>{t === 0 ? 'Todos' : t}</option>)}
         </select>
       </div>
@@ -38,23 +41,27 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
       ) : (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className="w-full text-sm min-w-[480px]">
+            <table className="tabla w-full text-sm min-w-[520px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['#', 'Jugador', 'Equipo', 'PJ', 'Goles', 'Prom.'].map(h => (
-                    <th key={h} className="text-xs text-gray-500 uppercase tracking-wider px-3 py-2 text-center first:text-left">{h}</th>
+                  <th scope="col" className="fija w-11 min-w-11 px-3 py-2 text-left text-xs uppercase tracking-wider">#</th>
+                  <th scope="col" className="fija fija-2 fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
+                  {['Equipo', 'PJ', 'Goles', 'Prom.'].map(h => (
+                    <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'} ${h === 'Goles' ? 'text-brand-300' : ''}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {goleadores.map((g, i) => (
-                  <tr key={g.idJugador} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                    <td className="px-3 py-2 text-gray-400 text-xs">{i + 1}</td>
-                    <td className="px-3 py-2 text-white font-medium whitespace-nowrap"><span className="flex items-center gap-2"><FotoJugador nombre={g.jugador} fotoUrl={g.fotoUrl} tamano={28} />{g.jugador}</span></td>
-                    <td className="px-3 py-2 text-gray-400">{g.equipo}</td>
-                    <td className="px-3 py-2 text-gray-400 text-center">{g.partidosJugados}</td>
-                    <td className="px-3 py-2 text-white font-semibold text-center">{g.goles}</td>
-                    <td className="px-3 py-2 text-gray-400 text-center">{g.promedioPorPartido.toFixed(2)}</td>
+                  <tr key={g.idJugador} className="border-b border-gray-800/50">
+                    <td className="fija w-11 min-w-11 px-3 py-2"><Puesto n={i + 1} medallas /></td>
+                    <th scope="row" className="fija fija-2 fija-borde px-3 py-2 text-left font-medium text-white">
+                      <span className="flex items-center gap-2" title={g.jugador}><FotoJugador nombre={g.jugador} fotoUrl={g.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[8.5rem] truncate sm:max-w-[16rem]">{g.jugador}</span></span>
+                    </th>
+                    <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{g.equipo}</td>
+                    <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.partidosJugados}</td>
+                    <td className="px-3 py-2 text-center"><ValorConBarra valor={g.goles} maximo={maxGoles} /></td>
+                    <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.promedioPorPartido.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
