@@ -1049,7 +1049,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - Se repitieron todas las pruebas anteriores, incluidas las 75 del rol Dirigente.
 ## 2026-10-19 — Corrección: sin visto de clasificados por defecto
 
-**Estado:** aplicada en la rama `mejora/sin-clasificados-por-defecto`. Pendiente de que Roberto la apruebe. **Sin script de base de datos**: solo cambia el servidor.
+**Estado:** publicada (PR #25). **Sin script de base de datos**: solo cambia el servidor.
 
 ### Qué cambió
 
