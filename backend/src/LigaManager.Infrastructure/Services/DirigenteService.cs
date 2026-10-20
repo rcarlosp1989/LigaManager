@@ -291,8 +291,9 @@ public class DirigenteService
 
         return ServiceResult<EquipoDetalleDto>.Ok(new EquipoDetalleDto(
             e.IdEquipo, e.Nombre, e.IdPais, e.Pais.Nombre,
+            // Nombres cortos (primer nombre y primer apellido), como en el resto de la vista del dirigente.
             jugadores.Select(j => new JugadorEnEquipoDto(
-                j.IdJugador, j.Nombre, j.Apellido, j.FechaDesde.ToString("yyyy-MM-dd"), j.FechaHasta?.ToString("yyyy-MM-dd"),
+                j.IdJugador, NombreCorto.PrimerNombre(j.Nombre), NombreCorto.PrimerApellido(j.Apellido), j.FechaDesde.ToString("yyyy-MM-dd"), j.FechaHasta?.ToString("yyyy-MM-dd"),
                 j.Dorsal,
                 conDocumento ? j.Cedula : "",
                 j.Posicion, Edad(j.FechaNac), j.FotoUrl,

@@ -22,6 +22,10 @@ public class EstadisticasService : IEstadisticasService
         _reglas = reglas.Value;
     }
 
+    // Nombre del jugador en los reportes. Para el dirigente, solo primer nombre y primer apellido.
+    private string NombreJugador(Persona p)
+        => _acceso.EsDirigenteActual ? NombreCorto.De(p.Nombre, p.Apellido) : $"{p.Nombre} {p.Apellido}";
+
     // ── Módulo A: Posiciones con forma ───────────────────────────────────────
 
     public async Task<TablaPosicionesDto> GetPosicionesAsync(int idCampeonato, int? idGrupo)
@@ -199,7 +203,7 @@ public class EstadisticasService : IEstadisticasService
             var pj = partidosPorJugador.GetValueOrDefault(g.IdJugador, 0);
             return new GoleadorDto(
                 g.IdJugador,
-                $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}",
+                NombreJugador(jugador.Persona),
                 EquipoActual(jugador),
                 g.Goles,
                 pj,
@@ -255,7 +259,7 @@ public class EstadisticasService : IEstadisticasService
             var jugador = infoPorJugador[g.Key];
             var amarillas = g.Count(e => e.TipoEvento == "TARJETA_AMARILLA");
             var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA");
-            return new TarjetasJugadorDto(g.Key, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", EquipoActual(jugador), amarillas, rojas, amarillas + rojas, jugador.Persona.FotoUrl);
+            return new TarjetasJugadorDto(g.Key, NombreJugador(jugador.Persona), EquipoActual(jugador), amarillas, rojas, amarillas + rojas, jugador.Persona.FotoUrl);
         })
         .OrderByDescending(x => x.Total).ThenByDescending(x => x.Rojas)
         .ToList();
@@ -367,7 +371,7 @@ public class EstadisticasService : IEstadisticasService
         foreach (var grupoJugador in eventos.GroupBy(e => e.IdJugador))
         {
             var jugador = infoPorJugador[grupoJugador.Key];
-            var nombreJugador = $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}";
+            var nombreJugador = NombreJugador(jugador.Persona);
 
             // Agrupado por partido y en orden cronológico: una doble amarilla solo cuenta si fue
             // en el mismo partido.
@@ -446,7 +450,7 @@ public class EstadisticasService : IEstadisticasService
         foreach (var s in sancionesManuales)
         {
             var jugador = infoPorJugador[s.IdJugador];
-            var nombreJugador = $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}";
+            var nombreJugador = NombreJugador(jugador.Persona);
             var (equipoNombre, idEquipoSancion) = EquipoEnCampeonatoALaFecha(jugador, s.FechaDecision);
             var partidosCumplidos = Math.Min(PartidosJugadosDespues(idEquipoSancion, s.FechaDecision), s.PartidosSancion);
             var estado = partidosCumplidos >= s.PartidosSancion ? "Cumplida" : "Suspendido";
@@ -519,7 +523,7 @@ public class EstadisticasService : IEstadisticasService
         var estado = partidosCumplidos >= sancion.PartidosSancion ? "Cumplida" : "Suspendido";
 
         return ServiceResult<SuspensionDto>.Ok(new SuspensionDto(
-            jugador.IdJugador, $"{jugador.Persona.Nombre} {jugador.Persona.Apellido}", equipoNombre, sancion.Motivo,
+            jugador.IdJugador, NombreJugador(jugador.Persona), equipoNombre, sancion.Motivo,
             null, sancion.FechaDecision.ToString("yyyy-MM-dd"), sancion.PartidosSancion, partidosCumplidos, estado, Manual: true, IdSancion: sancion.IdSancion, FotoUrl: jugador.Persona.FotoUrl));
     }
 
