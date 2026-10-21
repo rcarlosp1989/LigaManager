@@ -63,8 +63,7 @@ export default function TabDirigentes({ camp }) {
         <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-1">Dirigentes</h2>
         <p className="text-gray-400 text-sm">
           El dirigente de un equipo ve el campeonato con su propia cuenta, sin poder cambiar nada: jornadas y resultados,
-          posiciones, nóminas, goleadores, tarjetas y suspensiones. Por privacidad, solo ve los documentos de identidad de
-          los jugadores de su equipo.
+          posiciones, la nómina de su equipo, goleadores, tarjetas y suspensiones. No ve las nóminas de los otros equipos.
         </p>
       </div>
 

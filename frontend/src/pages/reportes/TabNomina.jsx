@@ -16,6 +16,7 @@ const COLUMNAS_EXPORT = [
 ]
 
 // base: dónde leer el campeonato; rutaEquipo: dónde leer la nómina de un equipo.
+// idEquipoPropio (dirigente): muestra solo la nómina de ese equipo, sin selector.
 // El dirigente usa sus rutas: el servidor solo le envía los documentos de su propio equipo
 // (idEquipoPropio), así que tampoco aparecen en el PDF ni en el Excel de otros equipos.
 export default function TabNomina({
@@ -54,11 +55,18 @@ export default function TabNomina({
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+        {idEquipoPropio ? (
+          // Dirigente: solo la nómina de su equipo, sin selector.
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</p>
+            <p className="text-white font-medium">{equipoNombre ?? 'Tu equipo'}</p>
+          </div>
+        ) : (
         <div>
           <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
           <select id={`${fid}-c1`} className="input-field w-64" value={idEquipo} onChange={e => setIdEquipo(e.target.value)}>
             <option value="">Selecciona un equipo...</option>
-            {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}{Number(e.idEquipo) === Number(idEquipoPropio) ? ' (tu equipo)' : ''}</option>)}
+            {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
           </select>
           {errorEquipos && (
             <div className="mt-2">
@@ -66,6 +74,7 @@ export default function TabNomina({
             </div>
           )}
         </div>
+        )}
         {idEquipo && (
           <BotonExportar
             titulo={`Nómina de jugadores — ${equipoNombre ?? ''}`}
@@ -94,10 +103,6 @@ export default function TabNomina({
 
       {idEquipo && !isLoading && !isError && jugadores.length === 0 && (
         <EmptyState icon={User} title="Sin jugadores" description="Este equipo todavía no tiene jugadores registrados." />
-      )}
-
-      {idEquipo && idEquipoPropio && Number(idEquipo) !== Number(idEquipoPropio) && (
-        <p className="text-xs text-gray-500 mb-3">Por privacidad, los documentos de identidad solo se muestran en la nómina de tu equipo.</p>
       )}
 
       {idEquipo && !isLoading && !isError && jugadores.length > 0 && (
