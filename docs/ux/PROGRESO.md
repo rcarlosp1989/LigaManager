@@ -1183,3 +1183,27 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - **Pantalla:** la nómina del dirigente no tiene la columna «Documento», tampoco en el PDF ni en el Excel. El organizador la sigue viendo.
 - Textos actualizados: aviso de privacidad (los dirigentes ven la nómina de su equipo sin documento) y pestaña Dirigentes.
 - Verificado en GitHub Actions (rama temporal `ci/verificar-sin-documentos`): la nómina propia del dirigente llega sin documentos y con los mismos jugadores que ve el organizador; el organizador sigue viéndolos; todas las pruebas anteriores bien. Pantallas a 390 y 1.440 px: sin columna «Documento» ni cédulas en la nómina del dirigente.
+
+---
+
+## 2026-10-21 — Seguridad de cuentas: Recordarme, confirmar correo y restablecer contraseña
+
+**Estado:** aplicada en la rama `mejora/seguridad-cuentas-v2`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261021_seguridad_cuentas.sql`), que se ejecuta en Railway **antes** de fusionar. Diseño: `docs/ux/PROPUESTA_SEGURIDAD.md`.
+
+### Qué cambió
+
+- **Recordarme en este dispositivo** (inicio de sesión): marcada, la sesión dura 7 días y sigue al cerrar el navegador; sin marcar, 12 horas y se cierra con el navegador. Al abrir la app, una sesión vencida lleva al login.
+- **Confirmar el correo** (organizadores nuevos, solo con servicio de correo): al registrarse aparece «Revisa tu correo» con «Reenviar correo»; el enlace vale 24 h y entra directo. Sin confirmar, el login dice «Confirma tu correo» y ofrece reenviarlo. Las cuentas existentes, vocales y dirigentes quedan confirmados.
+- **Restablecer la contraseña** (todos, solo con servicio de correo): «¿Olvidaste tu contraseña?» → correo con enlace de 1 h → contraseña nueva dos veces → entra directo. La respuesta es siempre la misma (no revela si el correo existe).
+- **Al cambiar la contraseña se cierran todas las sesiones** de la cuenta (el servidor compara la hora del token con `clave_cambiada_en`; también corta cuentas desactivadas).
+- Enlaces de un solo uso (solo se guarda el hash), el último anula los anteriores; máximo 1 por minuto y 5 por día; límite de intentos en las rutas públicas.
+- **Correo:** Brevo por API (`Correo__BrevoApiKey`) o envío de prueba (`Correo__Modo=Prueba`). Sin ninguno, la app funciona como antes en registro y no ofrece restablecer.
+- Las invitaciones de vocal y dirigente recuerdan la sesión 7 días.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-cuentas`), con MySQL, el script real y correos de prueba leídos como archivos:
+  - 36 pruebas: duración de la sesión con y sin Recordarme; registro pendiente con correo que trae el enlace a la app; en la base solo el hash; 403 sin confirmar; clave equivocada no revela la cuenta; reenviar con espera de un minuto y respuesta genérica; enlace inventado, válido, reusado; olvidé la clave (genérico, mayúsculas, espera); validar, contraseña corta, guardar; la sesión anterior queda cerrada (401) y la nueva funciona; clave vieja no sirve y la nueva sí; enlace vencido; un vocal también puede restablecer;
+  - el registro de la prueba de privacidad se adaptó a la confirmación; todas las pruebas anteriores bien (verificado junto con el PR #33);
+  - la reversa del script funciona y el script se vuelve a aplicar.
+- Pantallas a 390 y 1.440 px (194 comprobaciones): «Recordarme» guarda la sesión en sessionStorage o localStorage, sesión vencida lleva al login, correo sin confirmar ofrece reenviar, «Revisa tu correo» con espera, olvidé la clave, enlace vencido, restablecer y entrar, confirmar una sola vez. Sin errores. Build correcto; lint igual que `main`.
