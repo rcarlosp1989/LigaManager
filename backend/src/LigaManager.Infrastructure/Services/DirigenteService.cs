@@ -269,15 +269,16 @@ public class DirigenteService
             p.Estadio != null ? p.Estadio.Nombre : null,
             p.Jugado, p.Desierto, p.GolesLocal, p.GolesVisitante));
 
-    // Nómina de un equipo inscrito en el campeonato. El documento solo va en la del equipo propio.
+    // Nómina del equipo del dirigente. Por ahora solo puede ver la de su propio equipo;
+    // la de los demás equipos se rechaza como si no existiera.
     public async Task<ServiceResult<EquipoDetalleDto>> NominaAsync(int idCampeonato, int idEquipo)
     {
         if (await _acceso.EquipoDelDirigenteAsync(idCampeonato) is not int propio)
             return ServiceResult<EquipoDetalleDto>.Fail("Campeonato no encontrado.");
-        if (!await _db.CampeonatoEquipos.AnyAsync(ce => ce.IdCampeonato == idCampeonato && ce.IdEquipo == idEquipo))
-            return ServiceResult<EquipoDetalleDto>.Fail("Equipo no encontrado en este campeonato.");
+        if (idEquipo != propio)
+            return ServiceResult<EquipoDetalleDto>.Fail("Solo puedes ver la nómina de tu equipo.");
 
-        var conDocumento = idEquipo == propio;
+        const bool conDocumento = true;
         var e = await _db.Equipos.Include(x => x.Pais).FirstAsync(x => x.IdEquipo == idEquipo);
         var jugadores = await _db.JugadorEquipos
             .Where(je => je.IdEquipo == idEquipo && je.FechaHasta == null)
