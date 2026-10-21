@@ -267,7 +267,7 @@ for (const ancho of [390, 1440]) {
     await captura(page, 'terminos_pendientes', ancho)
     await page.getByRole('checkbox').check()
     await boton.click()
-    await page.getByRole('link', { name: 'Campeonatos' }).first().waitFor()
+    await page.getByText('Términos de uso y privacidad').waitFor({ state: 'detached' })
     ok(`términos pendientes @${ancho}: al aceptar entra a la app`, llamadas.some(l => l === 'POST /auth/terminos'))
     await page.goto(`${APP}/jugadores`)
     await page.getByRole('button', { name: /Nuevo Jugador/ }).click()
