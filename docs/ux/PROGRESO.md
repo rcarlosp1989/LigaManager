@@ -1171,3 +1171,15 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - las pruebas anteriores que crean jugadores se ajustaron para enviar la autorización; todas pasan (junto con el PR #30);
   - la reversa del script quita las cuatro columnas y el script se vuelve a aplicar.
 - Pantallas a 390 y 1.440 px (122 comprobaciones): páginas de privacidad y términos, enlaces en el inicio de sesión, casilla en el registro, pantalla de aceptación (no deja entrar sin marcar; al aceptar entra), casilla obligatoria al crear jugador y nota en los tres reportes. Sin errores. Build correcto; lint igual que `main`.
+
+---
+
+## 2026-10-20 — Ajuste: el dirigente no ve documentos de identidad
+
+**Estado:** aplicada en la rama `mejora/dirigente-sin-documentos`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Pedido de Roberto: el dirigente no debe ver el número de cédula ni siquiera de su propio equipo.
+- **Servidor:** la nómina del dirigente ya no lee ni envía el documento (número y tipo vacíos).
+- **Pantalla:** la nómina del dirigente no tiene la columna «Documento», tampoco en el PDF ni en el Excel. El organizador la sigue viendo.
+- Textos actualizados: aviso de privacidad (los dirigentes ven la nómina de su equipo sin documento) y pestaña Dirigentes.
+- Verificado en GitHub Actions (rama temporal `ci/verificar-sin-documentos`): la nómina propia del dirigente llega sin documentos y con los mismos jugadores que ve el organizador; el organizador sigue viéndolos; todas las pruebas anteriores bien. Pantallas a 390 y 1.440 px: sin columna «Documento» ni cédulas en la nómina del dirigente.
