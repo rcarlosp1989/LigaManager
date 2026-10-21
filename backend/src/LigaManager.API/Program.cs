@@ -34,6 +34,17 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<VocalService>();
 builder.Services.AddScoped<DirigenteService>();
+
+// ── Correo ───────────────────────────────────────────────────────────────────
+// Con Correo__BrevoApiKey se envía por Brevo. Con Correo__Modo=Prueba, el envío de prueba (no manda
+// nada: escribe el correo en el registro). Sin ninguno, no hay correo: la app no exige confirmar el
+// correo al registrarse y no ofrece restablecer la contraseña.
+if (!string.IsNullOrWhiteSpace(builder.Configuration["Correo:BrevoApiKey"]))
+    builder.Services.AddHttpClient<IEnvioCorreo, EnvioCorreoBrevo>(c => c.Timeout = TimeSpan.FromSeconds(15));
+else if (string.Equals(builder.Configuration["Correo:Modo"], "Prueba", StringComparison.OrdinalIgnoreCase))
+    builder.Services.AddSingleton<IEnvioCorreo, EnvioCorreoPrueba>();
+else
+    builder.Services.AddSingleton<IEnvioCorreo, EnvioCorreoDeshabilitado>();
 builder.Services.AddScoped<IAlmacenImagenes, AlmacenImagenesBd>();
 
 // ── Límite de intentos fallidos (código de invitación, inicio de sesión) ──────
@@ -98,6 +109,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ctx.Response.ContentType = "application/json";
                 return ctx.Response.WriteAsync(
                     "{\"error\":\"No tienes permiso para esta acción.\"}");
+            },
+            // Al cambiar la contraseña se cierran todas las sesiones: un token emitido antes del cambio,
+            // o de una cuenta desactivada, deja de valer.
+            OnTokenValidated = async ctx =>
+            {
+                var id = ctx.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(id, out var idUsuario)) { ctx.Fail("Token sin usuario."); return; }
+                var db = ctx.HttpContext.RequestServices.GetRequiredService<LigaManagerContext>();
+                var u = await db.Usuarios.AsNoTracking()
+                    .Where(x => x.IdUsuario == idUsuario)
+                    .Select(x => new { x.Activo, x.ClaveCambiadaEn })
+                    .FirstOrDefaultAsync();
+                if (u is null || !u.Activo) { ctx.Fail("Cuenta inactiva."); return; }
+                if (u.ClaveCambiadaEn is DateTime cambio)
+                {
+                    long.TryParse(ctx.Principal!.FindFirst(AuthService.ClaimEmitido)?.Value, out var emitido);
+                    var cambioUnix = new DateTimeOffset(DateTime.SpecifyKind(cambio, DateTimeKind.Utc)).ToUnixTimeSeconds();
+                    if (emitido < cambioUnix) ctx.Fail("La contraseña cambió: inicia sesión de nuevo.");
+                }
             },
             OnChallenge = ctx =>
             {

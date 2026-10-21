@@ -17,6 +17,9 @@ import Invitacion        from './pages/vocal/Invitacion'
 import InicioDirigente   from './pages/dirigente/InicioDirigente'
 import InvitacionDirigente from './pages/dirigente/InvitacionDirigente'
 import { Privacidad, Terminos } from './pages/legal/Legal'
+import OlvideClave       from './pages/cuenta/OlvideClave'
+import Restablecer       from './pages/cuenta/Restablecer'
+import ConfirmarCorreo   from './pages/cuenta/ConfirmarCorreo'
 import AceptarTerminos   from './components/AceptarTerminos'
 
 // La administración no es para el vocal ni para el dirigente: los lleva a su propia pantalla.
@@ -50,6 +53,9 @@ export default function App() {
         <Route path="/invitacion/:codigo" element={<Invitacion />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/terminos" element={<Terminos />} />
+        <Route path="/olvide-clave" element={<OlvideClave />} />
+        <Route path="/restablecer/:token" element={<Restablecer />} />
+        <Route path="/confirmar-correo/:token" element={<ConfirmarCorreo />} />
         <Route path="/invitacion-dirigente" element={<InvitacionDirigente />} />
         <Route path="/invitacion-dirigente/:codigo" element={<InvitacionDirigente />} />
         <Route path="/vocal" element={<SoloRol rol="Vocal"><InicioVocal /></SoloRol>} />

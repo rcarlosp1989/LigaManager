@@ -13,6 +13,10 @@ public class Usuario
     // Términos de uso aceptados (organizadores): cuándo y qué versión.
     public DateTime?   TerminosAceptadosEn { get; set; }   // UTC
     public string?     TerminosVersion     { get; set; }
+    // Correo confirmado. Solo los organizadores nuevos empiezan sin confirmar (si hay servicio de correo).
+    public bool        EmailVerificado     { get; set; } = true;
+    // Último cambio de contraseña (UTC): las sesiones emitidas antes dejan de valer.
+    public DateTime?   ClaveCambiadaEn     { get; set; }
 }
 
 public enum RolUsuario

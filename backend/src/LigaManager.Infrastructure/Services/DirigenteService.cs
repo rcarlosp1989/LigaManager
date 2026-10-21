@@ -212,7 +212,7 @@ public class DirigenteService
         inv.UsadaEn  = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
-        return ServiceResult<LoginResponse>.Ok(_auth.GenerarRespuesta(usuario));
+        return ServiceResult<LoginResponse>.Ok(_auth.GenerarRespuesta(usuario, recordarme: true));
     }
 
     // ── Vista del dirigente ──────────────────────────────────────────────────
