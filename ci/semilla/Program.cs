@@ -10,6 +10,7 @@ var db = new LigaManagerContext(new DbContextOptionsBuilder<LigaManagerContext>(
     .UseMySql(conn, new MySqlServerVersion(new Version(8, 0, 36))).Options);
 db.Database.EnsureDeleted();
 db.Database.EnsureCreated();
+db.Database.ExecuteSqlRaw("DROP TABLE token_usuario");
 db.Database.ExecuteSqlRaw("DROP TABLE invitacion_dirigente");
 db.Database.ExecuteSqlRaw("DROP TABLE campeonato_dirigente");
 db.Database.ExecuteSqlRaw("DROP TABLE invitacion_vocal");
@@ -97,7 +98,8 @@ if (fase8)
                                    ("alineacion_jugador", "id_usuario_registro"), ("persona", "tipo_identificacion"),
                                    ("persona", "autorizacion_datos_en"), ("persona", "autorizacion_datos_por"),
                                    ("usuario", "terminos_aceptados_en"), ("usuario", "terminos_version"),
-                                   ("campeonato", "token_publico") })
+                                   ("campeonato", "token_publico"),
+                                   ("usuario", "email_verificado"), ("usuario", "clave_cambiada_en") })
         QuitarColumna(t, c);
 }
 File.WriteAllText(Environment.GetEnvironmentVariable("SALIDA")!, System.Text.Json.JsonSerializer.Serialize(new {

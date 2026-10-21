@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-publico' ] } }
+on: { push: { branches: [ 'ci/verificar-cuentas' ] } }
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
           cp ../capturas.txt . 2>/dev/null || true
           git init -q -b capturas && git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "capturas ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-publico
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-cuentas
 
   backend:
     runs-on: ubuntu-latest
@@ -55,6 +55,7 @@ jobs:
         options: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-retries=20
     env:
       CONN: "Server=127.0.0.1;Port=3306;Database=liga_prueba;User=root;Password=root;"
+      CORREOS: ${{ github.workspace }}/correos
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -80,6 +81,8 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente.sql > pend.txt
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261020_privacidad_terminos.sql > priv.txt
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_enlace_publico.sql > pub.txt
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_seguridad_cuentas.sql > cuentas.txt
+          echo "::notice title=cuentas_script::$(tr '\n' ' ' < cuentas.txt | head -c 200)"
           echo "::notice title=publico_script::$(tr '\n' ' ' < pub.txt | head -c 200)"
           echo "::notice title=privacidad_script::$(tr '\n' ' ' < priv.txt | head -c 200)"
           echo "::notice title=pendiente_script::$(tr '\n' ' ' < pend.txt | head -c 200)"
@@ -102,6 +105,7 @@ jobs:
       - name: Arrancar API
         run: |
           ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5080 ASPNETCORE_ENVIRONMENT=Development \
+            Correo__Modo=Prueba Correo__CarpetaPrueba="$CORREOS" App__UrlFrontend=http://localhost:4173 \
             nohup dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > api.log 2>&1 &
           for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5080/api/auth/login && break; sleep 2; done
       - name: Pruebas de las fases 7 y 8
@@ -124,6 +128,8 @@ jobs:
           python3 ci/prueba_pendiente.py datos.json > clasif.txt 2>&1 || c=$?
           python3 ci/prueba_privacidad.py datos.json > priv_prueba.txt 2>&1 || c=$?
           python3 ci/prueba_publico.py datos.json > pub_prueba.txt 2>&1 || c=$?
+          python3 ci/prueba_cuentas.py datos.json > cuentas_prueba.txt 2>&1 || c=$?
+          echo "::notice title=cuentas::$(grep -c '^OK ' cuentas_prueba.txt || true) OK · $(grep -vE '^OK ' cuentas_prueba.txt | tail -25 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=publico::$(grep -c '^OK ' pub_prueba.txt || true) OK · $(grep -vE '^OK ' pub_prueba.txt | tail -20 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=privacidad::$(grep -c '^OK ' priv_prueba.txt || true) OK · $(grep -vE '^OK ' priv_prueba.txt | tail -20 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=pendiente::$(grep -c '^OK ' clasif.txt || true) OK · $(grep -vE '^OK ' clasif.txt | tail -20 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
@@ -212,3 +218,10 @@ jobs:
           echo "::notice title=reversa_publico::columna tras la reversa: $n"
           [ "$n" = "0" ]
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_enlace_publico.sql > /dev/null
+      - name: Reversa de seguridad de cuentas
+        run: |
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_seguridad_cuentas_reversa.sql
+          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='usuario' AND column_name IN ('email_verificado','clave_cambiada_en')) + (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name='token_usuario')")
+          echo "::notice title=reversa_cuentas::columnas y tabla tras la reversa: $n"
+          [ "$n" = "0" ]
+          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_seguridad_cuentas.sql > /dev/null

@@ -83,8 +83,20 @@ esperar("sin sesión no se consulta (401)", s == 401, str(s))
 s, r = llamar("POST", "/auth/register", cuerpo={"nombre": "Nueva Liga", "email": "nueva.liga@prueba.ec", "password": "clave123"})
 esperar("registrarse sin aceptar los términos se rechaza", s == 400 and "términos" in str(r), f"{s} {r}")
 s, r = llamar("POST", "/auth/register", cuerpo={"nombre": "Nueva Liga", "email": "nueva.liga@prueba.ec", "password": "clave123", "aceptaTerminos": True})
-esperar("registrarse aceptándolos funciona", s == 200 and r["rol"] == "Organizador", f"{s} {r}")
-s, t4 = llamar("GET", "/auth/terminos", r["token"] if s == 200 else None)
+esperar("registrarse aceptándolos funciona", s == 200 and (r.get("rol") == "Organizador" or r.get("confirmarCorreo")), f"{s} {r}")
+tokNueva = r.get("token") if s == 200 else None
+if s == 200 and r.get("confirmarCorreo"):
+    # Con servicio de correo: se confirma con el enlace del correo de prueba.
+    import glob, os, re as _re
+    correos = sorted(glob.glob(os.path.join(os.environ.get("CORREOS", "correos"), "*.json")))
+    for f in reversed(correos):
+        m = json.load(open(f))
+        if m["para"] == "nueva.liga@prueba.ec":
+            codigo = _re.search(r"/confirmar-correo/([A-Za-z0-9_-]+)", m["texto"]).group(1)
+            s2, r2 = llamar("POST", "/auth/confirmar-correo", cuerpo={"token": codigo})
+            tokNueva = r2.get("token") if s2 == 200 else None
+            break
+s, t4 = llamar("GET", "/auth/terminos", tokNueva)
 esperar("la cuenta nueva no tiene términos pendientes", s == 200 and t4["pendiente"] is False, f"{s} {t4}")
 
 vocal = login("vocal@prueba.ec")

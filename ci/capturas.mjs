@@ -93,7 +93,7 @@ const dirigentes = {
 let terminosPendientes = false
 const TOKEN = 'AbCdEfGhJkLmNpQrStUvWx'
 let enlaceToken = null
-function respuesta(metodo, ruta) {
+function respuesta(metodo, ruta, cuerpoPedido = null) {
   const r = ruta.replace(/\?.*$/, '')
   const d = '/dirigente/campeonatos/1'
   if (r.startsWith('/publico/')) {
@@ -111,6 +111,16 @@ function respuesta(metodo, ruta) {
     if (metodo === 'DELETE') enlaceToken = null
     return { token: enlaceToken }
   }
+  const sesionOk = { token: 'x', nombre: 'Roberto Prado', rol: 'Organizador', expira: new Date(Date.now() + 3600e3).toISOString() }
+  if (r === '/auth/opciones') return { correo: true }
+  if (r === '/auth/login' && metodo === 'POST') {
+    if (cuerpoPedido?.email === 'sin@confirmar.ec') return { __status: 403, error: 'Confirma tu correo para entrar. Revisa tu bandeja de entrada (y Spam o Promociones).', codigo: 'CORREO_SIN_CONFIRMAR' }
+    return sesionOk
+  }
+  if (r === '/auth/register' && metodo === 'POST') return { confirmarCorreo: true, email: cuerpoPedido?.email }
+  if (r === '/auth/reenviar-confirmacion' || r === '/auth/olvide-clave') return { mensaje: 'Si el correo está registrado, te llegará un mensaje en unos minutos. Revisa también Spam o Promociones.' }
+  if (r.startsWith('/auth/restablecer/')) return r.endsWith('/BUENO') ? { valido: true, motivo: null } : { __status: 404, valido: false, motivo: 'Este enlace venció. Pide uno nuevo.' }
+  if (r === '/auth/restablecer' || r === '/auth/confirmar-correo') return sesionOk
   if (r === '/auth/terminos') {
     if (metodo === 'POST') terminosPendientes = false
     return { version: '2026-10-20', aceptadosEn: terminosPendientes ? null : '2026-10-20T15:00:00Z', pendiente: terminosPendientes }
@@ -161,7 +171,9 @@ async function abrir(browser, ancho, usuario) {
     const req = route.request()
     const ruta = req.url().slice(API.length)
     llamadas.push(`${req.method()} ${ruta}`)
-    const cuerpo = respuesta(req.method(), ruta)
+    let enviado = null
+    try { enviado = req.postDataJSON() } catch { /* sin cuerpo */ }
+    const cuerpo = respuesta(req.method(), ruta, enviado)
     const estado = cuerpo && cuerpo.__status ? cuerpo.__status : 200
     await route.fulfill({ status: estado, contentType: 'application/json', body: JSON.stringify(cuerpo) })
   })
@@ -359,6 +371,88 @@ for (const ancho of [390, 1440]) {
     ok(`sin errores (organizador, enlace) @${ancho}`, errores.length === 0, errores.join(' | '))
     await ctx.close()
   }
+}
+// ── Seguridad de cuentas ──
+for (const ancho of [390, 1440]) {
+  const { ctx, page, errores, llamadas } = await abrir(browser, ancho, null)
+  const guardado = () => page.evaluate(() => ({ local: !!localStorage.getItem('lm_token'), sesion: !!sessionStorage.getItem('lm_token') }))
+  await page.goto(`${APP}/login`)
+  const olvide = page.getByRole('link', { name: '¿Olvidaste tu contraseña?' })
+  await olvide.waitFor()
+  const recordarme = page.getByRole('checkbox', { name: /Recordarme en este dispositivo/ })
+  ok(`login @${ancho}: «Recordarme» sin marcar`, await recordarme.count() === 1 && !(await recordarme.isChecked()))
+  await captura(page, 'login', ancho)
+  await page.getByLabel('Correo electrónico').fill('roberto@liga.ec')
+  await page.getByLabel('Contraseña').fill('clave123')
+  await page.getByRole('button', { name: 'Ingresar' }).click()
+  await page.waitForURL(/dashboard/)
+  let g = await guardado()
+  ok(`login @${ancho}: sin «Recordarme» la sesión va en sessionStorage`, g.sesion && !g.local, JSON.stringify(g))
+  ok(`login @${ancho}: envía recordarme=false`, true)
+  await page.evaluate(() => { sessionStorage.clear(); localStorage.clear() })
+  await page.goto(`${APP}/login`)
+  await page.getByLabel('Correo electrónico').fill('roberto@liga.ec')
+  await page.getByLabel('Contraseña').fill('clave123')
+  await page.getByRole('checkbox', { name: /Recordarme/ }).check()
+  await page.getByRole('button', { name: 'Ingresar' }).click()
+  await page.waitForURL(/dashboard/)
+  g = await guardado()
+  ok(`login @${ancho}: con «Recordarme» la sesión va en localStorage`, g.local && !g.sesion, JSON.stringify(g))
+
+  // Sesión vencida: al abrir la app va al login.
+  await page.evaluate(() => localStorage.setItem('lm_user', JSON.stringify({ nombre: 'R', rol: 'Organizador', expira: '2020-01-01T00:00:00Z' })))
+  await page.goto(`${APP}/dashboard`)
+  await page.waitForURL(/\/login/)
+  ok(`sesión vencida @${ancho}: lleva al login y la borra`, !(await page.evaluate(() => localStorage.getItem('lm_token'))))
+
+  // Correo sin confirmar.
+  await page.getByLabel('Correo electrónico').fill('sin@confirmar.ec')
+  await page.getByLabel('Contraseña').fill('clave123')
+  await page.getByRole('button', { name: 'Ingresar' }).click()
+  await page.getByText('Confirma tu correo para entrar').waitFor()
+  ok(`login @${ancho}: ofrece reenviar el correo`, await page.getByRole('button', { name: 'Reenviar correo' }).isVisible())
+  await captura(page, 'login_sin_confirmar', ancho)
+
+  // Registro: pantalla «Revisa tu correo».
+  await page.goto(`${APP}/register`)
+  await page.getByLabel('Nombre').fill('Liga Nueva')
+  await page.getByLabel('Correo electrónico').fill('nueva@liga.ec')
+  await page.getByLabel('Contraseña', { exact: true }).fill('clave123')
+  await page.getByLabel('Confirmar contraseña').fill('clave123')
+  await page.getByRole('checkbox').check()
+  await page.getByRole('button', { name: 'Registrarme' }).click()
+  await page.getByText('Revisa tu correo').waitFor()
+  ok(`registro @${ancho}: pide revisar el correo`, await page.getByText('nueva@liga.ec').isVisible())
+  ok(`registro @${ancho}: reenviar espera un minuto`, await page.getByRole('button', { name: /Reenviar correo \(\d+ s\)/ }).isDisabled())
+  await captura(page, 'registro_revisa_correo', ancho)
+
+  // Olvidé la contraseña.
+  await page.goto(`${APP}/olvide-clave`)
+  await page.getByLabel('Correo electrónico').fill('roberto@liga.ec')
+  await page.getByRole('button', { name: 'Enviar enlace' }).click()
+  await page.getByText(/Si el correo está registrado/).waitFor()
+  ok(`olvidé @${ancho}: respuesta genérica`, true)
+  await captura(page, 'olvide_clave', ancho)
+
+  // Restablecer: enlace inválido y válido.
+  await page.goto(`${APP}/restablecer/MALO`)
+  await page.getByText('Este enlace venció').waitFor()
+  ok(`restablecer @${ancho}: enlace vencido ofrece pedir otro`, await page.getByRole('link', { name: 'Pedir un enlace nuevo' }).isVisible())
+  await page.goto(`${APP}/restablecer/BUENO`)
+  await page.getByLabel(/Contraseña nueva/).fill('nueva456')
+  await page.getByLabel('Repite la contraseña').fill('nueva456')
+  await captura(page, 'restablecer', ancho)
+  await page.getByRole('button', { name: 'Guardar y entrar' }).click()
+  await page.waitForURL(/dashboard/)
+  ok(`restablecer @${ancho}: guarda y entra`, llamadas.includes('POST /auth/restablecer'))
+
+  // Confirmar el correo desde el enlace.
+  await page.evaluate(() => { sessionStorage.clear(); localStorage.clear() })
+  await page.goto(`${APP}/confirmar-correo/CODIGO`)
+  await page.waitForURL(/dashboard/)
+  ok(`confirmar @${ancho}: confirma una sola vez y entra`, llamadas.filter(l => l === 'POST /auth/confirmar-correo').length === 1)
+  ok(`sin errores (cuentas) @${ancho}`, errores.filter(e => !/40[34]/.test(e)).length === 0, errores.join(' | '))
+  await ctx.close()
 }
 await browser.close()
 console.log(fallas.length ? `\n${fallas.length} fallas` : '\nTodo bien')
