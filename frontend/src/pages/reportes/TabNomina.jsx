@@ -16,7 +16,8 @@ const COLUMNAS_EXPORT = [
 ]
 
 // base: dónde leer el campeonato; rutaEquipo: dónde leer la nómina de un equipo.
-// idEquipoPropio (dirigente): muestra solo la nómina de ese equipo, sin selector.
+// idEquipoPropio (dirigente): muestra solo la nómina de ese equipo, sin selector y sin la
+// columna de documento (el servidor no se lo envía).
 // El dirigente usa sus rutas: el servidor solo le envía los documentos de su propio equipo
 // (idEquipoPropio), así que tampoco aparecen en el PDF ni en el Excel de otros equipos.
 export default function TabNomina({
@@ -48,8 +49,12 @@ export default function TabNomina({
     return a.dorsal - b.dorsal
   })
 
+  const conDocumento = !idEquipoPropio
+  const columnasExport = conDocumento ? COLUMNAS_EXPORT : COLUMNAS_EXPORT.filter(c => c.titulo !== 'Documento')
   const filasExport = jugadores.map(j => ([
-    j.dorsal ?? '', j.apellido, j.nombre, textoDocumento(j.tipoIdentificacion, j.cedula), j.posicion ?? 'Sin posición', j.edad, j.fechaDesde,
+    j.dorsal ?? '', j.apellido, j.nombre,
+    ...(conDocumento ? [textoDocumento(j.tipoIdentificacion, j.cedula)] : []),
+    j.posicion ?? 'Sin posición', j.edad, j.fechaDesde,
   ]))
 
   return (
@@ -79,7 +84,7 @@ export default function TabNomina({
           <BotonExportar
             titulo={`Nómina de jugadores — ${equipoNombre ?? ''}`}
             subtitulo={`${campeonato?.nombre ?? ''} · ${new Date().toLocaleDateString('es-EC')}`}
-            columnas={COLUMNAS_EXPORT}
+            columnas={columnasExport}
             filas={filasExport}
             archivoBase={`nomina_${(equipoNombre ?? 'equipo').replace(/\s+/g, '_')}`}
             logoUrl={equipoDetalle?.logoUrl}
@@ -108,12 +113,12 @@ export default function TabNomina({
       {idEquipo && !isLoading && !isError && jugadores.length > 0 && (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className="tabla w-full text-sm min-w-[660px]">
+            <table className={`tabla w-full text-sm ${conDocumento ? 'min-w-[660px]' : 'min-w-[540px]'}`}>
               <thead>
                 <tr className="border-b border-gray-800">
                   <th scope="col" className="fija w-12 min-w-12 px-3 py-2 text-left text-xs uppercase tracking-wider">#</th>
                   <th scope="col" className="fija fija-2 fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider" style={{ '--ancho-fija-1': '3rem' }}>Jugador</th>
-                  {['Documento', 'Posición', 'Edad', 'En el equipo desde'].map(h => (
+                  {[...(conDocumento ? ['Documento'] : []), 'Posición', 'Edad', 'En el equipo desde'].map(h => (
                     <th key={h} scope="col" className="px-3 py-2 text-center text-xs uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -129,11 +134,13 @@ export default function TabNomina({
                     <th scope="row" className="fija fija-2 fija-borde px-3 py-2 text-left font-medium text-white" style={{ '--ancho-fija-1': '3rem' }}>
                       <span className="flex items-center gap-2" title={`${j.apellido}, ${j.nombre}`}><FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} /><span className="min-w-0 max-w-[8rem] truncate sm:max-w-[16rem]">{j.apellido}, {j.nombre}</span></span>
                     </th>
+                    {conDocumento && (
                     <td className="px-3 py-2 text-gray-400 text-center">
                       {j.tipoIdentificacion === 'Pendiente'
                         ? <span className="rounded px-1.5 py-0.5 text-xs font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/40 bg-amber-400/10">Pendiente</span>
                         : textoDocumento(j.tipoIdentificacion, j.cedula)}
                     </td>
+                    )}
                     <td className="px-3 py-2 text-gray-400 text-center">{j.posicion ?? 'Sin posición'}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.edad}</td>
                     <td className="px-3 py-2 text-gray-500 text-center text-xs">{j.fechaDesde}</td>

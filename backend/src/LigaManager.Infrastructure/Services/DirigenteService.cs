@@ -269,8 +269,8 @@ public class DirigenteService
             p.Estadio != null ? p.Estadio.Nombre : null,
             p.Jugado, p.Desierto, p.GolesLocal, p.GolesVisitante));
 
-    // Nómina del equipo del dirigente. Por ahora solo puede ver la de su propio equipo;
-    // la de los demás equipos se rechaza como si no existiera.
+    // Nómina del equipo del dirigente. Por ahora solo puede ver la de su propio equipo (la de
+    // los demás se rechaza) y sin documentos de identidad: ni el número ni el tipo se envían.
     public async Task<ServiceResult<EquipoDetalleDto>> NominaAsync(int idCampeonato, int idEquipo)
     {
         if (await _acceso.EquipoDelDirigenteAsync(idCampeonato) is not int propio)
@@ -278,15 +278,13 @@ public class DirigenteService
         if (idEquipo != propio)
             return ServiceResult<EquipoDetalleDto>.Fail("Solo puedes ver la nómina de tu equipo.");
 
-        const bool conDocumento = true;
         var e = await _db.Equipos.Include(x => x.Pais).FirstAsync(x => x.IdEquipo == idEquipo);
         var jugadores = await _db.JugadorEquipos
             .Where(je => je.IdEquipo == idEquipo && je.FechaHasta == null)
             .Select(je => new
             {
                 je.IdJugador, je.Jugador.Persona.Nombre, je.Jugador.Persona.Apellido, je.FechaDesde, je.FechaHasta,
-                je.Dorsal, je.Jugador.Persona.Cedula, je.Posicion, je.Jugador.Persona.FechaNac, je.Jugador.Persona.FotoUrl,
-                je.Jugador.Persona.TipoIdentificacion,
+                je.Dorsal, je.Posicion, je.Jugador.Persona.FechaNac, je.Jugador.Persona.FotoUrl,
             })
             .ToListAsync();
 
@@ -296,9 +294,9 @@ public class DirigenteService
             jugadores.Select(j => new JugadorEnEquipoDto(
                 j.IdJugador, NombreCorto.PrimerNombre(j.Nombre), NombreCorto.PrimerApellido(j.Apellido), j.FechaDesde.ToString("yyyy-MM-dd"), j.FechaHasta?.ToString("yyyy-MM-dd"),
                 j.Dorsal,
-                conDocumento ? j.Cedula : "",
+                "",   // sin documento
                 j.Posicion, Edad(j.FechaNac), j.FotoUrl,
-                conDocumento ? j.TipoIdentificacion.ToString() : "")).ToList(),
+                "")).ToList(),
             e.LogoUrl));
     }
 
