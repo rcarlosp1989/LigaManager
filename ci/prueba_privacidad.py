@@ -67,12 +67,12 @@ esperar("editar conserva la autorización", sql(f"SELECT autorizacion_datos_en I
 
 # ── Términos ──
 s, t = llamar("GET", "/auth/terminos", org)
-esperar("un organizador que ya existía tiene los términos pendientes", s == 200 and t["pendiente"] is True and t["aceptadosEn"] is None, f"{s} {t}")
+esperar("un organizador que ya existía tiene los términos pendientes", s == 200 and t["pendiente"] is True and t.get("aceptadosEn") is None, f"{s} {t}")
 version = t["version"]
 s, r = llamar("POST", "/auth/terminos", org, cuerpo={"version": "1999-01-01"})
 esperar("aceptar una versión vieja se rechaza", s == 400, f"{s} {r}")
 s, t2 = llamar("POST", "/auth/terminos", org, cuerpo={"version": version})
-esperar("acepta la versión vigente", s == 200 and t2["pendiente"] is False and t2["aceptadosEn"], f"{s} {t2}")
+esperar("acepta la versión vigente", s == 200 and t2["pendiente"] is False and t2.get("aceptadosEn"), f"{s} {t2}")
 s, t3 = llamar("GET", "/auth/terminos", org)
 esperar("ya no quedan pendientes", s == 200 and t3["pendiente"] is False, f"{s} {t3}")
 fila = sql("SELECT CONCAT(IFNULL(terminos_version,'NULL'),'|',terminos_aceptados_en IS NOT NULL) FROM usuario WHERE email = 'org1@prueba.ec'")
