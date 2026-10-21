@@ -1,4 +1,5 @@
 import { useState, useId } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api        from '../../services/api'
 import PageHeader from '../../components/PageHeader'
@@ -40,7 +41,7 @@ function JugadorForm({ onSubmit, loading, error }) {
   const [form, setForm] = useState({
     nombre: '', apellido: '', tipoIdentificacion: 'Cedula', cedula: '', fechaNac: '', posicion: '', foto: null,
     idPais: '', idProvincia: '', idCanton: '', idEquipo: '', fechaDesde: new Date().toISOString().split('T')[0],
-    dorsal: ''
+    dorsal: '', autorizacionDatos: false,
   })
 
   const qEquipos = useQuery({
@@ -114,6 +115,15 @@ function JugadorForm({ onSubmit, loading, error }) {
         <EstadoError compacto mensaje="No se pudo cargar la lista de equipos."
           onReintentar={catalogos.reintentar} reintentando={catalogos.reintentando} />
       )}
+      <label htmlFor={`${fid}-autorizacion`} className="flex items-start gap-3 rounded-lg border border-gray-700 bg-gray-800/40 px-3 py-3 text-sm text-gray-300">
+        <input id={`${fid}-autorizacion`} type="checkbox" required className="mt-0.5 h-5 w-5 shrink-0 accent-teal-500"
+          checked={form.autorizacionDatos} onChange={e => set('autorizacionDatos', e.target.checked)} />
+        <span>
+          La organización cuenta con la autorización del jugador (o de su padre, madre o representante legal, si es menor
+          de edad) para tratar sus datos personales.{' '}
+          <Link to="/privacidad" target="_blank" className="text-brand-400 hover:text-brand-300">Aviso de privacidad</Link>
+        </span>
+      </label>
       {error && (
         <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>
       )}

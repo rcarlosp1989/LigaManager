@@ -16,6 +16,8 @@ import InicioVocal       from './pages/vocal/InicioVocal'
 import Invitacion        from './pages/vocal/Invitacion'
 import InicioDirigente   from './pages/dirigente/InicioDirigente'
 import InvitacionDirigente from './pages/dirigente/InvitacionDirigente'
+import { Privacidad, Terminos } from './pages/legal/Legal'
+import AceptarTerminos   from './components/AceptarTerminos'
 
 // La administración no es para el vocal ni para el dirigente: los lleva a su propia pantalla.
 // (El servidor igual rechaza sus llamadas; esto solo evita pantallas de error.)
@@ -46,6 +48,8 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/invitacion" element={<Invitacion />} />
         <Route path="/invitacion/:codigo" element={<Invitacion />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/terminos" element={<Terminos />} />
         <Route path="/invitacion-dirigente" element={<InvitacionDirigente />} />
         <Route path="/invitacion-dirigente/:codigo" element={<InvitacionDirigente />} />
         <Route path="/vocal" element={<SoloRol rol="Vocal"><InicioVocal /></SoloRol>} />
@@ -59,7 +63,9 @@ export default function App() {
         } />
         <Route path="/" element={
           <SoloGestion>
-            <Layout />
+            <AceptarTerminos>
+              <Layout />
+            </AceptarTerminos>
           </SoloGestion>
         }>
           <Route index                      element={<Navigate to="/dashboard" replace />} />

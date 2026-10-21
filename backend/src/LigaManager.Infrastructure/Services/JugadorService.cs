@@ -120,6 +120,9 @@ public class JugadorService : IJugadorService
         var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
 
+        if (!req.AutorizacionDatos)
+            return ServiceResult<JugadorDetalleDto>.Fail("Confirma que la organización cuenta con la autorización del jugador (o de su representante legal, si es menor de edad) para tratar sus datos personales.");
+
         var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
         if (doc.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(doc.Error);
 
@@ -141,7 +144,9 @@ public class JugadorService : IJugadorService
             FechaNac = fechaNac,
             IdPais   = req.IdPais,
             IdCanton = ubicacion.IdCanton,
-            FotoUrl  = req.FotoUrl
+            FotoUrl  = req.FotoUrl,
+            AutorizacionDatosEn  = DateTime.UtcNow,
+            AutorizacionDatosPor = UsuarioActualId,
         };
         _db.Personas.Add(persona);
         await _db.SaveChangesAsync();

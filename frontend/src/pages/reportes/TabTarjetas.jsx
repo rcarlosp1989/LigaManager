@@ -6,6 +6,7 @@ import TablaDesplazable from '../../components/TablaDesplazable'
 import { RectangleVertical } from 'lucide-react'
 import IconoEvento from '../../components/IconoEvento'
 import FotoJugador from '../../components/FotoJugador'
+import NotaResponsabilidad from '../../components/NotaResponsabilidad'
 import { ConteoTarjetas } from '../../components/Indicadores'
 
 // Encabezado de columna: las tarjetas se dibujan, con su nombre para lectores de pantalla.
@@ -47,6 +48,7 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
   }
 
   return (
+    <>
     <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-6">
       <div>
         <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Por jugador</h3>
@@ -119,5 +121,7 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
         </div>
       </div>
     </div>
+    <NotaResponsabilidad texto="Las acumuladas y las suspensiones se calculan con los datos registrados y las reglas configuradas por la organización." />
+    </>
   )
 }

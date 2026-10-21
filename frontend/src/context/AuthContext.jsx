@@ -24,8 +24,8 @@ export function AuthProvider({ children }) {
     return guardarSesion(data)
   }, [guardarSesion])
 
-  const register = useCallback(async (nombre, email, password) => {
-    const { data } = await api.post('/auth/register', { nombre, email, password })
+  const register = useCallback(async (nombre, email, password, aceptaTerminos = false) => {
+    const { data } = await api.post('/auth/register', { nombre, email, password, aceptaTerminos })
     return guardarSesion(data)
   }, [guardarSesion])
 

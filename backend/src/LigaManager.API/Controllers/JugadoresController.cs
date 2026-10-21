@@ -37,7 +37,7 @@ public class JugadoresController : ControllerBase
         var fotoUrl = await SavePhotoAsync(form.Foto);
         var request = new CreateJugadorRequest(
             form.Nombre, form.Apellido, form.Cedula ?? "", form.FechaNac, form.IdPais, form.IdCanton,
-            form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl, form.TipoIdentificacion);
+            form.IdEquipo, form.FechaDesde, form.Dorsal, form.Posicion, fotoUrl, form.TipoIdentificacion, form.AutorizacionDatos);
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _service.CreateAsync(request);
         if (!result.Success) { await _imagenes.BorrarAsync(fotoUrl); return BadRequest(new { error = result.Error }); }
@@ -120,6 +120,7 @@ public sealed class CreateJugadorForm
     public int? Dorsal { get; set; }
     public string? Posicion { get; set; }
     public IFormFile? Foto { get; set; }
+    public bool AutorizacionDatos { get; set; }
 }
 
 public sealed class UpdateJugadorForm

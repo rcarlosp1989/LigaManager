@@ -52,6 +52,8 @@ public class AuthService : IAuthService
             return ServiceResult<LoginResponse>.Fail("El email no es válido.");
         if (password.Length < 6)
             return ServiceResult<LoginResponse>.Fail("La contraseña debe tener al menos 6 caracteres.");
+        if (!request.AceptaTerminos)
+            return ServiceResult<LoginResponse>.Fail("Para crear la cuenta debes aceptar los términos de uso y el aviso de privacidad.");
 
         if (await _db.Usuarios.AnyAsync(u => u.Email == email))
             return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email.");
@@ -64,6 +66,8 @@ public class AuthService : IAuthService
             Rol          = RolUsuario.Organizador,
             Activo       = true,
             CreatedAt    = DateTime.UtcNow,
+            TerminosAceptadosEn = DateTime.UtcNow,
+            TerminosVersion     = Terminos.Version,
         };
 
         try
@@ -77,6 +81,29 @@ public class AuthService : IAuthService
         }
 
         return ServiceResult<LoginResponse>.Ok(GenerarRespuesta(usuario));
+    }
+
+    // ── Términos de uso (organizadores) ─────────────────────────────────────
+
+    public async Task<TerminosDto?> TerminosAsync(int idUsuario)
+    {
+        var u = await _db.Usuarios.AsNoTracking().FirstOrDefaultAsync(x => x.IdUsuario == idUsuario && x.Activo);
+        return u is null ? null : new TerminosDto(Terminos.Version, u.TerminosAceptadosEn, u.TerminosVersion != Terminos.Version);
+    }
+
+    public async Task<ServiceResult<TerminosDto>> AceptarTerminosAsync(int idUsuario, AceptarTerminosRequest req)
+    {
+        if (req.Version != Terminos.Version)
+            return ServiceResult<TerminosDto>.Fail("Los términos cambiaron. Recarga la página para leer la versión vigente.");
+        var u = await _db.Usuarios.FirstOrDefaultAsync(x => x.IdUsuario == idUsuario && x.Activo);
+        if (u is null) return ServiceResult<TerminosDto>.Fail("Sesión no válida.");
+        if (u.TerminosVersion != Terminos.Version)
+        {
+            u.TerminosAceptadosEn = DateTime.UtcNow;
+            u.TerminosVersion     = Terminos.Version;
+            await _db.SaveChangesAsync();
+        }
+        return ServiceResult<TerminosDto>.Ok(new TerminosDto(Terminos.Version, u.TerminosAceptadosEn, false));
     }
 
     // También la usa la aceptación de invitaciones de vocal para iniciar la sesión.
