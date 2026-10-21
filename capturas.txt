@@ -1,0 +1,124 @@
+OK   dir_posiciones @390: sin desplazamiento lateral
+OK   dirigente posiciones @390: hay tablas que se deslizan
+OK   dirigente posiciones @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   dirigente posiciones @390: sombra de la columna fija
+OK   dirigente posiciones @390: no pide nóminas de otros equipos
+OK   dir_goleadores @390: sin desplazamiento lateral
+OK   dirigente goleadores @390: hay tablas que se deslizan
+OK   dirigente goleadores @390: «CMCarlos Mendoza» sigue a la vista al deslizar
+OK   dirigente goleadores @390: sombra de la columna fija
+OK   dirigente goleadores @390: no pide nóminas de otros equipos
+OK   dir_tarjetas @390: sin desplazamiento lateral
+OK   dirigente tarjetas @390: hay tablas que se deslizan
+OK   dirigente tarjetas @390: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente tarjetas @390: sombra de la columna fija
+OK   dirigente tarjetas @390: no pide nóminas de otros equipos
+OK   tarjetas @390: muestra «2/5» y «4/5»
+OK   tarjetas @390: explica el historial y las acumuladas
+OK   dir_suspensiones @390: sin desplazamiento lateral
+OK   dirigente suspensiones @390: hay tablas que se deslizan
+OK   dirigente suspensiones @390: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente suspensiones @390: sombra de la columna fija
+OK   dirigente suspensiones @390: «ABAndrés Bustamante Villacís» sigue a la vista al deslizar
+OK   dirigente suspensiones @390: sombra de la columna fija
+OK   dirigente suspensiones @390: no pide nóminas de otros equipos
+OK   dir_nomina @390: sin desplazamiento lateral
+OK   dirigente nomina @390: hay tablas que se deslizan
+OK   dirigente nomina @390: «CMMendoza, Carlos» sigue a la vista al deslizar
+OK   dirigente nomina @390: sombra de la columna fija
+OK   dirigente nomina @390: no pide nóminas de otros equipos
+OK   nómina @390: sin selector de equipo
+OK   nómina @390: muestra su equipo
+OK   nómina @390: el jugador pendiente muestra «Pendiente»
+OK   nómina @390: los demás conservan su cédula
+OK   sin errores (dirigente) @390
+OK   org_reportes_posiciones @390: sin desplazamiento lateral
+OK   org_reportes_posiciones @390: hay tablas que se deslizan
+OK   org_reportes_posiciones @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_reportes_posiciones @390: sombra de la columna fija
+OK   org_tabla_general @390: sin desplazamiento lateral
+OK   org_tabla_general @390: hay tablas que se deslizan
+OK   org_tabla_general @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_tabla_general @390: sombra de la columna fija
+OK   org_equipos_inscritos @390: sin desplazamiento lateral
+OK   org_equipos_inscritos @390: hay tablas que se deslizan
+OK   org_equipos_inscritos @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_equipos_inscritos @390: sombra de la columna fija
+OK   org_jugadores @390: sin desplazamiento lateral
+OK   org_jugadores @390: hay tablas que se deslizan
+OK   org_jugadores @390: «CMMendoza, Carlos» sigue a la vista al deslizar
+OK   org_jugadores @390: sombra de la columna fija
+OK   jugadores @390: «Doc. pendiente» en la lista
+OK   org_campeonatos @390: sin desplazamiento lateral
+OK   org_campeonatos @390: hay tablas que se deslizan
+OK   org_campeonatos @390: «Liga Barrial Recuspro» sigue a la vista al deslizar
+OK   org_campeonatos @390: sombra de la columna fija
+OK   sin errores (organizador) @390
+OK   dir_posiciones @1440: sin desplazamiento lateral
+OK   dirigente posiciones @1440: no pide nóminas de otros equipos
+OK   dir_goleadores @1440: sin desplazamiento lateral
+OK   dirigente goleadores @1440: no pide nóminas de otros equipos
+OK   dir_tarjetas @1440: sin desplazamiento lateral
+OK   dirigente tarjetas @1440: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente tarjetas @1440: sombra de la columna fija
+OK   dirigente tarjetas @1440: no pide nóminas de otros equipos
+OK   tarjetas @1440: muestra «2/5» y «4/5»
+OK   tarjetas @1440: explica el historial y las acumuladas
+OK   dir_suspensiones @1440: sin desplazamiento lateral
+OK   dirigente suspensiones @1440: no pide nóminas de otros equipos
+OK   dir_nomina @1440: sin desplazamiento lateral
+OK   dirigente nomina @1440: no pide nóminas de otros equipos
+OK   nómina @1440: sin selector de equipo
+OK   nómina @1440: muestra su equipo
+OK   nómina @1440: el jugador pendiente muestra «Pendiente»
+OK   nómina @1440: los demás conservan su cédula
+OK   sin errores (dirigente) @1440
+OK   org_reportes_posiciones @1440: sin desplazamiento lateral
+OK   org_tabla_general @1440: sin desplazamiento lateral
+OK   org_equipos_inscritos @1440: sin desplazamiento lateral
+OK   org_jugadores @1440: sin desplazamiento lateral
+OK   jugadores @1440: «Doc. pendiente» en la lista
+OK   org_campeonatos @1440: sin desplazamiento lateral
+OK   sin errores (organizador) @1440
+OK   privacidad @390: la organización es la responsable
+OK   legal_privacidad @390: sin desplazamiento lateral
+OK   términos @390: responsabilidad exclusiva de la organización
+OK   legal_terminos @390: sin desplazamiento lateral
+OK   login @390: enlaces a privacidad y términos
+OK   registro @390: casilla de aceptación sin marcar
+OK   registro @390: sin desplazamiento lateral
+OK   sin errores (páginas públicas) @390
+OK   términos pendientes @390: no deja entrar sin aceptar
+OK   términos pendientes @390: el botón espera la casilla
+OK   terminos_pendientes @390: sin desplazamiento lateral
+OK   términos pendientes @390: al aceptar entra a la app
+OK   nuevo jugador @390: casilla de autorización obligatoria
+OK   nuevo_jugador @390: sin desplazamiento lateral
+OK   sin errores (organizador, términos) @390
+OK   posiciones @390: nota de responsabilidad
+OK   tarjetas @390: nota de responsabilidad
+OK   suspensiones @390: nota de responsabilidad
+OK   nota_suspensiones @390: sin desplazamiento lateral
+OK   sin errores (notas) @390
+OK   privacidad @1440: la organización es la responsable
+OK   legal_privacidad @1440: sin desplazamiento lateral
+OK   términos @1440: responsabilidad exclusiva de la organización
+OK   legal_terminos @1440: sin desplazamiento lateral
+OK   login @1440: enlaces a privacidad y términos
+OK   registro @1440: casilla de aceptación sin marcar
+OK   registro @1440: sin desplazamiento lateral
+OK   sin errores (páginas públicas) @1440
+OK   términos pendientes @1440: no deja entrar sin aceptar
+OK   términos pendientes @1440: el botón espera la casilla
+OK   terminos_pendientes @1440: sin desplazamiento lateral
+OK   términos pendientes @1440: al aceptar entra a la app
+OK   nuevo jugador @1440: casilla de autorización obligatoria
+OK   nuevo_jugador @1440: sin desplazamiento lateral
+OK   sin errores (organizador, términos) @1440
+OK   posiciones @1440: nota de responsabilidad
+OK   tarjetas @1440: nota de responsabilidad
+OK   suspensiones @1440: nota de responsabilidad
+OK   nota_suspensiones @1440: sin desplazamiento lateral
+OK   sin errores (notas) @1440
+
+Todo bien
