@@ -68,6 +68,7 @@ export function Privacidad() {
           <li>La organización que los registró. Otras organizaciones que usan la aplicación no los ven.</li>
           <li>Los vocales que la organización habilita: nombre, foto, dorsal y edad de los jugadores de los partidos que registran, sin el documento de identidad.</li>
           <li>Los dirigentes que la organización invita: la nómina de su propio equipo (nombre, foto, dorsal, posición y edad, sin el documento de identidad) y las tablas, estadísticas y sanciones del campeonato.</li>
+          <li>Cualquier persona con el enlace público del campeonato, si la organización lo comparte: resultados, posiciones, goleadores, tarjetas y sanciones, con el jugador identificado por un nombre y un apellido, sin fotos, documentos ni nóminas.</li>
           <li>Quienes reciban los reportes en PDF o Excel que la organización descargue y comparta, bajo responsabilidad de la organización.</li>
         </ul>
       </section>

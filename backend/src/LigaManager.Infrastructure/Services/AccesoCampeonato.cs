@@ -43,9 +43,17 @@ public class AccesoCampeonato
                 .Select(d => (int?)d.IdEquipo).FirstOrDefaultAsync()
             : null;
 
-    // Lectura: organizador dueño / Admin, o dirigente habilitado en el campeonato.
+    // ── Enlace público ───────────────────────────────────────────────────────
+    // El controlador público valida el enlace y habilita la lectura de ESE campeonato solo para
+    // esta petición. Los nombres de los jugadores salen cortos y sin fotos.
+    private int? _campeonatoPublico;
+    public void PermitirLecturaPublica(int idCampeonato) => _campeonatoPublico = idCampeonato;
+    public bool EsLecturaPublica => _campeonatoPublico is not null;
+
+    // Lectura: organizador dueño / Admin, dirigente habilitado, o enlace público de ese campeonato.
     public async Task<bool> LecturaCampeonatoAsync(int idCampeonato)
-        => EsDirigente ? await EquipoDelDirigenteAsync(idCampeonato) is not null : await CampeonatoAsync(idCampeonato);
+        => _campeonatoPublico == idCampeonato
+           || (EsDirigente ? await EquipoDelDirigenteAsync(idCampeonato) is not null : await CampeonatoAsync(idCampeonato));
 
     public async Task<bool> LecturaJornadaAsync(int idJornada)
     {

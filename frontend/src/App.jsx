@@ -17,6 +17,7 @@ import Invitacion        from './pages/vocal/Invitacion'
 import InicioDirigente   from './pages/dirigente/InicioDirigente'
 import InvitacionDirigente from './pages/dirigente/InvitacionDirigente'
 import { Privacidad, Terminos } from './pages/legal/Legal'
+import CampeonatoPublico from './pages/publico/CampeonatoPublico'
 import AceptarTerminos   from './components/AceptarTerminos'
 
 // La administración no es para el vocal ni para el dirigente: los lleva a su propia pantalla.
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="/invitacion/:codigo" element={<Invitacion />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/terminos" element={<Terminos />} />
+        <Route path="/publico/:token" element={<CampeonatoPublico />} />
         <Route path="/invitacion-dirigente" element={<InvitacionDirigente />} />
         <Route path="/invitacion-dirigente/:codigo" element={<InvitacionDirigente />} />
         <Route path="/vocal" element={<SoloRol rol="Vocal"><InicioVocal /></SoloRol>} />

@@ -22,9 +22,10 @@ public class EstadisticasService : IEstadisticasService
         _reglas = reglas.Value;
     }
 
-    // Nombre del jugador en los reportes. Para el dirigente, solo primer nombre y primer apellido.
+    // Nombre del jugador en los reportes. Para el dirigente y el enlace público, solo primer
+    // nombre y primer apellido.
     private string NombreJugador(Persona p)
-        => _acceso.EsDirigenteActual ? NombreCorto.De(p.Nombre, p.Apellido) : $"{p.Nombre} {p.Apellido}";
+        => _acceso.EsDirigenteActual || _acceso.EsLecturaPublica ? NombreCorto.De(p.Nombre, p.Apellido) : $"{p.Nombre} {p.Apellido}";
 
     // ── Módulo A: Posiciones con forma ───────────────────────────────────────
 

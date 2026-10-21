@@ -34,6 +34,7 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<VocalService>();
 builder.Services.AddScoped<DirigenteService>();
+builder.Services.AddScoped<PublicoService>();
 builder.Services.AddScoped<IAlmacenImagenes, AlmacenImagenesBd>();
 
 // ── Límite de intentos fallidos (código de invitación, inicio de sesión) ──────

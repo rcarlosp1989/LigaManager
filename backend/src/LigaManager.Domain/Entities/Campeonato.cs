@@ -13,6 +13,8 @@ public class Campeonato
 
     public int              IdTipoPartido { get; set; }
     public int?              IdUsuarioCreador { get; set; }
+    // Enlace público (solo lectura, sin cuenta): /publico/{TokenPublico}. Null = desactivado.
+    public string?           TokenPublico     { get; set; }
     public TipoPartido                   TipoPartido { get; set; } = null!;
     public Usuario?                       UsuarioCreador  { get; set; }
     public ICollection<CampeonatoEquipo> Equipos     { get; set; } = [];
