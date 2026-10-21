@@ -15,10 +15,16 @@ ALTER TABLE persona
     ADD COLUMN autorizacion_datos_por INT NULL,
     ADD CONSTRAINT fk_persona_autorizacion_por FOREIGN KEY (autorizacion_datos_por) REFERENCES usuario (id_usuario) ON DELETE SET NULL;
 
+-- MySQL Workbench trae activado el «modo seguro», que bloquea este UPDATE (Error 1175):
+-- se desactiva solo para esta sesión y se vuelve a activar enseguida.
+SET SQL_SAFE_UPDATES = 0;
+
 UPDATE persona p
 JOIN jugador j ON j.id_persona = p.id_persona
 SET p.autorizacion_datos_en = UTC_TIMESTAMP()
 WHERE p.autorizacion_datos_en IS NULL;
+
+SET SQL_SAFE_UPDATES = 1;
 
 ALTER TABLE usuario
     ADD COLUMN terminos_aceptados_en DATETIME NULL,
