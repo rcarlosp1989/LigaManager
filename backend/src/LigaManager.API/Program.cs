@@ -34,6 +34,7 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<VocalService>();
 builder.Services.AddScoped<DirigenteService>();
+builder.Services.AddScoped<PublicoService>();
 
 // ── Correo ───────────────────────────────────────────────────────────────────
 // Con Correo__BrevoApiKey se envía por Brevo. Con Correo__Modo=Prueba, el envío de prueba (no manda
