@@ -10,6 +10,9 @@ public class Usuario
     public RolUsuario  Rol          { get; set; } = RolUsuario.Admin;
     public bool        Activo       { get; set; } = true;
     public DateTime    CreatedAt    { get; set; }
+    // Términos de uso aceptados (organizadores): cuándo y qué versión.
+    public DateTime?   TerminosAceptadosEn { get; set; }   // UTC
+    public string?     TerminosVersion     { get; set; }
 }
 
 public enum RolUsuario

@@ -1139,7 +1139,7 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ## 2026-10-20 — Ajuste: el dirigente solo ve la nómina de su equipo
 
-**Estado:** aplicada en la rama `mejora/nomina-solo-propia`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+**Estado:** publicada (PR #30). Sin script de base de datos.
 
 - Pedido de Roberto: por ahora el dirigente no debe ver las nóminas de los otros equipos.
 - **Servidor:** `/api/dirigente/campeonatos/{id}/equipos/{idEquipo}` responde 404 si el equipo no es el del dirigente (antes enviaba la nómina sin documentos).
@@ -1147,3 +1147,27 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Textos actualizados en la invitación, el mensaje de WhatsApp y la pestaña Dirigentes del organizador.
 - El resto de la vista del dirigente no cambia (jornadas, posiciones, goleadores, tarjetas y suspensiones de todo el campeonato).
 - Verificado en GitHub Actions (rama temporal `ci/verificar-nomina-propia`): la nómina de otro equipo del campeonato responde 404 sin datos; tras cambiar de equipo, ve la nueva y ya no la anterior; todas las pruebas anteriores bien. Pantallas a 390 y 1.440 px: sin selector, con su equipo, y la página no pide nóminas de otros equipos en ninguna pestaña (82 comprobaciones).
+## 2026-10-20 — Mejora: autorización de datos personales y responsabilidad de la organización
+
+**Estado:** aplicada en la rama `mejora/privacidad-terminos`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261020_privacidad_terminos.sql`), que se ejecuta en Railway **antes** de fusionar. Los textos los redactó Claude y conviene que los revise un abogado (LOPDP del Ecuador).
+
+### Qué cambió
+
+- **Autorización de datos del jugador:** al registrar un jugador, casilla obligatoria: «La organización cuenta con la autorización del jugador (o de su padre, madre o representante legal, si es menor de edad) para tratar sus datos personales». El servidor la exige y guarda cuándo y quién la registró (`persona.autorizacion_datos_en` / `_por`).
+  - Jugadores ya registrados: la autorización se da por otorgada (decisión de Roberto); el script les pone la fecha de ejecución.
+- **Aviso de privacidad** (`/privacidad`) y **términos de uso** (`/terminos`): páginas públicas, enlazadas en el inicio de sesión, el registro y el menú lateral.
+  - Privacidad: cada organización es la responsable del tratamiento; LigaManager guarda y procesa los datos por su cuenta. Qué datos, para qué, quién los ve (organizador, vocales sin documento, dirigentes solo su nómina), conservación, derechos (LOPDP) y seguridad.
+  - Términos: el reglamento, la configuración, los resultados, las sanciones y las decisiones disciplinarias son responsabilidad exclusiva de la organización; los cálculos de la app son un apoyo que la organización debe revisar; obligaciones sobre datos personales, cuentas, disponibilidad y cambios.
+- **Aceptación obligatoria de los términos** (organizadores):
+  - al crear la cuenta, casilla obligatoria (el servidor la exige);
+  - las cuentas que ya existen ven una pantalla de aceptación antes de entrar a la administración (con «Salir» si no aceptan);
+  - se guarda cuándo y qué versión (`usuario.terminos_aceptados_en` / `terminos_version`); si los términos cambian, se piden de nuevo (`Terminos.Version` en el servidor y `VERSION_TERMINOS` en la página deben coincidir).
+- **Nota de responsabilidad** al pie de Posiciones, Tarjetas y Suspensiones (también en la vista del dirigente).
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-privacidad`), con MySQL y el script real:
+  - 18 pruebas: los jugadores previos quedan con la autorización; sin autorización (o en falso) no se registra; con ella se guarda fecha y usuario; editar no la pide y la conserva; el organizador previo tiene términos pendientes; una versión vieja se rechaza; aceptar guarda versión y fecha; registrarse sin aceptar se rechaza y aceptando no queda pendiente; vocal y dirigente reciben 403;
+  - las pruebas anteriores que crean jugadores se ajustaron para enviar la autorización; todas pasan (junto con el PR #30);
+  - la reversa del script quita las cuatro columnas y el script se vuelve a aplicar.
+- Pantallas a 390 y 1.440 px (122 comprobaciones): páginas de privacidad y términos, enlaces en el inicio de sesión, casilla en el registro, pantalla de aceptación (no deja entrar sin marcar; al aceptar entra), casilla obligatoria al crear jugador y nota en los tres reportes. Sin errores. Build correcto; lint igual que `main`.

@@ -55,7 +55,10 @@ public record CreateJugadorRequest(
     int?   Dorsal,
     string? Posicion,
     string? FotoUrl,
-    string? TipoIdentificacion = null
+    string? TipoIdentificacion = null,
+    // La organización declara contar con la autorización del jugador (o de su representante
+    // legal, si es menor) para tratar sus datos personales. Obligatoria al registrarlo.
+    bool    AutorizacionDatos = false
 );
 
 public record UpdateJugadorRequest(

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Trophy, Shield, Users, TrendingUp, Wrench, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
@@ -106,6 +106,10 @@ export default function Layout() {
               Salir
             </button>
           </div>
+          <p className="mt-3 text-[11px] text-gray-600">
+            <Link to="/privacidad" className="hover:text-gray-400">Privacidad</Link>{' · '}
+            <Link to="/terminos" className="hover:text-gray-400">Términos</Link>
+          </p>
         </div>
       </aside>
 

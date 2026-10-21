@@ -13,6 +13,9 @@ public class Persona
     public int      IdPais     { get; set; }
     public int?     IdCanton   { get; set; }
     public string?  FotoUrl    { get; set; }
+    // Autorización de tratamiento de datos (jugadores): la organización declara tenerla al registrarlo.
+    public DateTime? AutorizacionDatosEn  { get; set; }   // UTC
+    public int?      AutorizacionDatosPor { get; set; }   // usuario que la registró
 
     public Pais     Pais     { get; set; } = null!;
     public Canton?  Canton   { get; set; }

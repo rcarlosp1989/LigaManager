@@ -5,6 +5,7 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 import TablaPosiciones from '../../components/TablaPosiciones'
+import NotaResponsabilidad from '../../components/NotaResponsabilidad'
 import { Trophy } from 'lucide-react'
 import { useLogosEquipos } from '../../utils/logos'
 
@@ -94,6 +95,7 @@ export default function TabPosiciones({ idCampeonato, campeonato, base = `/campe
             <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-yellow-500 inline-flex items-center justify-center text-[8px] text-yellow-950 font-bold">E</span> Empate</span>
             <span className="flex items-center gap-1.5"><span className="w-4 h-4 rounded-full bg-red-500 inline-flex items-center justify-center text-[8px] text-red-950 font-bold">D</span> Derrota</span>
           </div>
+          <NotaResponsabilidad />
         </>
       )}
     </div>

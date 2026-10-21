@@ -8,7 +8,7 @@ export default function RegisterPage() {
   const fid = useId()
   const { register } = useAuth()
   const navigate     = useNavigate()
-  const [form,    setForm]    = useState({ nombre: '', email: '', password: '', confirmar: '' })
+  const [form,    setForm]    = useState({ nombre: '', email: '', password: '', confirmar: '', acepto: false })
   const [error,   setError]   = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -22,10 +22,11 @@ export default function RegisterPage() {
     if (!emailValido(form.email))     return setError('Ingresa un email válido.')
     if (form.password.length < 6)     return setError('La contraseña debe tener al menos 6 caracteres.')
     if (form.password !== form.confirmar) return setError('Las contraseñas no coinciden.')
+    if (!form.acepto) return setError('Para crear la cuenta debes aceptar los términos de uso y el aviso de privacidad.')
 
     setLoading(true)
     try {
-      await register(form.nombre.trim(), form.email.trim(), form.password)
+      await register(form.nombre.trim(), form.email.trim(), form.password, form.acepto)
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse.')
@@ -79,6 +80,16 @@ export default function RegisterPage() {
                 onChange={e => set('confirmar', e.target.value)} required />
             </div>
 
+            <label htmlFor={`${fid}-acepto`} className="flex items-start gap-3 text-sm text-gray-300">
+              <input id={`${fid}-acepto`} type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-500"
+                checked={form.acepto} onChange={e => set('acepto', e.target.checked)} />
+              <span>
+                Acepto los <Link to="/terminos" target="_blank" className="text-brand-400 hover:text-brand-300">términos de uso</Link> y
+                el <Link to="/privacidad" target="_blank" className="text-brand-400 hover:text-brand-300">aviso de privacidad</Link>.
+                Entiendo que el reglamento, las sanciones y los datos registrados son responsabilidad de mi organización.
+              </span>
+            </label>
+
             {error && (
               <div className="bg-red-900/30 border border-red-800 text-red-400
                               rounded-lg px-4 py-3 text-sm">
@@ -94,6 +105,10 @@ export default function RegisterPage() {
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿Ya tienes cuenta?{' '}
             <Link to="/login" className="text-brand-400 hover:text-brand-300">Inicia sesión</Link>
+          </p>
+          <p className="text-gray-600 text-xs text-center mt-4">
+            <Link to="/privacidad" className="hover:text-gray-400">Aviso de privacidad</Link>{' · '}
+            <Link to="/terminos" className="hover:text-gray-400">Términos de uso</Link>
           </p>
         </div>
       </div>

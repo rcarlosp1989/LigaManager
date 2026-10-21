@@ -103,6 +103,10 @@ export default function LoginPage() {
             ¿Eres vocal y tienes un código?{' '}
             <Link to="/invitacion" className="text-brand-400 hover:text-brand-300">Úsalo aquí</Link>
           </p>
+          <p className="text-gray-600 text-xs text-center mt-4">
+            <Link to="/privacidad" className="hover:text-gray-400">Aviso de privacidad</Link>{' · '}
+            <Link to="/terminos" className="hover:text-gray-400">Términos de uso</Link>
+          </p>
         </div>
       </div>
     </div>

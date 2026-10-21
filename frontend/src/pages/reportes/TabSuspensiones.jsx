@@ -6,6 +6,7 @@ import EmptyState from '../../components/EmptyState'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import FotoJugador from '../../components/FotoJugador'
+import NotaResponsabilidad from '../../components/NotaResponsabilidad'
 import { Avance, ConteoTarjetas } from '../../components/Indicadores'
 
 function hoy() {
@@ -245,6 +246,7 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
           </div>
         )}
       </div>
+      <NotaResponsabilidad texto="Las suspensiones se calculan con las tarjetas registradas y las reglas configuradas por la organización." />
     </div>
   )
 }
