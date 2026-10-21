@@ -11,7 +11,7 @@ export default function InvitacionCreada({ invitacion, campeonato, ruta = '/invi
   const enlace = `${window.location.origin}${ruta}/${invitacion.codigo}`
   const titular = invitacion.tipo === 'Titular'
   const mensaje = equipo
-    ? `Te invito como dirigente de ${equipo} para ver el campeonato «${campeonato}» en LigaManager (posiciones, nómina, goleadores y sanciones). Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
+    ? `Te invito como dirigente de ${equipo} para ver el campeonato «${campeonato}» en LigaManager (posiciones, la nómina de tu equipo, goleadores y sanciones). Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
     : titular
     ? `Te invito como vocal del campeonato «${campeonato}» en LigaManager. Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
     : `Te pido reemplazarme como vocal del campeonato «${campeonato}» el ${formatearFecha(invitacion.soloFecha)}. Abre este enlace: ${enlace} (código ${invitacion.codigo}).`

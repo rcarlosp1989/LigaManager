@@ -102,7 +102,7 @@ function DetalleInvitacion({ codigo }) {
           {inv.organizador} te invita como dirigente de {inv.equipo} en «{inv.campeonato}»
         </h2>
         <p className="text-gray-400 text-sm mt-2">
-          Podrás ver el campeonato desde tu cuenta: jornadas, posiciones, nóminas, goleadores, tarjetas y suspensiones.
+          Podrás ver el campeonato desde tu cuenta: jornadas, posiciones, la nómina de tu equipo, goleadores, tarjetas y suspensiones.
           No podrás cambiar nada.
         </p>
         {inv.vigente && <p className="text-gray-500 text-xs mt-2">La invitación sirve una sola vez y vence el {formatearFecha(inv.venceEn)}.</p>}

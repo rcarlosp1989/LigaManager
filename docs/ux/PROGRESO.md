@@ -1137,6 +1137,16 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 ---
 
+## 2026-10-20 — Ajuste: el dirigente solo ve la nómina de su equipo
+
+**Estado:** publicada (PR #30). Sin script de base de datos.
+
+- Pedido de Roberto: por ahora el dirigente no debe ver las nóminas de los otros equipos.
+- **Servidor:** `/api/dirigente/campeonatos/{id}/equipos/{idEquipo}` responde 404 si el equipo no es el del dirigente (antes enviaba la nómina sin documentos).
+- **Pantalla:** la pestaña Nómina del dirigente muestra directamente la de su equipo, sin selector; los PDF y Excel son solo de su equipo.
+- Textos actualizados en la invitación, el mensaje de WhatsApp y la pestaña Dirigentes del organizador.
+- El resto de la vista del dirigente no cambia (jornadas, posiciones, goleadores, tarjetas y suspensiones de todo el campeonato).
+- Verificado en GitHub Actions (rama temporal `ci/verificar-nomina-propia`): la nómina de otro equipo del campeonato responde 404 sin datos; tras cambiar de equipo, ve la nueva y ya no la anterior; todas las pruebas anteriores bien. Pantallas a 390 y 1.440 px: sin selector, con su equipo, y la página no pide nóminas de otros equipos en ninguna pestaña (82 comprobaciones).
 ## 2026-10-20 — Mejora: autorización de datos personales y responsabilidad de la organización
 
 **Estado:** aplicada en la rama `mejora/privacidad-terminos`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261020_privacidad_terminos.sql`), que se ejecuta en Railway **antes** de fusionar. Los textos los redactó Claude y conviene que los revise un abogado (LOPDP del Ecuador).
