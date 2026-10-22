@@ -161,6 +161,13 @@ function JornadaForm({ onSubmit, loading, error, idCampeonato }) {
 
 // ── Formulario nuevo partido ──────────────────────────────────────────────────
 
+// Árbitro principal del partido: el elegido o, con designación por cargos, el primero asignado.
+// Sin ninguno → null (queda «por designar» y se completa después con «Editar»).
+function arbitroPrincipal(f, conCargos) {
+  const id = conCargos ? Object.values(f.oficiales ?? {}).find(Boolean) : f.idArbitro
+  return id ? parseInt(id) : null
+}
+
 function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
   const fid = useId()
   const [form, setForm] = useState({
@@ -196,9 +203,6 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
     ...f,
     oficiales: { ...f.oficiales, [idCargo]: idArbitro },
   }))
-  const faltanCargosObligatorios = cargos.some(cargo =>
-    cargo.obligatorio && !form.oficiales[cargo.idCargo]
-  )
 
   return (
     <div className="space-y-4">
@@ -227,15 +231,15 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
       </div>
       {cargos.length > 0 && (
         <div className="space-y-3 border-t border-gray-800 pt-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido <span className="normal-case tracking-normal text-gray-500">(opcional)</span></p>
           {cargos.map(cargo => (
             <div key={cargo.idCargo}>
               <label htmlFor={`${fid}-cargo-${cargo.idCargo}`} className="block text-xs text-gray-400 mb-1.5">
-                {cargo.cargo} {cargo.obligatorio && <span className="text-amber-300">*</span>}
+                {cargo.cargo}
               </label>
               <select id={`${fid}-cargo-${cargo.idCargo}`} className="input-field" value={form.oficiales[cargo.idCargo] ?? ''}
                 onChange={e => setOficial(cargo.idCargo, e.target.value)}>
-                <option value="">Sin asignar</option>
+                <option value="">Por designar</option>
                 {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
               </select>
             </div>
@@ -257,10 +261,10 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
           </select>
         </div>
         {cargos.length === 0 && <div>
-          <label htmlFor={`${fid}-c9`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro principal</label>
+          <label htmlFor={`${fid}-c9`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro principal <span className="normal-case tracking-normal text-gray-500">(opcional)</span></label>
           <select id={`${fid}-c9`} className="input-field" value={form.idArbitro}
             onChange={e => set('idArbitro', e.target.value)}>
-            <option value="">Seleccionar...</option>
+            <option value="">Por designar</option>
             {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
           </select>
         </div>}
@@ -274,14 +278,12 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
           idEquipoVisitante: parseInt(form.idEquipoVisitante),
           fecha:             form.fecha,
           idEstadio:         parseInt(form.idEstadio),
-          idArbitro:         parseInt(form.idArbitro || Object.values(form.oficiales)[0]),
+          idArbitro:         arbitroPrincipal(form, cargos.length > 0),
           oficiales:         Object.entries(form.oficiales)
             .filter(([, idArbitro]) => idArbitro)
             .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
         })}
-        deshabilitado={!form.idEquipoLocal || !form.idEquipoVisitante || !form.fecha || !form.idEstadio
-          || (!form.idArbitro && !Object.values(form.oficiales).some(Boolean))
-          || faltanCargosObligatorios}
+        deshabilitado={!form.idEquipoLocal || !form.idEquipoVisitante || !form.fecha || !form.idEstadio}
       />
     </div>
   )
@@ -781,9 +783,6 @@ function PartidoCard({ partido, idCampeonato }) {
   const arbitros = qArbitros.data ?? []
   const cargos = qCargos.data ?? []
   const catalogosEdicion = erroresDe(qEstadios, qArbitros, qCargos)
-  const faltanCargosObligatorios = cargos.some(cargo =>
-    cargo.obligatorio && !editForm.oficiales[cargo.idCargo]
-  )
 
   const marcarMutation = useMutation({
     mutationFn: () => api.put(`/partidos/${partido.idPartido}/jugado`, { jugado: !partido.jugado }),
@@ -925,7 +924,9 @@ function PartidoCard({ partido, idCampeonato }) {
           : <span className="inline-flex items-center gap-1 text-gray-700"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
         {partido.arbitro
           ? <span className="inline-flex items-center gap-1"><User size={13} aria-hidden="true" />{partido.arbitro}</span>
-          : <span className="inline-flex items-center gap-1 text-gray-700"><User size={13} aria-hidden="true" />Sin árbitro</span>}
+          : partido.jugado
+            ? <span className="inline-flex items-center gap-1 text-gray-700"><User size={13} aria-hidden="true" />Sin árbitro</span>
+            : <span className="inline-flex items-center gap-1 text-amber-300/80"><User size={13} aria-hidden="true" />Árbitro por designar</span>}
       </div>
 
       <EstadoRegistro partido={partido} onReabrir={reabrir} reabriendo={reabrirMutation.isPending} />
@@ -1049,15 +1050,15 @@ function PartidoCard({ partido, idCampeonato }) {
           </div>
           {cargos.length > 0 ? (
             <div className="space-y-3 border-t border-gray-800 pt-4">
-              <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wider">Designación del partido <span className="normal-case tracking-normal text-gray-500">(opcional)</span></p>
               {cargos.map(cargo => (
                 <div key={cargo.idCargo}>
                   <label htmlFor={`${fid}-cargo-${cargo.idCargo}`} className="block text-xs text-gray-400 mb-1.5">
-                    {cargo.cargo} {cargo.obligatorio && <span className="text-amber-300">*</span>}
+                    {cargo.cargo}
                   </label>
                   <select id={`${fid}-cargo-${cargo.idCargo}`} className="input-field" value={editForm.oficiales[cargo.idCargo] ?? ''}
                     onChange={e => setEOficial(cargo.idCargo, e.target.value)}>
-                    <option value="">Sin asignar</option>
+                    <option value="">Por designar</option>
                     {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
                   </select>
                 </div>
@@ -1065,10 +1066,10 @@ function PartidoCard({ partido, idCampeonato }) {
             </div>
           ) : (
             <div>
-              <label htmlFor={`${fid}-c19`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro</label>
-              <select id={`${fid}-c19`} className="input-field" value={editForm.idArbitro} required
+              <label htmlFor={`${fid}-c19`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Árbitro <span className="normal-case tracking-normal text-gray-500">(opcional)</span></label>
+              <select id={`${fid}-c19`} className="input-field" value={editForm.idArbitro}
                 onChange={e => setE('idArbitro', e.target.value)}>
-                <option value="">Seleccionar...</option>
+                <option value="">Por designar</option>
                 {arbitros.map(a => <option key={a.idArbitro} value={a.idArbitro}>{a.apellido}, {a.nombre}</option>)}
               </select>
             </div>
@@ -1079,7 +1080,7 @@ function PartidoCard({ partido, idCampeonato }) {
             guardando={editarMutation.isPending}
             onGuardar={() => editarMutation.mutate({
               idEstadio:         editForm.idEstadio ? parseInt(editForm.idEstadio) : null,
-              idArbitro:         parseInt(editForm.idArbitro || Object.values(editForm.oficiales).find(Boolean)),
+              idArbitro:         arbitroPrincipal(editForm, cargos.length > 0),
               fecha:             editForm.fecha,
               idEquipoLocal:     puedeEditarEquipos && editForm.idEquipoLocal ? parseInt(editForm.idEquipoLocal) : null,
               idEquipoVisitante: puedeEditarEquipos && editForm.idEquipoVisitante ? parseInt(editForm.idEquipoVisitante) : null,
@@ -1087,9 +1088,7 @@ function PartidoCard({ partido, idCampeonato }) {
                 .filter(([, idArbitro]) => idArbitro)
                 .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
             })}
-            deshabilitado={!editForm.idEstadio
-              || (!editForm.idArbitro && !Object.values(editForm.oficiales).some(Boolean))
-              || faltanCargosObligatorios}
+            deshabilitado={!editForm.idEstadio}
           />
         </div>
       </Modal>

@@ -1228,3 +1228,15 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - el registro de la prueba de privacidad se adaptó a la confirmación; todas las pruebas anteriores bien (verificado junto con el PR #33);
   - la reversa del script funciona y el script se vuelve a aplicar.
 - Pantallas a 390 y 1.440 px (194 comprobaciones): «Recordarme» guarda la sesión en sessionStorage o localStorage, sesión vencida lleva al login, correo sin confirmar ofrece reenviar, «Revisa tu correo» con espera, olvidé la clave, enlace vencido, restablecer y entrar, confirmar una sola vez. Sin errores. Build correcto; lint igual que `main`.
+
+## 2026-10-22 — Partidos sin árbitro: la designación es opcional
+
+**Estado:** aplicada en la rama `mejora/arbitro-opcional`. Pendiente de que Roberto la apruebe. **No necesita script de base de datos** (la columna del árbitro ya admitía vacío).
+
+### Qué cambió
+
+- **Agregar y editar un partido sin árbitro**: en campeonatos aficionados la designación muchas veces se conoce a última hora. Basta con equipos, fecha y estadio; el árbitro (o la designación por cargos) se completa después con «Editar».
+- Los selectores dicen «Por designar» y las etiquetas «(opcional)». Los cargos ya no llevan asterisco ni bloquean el guardado.
+- En la tarjeta del partido, mientras no se juega, se ve «Árbitro por designar» en ámbar para recordarlo; si ya se jugó sin árbitro, «Sin árbitro» en gris.
+- Al editar, si se quita toda la designación, el partido queda sin árbitro (antes podía quedarse con el anterior).
+- Se mantienen las validaciones de lo que sí se envía: el árbitro debe existir y ser del organizador, no se repite un cargo ni una persona en dos cargos.
