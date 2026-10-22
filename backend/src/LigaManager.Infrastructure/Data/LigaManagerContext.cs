@@ -254,6 +254,7 @@ public class LigaManagerContext : DbContext
         // ── Relaciones Campeonato ────────────────────────────────────────────
         modelBuilder.Entity<Campeonato>(e =>
         {
+            e.HasIndex(c => c.TokenPublico).IsUnique();
             e.Property(c => c.IdCampeonato) .HasColumnName("id_campeonato");
             e.Property(c => c.Nombre)       .HasColumnName("nombre");
             e.Property(c => c.Anio)         .HasColumnName("anio");

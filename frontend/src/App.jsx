@@ -17,6 +17,7 @@ import Invitacion        from './pages/vocal/Invitacion'
 import InicioDirigente   from './pages/dirigente/InicioDirigente'
 import InvitacionDirigente from './pages/dirigente/InvitacionDirigente'
 import { Privacidad, Terminos } from './pages/legal/Legal'
+import CampeonatoPublico from './pages/publico/CampeonatoPublico'
 import OlvideClave       from './pages/cuenta/OlvideClave'
 import Restablecer       from './pages/cuenta/Restablecer'
 import ConfirmarCorreo   from './pages/cuenta/ConfirmarCorreo'
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/invitacion/:codigo" element={<Invitacion />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/terminos" element={<Terminos />} />
+        <Route path="/publico/:token" element={<CampeonatoPublico />} />
         <Route path="/olvide-clave" element={<OlvideClave />} />
         <Route path="/restablecer/:token" element={<Restablecer />} />
         <Route path="/confirmar-correo/:token" element={<ConfirmarCorreo />} />

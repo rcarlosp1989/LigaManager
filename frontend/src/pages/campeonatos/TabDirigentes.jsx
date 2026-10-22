@@ -7,6 +7,7 @@ import LogoEquipo from '../../components/LogoEquipo'
 import { useAviso, useDialogos, mensajeDeError } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
 import { useLogosEquipos } from '../../utils/logos'
+import EnlacePublico from './EnlacePublico'
 
 const labelClass = 'block text-xs text-gray-400 uppercase tracking-wider mb-1.5'
 
@@ -66,6 +67,8 @@ export default function TabDirigentes({ camp }) {
           posiciones, la nómina de su equipo (sin documentos de identidad), goleadores, tarjetas y suspensiones. No ve las nóminas de los otros equipos.
         </p>
       </div>
+
+      <EnlacePublico camp={camp} />
 
       {creada && (
         <InvitacionCreada invitacion={creada} campeonato={camp.nombre} ruta="/invitacion-dirigente" equipo={creada.equipo} />
