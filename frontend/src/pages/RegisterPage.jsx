@@ -1,6 +1,7 @@
 import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ReenviarConfirmacion from './cuenta/ReenviarConfirmacion'
 
 const emailValido = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)
 
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [form,    setForm]    = useState({ nombre: '', email: '', password: '', confirmar: '', acepto: false })
   const [error,   setError]   = useState('')
   const [loading, setLoading] = useState(false)
+  const [porConfirmar, setPorConfirmar] = useState(null)   // correo al que se envió la confirmación
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -26,8 +28,9 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      await register(form.nombre.trim(), form.email.trim(), form.password, form.acepto)
-      navigate('/dashboard')
+      const r = await register(form.nombre.trim(), form.email.trim(), form.password, form.acepto)
+      if (r?.confirmarCorreo) setPorConfirmar(r.email)
+      else navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse.')
     } finally {
@@ -56,6 +59,17 @@ export default function RegisterPage() {
 
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8
                         shadow-2xl shadow-black/50">
+          {porConfirmar ? (
+            <div role="status" className="space-y-4">
+              <h2 className="text-white font-semibold text-lg">Revisa tu correo</h2>
+              <p className="text-sm text-gray-300">
+                Te enviamos un correo a <strong className="text-white break-all">{porConfirmar}</strong>. Abre el enlace para activar tu cuenta.
+              </p>
+              <p className="text-sm text-gray-500">Si no aparece en unos minutos, revisa Spam o Promociones. El enlace vale 24 horas.</p>
+              <ReenviarConfirmacion email={porConfirmar} />
+              <Link to="/login" className="block text-center text-sm text-brand-400 hover:text-brand-300">Ir a iniciar sesión</Link>
+            </div>
+          ) : (<>
           <h2 className="text-white font-semibold text-lg mb-6">Crear cuenta</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,6 +115,7 @@ export default function RegisterPage() {
               {loading ? 'Creando cuenta...' : 'Registrarme'}
             </button>
           </form>
+          </>)}
 
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿Ya tienes cuenta?{' '}

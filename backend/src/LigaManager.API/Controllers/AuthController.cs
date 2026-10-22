@@ -21,18 +21,75 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _auth.LoginAsync(request);
-        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+        if (result.Success) return Ok(result.Data);
+        // Organizador sin confirmar el correo: 403 con un código para que la pantalla ofrezca reenviarlo.
+        if (result.Error == Infrastructure.Services.AuthService.ErrorCorreoSinConfirmar)
+            return StatusCode(403, new { error = "Confirma tu correo para entrar. Revisa tu bandeja de entrada (y Spam o Promociones).", codigo = result.Error });
+        return BadRequest(new { error = result.Error });
     }
 
     /// <summary>Registro de un nuevo usuario con rol Organizador</summary>
     [AllowAnonymous]
+    [LimitarIntentos("registro")]
     [HttpPost("register")]
-    [ProducesResponseType(typeof(LoginResponse), 200)]
-    [ProducesResponseType(400)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        var result = await _auth.RegisterAsync(request);
-        return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
+        var r = await _auth.RegisterAsync(request);
+        if (!r.Success) return BadRequest(new { error = r.Error });
+        // Sin confirmación: la sesión, como antes. Con confirmación: aviso para revisar el correo.
+        return r.Data!.Sesion is { } sesion ? Ok(sesion) : Ok(new { confirmarCorreo = true, email = r.Data.Email });
+    }
+
+    /// <summary>Qué ofrece la pantalla de inicio de sesión (por ejemplo, restablecer la contraseña)</summary>
+    [AllowAnonymous]
+    [HttpGet("opciones")]
+    public IActionResult Opciones() => Ok(_auth.Opciones());
+
+    private const string Generico = "Si el correo está registrado, te llegará un mensaje en unos minutos. Revisa también Spam o Promociones.";
+
+    [AllowAnonymous]
+    [LimitarIntentos("correo")]
+    [HttpPost("reenviar-confirmacion")]
+    public async Task<IActionResult> ReenviarConfirmacion([FromBody] CorreoRequest req)
+    {
+        await _auth.ReenviarConfirmacionAsync(req.Email);
+        return Ok(new { mensaje = Generico });
+    }
+
+    [AllowAnonymous]
+    [LimitarIntentos("enlace")]
+    [HttpPost("confirmar-correo")]
+    public async Task<IActionResult> ConfirmarCorreo([FromBody] ConfirmarCorreoRequest req)
+    {
+        var r = await _auth.ConfirmarCorreoAsync(req.Token);
+        return r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
+    }
+
+    [AllowAnonymous]
+    [LimitarIntentos("correo")]
+    [HttpPost("olvide-clave")]
+    public async Task<IActionResult> OlvideClave([FromBody] CorreoRequest req)
+    {
+        await _auth.OlvideClaveAsync(req.Email);
+        return Ok(new { mensaje = Generico });
+    }
+
+    [AllowAnonymous]
+    [LimitarIntentos("enlace")]
+    [HttpGet("restablecer/{token}")]
+    public async Task<IActionResult> ValidarRestablecer(string token)
+    {
+        var r = await _auth.ValidarRestablecerAsync(token);
+        return r.Valido ? Ok(r) : NotFound(r);
+    }
+
+    [AllowAnonymous]
+    [LimitarIntentos("enlace")]
+    [HttpPost("restablecer")]
+    public async Task<IActionResult> Restablecer([FromBody] RestablecerRequest req)
+    {
+        var r = await _auth.RestablecerAsync(req);
+        return r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
     }
 
     private int? UsuarioId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;

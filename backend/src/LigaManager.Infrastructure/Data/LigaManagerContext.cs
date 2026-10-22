@@ -43,6 +43,7 @@ public class LigaManagerContext : DbContext
     public DbSet<InvitacionVocal>    InvitacionesVocal     { get; set; }
     public DbSet<CampeonatoDirigente> CampeonatoDirigentes  { get; set; }
     public DbSet<InvitacionDirigente> InvitacionesDirigente { get; set; }
+    public DbSet<TokenUsuario>       TokenesUsuario        { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +85,7 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<InvitacionVocal>()   .ToTable("invitacion_vocal");
         modelBuilder.Entity<CampeonatoDirigente>().ToTable("campeonato_dirigente");
         modelBuilder.Entity<InvitacionDirigente>().ToTable("invitacion_dirigente");
+        modelBuilder.Entity<TokenUsuario>()       .ToTable("token_usuario");
 
         // ── Enums como string ────────────────────────────────────────────────
         modelBuilder.Entity<Usuario>()
@@ -643,6 +645,18 @@ public class LigaManagerContext : DbContext
             e.HasOne(i => i.Equipo).WithMany().HasForeignKey(i => i.IdEquipo).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(i => i.Creador).WithMany().HasForeignKey(i => i.CreadaPor).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(i => i.UsuarioQueUso).WithMany().HasForeignKey(i => i.UsadaPor).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── Enlaces por correo (confirmar correo, restablecer contraseña) ──────
+        // ENUM de MySQL: VERIFICAR_CORREO / RESTABLECER_CLAVE.
+        modelBuilder.Entity<TokenUsuario>(e =>
+        {
+            e.HasKey(t => t.IdToken);
+            e.Property(t => t.Tipo).HasConversion(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TipoTokenUsuario, string>(
+                v => v == TipoTokenUsuario.VerificarCorreo ? "VERIFICAR_CORREO" : "RESTABLECER_CLAVE",
+                v => v == "VERIFICAR_CORREO" ? TipoTokenUsuario.VerificarCorreo : TipoTokenUsuario.RestablecerClave));
+            e.HasIndex(t => t.TokenHash).IsUnique();
+            e.HasOne(t => t.Usuario).WithMany().HasForeignKey(t => t.IdUsuario).OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Registro en vivo (Fase 8) ────────────────────────────────────────

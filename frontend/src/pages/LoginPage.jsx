@@ -1,5 +1,8 @@
 import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import api from '../services/api'
+import ReenviarConfirmacion from './cuenta/ReenviarConfirmacion'
 import { useAuth } from '../context/AuthContext'
 import { inicioDeRol } from '../utils/roles'
 
@@ -7,20 +10,25 @@ export default function LoginPage() {
   const fid = useId()
   const { login } = useAuth()
   const navigate  = useNavigate()
-  const [form,    setForm]    = useState({ email: '', password: '' })
+  const [form,    setForm]    = useState({ email: '', password: '', recordarme: false })
   const [error,   setError]   = useState('')
+  const [sinConfirmar, setSinConfirmar] = useState(null)   // correo de una cuenta sin confirmar
+  // Restablecer la contraseña solo si el servidor tiene servicio de correo.
+  const opciones = useQuery({ queryKey: ['auth-opciones'], queryFn: () => api.get('/auth/opciones').then(r => r.data), staleTime: Infinity, retry: false })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setSinConfirmar(null)
     setLoading(true)
     try {
-      const sesion = await login(form.email, form.password)
+      const sesion = await login(form.email, form.password, form.recordarme)
       // El vocal entra directo a sus partidos y el dirigente a su campeonato, sin el menú de administración.
       navigate(inicioDeRol(sesion?.rol))
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión.')
+      if (err.response?.data?.codigo === 'CORREO_SIN_CONFIRMAR') setSinConfirmar(form.email.trim())
     } finally {
       setLoading(false)
     }
@@ -77,14 +85,29 @@ export default function LoginPage() {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 required
               />
+              {opciones.data?.correo && (
+                <p className="mt-2 text-right text-sm">
+                  <Link to="/olvide-clave" className="text-brand-400 hover:text-brand-300">¿Olvidaste tu contraseña?</Link>
+                </p>
+              )}
             </div>
 
+            <label htmlFor={`${fid}-recordarme`} className="flex items-start gap-3 text-sm text-gray-300">
+              <input id={`${fid}-recordarme`} type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-500"
+                checked={form.recordarme} onChange={e => setForm(f => ({ ...f, recordarme: e.target.checked }))} />
+              <span>
+                Recordarme en este dispositivo
+                <span className="block text-xs text-gray-500">La sesión sigue abierta 7 días. Sin marcar, se cierra al cerrar el navegador.</span>
+              </span>
+            </label>
+
             {error && (
-              <div className="bg-red-900/30 border border-red-800 text-red-400
+              <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400
                               rounded-lg px-4 py-3 text-sm">
                 {error}
               </div>
             )}
+            {sinConfirmar && <ReenviarConfirmacion email={sinConfirmar} esperaInicial={0} />}
 
             <button
               type="submit"
