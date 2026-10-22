@@ -1240,3 +1240,9 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En la tarjeta del partido, mientras no se juega, se ve «Árbitro por designar» en ámbar para recordarlo; si ya se jugó sin árbitro, «Sin árbitro» en gris.
 - Al editar, si se quita toda la designación, el partido queda sin árbitro (antes podía quedarse con el anterior).
 - Se mantienen las validaciones de lo que sí se envía: el árbitro debe existir y ser del organizador, no se repite un cargo ni una persona en dos cargos.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-arbitro`), con MySQL y una modalidad con «Árbitro central» obligatorio como en producción:
+  - 14 pruebas: crear sin árbitro ni designación (y sin mandar esos campos); editar la hora sin árbitro; asignarlo después; designar solo un cargo no obligatorio; quitar la designación deja el partido sin árbitro; árbitro inexistente o de otro organizador rechazado; una persona en dos cargos rechazada; el estadio sigue siendo obligatorio; un partido sin árbitro se puede marcar jugado;
+  - todas las pruebas anteriores siguen pasando y las pantallas anteriores (194 comprobaciones) sin cambios. Build correcto; lint igual que `main`.
