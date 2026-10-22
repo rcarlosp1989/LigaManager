@@ -1183,3 +1183,27 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - **Pantalla:** la nómina del dirigente no tiene la columna «Documento», tampoco en el PDF ni en el Excel. El organizador la sigue viendo.
 - Textos actualizados: aviso de privacidad (los dirigentes ven la nómina de su equipo sin documento) y pestaña Dirigentes.
 - Verificado en GitHub Actions (rama temporal `ci/verificar-sin-documentos`): la nómina propia del dirigente llega sin documentos y con los mismos jugadores que ve el organizador; el organizador sigue viéndolos; todas las pruebas anteriores bien. Pantallas a 390 y 1.440 px: sin columna «Documento» ni cédulas en la nómina del dirigente.
+
+---
+
+## 2026-10-21 — Mejora: enlace público del campeonato (sin cuenta)
+
+**Estado:** aplicada en la rama `mejora/enlace-publico`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261021_enlace_publico.sql`), que se ejecuta en Railway **antes** de fusionar.
+
+### Qué cambió
+
+- Pedido de Roberto: un enlace general para compartir (por ejemplo en un grupo de WhatsApp). Eligió la opción «link público sin cuenta» entre cuatro.
+- **Organizador:** en la pestaña Dirigentes del campeonato, sección «Enlace público del campeonato»: crear, copiar, compartir por WhatsApp, abrir, **cambiar** (el anterior deja de funcionar) y **desactivar**.
+- **Página pública** `/publico/{código}`, sin iniciar sesión: resultados por jornada, posiciones, goleadores, tarjetas y suspensiones (solo lectura), con quién organiza y la nota de responsabilidad.
+  - Sin nóminas, documentos, fechas de nacimiento, planillas ni fotos; los jugadores con un nombre y un apellido.
+  - Si el código no existe o se desactivó: «Enlace no disponible».
+- **Servidor:** `campeonato.token_publico` (código aleatorio de 22 caracteres; null = desactivado). API `/api/publico/{código}/…` solo GET, con límite de intentos; los reportes reutilizan los servicios de siempre (AccesoCampeonato habilita la lectura de ese campeonato en la petición) y se les quitan las fotos. Rutas del organizador `/api/campeonatos/{id}/enlace-publico` (GET/POST/DELETE).
+- La fila de partido se movió a `components/FilaPartido.jsx` (la usan el dirigente y la página pública).
+- Aviso de privacidad: se agrega quién ve los datos con el enlace público.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-publico`), con MySQL y el script real:
+  - 38 pruebas: crear (solo el dueño, no sin sesión), ver sin sesión el campeonato, resultados sin planillas, posiciones iguales a las del organizador, goleadores/tarjetas/suspensiones con las mismas filas pero sin fotos y con nombre corto («Carlos Andrés De la Cruz Pérez» → «Carlos De la Cruz»; el organizador lo sigue viendo completo y con foto), sin nóminas, sin POST/PUT/DELETE, sin datos de otro campeonato, códigos inventados o casi iguales rechazados, cambiar invalida el anterior, desactivar lo apaga;
+  - todas las pruebas anteriores siguen pasando; la reversa del script quita la columna y el script se vuelve a aplicar.
+- Pantallas a 390 y 1.440 px (158 comprobaciones): página pública sin iniciar sesión en las cinco pestañas, sin pestaña de nómina ni «Agregar sanción», sin pedir datos privados; código inválido; el organizador crea, comparte y desactiva el enlace. Sin errores. Build correcto; lint igual que `main`.
