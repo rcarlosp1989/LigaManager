@@ -227,7 +227,7 @@ for (const ancho of [390, 1440]) {
       await page.goto(`${APP}/dirigente?tab=${tab}`)
       await page.getByText(texto).first().waitFor()
       await captura(page, `dir_${tab}`, ancho)
-      await revisarFija(page, `dirigente ${tab}`, ancho)
+      if (tab !== 'goleadores') await revisarFija(page, `dirigente ${tab}`, ancho)  // goleadores simple ya no se desliza
       if (ancho < 500) await page.screenshot({ path: `capturas/dir_${tab}_deslizada_${ancho}.png`, fullPage: true })
       const otras = llamadas.filter(l => /\/equipos\/(?!11\b)\d+/.test(l))
       ok(`dirigente ${tab} @${ancho}: no pide nóminas de otros equipos`, otras.length === 0, otras.join(', '))
@@ -239,7 +239,9 @@ for (const ancho of [390, 1440]) {
       }
       if (tab === 'goleadores') {
         ok(`dirigente goleadores @${ancho}: sin PJ ni promedio`, await page.getByRole('columnheader', { name: /^(PJ|Prom\.)$/ }).count() === 0)
-        ok(`dirigente goleadores @${ancho}: con jugador, equipo y goles`, await page.getByRole('columnheader', { name: /^(Jugador|Equipo|Goles)$/ }).count() === 3)
+        ok(`dirigente goleadores @${ancho}: con jugador, equipo y goles`, await page.getByRole('columnheader', { name: /^(Jugador|Equipo|Goles)$/ }).count() === (ancho < 500 ? 2 : 3))
+        ok(`dirigente goleadores @${ancho}: se ve el equipo del jugador`, await page.getByText('Ventarrón FC').first().isVisible())
+        ok(`dirigente goleadores @${ancho}: entra sin deslizar`, await page.evaluate(() => [...document.querySelectorAll('[data-desplazada]')].every(e => e.scrollWidth <= e.clientWidth + 1)))
       }
       if (tab === 'tarjetas') {
         ok(`tarjetas @${ancho}: muestra «2/5» y «4/5»`, await page.getByText('2/5').count() === 1 && await page.getByText('4/5').count() === 1)
