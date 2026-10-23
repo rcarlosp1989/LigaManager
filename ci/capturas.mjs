@@ -241,7 +241,7 @@ for (const ancho of [390, 1440]) {
         ok(`dirigente goleadores @${ancho}: sin PJ ni promedio`, await page.getByRole('columnheader', { name: /^(PJ|Prom\.)$/ }).count() === 0)
         ok(`dirigente goleadores @${ancho}: con jugador, equipo y goles`, await page.getByRole('columnheader', { name: /^(Jugador|Equipo|Goles)$/ }).count() === (ancho < 500 ? 2 : 3))
         ok(`dirigente goleadores @${ancho}: se ve el equipo del jugador`, await page.getByText('Ventarrón FC').first().isVisible())
-        ok(`dirigente goleadores @${ancho}: entra sin deslizar`, await page.evaluate(() => [...document.querySelectorAll('[data-desplazada]')].every(e => e.scrollWidth <= e.clientWidth + 1)))
+        ok(`dirigente goleadores @${ancho}: entra sin deslizar`, await page.evaluate(() => [...document.querySelectorAll('table')].every(t => { const c = t.closest('.overflow-x-auto'); return c && c.scrollWidth <= c.clientWidth + 1 })))
       }
       if (tab === 'tarjetas') {
         ok(`tarjetas @${ancho}: muestra «2/5» y «4/5»`, await page.getByText('2/5').count() === 1 && await page.getByText('4/5').count() === 1)
