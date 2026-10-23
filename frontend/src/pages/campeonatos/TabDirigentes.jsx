@@ -62,13 +62,8 @@ export default function TabDirigentes({ camp }) {
     <div className="card space-y-5">
       <div>
         <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-1">Dirigentes</h2>
-        <p className="text-gray-400 text-sm">
-          El dirigente de un equipo ve el campeonato con su propia cuenta, sin poder cambiar nada: jornadas y resultados,
-          posiciones, la nómina de su equipo (sin documentos de identidad), goleadores, tarjetas y suspensiones. No ve las nóminas de los otros equipos.
-        </p>
+        <p className="text-gray-400 text-sm">Ven el campeonato y la nómina de su equipo, sin poder cambiar nada.</p>
       </div>
-
-      <EnlacePublico camp={camp} />
 
       {creada && (
         <InvitacionCreada invitacion={creada} campeonato={camp.nombre} ruta="/invitacion-dirigente" equipo={creada.equipo} />
@@ -76,16 +71,14 @@ export default function TabDirigentes({ camp }) {
 
       {idEquipo === null && (
         equipos.length === 0
-          ? <p className="text-sm text-gray-500">Primero inscribe equipos en el campeonato para poder invitar a sus dirigentes.</p>
+          ? <p className="text-sm text-gray-500">Primero inscribe equipos en el campeonato.</p>
           : <div><button type="button" onClick={abrir} className="btn-primary">+ Invitar dirigente</button></div>
       )}
 
       {idEquipo !== null && (
         <form className="space-y-3 rounded-lg border border-gray-700 bg-gray-800/50 p-4"
           onSubmit={e => { e.preventDefault(); if (idEquipo) crear.mutate({ idEquipo: Number(idEquipo) }) }}>
-          <p className="text-sm text-white">
-            Se crea un enlace de una sola vez para que el dirigente cree su cuenta. Vence a los 7 días si nadie lo usa.
-          </p>
+          <p className="text-sm text-gray-300">Enlace de un solo uso para crear su cuenta. Vence en 7 días.</p>
           <div className="max-w-sm">
             <label htmlFor={`${fid}-equipo`} className={labelClass}>Equipo del dirigente</label>
             <select id={`${fid}-equipo`} className="input-field" value={idEquipo} required onChange={e => setIdEquipo(e.target.value)}>
@@ -109,7 +102,7 @@ export default function TabDirigentes({ camp }) {
           <div>
             <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Con acceso</h3>
             {q.data.dirigentes.length === 0 ? (
-              <p className="text-gray-500 text-sm">Todavía nadie. Invita a los dirigentes de los equipos para que sigan el campeonato.</p>
+              <p className="text-gray-500 text-sm">Todavía nadie.</p>
             ) : (
               <ul className="divide-y divide-gray-800 rounded-lg border border-gray-800">
                 {q.data.dirigentes.map(d => (
@@ -144,6 +137,10 @@ export default function TabDirigentes({ camp }) {
           )}
         </>
       )}
+
+      <div className="border-t border-gray-800 pt-5">
+        <EnlacePublico camp={camp} />
+      </div>
     </div>
   )
 }

@@ -1247,6 +1247,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - 14 pruebas: crear sin árbitro ni designación (y sin mandar esos campos); editar la hora sin árbitro; asignarlo después; designar solo un cargo no obligatorio; quitar la designación deja el partido sin árbitro; árbitro inexistente o de otro organizador rechazado; una persona en dos cargos rechazada; el estadio sigue siendo obligatorio; un partido sin árbitro se puede marcar jugado;
   - todas las pruebas anteriores siguen pasando y las pantallas anteriores (194 comprobaciones) sin cambios. Build correcto; lint igual que `main`.
 
+## 2026-10-23 — Pestaña Dirigentes: invitar primero, enlace público aparte
+
+**Estado:** aplicada en la rama `mejora/dirigentes-orden`. Pendiente de que Roberto la apruebe. Solo pantalla: no necesita script ni deploy del backend.
+
+- Arriba «Dirigentes» con una línea de explicación, el botón «+ Invitar dirigente» y las listas «Con acceso» e «Invitaciones sin usar». Al final, separado por una línea, «Enlace público» con su propia línea de explicación. Las dos opciones conviven.
+- Textos más cortos (una línea cada uno).
+- Verificado en GitHub Actions (`ci/verificar-orden`): 200 comprobaciones de pantalla a 390 y 1.440 px, incluida que el botón de invitar y las listas estén antes del enlace público. Build correcto; lint igual que `main`.
+
 ## 2026-10-23 — Goleadores sin PJ ni promedio para el dirigente y el enlace público
 
 **Estado:** aplicada en la rama `mejora/goleadores-simple`. Pendiente de que Roberto la apruebe. Solo pantalla: no necesita script ni deploy del backend.

@@ -54,16 +54,12 @@ export default function EnlacePublico({ camp }) {
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-gray-800 bg-gray-800/30 p-4">
-      <div className="flex items-start gap-3">
-        <Globe size={20} className="mt-0.5 shrink-0 text-brand-400" aria-hidden="true" />
-        <div>
-          <h3 className="text-sm font-semibold text-white">Enlace público del campeonato</h3>
-          <p className="mt-1 text-sm text-gray-400">
-            Para compartir con todos, por ejemplo en un grupo de WhatsApp. Se ve sin cuenta: resultados, posiciones,
-            goleadores, tarjetas y sanciones. No muestra nóminas, documentos ni fotos; los jugadores aparecen con un nombre y un apellido.
-          </p>
-        </div>
+    <div className="space-y-3">
+      <div>
+        <h2 className="mb-1 inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-gray-500">
+          <Globe size={14} className="text-brand-400" aria-hidden="true" /> Enlace público
+        </h2>
+        <p className="text-sm text-gray-400">Para todos, sin cuenta: resultados, tablas y sanciones. Sin nóminas ni fotos.</p>
       </div>
 
       {q.isLoading ? (
