@@ -154,7 +154,8 @@ function Resumen({ camp }) {
 }
 
 function Jornadas({ base, idEquipoPropio }) {
-  const [abierta, setAbierta] = useState(null)
+  const [abiertas, setAbiertas] = useState(() => new Set())   // se pueden abrir varias
+  const alternar = (id) => setAbiertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n })
   const q = useQuery({ queryKey: ['dirigente-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
 
   if (q.isLoading) return <p className="py-10 text-center text-sm text-gray-500">Cargando jornadas...</p>
@@ -164,10 +165,10 @@ function Jornadas({ base, idEquipoPropio }) {
   return (
     <ul className="space-y-2">
       {q.data.map(j => {
-        const abiertaEsta = abierta === j.idJornada
+        const abiertaEsta = abiertas.has(j.idJornada)
         return (
           <li key={j.idJornada} className="rounded-lg border border-gray-800">
-            <button type="button" onClick={() => setAbierta(abiertaEsta ? null : j.idJornada)} aria-expanded={abiertaEsta}
+            <button type="button" onClick={() => alternar(j.idJornada)} aria-expanded={abiertaEsta}
               className="flex w-full items-center gap-3 px-4 py-3 text-left">
               <span className="flex-1">
                 <span className="font-medium text-white">Jornada {j.numero}</span>

@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Ban, CalendarDays, ChartColumn, Link2Off, RectangleVertical } from 'lucide-react'
+import { Ban, CalendarDays, ChartColumn, ChevronDown, Link2Off, RectangleVertical } from 'lucide-react'
 import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
@@ -92,24 +93,51 @@ export default function CampeonatoPublico() {
   )
 }
 
+// Jornadas plegables. Al abrir, se despliega la jornada en curso (la primera con partidos por
+// jugar; si ya se jugaron todos, la última). Se pueden abrir varias a la vez.
+function jornadaActual(jornadas) {
+  return (jornadas.find(j => j.partidos.some(p => !p.jugado)) ?? jornadas[jornadas.length - 1])?.idJornada
+}
+
 function Resultados({ base }) {
   const q = useQuery({ queryKey: ['publico-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
+  const [abiertas, setAbiertas] = useState(null)   // null = todavía la jornada en curso
   if (q.isLoading) return <p className="py-10 text-center text-sm text-gray-500">Cargando resultados...</p>
   if (q.isError) return <EstadoError mensaje="No se pudieron cargar los resultados." onReintentar={q.refetch} reintentando={q.isFetching} />
   const jornadas = q.data.filter(j => j.partidos.length > 0)
   if (jornadas.length === 0) return <EmptyState icon={CalendarDays} title="Sin partidos todavía" description="La organización aún no publicó el calendario." />
+  const abiertasAhora = abiertas ?? new Set([jornadaActual(jornadas)])
+  const alternar = (id) => {
+    const nuevas = new Set(abiertasAhora)
+    if (nuevas.has(id)) nuevas.delete(id); else nuevas.add(id)
+    setAbiertas(nuevas)
+  }
   return (
-    <div className="space-y-5">
-      {jornadas.map(j => (
-        <section key={j.idJornada} aria-labelledby={`jornada-${j.idJornada}`}>
-          <h2 id={`jornada-${j.idJornada}`} className="mb-2 text-xs uppercase tracking-wider text-gray-500">
-            Jornada {j.numero} · {j.instancia}{j.grupo ? ` · Grupo ${j.grupo}` : ''}
-          </h2>
-          <ul className="space-y-2">
-            {j.partidos.map(p => <FilaPartido key={p.idPartido} p={{ ...p, numeroJornada: null }} />)}
-          </ul>
-        </section>
-      ))}
-    </div>
+    <ul className="space-y-2">
+      {jornadas.map(j => {
+        const abierta = abiertasAhora.has(j.idJornada)
+        const jugados = j.partidos.filter(p => p.jugado).length
+        const total = j.partidos.length
+        return (
+          <li key={j.idJornada} className="rounded-lg border border-gray-800">
+            <button type="button" onClick={() => alternar(j.idJornada)} aria-expanded={abierta}
+              className="flex w-full items-center gap-3 px-4 py-3 text-left">
+              <span className="min-w-0 flex-1">
+                <span className="font-medium text-white">Jornada {j.numero}</span>
+                <span className="ml-2 text-xs text-gray-500">
+                  {j.instancia}{j.grupo ? ` · Grupo ${j.grupo}` : ''} · {jugados === total ? (total === 1 ? '1 partido jugado' : `${total} partidos jugados`) : `${jugados} de ${total} jugados`}
+                </span>
+              </span>
+              <ChevronDown size={18} aria-hidden="true" className={`shrink-0 text-gray-500 transition-transform ${abierta ? 'rotate-180' : ''}`} />
+            </button>
+            {abierta && (
+              <ul className="space-y-2 px-3 pb-3">
+                {j.partidos.map(p => <FilaPartido key={p.idPartido} p={{ ...p, numeroJornada: null }} />)}
+              </ul>
+            )}
+          </li>
+        )
+      })}
+    </ul>
   )
 }
