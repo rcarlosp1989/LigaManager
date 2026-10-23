@@ -453,10 +453,12 @@ public class JornadaService : IJornadaService
         var estadioExiste = await _db.Estadios.AnyAsync(e => e.IdEstadio == req.IdEstadio && e.IdUsuarioCreador == UsuarioActualId);
         if (!estadioExiste) return ServiceResult<PartidoDetalleDto>.Fail("Estadio no encontrado.");
 
-        if (!req.IdArbitro.HasValue)
-            return ServiceResult<PartidoDetalleDto>.Fail("Debes asignar un árbitro a este partido.");
-        var arbitroExiste = await _db.Arbitros.AnyAsync(a => a.IdArbitro == req.IdArbitro && a.IdUsuarioCreador == UsuarioActualId);
-        if (!arbitroExiste) return ServiceResult<PartidoDetalleDto>.Fail("Árbitro no encontrado.");
+        // El árbitro es opcional: en campeonatos aficionados muchas veces se designa a última hora.
+        if (req.IdArbitro.HasValue)
+        {
+            var arbitroExiste = await _db.Arbitros.AnyAsync(a => a.IdArbitro == req.IdArbitro && a.IdUsuarioCreador == UsuarioActualId);
+            if (!arbitroExiste) return ServiceResult<PartidoDetalleDto>.Fail("Árbitro no encontrado.");
+        }
 
         var designaciones = await ValidarDesignacionesAsync(req.Oficiales, p.Jornada.Campeonato.IdModalidad);
         if (!designaciones.Success)
@@ -887,14 +889,9 @@ public class JornadaService : IJornadaService
 
     private async Task<ServiceResult> ValidarDesignacionesAsync(List<DesignacionPartidoRequest>? solicitudes, int idModalidad)
     {
-        if (solicitudes is null) return ServiceResult.Ok();
-        var cargosObligatorios = await _db.ModalidadCargos
-            .Where(mc => mc.IdModalidad == idModalidad && mc.Obligatorio)
-            .Select(mc => mc.IdCargo)
-            .ToListAsync();
-        if (cargosObligatorios.Any(idCargo => !solicitudes.Any(o => o.IdCargo == idCargo)))
-            return ServiceResult.Fail("Debes asignar todos los cargos oficiales obligatorios para esta modalidad.");
-        if (solicitudes.Count == 0) return ServiceResult.Ok();
+        // La designación es opcional (se puede completar después con «Editar»). Solo se valida lo
+        // que se envía: cargos sin repetir, personas sin repetir y que existan.
+        if (solicitudes is null || solicitudes.Count == 0) return ServiceResult.Ok();
         if (solicitudes.Select(o => o.IdCargo).Distinct().Count() != solicitudes.Count)
             return ServiceResult.Fail("No se puede repetir un cargo oficial en el mismo partido.");
         if (solicitudes.Select(o => o.IdArbitro).Distinct().Count() != solicitudes.Count)
