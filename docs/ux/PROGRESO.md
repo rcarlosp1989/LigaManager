@@ -1254,3 +1254,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Arriba «Dirigentes» con una línea de explicación, el botón «+ Invitar dirigente» y las listas «Con acceso» e «Invitaciones sin usar». Al final, separado por una línea, «Enlace público» con su propia línea de explicación. Las dos opciones conviven.
 - Textos más cortos (una línea cada uno).
 - Verificado en GitHub Actions (`ci/verificar-orden`): 200 comprobaciones de pantalla a 390 y 1.440 px, incluida que el botón de invitar y las listas estén antes del enlace público. Build correcto; lint igual que `main`.
+
+## 2026-10-23 — Goleadores sin PJ ni promedio para el dirigente y el enlace público
+
+**Estado:** aplicada en la rama `mejora/goleadores-simple`. Pendiente de que Roberto la apruebe. Solo pantalla: no necesita script ni deploy del backend.
+
+- En la vista del dirigente y en el enlace público, la tabla de goleadores muestra solo puesto, jugador, equipo y goles. El organizador sigue viendo PJ y promedio.
+- En celular el equipo va debajo del nombre y la tabla entra completa, con los goles a la vista sin deslizar.
+- Verificado en GitHub Actions (`ci/verificar-goleadores`): 206 comprobaciones de pantalla a 390 y 1.440 px (sin PJ ni promedio para dirigente y público, el organizador los conserva, entra sin deslizar en celular). Build correcto; lint igual que `main`.
