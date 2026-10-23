@@ -353,6 +353,7 @@ for (const ancho of [390, 1440]) {
       if (tab === 'posiciones') await captura(page, 'publico_posiciones', ancho)
       if (tab === 'goleadores') {
         ok(`público goleadores @${ancho}: sin PJ ni promedio`, await page.getByRole('columnheader', { name: /^(PJ|Prom\.)$/ }).count() === 0)
+        if (ancho < 500) ok(`público goleadores @${ancho}: la columna Goles se ve sin deslizar`, await page.getByRole('columnheader', { name: 'Goles' }).isVisible() && (await page.getByRole('columnheader', { name: 'Goles' }).boundingBox()).x + 30 < ancho)
         await captura(page, 'publico_goleadores', ancho)
       }
     }
