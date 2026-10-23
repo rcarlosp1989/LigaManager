@@ -1262,3 +1262,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En la vista del dirigente y en el enlace público, la tabla de goleadores muestra solo puesto, jugador, equipo y goles. El organizador sigue viendo PJ y promedio.
 - En celular el equipo va debajo del nombre y la tabla entra completa, con los goles a la vista sin deslizar.
 - Verificado en GitHub Actions (`ci/verificar-goleadores`): 206 comprobaciones de pantalla a 390 y 1.440 px (sin PJ ni promedio para dirigente y público, el organizador los conserva, entra sin deslizar en celular). Build correcto; lint igual que `main`.
+
+## 2026-10-23 — Resultados por jornada plegables (enlace público y dirigente)
+
+**Estado:** aplicada en la rama `mejora/jornadas-plegables`. Pendiente de que Roberto la apruebe. Solo pantalla: no necesita script ni deploy del backend.
+
+- **Enlace público:** cada jornada se contrae o despliega con un toque. Al abrir, solo se despliega la jornada en curso (la primera con partidos por jugar; si ya se jugaron todos, la última). La cabecera dice «2 de 4 jugados» o «4 partidos jugados». Se pueden abrir varias.
+- **Dirigente:** sus jornadas ya eran plegables; ahora puede tener varias abiertas a la vez.
+- Verificado en GitHub Actions (`ci/verificar-plegables`): 220 comprobaciones de pantalla a 390 y 1.440 px (jornada en curso abierta y las demás cerradas, abrir y contraer, dos abiertas a la vez en el dirigente). Build correcto; lint igual que `main`.
