@@ -1246,3 +1246,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - GitHub Actions (rama temporal `ci/verificar-arbitro`), con MySQL y una modalidad con «Árbitro central» obligatorio como en producción:
   - 14 pruebas: crear sin árbitro ni designación (y sin mandar esos campos); editar la hora sin árbitro; asignarlo después; designar solo un cargo no obligatorio; quitar la designación deja el partido sin árbitro; árbitro inexistente o de otro organizador rechazado; una persona en dos cargos rechazada; el estadio sigue siendo obligatorio; un partido sin árbitro se puede marcar jugado;
   - todas las pruebas anteriores siguen pasando y las pantallas anteriores (194 comprobaciones) sin cambios. Build correcto; lint igual que `main`.
+
+## 2026-10-23 — Goleadores sin PJ ni promedio para el dirigente y el enlace público
+
+**Estado:** aplicada en la rama `mejora/goleadores-simple`. Pendiente de que Roberto la apruebe. Solo pantalla: no necesita script ni deploy del backend.
+
+- En la vista del dirigente y en el enlace público, la tabla de goleadores muestra solo puesto, jugador, equipo y goles. El organizador sigue viendo PJ y promedio.
+- En celular el equipo va debajo del nombre y la tabla entra completa, con los goles a la vista sin deslizar.
+- Verificado en GitHub Actions (`ci/verificar-goleadores`): 206 comprobaciones de pantalla a 390 y 1.440 px (sin PJ ni promedio para dirigente y público, el organizador los conserva, entra sin deslizar en celular). Build correcto; lint igual que `main`.
