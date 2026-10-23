@@ -122,7 +122,7 @@ export default function InicioDirigente() {
                   <TabNomina idCampeonato={idCampeonato} campeonato={camp} base={base} idEquipoPropio={camp.idEquipoPropio}
                     rutaEquipo={(id) => `${base}/equipos/${id}`} />
                 )}
-                {tab === 'goleadores' && <TabGoleadores idCampeonato={idCampeonato} base={base} />}
+                {tab === 'goleadores' && <TabGoleadores idCampeonato={idCampeonato} base={base} simple />}
                 {tab === 'tarjetas' && <TabTarjetas idCampeonato={idCampeonato} base={base} />}
                 {tab === 'suspensiones' && <TabSuspensiones idCampeonato={idCampeonato} base={base} soloLectura />}
               </>

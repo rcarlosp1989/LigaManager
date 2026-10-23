@@ -10,7 +10,8 @@ import { Puesto, ValorConBarra } from '../../components/Indicadores'
 
 const TOPS = [5, 10, 20, 0] // 0 = todos
 
-export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idCampeonato}` }) {
+// simple: para el dirigente y el enlace público, solo jugador, equipo y goles (sin PJ ni promedio).
+export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idCampeonato}`, simple = false }) {
   const fid = useId()
   const [top, setTop] = useState(10)
 
@@ -23,6 +24,7 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
   })
 
   const maxGoles = Math.max(0, ...goleadores.map(g => g.goles))
+  const columnas = simple ? ['Equipo', 'Goles'] : ['Equipo', 'PJ', 'Goles', 'Prom.']
 
   if (isLoading) return <p className="text-gray-500 text-sm text-center py-10">Cargando goleadores...</p>
   if (isError) return <EstadoError mensaje="No se pudieron cargar los goleadores." onReintentar={refetch} reintentando={isFetching} />
@@ -41,12 +43,12 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
       ) : (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className="tabla w-full text-sm min-w-[520px]">
+            <table className={`tabla w-full text-sm ${simple ? 'min-w-[380px]' : 'min-w-[520px]'}`}>
               <thead>
                 <tr className="border-b border-gray-800">
                   <th scope="col" className="fija w-11 min-w-11 px-3 py-2 text-left text-xs uppercase tracking-wider">#</th>
                   <th scope="col" className="fija fija-2 fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
-                  {['Equipo', 'PJ', 'Goles', 'Prom.'].map(h => (
+                  {columnas.map(h => (
                     <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'} ${h === 'Goles' ? 'text-brand-300' : ''}`}>{h}</th>
                   ))}
                 </tr>
@@ -59,9 +61,9 @@ export default function TabGoleadores({ idCampeonato, base = `/campeonatos/${idC
                       <span className="flex items-center gap-2" title={g.jugador}><FotoJugador nombre={g.jugador} fotoUrl={g.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[8.5rem] truncate sm:max-w-[16rem]">{g.jugador}</span></span>
                     </th>
                     <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{g.equipo}</td>
-                    <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.partidosJugados}</td>
+                    {!simple && <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.partidosJugados}</td>}
                     <td className="px-3 py-2 text-center"><ValorConBarra valor={g.goles} maximo={maxGoles} /></td>
-                    <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.promedioPorPartido.toFixed(2)}</td>
+                    {!simple && <td className="px-3 py-2 text-gray-400 text-center tabular-nums">{g.promedioPorPartido.toFixed(2)}</td>}
                   </tr>
                 ))}
               </tbody>

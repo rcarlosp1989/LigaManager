@@ -76,7 +76,7 @@ export default function CampeonatoPublico() {
               <TabPosiciones idCampeonato={token} campeonato={camp} base={base}
                 logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
             )}
-            {tab === 'goleadores' && <TabGoleadores idCampeonato={token} base={base} />}
+            {tab === 'goleadores' && <TabGoleadores idCampeonato={token} base={base} simple />}
             {tab === 'tarjetas' && <TabTarjetas idCampeonato={token} base={base} />}
             {tab === 'suspensiones' && <TabSuspensiones idCampeonato={token} base={base} soloLectura />}
 
