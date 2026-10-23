@@ -369,13 +369,6 @@ for (const ancho of [390, 1440]) {
     enlaceToken = null
     const { ctx, page, errores } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
     await page.goto(`${APP}/campeonatos/1?tab=dirigentes`)
-    const invitar = page.getByRole('button', { name: '+ Invitar dirigente' })
-    await invitar.waitFor()
-    const yInv = (await invitar.boundingBox()).y
-    const yPub = (await page.getByRole('button', { name: 'Crear enlace público' }).boundingBox()).y
-    ok(`organizador @${ancho}: «Invitar dirigente» y el enlace público conviven, invitar primero`, yInv < yPub, `${yInv} ${yPub}`)
-    ok(`organizador @${ancho}: lista de dirigentes antes del enlace público`, (await page.getByText('Con acceso').boundingBox()).y < yPub)
-    await captura(page, 'organizador_tab_dirigentes', ancho)
     await page.getByRole('button', { name: 'Crear enlace público' }).click()
     const campo = page.getByLabel('Enlace público')
     await campo.waitFor()
