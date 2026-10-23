@@ -249,7 +249,7 @@ for (const ancho of [390, 1440]) {
       }
     }
     await page.goto(`${APP}/dirigente?tab=jornadas`)
-    const bj = (n) => page.getByRole('button', { name: new RegExp(`^Jornada ${n}\\b`) })
+    const bj = (n) => page.getByRole('button', { name: new RegExp(`^Jornada ${n}(?!\\d)`) })
     await bj(1).click(); await page.getByText('2 - 1').first().waitFor()
     await bj(2).click(); await page.getByText('vs', { exact: true }).first().waitFor()
     ok(`dirigente jornadas @${ancho}: se pueden abrir dos jornadas a la vez`, await bj(1).getAttribute('aria-expanded') === 'true' && await bj(2).getAttribute('aria-expanded') === 'true')
@@ -351,7 +351,7 @@ for (const ancho of [390, 1440]) {
     await page.goto(`${APP}/publico/${TOKEN}`)
     await page.getByText('Organiza: Roberto Prado').waitFor()
     ok(`público @${ancho}: no pide iniciar sesión`, !page.url().includes('/login'))
-    const boton = (n) => page.getByRole('button', { name: new RegExp(`^Jornada ${n}\\b`) })
+    const boton = (n) => page.getByRole('button', { name: new RegExp(`^Jornada ${n}(?!\\d)`) })
     ok(`público @${ancho}: abre la jornada en curso (2) y deja cerrada la 1`, await boton(2).getAttribute('aria-expanded') === 'true' && await boton(1).getAttribute('aria-expanded') === 'false' && await page.getByText('2 - 1').count() === 0)
     ok(`público @${ancho}: cabecera con jugados`, await page.getByText('0 de 2 jugados').isVisible() && await page.getByText('2 partidos jugados').isVisible())
     await captura(page, 'publico_resultados_plegado', ancho)
