@@ -109,7 +109,7 @@ const enVivo = () => {
     ]),
     base(22, 13, 14, '10:00', 'EnVivo', faseVivo === 'descanso' ? 0 : 0, 0, faseVivo === 'descanso'
       ? { fase: 'descanso', segundos: 1530, corriendo: false, duracionMin: 25 }
-      : { fase: '1T', segundos: 1440, corriendo: true, duracionMin: 25 }, []),
+      : { fase: '1T', segundos: 1520, corriendo: true, duracionMin: 25 }, []),
     base(23, 12, 13, '08:00', 'Final', 1, 1, { fase: 'final', segundos: 1560, corriendo: false, duracionMin: 25 }, [
       { minuto: 5, tipo: 'GOL', jugador: 'Andrés Bustamante', lado: 'local', dobleAmarilla: false },
       { minuto: 40, tipo: 'GOL', jugador: 'Bryan Cedeño', lado: 'visitante', dobleAmarilla: false },
