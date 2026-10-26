@@ -238,6 +238,9 @@ async function revisarFija(page, nombre, ancho) {
   }
 }
 
+// Cuenta un texto fuera del bloque «En vivo» (que también muestra marcadores).
+const fueraDeVivo = (page, texto) => page.evaluate((t) => [...document.querySelectorAll('span, p, li')]
+  .filter(e => e.textContent.trim() === t && !e.closest('section[aria-labelledby="en-vivo-titulo"]')).length, texto)
 const browser = await chromium.launch()
 const dirigente = [
   ['posiciones', 'Leones del Guasmo'],
@@ -285,7 +288,7 @@ for (const ancho of [390, 1440]) {
     ok(`dirigente jornadas @${ancho}: se pueden abrir dos jornadas a la vez`, await bj(1).getAttribute('aria-expanded') === 'true' && await bj(2).getAttribute('aria-expanded') === 'true')
     await captura(page, 'dir_jornadas_dos_abiertas', ancho)
     await bj(1).click()
-    ok(`dirigente jornadas @${ancho}: se contrae la jornada 1`, await bj(1).getAttribute('aria-expanded') === 'false' && await page.getByText('2 - 1').count() === 0)
+    ok(`dirigente jornadas @${ancho}: se contrae la jornada 1`, await bj(1).getAttribute('aria-expanded') === 'false' && await fueraDeVivo(page, '2 - 1') === 0)
     ok(`sin errores (dirigente) @${ancho}`, errores.length === 0, errores.join(' | '))
     await ctx.close()
   }
@@ -382,7 +385,7 @@ for (const ancho of [390, 1440]) {
     await page.getByText('Organiza: Roberto Prado').waitFor()
     ok(`público @${ancho}: no pide iniciar sesión`, !page.url().includes('/login'))
     const boton = (n) => page.getByRole('button', { name: new RegExp(`^Jornada ${n}(?!\\d)`) })
-    ok(`público @${ancho}: abre la jornada en curso (2) y deja cerrada la 1`, await boton(2).getAttribute('aria-expanded') === 'true' && await boton(1).getAttribute('aria-expanded') === 'false' && await page.getByText('2 - 1').count() === 0)
+    ok(`público @${ancho}: abre la jornada en curso (2) y deja cerrada la 1`, await boton(2).getAttribute('aria-expanded') === 'true' && await boton(1).getAttribute('aria-expanded') === 'false' && await fueraDeVivo(page, '2 - 1') === 0)
     ok(`público @${ancho}: cabecera con jugados`, await page.getByText('0 de 2 jugados').isVisible() && await page.getByText('2 partidos jugados').isVisible())
     await page.getByText('Leones del Guasmo Sporting Club').first().waitFor()
     ok(`público @${ancho}: bloque «En vivo» con el minuto del 2.º tiempo`, await page.getByText("En vivo · 33'").count() === 1, await page.locator('section[aria-labelledby="en-vivo-titulo"]').innerText().catch(() => ''))
@@ -403,7 +406,7 @@ for (const ancho of [390, 1440]) {
     await boton(1).click()
     ok(`público @${ancho}: al abrir la jornada 1 se ve el marcador`, await page.getByText('2 - 1').first().isVisible())
     await boton(2).click()
-    ok(`público @${ancho}: la jornada 2 se contrae`, await boton(2).getAttribute('aria-expanded') === 'false' && await page.getByText('vs', { exact: true }).count() === 0)
+    ok(`público @${ancho}: la jornada 2 se contrae`, await boton(2).getAttribute('aria-expanded') === 'false' && await fueraDeVivo(page, 'vs') === 0)
     await captura(page, 'publico_resultados', ancho)
     for (const [tab, texto] of [['posiciones', 'Leones del Guasmo'], ['goleadores', 'Carlos Mendoza'], ['tarjetas', 'Acumuladas'], ['suspensiones', 'Agresión verbal']]) {
       await page.goto(`${APP}/publico/${TOKEN}?tab=${tab}`)
