@@ -94,7 +94,7 @@ function TarjetaEnVivo({ p, idEquipoPropio, segundos }) {
   const visita = p.eventos.filter(e => e.lado === 'visitante')
 
   return (
-    <li className={`rounded-lg border px-3 py-3 ${enVivo ? 'border-red-500/40 bg-red-950/20' : 'border-gray-800 bg-gray-900/60'}`}>
+    <li className={`rounded-lg border px-3 py-3 ${descanso ? 'border-amber-400/40 bg-amber-950/20' : enVivo ? 'border-red-500/40 bg-red-950/20' : 'border-gray-800 bg-gray-900/60'}`}>
       <div className="mb-2 flex items-center justify-between gap-2 text-xs">
         <Estado p={p} minuto={minuto} descanso={descanso} />
         {p.estadio && <span className="inline-flex min-w-0 items-center gap-1 truncate text-gray-500"><MapPin size={12} aria-hidden="true" />{p.estadio}</span>}
@@ -137,13 +137,17 @@ function Estado({ p, minuto, descanso }) {
 }
 
 function Evento({ e, derecha }) {
-  const icono = e.tipo === 'ROJA' ? <Tarjeta color="roja" /> : e.tipo === 'GOL_EN_CONTRA' ? <Arco /> : <Balon />
+  // Roja por doble amarilla: amarilla y roja juntas. En pantalla, textos cortos; el lector de pantalla lee el detalle completo.
+  const icono = e.tipo === 'ROJA'
+    ? (e.dobleAmarilla ? <span className="inline-flex shrink-0"><Tarjeta color="amarilla" /><Tarjeta color="roja" className="-ml-1" /></span> : <Tarjeta color="roja" />)
+    : e.tipo === 'GOL_EN_CONTRA' ? <Arco /> : <Balon />
+  const corto = e.tipo === 'GOL_EN_CONTRA' ? ' (e.c.)' : ''
   const detalle = e.tipo === 'GOL_EN_CONTRA' ? ' (en contra)' : e.dobleAmarilla ? ' (doble amarilla)' : ''
   const etiqueta = e.tipo === 'ROJA' ? 'Roja' : 'Gol'
   return (
     <li className={`flex items-center gap-1.5 ${derecha ? 'justify-end' : ''}`} aria-label={`${etiqueta}, minuto ${e.minuto}: ${e.jugador}${detalle}`}>
-      {derecha ? <><span className="min-w-0 truncate">{e.jugador}{detalle && <span className="text-gray-500">{detalle}</span>}</span><span className="tabular-nums text-gray-500">{e.minuto}'</span>{icono}</>
-        : <>{icono}<span className="tabular-nums text-gray-500">{e.minuto}'</span><span className="min-w-0 truncate">{e.jugador}{detalle && <span className="text-gray-500">{detalle}</span>}</span></>}
+      {derecha ? <><span className="min-w-0 truncate">{e.jugador}{corto && <span className="text-gray-500">{corto}</span>}</span><span className="tabular-nums text-gray-500">{e.minuto}'</span>{icono}</>
+        : <>{icono}<span className="tabular-nums text-gray-500">{e.minuto}'</span><span className="min-w-0 truncate">{e.jugador}{corto && <span className="text-gray-500">{corto}</span>}</span></>}
     </li>
   )
 }
