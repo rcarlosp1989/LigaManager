@@ -1270,3 +1270,23 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - **Enlace público:** cada jornada se contrae o despliega con un toque. Al abrir, solo se despliega la jornada en curso (la primera con partidos por jugar; si ya se jugaron todos, la última). La cabecera dice «2 de 4 jugados» o «4 partidos jugados». Se pueden abrir varias.
 - **Dirigente:** sus jornadas ya eran plegables; ahora puede tener varias abiertas a la vez.
 - Verificado en GitHub Actions (`ci/verificar-plegables`): 220 comprobaciones de pantalla a 390 y 1.440 px (jornada en curso abierta y las demás cerradas, abrir y contraer, dos abiertas a la vez en el dirigente). Build correcto; lint igual que `main`.
+
+## 2026-10-26 — Marcadores en vivo en el enlace público y para el dirigente
+
+**Estado:** aplicada en la rama `mejora/marcador-en-vivo`. Pendiente de que Roberto la apruebe. **Necesita script de base de datos** (`backend/database/20261026_reloj_en_vivo.sql`), que se ejecuta en Railway **antes** de fusionar, y deploy del backend.
+
+### Qué cambió
+
+- **Bloque «En vivo»** arriba de Resultados (enlace público) y en «Mi equipo» y «Jornadas» (dirigente): los partidos de hoy y los que estén en vivo, con marcador, goles con minuto y jugador (nombre corto; «e.c.» si es en contra) y rojas (la de doble amarilla con las dos tarjetas). Estado: «Hoy · 16:00», «En vivo · 33'», «Medio tiempo» o «Final».
+- **Tiempo del partido:** el celular del vocal (o el organizador en el modo en vivo) envía al servidor el estado de su reloj en cada cambio (iniciar, pausar, terminar el 1.er tiempo, iniciar el 2.º). La pantalla muestra el minuto (25+1' en el añadido) y lo sigue contando entre consultas. Sin señal, el celular lo reintenta solo.
+- **Avisos en pantalla:** «¡Gol de …!», «Medio tiempo: A 0 - 0 B» y «Terminó: …» para quien tiene abierto el enlace o la vista del dirigente.
+- Se consulta cada 30 s mientras hay partidos en vivo (cada 2 min si solo hay partidos por jugar hoy), solo con la pantalla visible. Sin partidos hoy, el bloque no aparece.
+- Al cerrar o marcar jugado, el reloj queda en «Final». Sin fotos, documentos ni nóminas.
+- Si el vocal no usa el modo en vivo, el partido aparece «por jugar» hasta que se marca jugado.
+
+### Cómo se verificó
+
+- GitHub Actions (rama temporal `ci/verificar-envivo`), con MySQL y el script real:
+  - 30 pruebas: partido de hoy por jugar; en vivo con marcador, gol (minuto, nombre corto, lado) y reloj corriendo; sin fotos ni documentos; doble amarilla como roja; amarillas sueltas ocultas; gol en contra al rival; medio tiempo, 2.º tiempo y pausa; validaciones (fase, segundos, duración); otro organizador y sin sesión rechazados; código inventado; el dirigente ve lo mismo y no otro campeonato; al cerrar queda Final; cerrado no acepta reloj; vocal (cerrado 409, abierto 204, otro campeonato rechazado, al cerrar FINAL);
+  - todas las pruebas anteriores siguen pasando; la reversa del script quita las columnas y el script se vuelve a aplicar.
+- Pantallas a 390 y 1.440 px (242 comprobaciones): bloque en vivo con minuto 33' y 25+1', goles, roja por doble amarilla, gol en contra, final y por jugar; aviso de medio tiempo al volver a consultar; dirigente en «Mi equipo». Build correcto; lint igual que `main`.
