@@ -22,10 +22,11 @@ public class DirigentesController : ControllerBase
     private readonly IEstadisticasService _estadisticas;
     private readonly IGrupoService        _grupos;
     private readonly IJornadaService      _jornadas;
+    private readonly EnVivoService        _enVivo;
 
-    public DirigentesController(DirigenteService dirigentes, IEstadisticasService estadisticas, IGrupoService grupos, IJornadaService jornadas)
+    public DirigentesController(DirigenteService dirigentes, IEstadisticasService estadisticas, IGrupoService grupos, IJornadaService jornadas, EnVivoService enVivo)
     {
-        _dirigentes = dirigentes; _estadisticas = estadisticas; _grupos = grupos; _jornadas = jornadas;
+        _dirigentes = dirigentes; _estadisticas = estadisticas; _grupos = grupos; _jornadas = jornadas; _enVivo = enVivo;
     }
 
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
@@ -101,6 +102,11 @@ public class DirigentesController : ControllerBase
     [Authorize(Policy = Politicas.SoloDirigente)]
     [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/estadisticas/suspensiones")]
     public async Task<IActionResult> Suspensiones(int idCampeonato) => Ok(await _estadisticas.GetSuspensionesAsync(idCampeonato));
+
+    [Authorize(Policy = Politicas.SoloDirigente)]
+    [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/en-vivo")]
+    public async Task<IActionResult> EnVivo(int idCampeonato)
+        => await _enVivo.ConsultarAsync(idCampeonato) is { } r ? Ok(r) : NotFound(new { error = "Campeonato no encontrado." });
 
     [Authorize(Policy = Politicas.SoloDirigente)]
     [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/jornadas")]
