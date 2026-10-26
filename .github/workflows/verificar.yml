@@ -21,7 +21,7 @@ jobs:
           r=$(grep -oE '[0-9]+ errors?' lint_rama.txt | head -1 | grep -oE '[0-9]+' || echo 0)
           m=$(grep -oE '[0-9]+ errors?' lint_main.txt | head -1 | grep -oE '[0-9]+' || echo 0)
           echo "::notice title=lint::errores en main: $m · en la rama: $r"
-          if [ "$r" -gt "$m" ]; then echo "::error::la rama agrega errores de lint"; cat lint_rama.txt | tail -40; exit 1; fi
+          if [ "$r" -gt "$m" ]; then echo "::error::la rama agrega errores de lint"; echo "::notice title=lint_detalle::$(grep -E '^/|error' lint_rama.txt | grep -B1 -E 'error' | sed 's#.*/frontend/##' | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; exit 1; fi
       - name: Compilar
         working-directory: frontend
         run: npm run build

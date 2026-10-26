@@ -29,7 +29,7 @@ login = lambda e: llamar("POST", "/auth/login", cuerpo={"email": e, "password": 
 org1, org2 = login("org1@prueba.ec"), login("org2@prueba.ec")
 
 # Partido de hoy (hora de Ecuador) en una jornada nueva de A.
-ahora_ec = datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+ahora_ec = datetime.datetime.now(datetime.UTC).replace(tzinfo=None) - datetime.timedelta(hours=5)
 _, camp = llamar("GET", f"/campeonatos/{A}", org1)
 local, visita = [e["idEquipo"] for e in sorted(camp["equipos"], key=lambda e: e["nombre"])]
 inst = llamar("GET", "/catalogos/instancias", org1)[1][0]["idInstancia"]
@@ -50,7 +50,7 @@ def publico():
 
 # Antes de empezar.
 s, r, x = publico()
-esperar("público sin sesión: el partido de hoy aparece por jugar", s == 200 and x and x["estado"] == "PorJugar" and x["golesLocal"] is None and x["reloj"] is None and x["eventos"] == [], f"{s} {str(r)[:300]}")
+esperar("público sin sesión: el partido de hoy aparece por jugar", s == 200 and x and x["estado"] == "PorJugar" and x.get("golesLocal") is None and x.get("reloj") is None and x["eventos"] == [], f"{s} {str(r)[:300]}")
 esperar("trae la fecha de hoy de Ecuador", s == 200 and r["hoy"] == ahora_ec.strftime("%Y-%m-%d"), str(r and r.get("hoy")))
 
 # Empieza: reloj corriendo en el 1.er tiempo, minuto 10.
