@@ -98,7 +98,7 @@ export function useReloj(idPartido) {
 // Un rechazo del servidor (por ejemplo, partido ya cerrado) no se reintenta.
 export function useSincronizarReloj(reloj, enviar, activo) {
   const actual = useRef({ reloj, enviar, activo })
-  actual.current = { reloj, enviar, activo }
+  useEffect(() => { actual.current = { reloj, enviar, activo } })
   const pendiente = useRef(false)
   const primera = useRef(true)
 

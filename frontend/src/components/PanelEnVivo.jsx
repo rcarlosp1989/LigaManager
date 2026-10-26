@@ -27,9 +27,16 @@ function minutoDelReloj(reloj, segundos) {
 const textoMarcador = (p) => `${p.local} ${p.golesLocal ?? 0} - ${p.golesVisitante ?? 0} ${p.visitante}`
 
 export default function PanelEnVivo({ url, idEquipoPropio }) {
+  const avisos = useAvisos()
+  const previo = useRef(null)
   const q = useQuery({
     queryKey: ['en-vivo', url],
-    queryFn: () => api.get(url).then(r => r.data),
+    // Cada respuesta se compara con la anterior para avisar (la primera no avisa).
+    queryFn: () => api.get(url).then(r => {
+      if (previo.current) avisos.agregar(cambios(previo.current.partidos ?? [], r.data.partidos ?? []))
+      previo.current = r.data
+      return r.data
+    }),
     refetchInterval: (query) => {
       const ps = query.state.data?.partidos ?? []
       if (ps.some(p => p.estado === 'EnVivo')) return 30000
@@ -40,7 +47,6 @@ export default function PanelEnVivo({ url, idEquipoPropio }) {
     retry: 1,
   })
   const partidos = q.data?.partidos ?? []
-  const avisos = useAvisos(partidos)
   const corriendo = partidos.some(p => p.reloj?.corriendo)
   const ahora = useAhora(corriendo)
 
@@ -147,44 +153,42 @@ function useAhora(activo) {
   const [ahora, setAhora] = useState(() => Date.now())
   useEffect(() => {
     if (!activo) return
-    setAhora(Date.now())
     const id = setInterval(() => setAhora(Date.now()), 1000)
     return () => clearInterval(id)
   }, [activo])
   return ahora
 }
 
-// Compara cada consulta con la anterior y avisa: medio tiempo, final y goles. La primera
-// consulta no avisa (solo muestra el estado). Cada aviso se va solo al minuto.
-function useAvisos(partidos) {
-  const previo = useRef(null)
+// Qué cambió entre dos consultas: goles, medio tiempo y final.
+function cambios(antes, ahora) {
+  const previos = new Map(antes.map(p => [p.idPartido, p]))
+  const nuevos = []
+  for (const p of ahora) {
+    const a = previos.get(p.idPartido)
+    if (!a) continue
+    const golesAntes = (a.golesLocal ?? 0) + (a.golesVisitante ?? 0)
+    const golesAhora = (p.golesLocal ?? 0) + (p.golesVisitante ?? 0)
+    if (golesAhora > golesAntes) {
+      const gol = [...p.eventos].reverse().find(e => e.tipo === 'GOL' || e.tipo === 'GOL_EN_CONTRA')
+      nuevos.push({ texto: `¡Gol${gol ? ` de ${gol.jugador}` : ''}! ${textoMarcador(p)}`, estilo: 'border-brand-500/40 bg-brand-500/10 text-brand-100' })
+    }
+    if (p.reloj?.fase === 'descanso' && a.reloj?.fase !== 'descanso' && p.estado === 'EnVivo')
+      nuevos.push({ texto: `Medio tiempo: ${textoMarcador(p)}`, estilo: 'border-amber-400/40 bg-amber-400/10 text-amber-100' })
+    if (p.estado === 'Final' && a.estado !== 'Final')
+      nuevos.push({ texto: `Terminó: ${textoMarcador(p)}`, estilo: 'border-gray-600 bg-gray-800 text-gray-100' })
+  }
+  return nuevos
+}
+
+// Avisos en pantalla: se ven hasta 4 a la vez y cada uno se va solo al minuto.
+function useAvisos() {
   const [lista, setLista] = useState([])
   const quitar = (id) => setLista(l => l.filter(a => a.id !== id))
-
-  useEffect(() => {
-    const antes = previo.current
-    previo.current = new Map(partidos.map(p => [p.idPartido, p]))
-    if (!antes) return
-    const nuevos = []
-    for (const p of partidos) {
-      const a = antes.get(p.idPartido)
-      if (!a) continue
-      const golesAntes = (a.golesLocal ?? 0) + (a.golesVisitante ?? 0)
-      const golesAhora = (p.golesLocal ?? 0) + (p.golesVisitante ?? 0)
-      if (golesAhora > golesAntes) {
-        const gol = [...p.eventos].reverse().find(e => e.tipo === 'GOL' || e.tipo === 'GOL_EN_CONTRA')
-        nuevos.push({ texto: `¡Gol${gol ? ` de ${gol.jugador}` : ''}! ${textoMarcador(p)}`, estilo: 'border-brand-500/40 bg-brand-500/10 text-brand-100' })
-      }
-      if (p.reloj?.fase === 'descanso' && a.reloj?.fase !== 'descanso' && p.estado === 'EnVivo')
-        nuevos.push({ texto: `Medio tiempo: ${textoMarcador(p)}`, estilo: 'border-amber-400/40 bg-amber-400/10 text-amber-100' })
-      if (p.estado === 'Final' && a.estado !== 'Final')
-        nuevos.push({ texto: `Terminó: ${textoMarcador(p)}`, estilo: 'border-gray-600 bg-gray-800 text-gray-100' })
-    }
+  const agregar = (nuevos) => {
     if (nuevos.length === 0) return
     const conId = nuevos.map(n => ({ ...n, id: `${Date.now()}-${Math.random()}` }))
     setLista(l => [...l, ...conId].slice(-4))
     setTimeout(() => setLista(l => l.filter(a => !conId.some(c => c.id === a.id))), 60000)
-  }, [partidos])
-
-  return { lista, quitar }
+  }
+  return { lista, quitar, agregar }
 }
