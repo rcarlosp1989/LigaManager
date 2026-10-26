@@ -167,7 +167,8 @@ public class JornadaService : IJornadaService
             return ServiceResult.Fail("El partido ya está cerrado o marcado como jugado.");
 
         var corriendo = req.Corriendo && fase is FaseReloj.PrimerTiempo or FaseReloj.SegundoTiempo;
-        var ahora = DateTime.UtcNow;
+        // Segundos enteros: la columna DATETIME de MySQL no guarda fracciones (las redondea).
+        var ahora = SinFraccion(DateTime.UtcNow);
         p.RelojFase          = fase;
         p.RelojSegundos      = corriendo ? 0 : req.Segundos;
         p.RelojDesde         = corriendo ? ahora.AddSeconds(-req.Segundos) : null;
@@ -178,15 +179,17 @@ public class JornadaService : IJornadaService
         return ServiceResult.Ok();
     }
 
+    private static DateTime SinFraccion(DateTime t) => new(t.Ticks - t.Ticks % TimeSpan.TicksPerSecond, t.Kind);
+
     // Al cerrar o marcar como jugado, el reloj queda en «Final» con el tiempo que llevaba.
     private static void CongelarReloj(Partido p)
     {
         if (p.RelojFase is FaseReloj.Antes or FaseReloj.Final) return;
         if (p.RelojDesde is DateTime desde)
-            p.RelojSegundos = Math.Max(0, (int)(DateTime.UtcNow - desde).TotalSeconds);
+            p.RelojSegundos = Math.Max(0, (int)Math.Round((DateTime.UtcNow - desde).TotalSeconds));
         p.RelojDesde = null;
         p.RelojFase  = FaseReloj.Final;
-        p.RelojActualizadoEn = DateTime.UtcNow;
+        p.RelojActualizadoEn = SinFraccion(DateTime.UtcNow);
     }
 
     // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
