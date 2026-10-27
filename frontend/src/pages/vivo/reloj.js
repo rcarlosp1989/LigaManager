@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { leerLocal, guardarLocal } from './almacen'
 
 // Reloj del partido. Vive en el dispositivo y se guarda en cada cambio, así que
@@ -90,4 +90,36 @@ export function useReloj(idPartido) {
     // El minuto exacto se calcula al momento de usarlo, no en el último redibujo.
     minutoAhora: () => minutoDelReloj(reloj, Date.now()),
   }
+}
+
+// Envía el estado del reloj al servidor en cada cambio (marcadores en vivo del enlace público
+// y del dirigente). Al abrir la pantalla no envía nada: solo cuando el vocal toca el reloj.
+// Sin señal, reintenta al volver la conexión y cada 30 s; solo importa el último estado.
+// Un rechazo del servidor (por ejemplo, partido ya cerrado) no se reintenta.
+export function useSincronizarReloj(reloj, enviar, activo) {
+  const actual = useRef({ reloj, enviar, activo })
+  useEffect(() => { actual.current = { reloj, enviar, activo } })
+  const pendiente = useRef(false)
+  const primera = useRef(true)
+
+  const mandar = useCallback(() => {
+    const { reloj: r, enviar: e, activo: a } = actual.current
+    if (!a) { pendiente.current = false; return }
+    pendiente.current = true
+    e({ fase: r.fase, segundos: Math.floor(msJugados(r) / 1000), corriendo: !!r.desde, duracionMin: r.duracion })
+      .then(() => { pendiente.current = false })
+      .catch(err => { if (err?.response && err.response.status < 500) pendiente.current = false })
+  }, [])
+
+  useEffect(() => {
+    if (primera.current) { primera.current = false; return }
+    mandar()
+  }, [reloj.fase, reloj.acumulado, reloj.desde, reloj.duracion, mandar])
+
+  useEffect(() => {
+    const reintentar = () => { if (pendiente.current) mandar() }
+    window.addEventListener('online', reintentar)
+    const id = setInterval(reintentar, 30000)
+    return () => { window.removeEventListener('online', reintentar); clearInterval(id) }
+  }, [mandar])
 }

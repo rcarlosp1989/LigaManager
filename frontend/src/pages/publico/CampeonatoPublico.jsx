@@ -7,6 +7,7 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import FilaPartido from '../../components/FilaPartido'
 import NotaResponsabilidad from '../../components/NotaResponsabilidad'
+import PanelEnVivo from '../../components/PanelEnVivo'
 import { Balon } from '../../components/IconoEvento'
 import { formatearRango } from '../../utils/fechas'
 import TabPosiciones from '../reportes/TabPosiciones'
@@ -72,7 +73,7 @@ export default function CampeonatoPublico() {
               ))}
             </div>
 
-            {tab === 'resultados' && <Resultados base={base} />}
+            {tab === 'resultados' && <><PanelEnVivo url={`${base}/en-vivo`} /><Resultados base={base} /></>}
             {tab === 'posiciones' && (
               <TabPosiciones idCampeonato={token} campeonato={camp} base={base}
                 logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />

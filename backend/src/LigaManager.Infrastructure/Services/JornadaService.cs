@@ -144,6 +144,54 @@ public class JornadaService : IJornadaService
         return await MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(false));
     }
 
+    // ── Reloj del partido (marcadores en vivo) ──────────────────────────────
+    // El celular del vocal (o el organizador en el modo en vivo) envía el estado de su reloj en
+    // cada cambio: fase, segundos jugados del tiempo en curso y si está corriendo. Los segundos
+    // se miden en el celular al enviar; la hora de reanudación se calcula con el reloj del
+    // servidor, así no importa si la hora del celular está mal.
+
+    private static readonly Dictionary<string, FaseReloj> FasesReloj = new()
+    {
+        ["antes"] = FaseReloj.Antes, ["1T"] = FaseReloj.PrimerTiempo, ["descanso"] = FaseReloj.Descanso,
+        ["2T"] = FaseReloj.SegundoTiempo, ["final"] = FaseReloj.Final,
+    };
+
+    public async Task<ServiceResult> ActualizarRelojAsync(int idPartido, RelojPartidoRequest req)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult.Fail("Partido no encontrado.");
+        if (req.Fase is null || !FasesReloj.TryGetValue(req.Fase, out var fase)) return ServiceResult.Fail("Fase del reloj no válida.");
+        if (req.Segundos is < 0 or > 4 * 3600) return ServiceResult.Fail("Tiempo del reloj no válido.");
+        if (req.DuracionMin is < 5 or > 60) return ServiceResult.Fail("La duración de cada tiempo debe estar entre 5 y 60 minutos.");
+        var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
+        if (p.Jugado || p.EstadoRegistro == EstadoRegistro.Cerrado)
+            return ServiceResult.Fail("El partido ya está cerrado o marcado como jugado.");
+
+        var corriendo = req.Corriendo && fase is FaseReloj.PrimerTiempo or FaseReloj.SegundoTiempo;
+        // Segundos enteros: la columna DATETIME de MySQL no guarda fracciones (las redondea).
+        var ahora = SinFraccion(DateTime.UtcNow);
+        p.RelojFase          = fase;
+        p.RelojSegundos      = corriendo ? 0 : req.Segundos;
+        p.RelojDesde         = corriendo ? ahora.AddSeconds(-req.Segundos) : null;
+        p.RelojDuracionMin   = req.DuracionMin ?? p.RelojDuracionMin;
+        p.RelojActualizadoEn = ahora;
+        if (fase != FaseReloj.Antes) MarcarEnVivo(p, desdeModoEnVivo: true);
+        await _db.SaveChangesAsync();
+        return ServiceResult.Ok();
+    }
+
+    private static DateTime SinFraccion(DateTime t) => new(t.Ticks - t.Ticks % TimeSpan.TicksPerSecond, t.Kind);
+
+    // Al cerrar o marcar como jugado, el reloj queda en «Final» con el tiempo que llevaba.
+    private static void CongelarReloj(Partido p)
+    {
+        if (p.RelojFase is FaseReloj.Antes or FaseReloj.Final) return;
+        if (p.RelojDesde is DateTime desde)
+            p.RelojSegundos = Math.Max(0, (int)Math.Round((DateTime.UtcNow - desde).TotalSeconds));
+        p.RelojDesde = null;
+        p.RelojFase  = FaseReloj.Final;
+        p.RelojActualizadoEn = SinFraccion(DateTime.UtcNow);
+    }
+
     // Un gol (normal o en contra) modifica el marcador; las tarjetas no.
     private static bool EsGol(string tipoEvento) => tipoEvento is "GOL" or "GOL_EN_CONTRA";
 
@@ -549,6 +597,7 @@ public class JornadaService : IJornadaService
             p.IdUsuarioCierre = null;
         }
 
+        if (req.Jugado) CongelarReloj(p);
         p.Jugado = req.Jugado;
         await _db.SaveChangesAsync();
         await RecalcularPosicionesAsync(p.IdJornada);

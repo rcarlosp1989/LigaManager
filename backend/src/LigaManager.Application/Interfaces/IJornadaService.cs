@@ -26,6 +26,7 @@ public interface IJornadaService
 
     // Fase 8: registro en vivo
     Task<ServiceResult<PartidoDetalleDto>> IniciarRegistroAsync(int idPartido);
+    Task<ServiceResult> ActualizarRelojAsync(int idPartido, RelojPartidoRequest req);
     Task<ServiceResult<PartidoDetalleDto>> CerrarRegistroAsync(int idPartido, CerrarRegistroRequest req);
     Task<ServiceResult<PartidoDetalleDto>> ReabrirRegistroAsync(int idPartido);
 }

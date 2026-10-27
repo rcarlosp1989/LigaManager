@@ -16,10 +16,11 @@ public class PublicoController : ControllerBase
     private readonly PublicoService       _publico;
     private readonly IEstadisticasService _estadisticas;
     private readonly IGrupoService        _grupos;
+    private readonly EnVivoService        _enVivo;
 
-    public PublicoController(PublicoService publico, IEstadisticasService estadisticas, IGrupoService grupos)
+    public PublicoController(PublicoService publico, IEstadisticasService estadisticas, IGrupoService grupos, EnVivoService enVivo)
     {
-        _publico = publico; _estadisticas = estadisticas; _grupos = grupos;
+        _publico = publico; _estadisticas = estadisticas; _grupos = grupos; _enVivo = enVivo;
     }
 
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
@@ -55,6 +56,12 @@ public class PublicoController : ControllerBase
     [HttpGet("api/publico/{token}/jornadas")]
     public async Task<IActionResult> Jornadas(string token)
         => await _publico.AbrirAsync(token) is int id ? Ok(await _publico.JornadasAsync(id)) : NotFound(NoDisponible);
+
+    // Marcadores en vivo: partidos de hoy y los que estén en vivo (la pantalla consulta cada 30 s).
+    [AllowAnonymous, LimitarIntentos("publico")]
+    [HttpGet("api/publico/{token}/en-vivo")]
+    public async Task<IActionResult> EnVivo(string token)
+        => await _publico.AbrirAsync(token) is int id ? Ok(await _enVivo.ConsultarAsync(id)) : NotFound(NoDisponible);
 
     [AllowAnonymous, LimitarIntentos("publico")]
     [HttpGet("api/publico/{token}/grupos")]

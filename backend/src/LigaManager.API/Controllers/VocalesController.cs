@@ -125,6 +125,11 @@ public class VocalesController : ControllerBase
         => await SiCerrado(idPartido) ?? Resultado(await _vocales.CerrarAsync(idPartido, req));
 
     [Authorize(Policy = Politicas.SoloVocal)]
+    [HttpPut("api/vocal/partidos/{idPartido:int}/reloj")]
+    public async Task<IActionResult> Reloj(int idPartido, [FromBody] RelojPartidoRequest req)
+        => await SiCerrado(idPartido) ?? Resultado(await _jornadas.ActualizarRelojAsync(idPartido, req));
+
+    [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPut("api/vocal/partidos/{idPartido:int}/iniciar")]
     public async Task<IActionResult> Iniciar(int idPartido)
         => await SiCerrado(idPartido) ?? Resultado(await _jornadas.IniciarRegistroAsync(idPartido));

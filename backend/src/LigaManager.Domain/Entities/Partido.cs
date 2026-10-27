@@ -25,6 +25,13 @@ public class Partido
     public DateTime?      CerradoEn       { get; set; }   // UTC
     public int?           IdUsuarioCierre { get; set; }
     public Usuario?       UsuarioCierre   { get; set; }
+
+    // Reloj del partido, enviado por el celular del vocal (marcadores en vivo).
+    public FaseReloj RelojFase          { get; set; } = FaseReloj.Antes;
+    public int       RelojSegundos      { get; set; }   // jugados del tiempo en curso hasta la última pausa
+    public DateTime? RelojDesde         { get; set; }   // UTC; null = en pausa
+    public int?      RelojDuracionMin   { get; set; }
+    public DateTime? RelojActualizadoEn { get; set; }   // UTC
     public Jornada  Jornada           { get; set; } = null!;
     public Equipo   EquipoLocal       { get; set; } = null!;
     public Equipo   EquipoVisitante   { get; set; } = null!;
@@ -42,4 +49,13 @@ public enum EstadoRegistro
     SinIniciar,
     EnVivo,
     Cerrado
+}
+
+public enum FaseReloj
+{
+    Antes,
+    PrimerTiempo,
+    Descanso,
+    SegundoTiempo,
+    Final
 }

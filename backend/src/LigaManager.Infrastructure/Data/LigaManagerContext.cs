@@ -665,9 +665,17 @@ public class LigaManagerContext : DbContext
             v => v == EstadoRegistro.EnVivo ? "EN_VIVO" : v == EstadoRegistro.Cerrado ? "CERRADO" : "SIN_INICIAR",
             v => v == "EN_VIVO" ? EstadoRegistro.EnVivo : v == "CERRADO" ? EstadoRegistro.Cerrado : EstadoRegistro.SinIniciar);
 
+        // ENUM de MySQL: ANTES / PRIMER_TIEMPO / DESCANSO / SEGUNDO_TIEMPO / FINAL.
+        var faseReloj = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<FaseReloj, string>(
+            v => v == FaseReloj.PrimerTiempo ? "PRIMER_TIEMPO" : v == FaseReloj.Descanso ? "DESCANSO"
+               : v == FaseReloj.SegundoTiempo ? "SEGUNDO_TIEMPO" : v == FaseReloj.Final ? "FINAL" : "ANTES",
+            v => v == "PRIMER_TIEMPO" ? FaseReloj.PrimerTiempo : v == "DESCANSO" ? FaseReloj.Descanso
+               : v == "SEGUNDO_TIEMPO" ? FaseReloj.SegundoTiempo : v == "FINAL" ? FaseReloj.Final : FaseReloj.Antes);
+
         modelBuilder.Entity<Partido>(e =>
         {
             e.Property(p => p.EstadoRegistro).HasConversion(estadoRegistro);
+            e.Property(p => p.RelojFase).HasConversion(faseReloj);
             e.HasOne(p => p.UsuarioCierre).WithMany().HasForeignKey(p => p.IdUsuarioCierre).OnDelete(DeleteBehavior.SetNull);
         });
         modelBuilder.Entity<EventoPartido>(e =>

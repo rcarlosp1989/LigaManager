@@ -13,7 +13,7 @@ import { urlFoto } from '../../utils/fotos'
 import LogoEquipo from '../../components/LogoEquipo'
 import { formatearFecha } from '../../utils/fechas'
 import { leerLocal, guardarLocal } from './almacen'
-import { useReloj, NOMBRE_FASE } from './reloj'
+import { useReloj, useSincronizarReloj, NOMBRE_FASE } from './reloj'
 import { useCola, nuevoUid } from './cola'
 import { usePantallaEncendida } from './pantallaEncendida'
 import { useAuth } from '../../context/AuthContext'
@@ -297,6 +297,8 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
     },
   }
   const puedeRetomar = reloj.fase === 'antes' && partido?.iniciadoEn && !estaCerrado(partido)
+  // El reloj también va al servidor: el enlace público y los dirigentes ven el minuto y el medio tiempo.
+  useSincronizarReloj(reloj, (datos) => api.put(`${base}/partidos/${idPartido}/reloj`, datos, { timeout: TIEMPO_ESPERA }), !!partido && !bloqueado)
 
   // ── Acciones ───────────────────────────────────────────────────────────────
   const anotar = (item, texto, icono) => {

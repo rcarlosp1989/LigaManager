@@ -86,6 +86,13 @@ public class JornadasController : ControllerBase
         return result.Success ? Ok(result.Data) : BadRequest(new { error = result.Error });
     }
 
+    [HttpPut("api/partidos/{idPartido:int}/reloj")]
+    public async Task<IActionResult> Reloj(int idPartido, [FromBody] RelojPartidoRequest req)
+    {
+        var result = await _service.ActualizarRelojAsync(idPartido, req);
+        return result.Success ? NoContent() : BadRequest(new { error = result.Error });
+    }
+
     [HttpPut("api/partidos/{idPartido:int}/cerrar")]
     public async Task<IActionResult> CerrarRegistro(int idPartido, [FromBody] CerrarRegistroRequest req)
     {

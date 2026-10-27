@@ -8,6 +8,7 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import LogoEquipo from '../../components/LogoEquipo'
 import FilaPartido from '../../components/FilaPartido'
+import PanelEnVivo from '../../components/PanelEnVivo'
 import { Balon } from '../../components/IconoEvento'
 import { formatearRango } from '../../utils/fechas'
 import TabPosiciones from '../reportes/TabPosiciones'
@@ -112,6 +113,7 @@ export default function InicioDirigente() {
                   ))}
                 </div>
 
+                {(tab === 'resumen' || tab === 'jornadas') && <PanelEnVivo url={`${base}/en-vivo`} idEquipoPropio={camp.idEquipoPropio} />}
                 {tab === 'resumen' && <Resumen camp={camp} />}
                 {tab === 'jornadas' && <Jornadas base={base} idEquipoPropio={camp.idEquipoPropio} />}
                 {tab === 'posiciones' && (
