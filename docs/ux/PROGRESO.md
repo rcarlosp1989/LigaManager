@@ -1297,3 +1297,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 - «Última fecha» y «Próxima fecha»: un equipo por línea (escudo, nombre completo y sus goles a la derecha). Los nombres largos se leen enteros (si no caben, pasan a una segunda línea) y los goles quedan en la misma columna en todas las tarjetas. El ganador se resalta; en un empate, los dos igual.
 - Verificado en GitHub Actions (`ci/verificar-dashboard`) con nombres reales largos: a 390 y 1.440 px los nombres no se recortan, todos los goles quedan alineados a la derecha y «10» entra en su columna. Build correcto; lint igual que `main`.
+
+## 2026-10-28 — Un equipo por línea en el enlace público, el dirigente y el bloque en vivo
+
+**Estado:** aplicada en la rama `mejora/marcadores-una-linea`. Pendiente de que Roberto la apruebe. Solo pantalla.
+
+- La misma presentación del Dashboard en los resultados por jornada del enlace público, «Mi equipo» y «Jornadas» del dirigente y el bloque «En vivo»: escudo, nombre completo y goles a la derecha, un equipo por línea. El que perdió se ve atenuado; el equipo del dirigente, resaltado.
+- En vivo, los goles y las rojas de cada equipo van debajo de su nombre. Los partidos sin jugar dicen «Por jugar»; los desiertos, «Desierto».
+- Pieza compartida `FilaEquipo` (Dashboard, `FilaPartido` y `PanelEnVivo`).
+- Verificado en GitHub Actions (`ci/verificar-una-linea`): 262 comprobaciones a 390 y 1.440 px (nombres completos sin recortar, goles alineados a la derecha, en vivo, jornadas y dirigente). Build correcto; lint igual que `main`.

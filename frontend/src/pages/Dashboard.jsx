@@ -6,25 +6,11 @@ import StatusBadge from '../components/StatusBadge'
 import EstadoError from '../components/EstadoError'
 import { formatearFecha } from '../utils/fechas'
 import { CirclePlay, MapPin, Shield, Trophy, Users } from 'lucide-react'
-import LogoEquipo from '../components/LogoEquipo'
+import FilaEquipo from '../components/FilaEquipo'
+import { perdio } from '../utils/marcador'
 
 // La jornada del partido dentro de su campeonato; la exacta cuando la API envíe idJornada.
 const rutaJornada = (p) => `/campeonatos/${p.idCampeonato}?tab=jornadas${p.idJornada ? `&jornada=${p.idJornada}` : ''}`
-
-// Un equipo del partido en una línea: escudo, nombre completo (puede ocupar dos líneas) y, si
-// ya se jugó, sus goles a la derecha. El ganador se resalta; en un empate, los dos igual.
-function FilaEquipo({ nombre, logoUrl, goles, gana = false, empate = false }) {
-  const destacado = goles == null || gana || empate
-  return (
-    <div className="flex items-center gap-2">
-      <LogoEquipo nombre={nombre} logoUrl={logoUrl} tamano={24} />
-      <span className={`min-w-0 flex-1 break-words text-sm leading-snug ${destacado ? 'font-medium text-white' : 'text-gray-400'}`}>{nombre}</span>
-      {goles != null && (
-        <span data-goles className={`w-8 shrink-0 text-right font-display text-xl leading-none tabular-nums ${destacado ? 'text-white' : 'text-gray-400'}`}>{goles}</span>
-      )}
-    </div>
-  )
-}
 
 function StatCard({ label, value, icon: Icono, color = 'blue' }) {
   const colors = {
@@ -135,9 +121,9 @@ export default function Dashboard() {
                       también en celular y los marcadores quedan en la misma columna. */}
                   <div className="space-y-1">
                     <FilaEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} goles={p.golesLocal}
-                      gana={p.golesLocal > p.golesVisitante} empate={p.golesLocal === p.golesVisitante} />
+                      atenuado={perdio(p.golesLocal, p.golesVisitante)} />
                     <FilaEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} goles={p.golesVisitante}
-                      gana={p.golesVisitante > p.golesLocal} empate={p.golesLocal === p.golesVisitante} />
+                      atenuado={perdio(p.golesVisitante, p.golesLocal)} />
                   </div>
                 </Link>
               ))}

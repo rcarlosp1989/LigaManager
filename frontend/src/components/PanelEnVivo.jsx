@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { MapPin, X } from 'lucide-react'
 import api from '../services/api'
-import LogoEquipo from './LogoEquipo'
+import FilaEquipo from './FilaEquipo'
+import { perdio } from '../utils/marcador'
 import { Arco, Balon, Tarjeta } from './IconoEvento'
 
 // Marcadores en vivo (enlace público y dirigente): los partidos de hoy y los que estén en vivo.
@@ -99,26 +100,17 @@ function TarjetaEnVivo({ p, idEquipoPropio, segundos }) {
         <Estado p={p} minuto={minuto} descanso={descanso} />
         {p.estadio && <span className="inline-flex min-w-0 items-center gap-1 truncate text-gray-500"><MapPin size={12} aria-hidden="true" />{p.estadio}</span>}
       </div>
-      <div className="flex items-center gap-2">
-        <span className={`flex min-w-0 flex-1 items-center justify-end gap-2 text-right text-sm ${propio(p.idEquipoLocal) ? 'font-semibold text-white' : 'text-gray-200'}`}>
-          <span className="min-w-0 truncate">{p.local}</span>
-          <LogoEquipo nombre={p.local} logoUrl={p.logoLocal} tamano={28} />
-        </span>
-        <span className={`shrink-0 rounded-md px-2.5 py-1 font-display text-2xl leading-none tabular-nums ${enVivo ? 'bg-red-600/20 text-white' : 'bg-gray-800 text-white'}`}
-          aria-label={p.golesLocal == null ? 'Sin empezar' : `${p.golesLocal} a ${p.golesVisitante}`}>
-          {p.desierto ? 'Desierto' : p.golesLocal == null ? 'vs' : `${p.golesLocal} - ${p.golesVisitante}`}
-        </span>
-        <span className={`flex min-w-0 flex-1 items-center gap-2 text-sm ${propio(p.idEquipoVisitante) ? 'font-semibold text-white' : 'text-gray-200'}`}>
-          <LogoEquipo nombre={p.visitante} logoUrl={p.logoVisitante} tamano={28} />
-          <span className="min-w-0 truncate">{p.visitante}</span>
-        </span>
+      <div className="space-y-1.5" data-marcador={p.desierto ? 'desierto' : p.golesLocal == null ? 'vs' : `${p.golesLocal}-${p.golesVisitante}`}>
+        <FilaEquipo nombre={p.local} logoUrl={p.logoLocal} grande goles={p.desierto ? null : p.golesLocal ?? null}
+          atenuado={p.estado === 'Final' && perdio(p.golesLocal, p.golesVisitante)} propio={propio(p.idEquipoLocal)}>
+          <Eventos lista={local} />
+        </FilaEquipo>
+        <FilaEquipo nombre={p.visitante} logoUrl={p.logoVisitante} grande goles={p.desierto ? null : p.golesVisitante ?? null}
+          atenuado={p.estado === 'Final' && perdio(p.golesVisitante, p.golesLocal)} propio={propio(p.idEquipoVisitante)}>
+          <Eventos lista={visita} />
+        </FilaEquipo>
       </div>
-      {(local.length > 0 || visita.length > 0) && (
-        <div className="mt-2 grid grid-cols-2 gap-x-4 border-t border-gray-800/80 pt-2 text-xs text-gray-300">
-          <ul className="space-y-0.5 text-right">{local.map((e, i) => <Evento key={i} e={e} derecha />)}</ul>
-          <ul className="space-y-0.5">{visita.map((e, i) => <Evento key={i} e={e} />)}</ul>
-        </div>
-      )}
+      {p.desierto && <p className="mt-1.5 text-xs font-semibold text-amber-300">Desierto</p>}
     </li>
   )
 }
@@ -136,7 +128,13 @@ function Estado({ p, minuto, descanso }) {
   return <span className="text-gray-400">Hoy · {p.fecha.slice(11, 16)}</span>
 }
 
-function Evento({ e, derecha }) {
+// Goles y rojas de un equipo, debajo de su nombre.
+function Eventos({ lista }) {
+  if (lista.length === 0) return null
+  return <ul className="mt-0.5 space-y-0.5 pl-9 text-xs text-gray-300">{lista.map((e, i) => <Evento key={i} e={e} />)}</ul>
+}
+
+function Evento({ e }) {
   // Roja por doble amarilla: amarilla y roja juntas. En pantalla, textos cortos; el lector de pantalla lee el detalle completo.
   const icono = e.tipo === 'ROJA'
     ? (e.dobleAmarilla ? <span className="inline-flex shrink-0"><Tarjeta color="amarilla" /><Tarjeta color="roja" className="-ml-1" /></span> : <Tarjeta color="roja" />)
@@ -145,9 +143,9 @@ function Evento({ e, derecha }) {
   const detalle = e.tipo === 'GOL_EN_CONTRA' ? ' (en contra)' : e.dobleAmarilla ? ' (doble amarilla)' : ''
   const etiqueta = e.tipo === 'ROJA' ? 'Roja' : 'Gol'
   return (
-    <li className={`flex items-center gap-1.5 ${derecha ? 'justify-end' : ''}`} aria-label={`${etiqueta}, minuto ${e.minuto}: ${e.jugador}${detalle}`}>
-      {derecha ? <><span className="min-w-0 truncate">{e.jugador}{corto && <span className="text-gray-500">{corto}</span>}</span><span className="tabular-nums text-gray-500">{e.minuto}'</span>{icono}</>
-        : <>{icono}<span className="tabular-nums text-gray-500">{e.minuto}'</span><span className="min-w-0 truncate">{e.jugador}{corto && <span className="text-gray-500">{corto}</span>}</span></>}
+    <li className="flex items-center gap-1.5" aria-label={`${etiqueta}, minuto ${e.minuto}: ${e.jugador}${detalle}`}>
+      {icono}<span className="w-7 shrink-0 tabular-nums text-gray-500">{e.minuto}'</span>
+      <span className="min-w-0 break-words">{e.jugador}{corto && <span className="text-gray-500">{corto}</span>}</span>
     </li>
   )
 }
