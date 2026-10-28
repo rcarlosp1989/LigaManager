@@ -349,6 +349,7 @@ for (const ancho of [390, 1440]) {
   ok(`dashboard @${ancho}: el marcador no toca los nombres`, cajas.every(c => !c.choca), JSON.stringify(cajas))
   ok(`dashboard @${ancho}: «10 - 4» entra en su recuadro`, cajas.every(c => !c.desborda), JSON.stringify(cajas))
   await captura(page, 'dashboard', ancho)
+  await page.getByText('ÚLTIMA FECHA').locator('..').screenshot({ path: `capturas/dashboard_ultima_fecha_${ancho}.png` })
   ok(`sin errores (dashboard) @${ancho}`, errores.length === 0, errores.join(' | '))
   await ctx.close()
 }
