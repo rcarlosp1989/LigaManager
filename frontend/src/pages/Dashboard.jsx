@@ -11,6 +11,21 @@ import LogoEquipo from '../components/LogoEquipo'
 // La jornada del partido dentro de su campeonato; la exacta cuando la API envíe idJornada.
 const rutaJornada = (p) => `/campeonatos/${p.idCampeonato}?tab=jornadas${p.idJornada ? `&jornada=${p.idJornada}` : ''}`
 
+// Un equipo del partido en una línea: escudo, nombre completo (puede ocupar dos líneas) y, si
+// ya se jugó, sus goles a la derecha. El ganador se resalta; en un empate, los dos igual.
+function FilaEquipo({ nombre, logoUrl, goles, gana = false, empate = false }) {
+  const destacado = goles == null || gana || empate
+  return (
+    <div className="flex items-center gap-2">
+      <LogoEquipo nombre={nombre} logoUrl={logoUrl} tamano={24} />
+      <span className={`min-w-0 flex-1 break-words text-sm leading-snug ${destacado ? 'font-medium text-white' : 'text-gray-400'}`}>{nombre}</span>
+      {goles != null && (
+        <span data-goles className={`w-8 shrink-0 text-right font-display text-xl leading-none tabular-nums ${destacado ? 'text-white' : 'text-gray-400'}`}>{goles}</span>
+      )}
+    </div>
+  )
+}
+
 function StatCard({ label, value, icon: Icono, color = 'blue' }) {
   const colors = {
     blue:   'from-brand-900/50 to-brand-800/20 border-brand-700/50',
@@ -76,18 +91,10 @@ export default function Dashboard() {
                       <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
                       <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
                     </div>
-                    {/* Tres columnas: local | marcador | visitante. El centro tiene ancho fijo para
-                        que «vs» y los marcadores queden alineados entre tarjetas. */}
-                    <div className="grid grid-cols-[minmax(0,1fr)_3.75rem_minmax(0,1fr)] items-center gap-2">
-                      <span className="flex min-w-0 items-center gap-2 text-white font-medium text-sm">
-                        <LogoEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} tamano={24} />
-                        <span className="truncate">{p.equipoLocal}</span>
-                      </span>
-                      <span className="text-center text-gray-500 text-xs">vs</span>
-                      <span className="flex min-w-0 items-center justify-end gap-2 text-white font-medium text-sm text-right">
-                        <span className="truncate">{p.equipoVisitante}</span>
-                        <LogoEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} tamano={24} />
-                      </span>
+                    {/* Un equipo por línea: los nombres se leen completos también en celular. */}
+                    <div className="space-y-1">
+                      <FilaEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} />
+                      <FilaEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} />
                     </div>
                     <p className="flex items-center gap-1 text-gray-500 text-xs mt-1"><MapPin size={12} aria-hidden="true" />{p.estadio}</p>
                   </Link>
@@ -124,21 +131,13 @@ export default function Dashboard() {
                     <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
                     <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
                   </div>
-                  {/* Tres columnas: local | marcador | visitante. El marcador va en un recuadro de
-                      ancho fijo, centrado, para que no se pegue a los nombres y quede alineado. */}
-                  <div className="grid grid-cols-[minmax(0,1fr)_3.75rem_minmax(0,1fr)] items-center gap-2">
-                    <span className="flex min-w-0 items-center gap-2 text-white font-medium text-sm">
-                      <LogoEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} tamano={24} />
-                      <span className="truncate">{p.equipoLocal}</span>
-                    </span>
-                    <span className="rounded bg-gray-900 py-0.5 text-center font-display text-lg leading-tight tabular-nums text-white"
-                      aria-label={`${p.golesLocal} a ${p.golesVisitante}`}>
-                      {p.golesLocal}<span className="mx-1 text-gray-500">-</span>{p.golesVisitante}
-                    </span>
-                    <span className="flex min-w-0 items-center justify-end gap-2 text-white font-medium text-sm text-right">
-                      <span className="truncate">{p.equipoVisitante}</span>
-                      <LogoEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} tamano={24} />
-                    </span>
+                  {/* Un equipo por línea con sus goles a la derecha: los nombres se leen completos
+                      también en celular y los marcadores quedan en la misma columna. */}
+                  <div className="space-y-1">
+                    <FilaEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} goles={p.golesLocal}
+                      gana={p.golesLocal > p.golesVisitante} empate={p.golesLocal === p.golesVisitante} />
+                    <FilaEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} goles={p.golesVisitante}
+                      gana={p.golesVisitante > p.golesLocal} empate={p.golesLocal === p.golesVisitante} />
                   </div>
                 </Link>
               ))}

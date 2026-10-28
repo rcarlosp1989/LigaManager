@@ -1295,5 +1295,5 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 **Estado:** aplicada en la rama `mejora/dashboard-marcadores`. Pendiente de que Roberto la apruebe. Solo pantalla.
 
-- «Última fecha» y «Próxima fecha»: cada partido en tres columnas (local | marcador | visitante). El marcador (o «vs») va en un recuadro de ancho fijo, centrado y en la misma posición en todas las tarjetas; los nombres largos se recortan con «…» antes de llegar al marcador.
-- Verificado en GitHub Actions (`ci/verificar-dashboard`) con nombres reales largos: a 390 y 1.440 px los cinco marcadores tienen el mismo centro, no tocan los nombres y «10 - 4» entra en su recuadro. Build correcto; lint igual que `main`.
+- «Última fecha» y «Próxima fecha»: un equipo por línea (escudo, nombre completo y sus goles a la derecha). Los nombres largos se leen enteros (si no caben, pasan a una segunda línea) y los goles quedan en la misma columna en todas las tarjetas. El ganador se resalta; en un empate, los dos igual.
+- Verificado en GitHub Actions (`ci/verificar-dashboard`) con nombres reales largos: a 390 y 1.440 px los nombres no se recortan, todos los goles quedan alineados a la derecha y «10» entra en su columna. Build correcto; lint igual que `main`.
