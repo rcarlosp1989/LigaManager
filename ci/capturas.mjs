@@ -338,16 +338,16 @@ for (const ancho of [390, 1440]) {
   const { ctx, page, errores } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
   await page.goto(`${APP}/dashboard`)
   await page.getByText('C.D PALMEIRAS').waitFor()
-  const cajas = await page.locator('[aria-label$=" a 0"], [aria-label$=" a 2"], [aria-label$=" a 7"], [aria-label$=" a 4"]').evaluateAll(es => es.map(e => {
-    const r = e.getBoundingClientRect()
-    const fila = e.parentElement
-    const [izq, , der] = [...fila.children].map(c => c.getBoundingClientRect())
-    return { centro: Math.round(r.left + r.width / 2), ancho: Math.round(r.width), choca: izq.right > r.left + 1 || der.left < r.right - 1, desborda: e.scrollWidth > e.clientWidth + 1 }
+  const goles = await page.locator('[data-goles]').evaluateAll(es => es.map(e => Math.round(e.getBoundingClientRect().right)))
+  const nombres = await page.locator('[data-goles]').evaluateAll(es => es.map(e => {
+    const n = e.previousElementSibling
+    return { texto: n.textContent, cortado: n.scrollWidth > n.clientWidth + 1, choca: n.getBoundingClientRect().right > e.getBoundingClientRect().left + 1 }
   }))
-  ok(`dashboard @${ancho}: cinco marcadores`, cajas.length === 5, JSON.stringify(cajas))
-  ok(`dashboard @${ancho}: marcadores alineados (mismo centro)`, new Set(cajas.map(c => c.centro)).size === 1, JSON.stringify(cajas.map(c => c.centro)))
-  ok(`dashboard @${ancho}: el marcador no toca los nombres`, cajas.every(c => !c.choca), JSON.stringify(cajas))
-  ok(`dashboard @${ancho}: «10 - 4» entra en su recuadro`, cajas.every(c => !c.desborda), JSON.stringify(cajas))
+  ok(`dashboard @${ancho}: diez filas con goles (cinco partidos)`, goles.length === 10, JSON.stringify(goles))
+  ok(`dashboard @${ancho}: goles alineados a la derecha`, new Set(goles).size === 1, JSON.stringify(goles))
+  ok(`dashboard @${ancho}: nombres completos, sin recortar`, nombres.every(n => !n.cortado) && await page.getByText('C.D.E.F VENTARRÓN', { exact: true }).first().isVisible() && await page.getByText('C.S CHICOS PLASTICOS', { exact: true }).isVisible(), JSON.stringify(nombres))
+  ok(`dashboard @${ancho}: el nombre no toca los goles`, nombres.every(n => !n.choca), JSON.stringify(nombres))
+  ok(`dashboard @${ancho}: «10» entra en su columna`, await page.locator('[data-goles]', { hasText: '10' }).evaluate(e => e.scrollWidth <= e.clientWidth + 1))
   await captura(page, 'dashboard', ancho)
   await page.getByText('ÚLTIMA FECHA').locator('..').screenshot({ path: `capturas/dashboard_ultima_fecha_${ancho}.png` })
   ok(`sin errores (dashboard) @${ancho}`, errores.length === 0, errores.join(' | '))
