@@ -1290,3 +1290,10 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - 30 pruebas: partido de hoy por jugar; en vivo con marcador, gol (minuto, nombre corto, lado) y reloj corriendo; sin fotos ni documentos; doble amarilla como roja; amarillas sueltas ocultas; gol en contra al rival; medio tiempo, 2.º tiempo y pausa; validaciones (fase, segundos, duración); otro organizador y sin sesión rechazados; código inventado; el dirigente ve lo mismo y no otro campeonato; al cerrar queda Final; cerrado no acepta reloj; vocal (cerrado 409, abierto 204, otro campeonato rechazado, al cerrar FINAL);
   - todas las pruebas anteriores siguen pasando; la reversa del script quita las columnas y el script se vuelve a aplicar.
 - Pantallas a 390 y 1.440 px (242 comprobaciones): bloque en vivo con minuto 33' y 25+1', goles, roja por doble amarilla, gol en contra, final y por jugar; aviso de medio tiempo al volver a consultar; dirigente en «Mi equipo». Build correcto; lint igual que `main`.
+
+## 2026-10-28 — Dashboard: marcadores alineados en celular
+
+**Estado:** aplicada en la rama `mejora/dashboard-marcadores`. Pendiente de que Roberto la apruebe. Solo pantalla.
+
+- «Última fecha» y «Próxima fecha»: un equipo por línea (escudo, nombre completo y sus goles a la derecha). Los nombres largos se leen enteros (si no caben, pasan a una segunda línea) y los goles quedan en la misma columna en todas las tarjetas. El ganador se resalta; en un empate, los dos igual.
+- Verificado en GitHub Actions (`ci/verificar-dashboard`) con nombres reales largos: a 390 y 1.440 px los nombres no se recortan, todos los goles quedan alineados a la derecha y «10» entra en su columna. Build correcto; lint igual que `main`.
