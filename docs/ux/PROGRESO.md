@@ -1341,3 +1341,13 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Correos: el trofeo (`/marca-correo.png`) y el nombre en el encabezado.
 - PDF: pie «Generado con LigaManager» con el trofeo y «Página X de Y» en cada página.
 - Verificado en GitHub Actions (`ci/verificar-logo`): 324 comprobaciones a 390 y 1.440 px (login, menú, enlace público, favicon nuevo, sin el texto anterior); todas las pruebas del servidor. Build correcto; lint igual que `main`.
+
+## 2026-10-29 — Flyer de la jornada para compartir
+
+**Estado:** aplicada en la rama `mejora/flyer-jornada`. Pendiente de que Roberto la apruebe. **Necesita deploy del backend** (el dirigente recibe el código del enlace público); no necesita script. Diseño elegido en el lienzo «Flyer de la jornada» (opción A, 1080×1350).
+
+- Botón «Compartir flyer» en cada jornada con partidos por jugar: organizador (Jornadas), enlace público (Resultados) y dirigente (Jornadas). No aparece en jornadas ya jugadas.
+- La imagen se arma en el navegador: campeonato, «JORNADA N», fase, grupo y estadio; los partidos por día y hora con los escudos (o las iniciales en un círculo de color); pie «Siga la jornada en vivo» y el logo. Las filas se achican para que entren todos los partidos; los nombres largos pasan a dos líneas.
+- En el celular abre el menú de compartir del sistema (WhatsApp, etc.) con la imagen y el mensaje «Campeonato · Jornada N. Siga los partidos en vivo: <enlace público>». En el computador descarga la imagen y copia el mensaje. Si el campeonato no tiene enlace público, avisa que se crea en la pestaña Dirigentes.
+- Archivos: `utils/flyer.js`, `components/BotonFlyer.jsx`; Barlow Condensed 600 en `index.html`; `DirigenteCampeonatoDetalleDto.EnlacePublico`.
+- Verificado en GitHub Actions (`ci/verificar-flyer`): 341 comprobaciones a 390 y 1.440 px (PNG de 1080×1350, nombre del archivo, mensaje copiado con el enlace, botón en las tres vistas y sin botón en jornada jugada); todas las pruebas del servidor. Build correcto; lint igual que `main`.

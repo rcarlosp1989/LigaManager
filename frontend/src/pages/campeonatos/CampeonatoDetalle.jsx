@@ -18,6 +18,7 @@ import LogoEquipo from '../../components/LogoEquipo'
 import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
 import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
+import BotonFlyer from '../../components/BotonFlyer'
 
 // «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
 const aFechaHoraLocal = (f) => (f ? f.replace(' ', 'T').slice(0, 16) : '')
@@ -1153,6 +1154,18 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
   }
 
   const partidos = jornadaDetalle?.partidos ?? []
+  // Flyer de la jornada: el campeonato (ya en caché) y su enlace público, si lo tiene.
+  const { data: campFlyer } = useQuery({
+    queryKey: ['campeonato', idCampeonato],
+    queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
+    enabled:  expanded,
+  })
+  const { data: enlaceFlyer } = useQuery({
+    queryKey: ['enlace-publico', Number(idCampeonato)],
+    queryFn:  () => api.get(`/campeonatos/${idCampeonato}/enlace-publico`).then(r => r.data),
+    enabled:  expanded,
+  })
+  const porJugar = partidos.some(p => !p.jugado)
 
   return (
     <div ref={tarjeta} className="border border-gray-800 rounded-lg overflow-hidden scroll-mt-4">
@@ -1203,6 +1216,14 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
             partidos.map(p => (
               <PartidoCard key={p.idPartido} partido={p} idCampeonato={idCampeonato} />
             ))
+          )}
+          {porJugar && campFlyer && (
+            <div className="flex justify-end">
+              <BotonFlyer campeonato={campFlyer.nombre}
+                jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia, grupo: jornadaDetalle?.grupo ?? jornada.grupo }}
+                partidos={partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))}
+                enlace={enlaceFlyer?.token ? `${window.location.origin}/publico/${enlaceFlyer.token}` : null} />
+            </div>
           )}
           <button
             onClick={() => setShowPartidoModal(true)}
