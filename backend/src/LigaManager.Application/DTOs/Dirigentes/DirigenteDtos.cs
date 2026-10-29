@@ -96,5 +96,6 @@ public record DirigenteCampeonatoDetalleDto(
     string?                   LogoEquipoPropio,
     List<DirigenteEquipoDto>  Equipos,
     List<DirigentePartidoDto> Proximos,     // de su equipo, desde hoy
-    List<DirigentePartidoDto> Ultimos       // de su equipo, ya jugados
+    List<DirigentePartidoDto> Ultimos,      // de su equipo, ya jugados
+    string?                   EnlacePublico = null   // código del enlace público (para el flyer), si existe
 );

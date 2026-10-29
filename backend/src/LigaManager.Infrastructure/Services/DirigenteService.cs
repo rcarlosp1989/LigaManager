@@ -257,7 +257,7 @@ public class DirigenteService
             propio, equipoPropio.Nombre, equipoPropio.LogoUrl,
             c.Equipos.OrderBy(ce => ce.Equipo.Nombre)
                 .Select(ce => new DirigenteEquipoDto(ce.IdEquipo, ce.Equipo.Nombre, ce.Equipo.Pais.Nombre, ce.Equipo.LogoUrl)).ToList(),
-            proximos, ultimos));
+            proximos, ultimos, c.TokenPublico));
     }
 
     private static IQueryable<DirigentePartidoDto> AProyeccion(IQueryable<Partido> q)

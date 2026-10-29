@@ -15,6 +15,7 @@ import TabGoleadores from '../reportes/TabGoleadores'
 import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
+import BotonFlyer from '../../components/BotonFlyer'
 
 const TABS = [
   { key: 'resultados', label: 'Resultados', Icono: CalendarDays },
@@ -74,7 +75,7 @@ export default function CampeonatoPublico() {
               ))}
             </div>
 
-            {tab === 'resultados' && <><PanelEnVivo url={`${base}/en-vivo`} /><Resultados base={base} /></>}
+            {tab === 'resultados' && <><PanelEnVivo url={`${base}/en-vivo`} /><Resultados base={base} campeonato={camp.nombre} enlace={`${window.location.origin}${base}`} /></>}
             {tab === 'posiciones' && (
               <TabPosiciones idCampeonato={token} campeonato={camp} base={base}
                 logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
@@ -101,7 +102,7 @@ function jornadaActual(jornadas) {
   return (jornadas.find(j => j.partidos.some(p => !p.jugado)) ?? jornadas[jornadas.length - 1])?.idJornada
 }
 
-function Resultados({ base }) {
+function Resultados({ base, campeonato, enlace }) {
   const q = useQuery({ queryKey: ['publico-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
   const [abiertas, setAbiertas] = useState(null)   // null = todavía la jornada en curso
   if (q.isLoading) return <p className="py-10 text-center text-sm text-gray-500">Cargando resultados...</p>
@@ -133,9 +134,17 @@ function Resultados({ base }) {
               <ChevronDown size={18} aria-hidden="true" className={`shrink-0 text-gray-500 transition-transform ${abierta ? 'rotate-180' : ''}`} />
             </button>
             {abierta && (
-              <ul className="space-y-2 px-3 pb-3">
-                {j.partidos.map(p => <FilaPartido key={p.idPartido} p={{ ...p, numeroJornada: null }} />)}
-              </ul>
+              <div className="space-y-2 px-3 pb-3">
+                <ul className="space-y-2">
+                  {j.partidos.map(p => <FilaPartido key={p.idPartido} p={{ ...p, numeroJornada: null }} />)}
+                </ul>
+                {j.partidos.some(p => !p.jugado) && (
+                  <div className="flex justify-end">
+                    <BotonFlyer campeonato={campeonato} jornada={j} enlace={enlace}
+                      partidos={j.partidos.map(p => ({ fecha: p.fecha, local: p.local, visitante: p.visitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))} />
+                  </div>
+                )}
+              </div>
             )}
           </li>
         )

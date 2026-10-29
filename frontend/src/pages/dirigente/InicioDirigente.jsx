@@ -17,6 +17,7 @@ import TabGoleadores from '../reportes/TabGoleadores'
 import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
+import BotonFlyer from '../../components/BotonFlyer'
 
 const TABS = [
   { key: 'resumen', label: 'Mi equipo', Icono: House },
@@ -116,7 +117,7 @@ export default function InicioDirigente() {
 
                 {(tab === 'resumen' || tab === 'jornadas') && <PanelEnVivo url={`${base}/en-vivo`} idEquipoPropio={camp.idEquipoPropio} />}
                 {tab === 'resumen' && <Resumen camp={camp} />}
-                {tab === 'jornadas' && <Jornadas base={base} idEquipoPropio={camp.idEquipoPropio} />}
+                {tab === 'jornadas' && <Jornadas base={base} idEquipoPropio={camp.idEquipoPropio} camp={camp} />}
                 {tab === 'posiciones' && (
                   <TabPosiciones idCampeonato={idCampeonato} campeonato={camp} base={base}
                     logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
@@ -156,7 +157,7 @@ function Resumen({ camp }) {
   )
 }
 
-function Jornadas({ base, idEquipoPropio }) {
+function Jornadas({ base, idEquipoPropio, camp }) {
   const [abiertas, setAbiertas] = useState(() => new Set())   // se pueden abrir varias
   const alternar = (id) => setAbiertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n })
   const q = useQuery({ queryKey: ['dirigente-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
@@ -182,7 +183,7 @@ function Jornadas({ base, idEquipoPropio }) {
               </span>
               <ChevronDown size={18} aria-hidden="true" className={`text-gray-500 transition-transform ${abiertaEsta ? 'rotate-180' : ''}`} />
             </button>
-            {abiertaEsta && <DetalleJornada base={base} idJornada={j.idJornada} idEquipoPropio={idEquipoPropio} />}
+            {abiertaEsta && <DetalleJornada base={base} idJornada={j.idJornada} idEquipoPropio={idEquipoPropio} camp={camp} />}
           </li>
         )
       })}
@@ -190,7 +191,7 @@ function Jornadas({ base, idEquipoPropio }) {
   )
 }
 
-function DetalleJornada({ base, idJornada, idEquipoPropio }) {
+function DetalleJornada({ base, idJornada, idEquipoPropio, camp }) {
   const q = useQuery({
     queryKey: ['dirigente-jornada', base, idJornada],
     queryFn: () => api.get(`${base}/jornadas/${idJornada}`).then(r => r.data),
@@ -199,8 +200,17 @@ function DetalleJornada({ base, idJornada, idEquipoPropio }) {
   if (q.isError) return <div className="px-4 pb-3"><EstadoError compacto mensaje="No se pudieron cargar los partidos." onReintentar={q.refetch} reintentando={q.isFetching} /></div>
   if (q.data.partidos.length === 0) return <p className="px-4 pb-3 text-sm text-gray-500">Sin partidos en esta jornada.</p>
   return (
-    <ul className="space-y-2 px-3 pb-3">
-      {q.data.partidos.map(p => <FilaPartido key={p.idPartido} p={p} idEquipoPropio={idEquipoPropio} />)}
-    </ul>
+    <div className="space-y-2 px-3 pb-3">
+      <ul className="space-y-2">
+        {q.data.partidos.map(p => <FilaPartido key={p.idPartido} p={p} idEquipoPropio={idEquipoPropio} />)}
+      </ul>
+      {q.data.partidos.some(p => !p.jugado) && (
+        <div className="flex justify-end">
+          <BotonFlyer campeonato={camp.nombre} jornada={q.data}
+            enlace={camp.enlacePublico ? `${window.location.origin}/publico/${camp.enlacePublico}` : null}
+            partidos={q.data.partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))} />
+        </div>
+      )}
+    </div>
   )
 }
