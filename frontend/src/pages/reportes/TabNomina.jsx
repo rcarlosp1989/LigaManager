@@ -10,7 +10,7 @@ import { textoDocumento } from '../../utils/documento'
 import FotoJugador from '../../components/FotoJugador'
 
 const COLUMNAS_EXPORT = [
-  { titulo: 'Dorsal', ancho: 8 }, { titulo: 'Apellido', ancho: 20 }, { titulo: 'Nombre', ancho: 20 },
+  { titulo: 'N.º', ancho: 6 }, { titulo: 'Dorsal', ancho: 8 }, { titulo: 'Apellido', ancho: 20 }, { titulo: 'Nombre', ancho: 20 },
   { titulo: 'Documento', ancho: 22 }, { titulo: 'Posición', ancho: 20 }, { titulo: 'Edad', ancho: 8 },
   { titulo: 'En el equipo desde', ancho: 16 },
 ]
@@ -51,8 +51,9 @@ export default function TabNomina({
 
   const conDocumento = !idEquipoPropio
   const columnasExport = conDocumento ? COLUMNAS_EXPORT : COLUMNAS_EXPORT.filter(c => c.titulo !== 'Documento')
-  const filasExport = jugadores.map(j => ([
-    j.dorsal ?? '', j.apellido, j.nombre,
+  // N.º: orden en la lista (1, 2, 3…), para contar los jugadores; no es el dorsal.
+  const filasExport = jugadores.map((j, i) => ([
+    i + 1, j.dorsal ?? '', j.apellido, j.nombre,
     ...(conDocumento ? [textoDocumento(j.tipoIdentificacion, j.cedula)] : []),
     j.posicion ?? 'Sin posición', j.edad, j.fechaDesde,
   ]))
@@ -83,7 +84,7 @@ export default function TabNomina({
         {idEquipo && (
           <BotonExportar
             titulo={`Nómina de jugadores — ${equipoNombre ?? ''}`}
-            subtitulo={`${campeonato?.nombre ?? ''} · ${new Date().toLocaleDateString('es-EC')}`}
+            subtitulo={`${campeonato?.nombre ?? ''} · ${jugadores.length} ${jugadores.length === 1 ? 'jugador' : 'jugadores'} · ${new Date().toLocaleDateString('es-EC')}`}
             columnas={columnasExport}
             filas={filasExport}
             archivoBase={`nomina_${(equipoNombre ?? 'equipo').replace(/\s+/g, '_')}`}
@@ -113,27 +114,31 @@ export default function TabNomina({
       {idEquipo && !isLoading && !isError && jugadores.length > 0 && (
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className={`tabla w-full text-sm ${conDocumento ? 'min-w-[660px]' : 'min-w-[540px]'}`}>
+            {/* N.º cuenta los jugadores (1, 2, 3…) y va fijo a la izquierda, en gris; el dorsal va en
+                su propia columna, en el círculo de color, para no confundirlos. */}
+            <table className={`tabla w-full text-sm ${conDocumento ? 'min-w-[720px]' : 'min-w-[600px]'}`}>
               <thead>
                 <tr className="border-b border-gray-800">
-                  <th scope="col" className="fija w-12 min-w-12 px-3 py-2 text-left text-xs uppercase tracking-wider">#</th>
+                  <th scope="col" className="fija w-12 min-w-12 px-3 py-2 text-left text-xs uppercase tracking-wider" title="Número de orden en la nómina">N.º</th>
                   <th scope="col" className="fija fija-2 fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider" style={{ '--ancho-fija-1': '3rem' }}>Jugador</th>
+                  <th scope="col" className="px-3 py-2 text-center text-xs uppercase tracking-wider">Dorsal</th>
                   {[...(conDocumento ? ['Documento'] : []), 'Posición', 'Edad', 'En el equipo desde'].map(h => (
                     <th key={h} scope="col" className="px-3 py-2 text-center text-xs uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {jugadores.map(j => (
+                {jugadores.map((j, i) => (
                   <tr key={j.idJugador} className="border-b border-gray-800/50">
-                    <td className="fija w-12 min-w-12 px-3 py-2 text-left">
-                      {j.dorsal != null
-                        ? <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full px-1 text-xs font-bold tabular-nums text-brand-300 ring-1 ring-inset ring-brand-500/40 bg-brand-500/10">{j.dorsal}</span>
-                        : <span className="text-gray-600">—</span>}
-                    </td>
+                    <td className="fija w-12 min-w-12 px-3 py-2 text-left text-sm tabular-nums text-gray-500">{i + 1}</td>
                     <th scope="row" className="fija fija-2 fija-borde px-3 py-2 text-left font-medium text-white" style={{ '--ancho-fija-1': '3rem' }}>
                       <span className="flex items-center gap-2" title={`${j.apellido}, ${j.nombre}`}><FotoJugador nombre={`${j.apellido}, ${j.nombre}`} fotoUrl={j.fotoUrl} tamano={36} /><span className="min-w-0 max-w-[8rem] truncate sm:max-w-[16rem]">{j.apellido}, {j.nombre}</span></span>
                     </th>
+                    <td className="px-3 py-2 text-center">
+                      {j.dorsal != null
+                        ? <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full px-1 text-xs font-bold tabular-nums text-brand-300 ring-1 ring-inset ring-brand-500/40 bg-brand-500/10" aria-label={`Dorsal ${j.dorsal}`}>{j.dorsal}</span>
+                        : <span className="text-gray-600" aria-label="Sin dorsal">—</span>}
+                    </td>
                     {conDocumento && (
                     <td className="px-3 py-2 text-gray-400 text-center">
                       {j.tipoIdentificacion === 'Pendiente'
@@ -149,6 +154,9 @@ export default function TabNomina({
               </tbody>
             </table>
           </TablaDesplazable>
+          <p className="border-t border-gray-800 px-3 py-2 text-sm text-gray-400">
+            Total: <span className="font-semibold text-white">{jugadores.length}</span> {jugadores.length === 1 ? 'jugador' : 'jugadores'}
+          </p>
         </div>
       )}
     </div>
