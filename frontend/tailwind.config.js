@@ -19,6 +19,8 @@ export default {
       },
       fontFamily: {
         display: ['Oswald', 'system-ui', 'sans-serif'],
+        // Nombre de la marca: condensada e inclinada (index.html la carga de Google Fonts).
+        marca: ['"Barlow Condensed"', 'Oswald', 'system-ui', 'sans-serif'],
       },
     },
   },

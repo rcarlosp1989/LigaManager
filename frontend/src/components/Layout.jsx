@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Trophy, Shield, Users, TrendingUp, Wrench, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import MarcaLiga from './MarcaLiga'
 
 const navItems = [
   { to: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
@@ -12,12 +13,8 @@ const navItems = [
   { to: '/mantenimiento', label: 'Mantenimiento', icon: Wrench },
 ]
 
-function Logo({ className = '' }) {
-  return (
-    <span className={`font-display text-white tracking-wider ${className}`}>
-      LIGA<span className="text-brand-500">MANAGER</span>
-    </span>
-  )
+function Logo({ grande = false }) {
+  return <MarcaLiga tamano={grande ? 'md' : 'sm'} como="span" />
 }
 
 export default function Layout() {
@@ -57,7 +54,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="px-6 py-5 border-b border-gray-800 flex items-start justify-between gap-2">
           <div>
-            <h1><Logo className="text-3xl" /></h1>
+            <h1><Logo grande /></h1>
             <p className="text-xs text-gray-500 mt-0.5">Sistema de Campeonatos</p>
           </div>
           <button
@@ -125,7 +122,7 @@ export default function Layout() {
           >
             <Menu size={22} aria-hidden="true" />
           </button>
-          <Logo className="text-2xl" />
+          <Logo />
         </header>
 
         {/* Main content */}

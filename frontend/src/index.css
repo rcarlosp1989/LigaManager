@@ -21,6 +21,9 @@
   --fondo-tabla: var(--surface-950);
 }
 
+/* Nombre de la marca «LigaManager»: Barlow Condensed 800 en cursiva. */
+.font-marca { font-style: italic; font-weight: 800; letter-spacing: 0; }
+
 body {
   margin: 0;
   min-width: 320px;

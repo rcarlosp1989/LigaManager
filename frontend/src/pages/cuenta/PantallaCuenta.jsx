@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import MarcaLiga from '../../components/MarcaLiga'
 
 // Marco común de las pantallas de la cuenta (olvidé la contraseña, restablecer, confirmar el correo).
 export default function PantallaCuenta({ titulo, children }) {
@@ -6,7 +7,7 @@ export default function PantallaCuenta({ titulo, children }) {
     <div className="min-h-dvh bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <p className="font-display text-5xl text-white tracking-widest">LIGA<span className="text-brand-500">MANAGER</span></p>
+          <MarcaLiga tamano="lg" vertical className="justify-center" />
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/50">
           <h1 className="text-white font-semibold text-lg mb-4">{titulo}</h1>

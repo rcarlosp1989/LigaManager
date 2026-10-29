@@ -10,6 +10,7 @@ import { mensajeDeError } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
 import { leerLocal, guardarLocal } from '../vivo/almacen'
 import LogoEquipo from '../../components/LogoEquipo'
+import MarcaLiga from '../../components/MarcaLiga'
 
 // Fecha de hoy en Ecuador, «yyyy-MM-dd», igual que la manda el servidor.
 const hoyEcuador = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil' }).format(new Date())
@@ -39,7 +40,7 @@ export default function InicioVocal() {
     <div className="min-h-dvh bg-black text-white">
       <header className="flex items-center gap-3 border-b border-neutral-700 px-4 py-3">
         <div className="min-w-0 flex-1">
-          <p className="font-display text-2xl tracking-wide">LIGA<span className="text-brand-400">MANAGER</span></p>
+          <MarcaLiga tamano="sm" />
           <p className="truncate text-sm text-gray-300">Vocal · {user?.nombre}</p>
         </div>
         <button type="button" onClick={logout} className="flex h-11 items-center gap-2 rounded-lg border border-neutral-600 px-3 text-sm text-gray-100">

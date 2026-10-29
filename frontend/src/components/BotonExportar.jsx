@@ -23,11 +23,12 @@ export default function BotonExportar({ titulo, subtitulo, columnas, filas, arch
   const aPdf = async () => {
     setProcesando(true)
     try {
-      const [logo, imagenes] = await Promise.all([
+      const [logo, imagenes, marca] = await Promise.all([
         logoUrl ? imagenParaPdf(urlFoto(logoUrl)) : null,
         fotos ? Promise.all(fotos.map(f => (f ? imagenParaPdf(urlFoto(f), { lado: 128, cuadrado: true }) : null))) : undefined,
+        imagenParaPdf('/marca-correo.png', { lado: 96 }),   // trofeo de LigaManager para el pie
       ])
-      exportarPdf({ titulo, subtitulo, columnas, filas, archivo: `${archivoBase}.pdf`, logo, fotos: imagenes, iniciales })
+      exportarPdf({ titulo, subtitulo, columnas, filas, archivo: `${archivoBase}.pdf`, logo, fotos: imagenes, iniciales, marca })
     } finally {
       setProcesando(false)
     }

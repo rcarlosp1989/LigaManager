@@ -5,6 +5,7 @@ import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import { mensajeDeError } from '../../feedback/contextos'
 import { formatearFecha } from '../../utils/fechas'
+import MarcaLiga from '../../components/MarcaLiga'
 
 const labelClass = 'block text-xs text-gray-400 uppercase tracking-wider mb-1.5'
 
@@ -18,9 +19,7 @@ export default function InvitacionDirigente() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl text-white tracking-widest">
-            LIGA<span className="text-brand-500">MANAGER</span>
-          </h1>
+          <h1 className="flex justify-center"><MarcaLiga tamano="lg" vertical como="span" /></h1>
           <p className="text-gray-500 text-sm mt-2 tracking-wider uppercase">Acceso para dirigentes</p>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/50">
