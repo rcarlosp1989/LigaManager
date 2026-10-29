@@ -1323,3 +1323,10 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Si la hora queda entre 00:00 y 05:59 aparece «Ese horario es de madrugada… ¿Es correcto?» con el botón «Cambiar a 13:30 (tarde)». Sin fecha, hora o minutos no deja guardar.
 - Pieza `CampoFechaHora`.
 - Verificado en GitHub Actions (`ci/verificar-hora`): 286 comprobaciones a 390 y 1.440 px (lista de 24 horas, aviso y corrección, valor enviado al crear y al editar, hora guardada al abrir «Editar»). Build correcto; lint igual que `main`.
+
+## 2026-10-29 — Tono formal (usted) en toda la aplicación
+
+**Estado:** aplicada en la rama `mejora/tono-usted`. Pendiente de que Roberto la apruebe. **Necesita deploy del backend** (mensajes del servidor y correos); no necesita script.
+
+- Todos los textos tratan de «usted»: pantallas de cuenta («¿Olvidó su contraseña?», «Revise su correo», «Elija su nueva contraseña»), avisos y errores («Revise su conexión e inténtelo de nuevo»), selectores («Seleccione un equipo…»), invitaciones («Le invito como dirigente…»), aviso de privacidad («Sus derechos»), mensajes del servidor y los correos de confirmación y de restablecer contraseña (asuntos «Confirme su correo en LigaManager» y «Restablezca su contraseña de LigaManager», saludo «Estimado/a …:»). Redacción más completa: «tiene una validez de 1 hora», «carpetas de correo no deseado (Spam) y Promociones».
+- Verificado en GitHub Actions (`ci/verificar-usted`): todas las pruebas del servidor con los mensajes nuevos y 303 comprobaciones de pantalla, entre ellas un recorrido por 17 pantallas (públicas, organizador y dirigente) que confirma que ningún texto visible usa «tú». Build correcto; lint igual que `main`.
