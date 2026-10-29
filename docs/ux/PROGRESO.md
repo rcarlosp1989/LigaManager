@@ -1306,3 +1306,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En vivo, los goles y las rojas de cada equipo van debajo de su nombre. Los partidos sin jugar dicen «Por jugar»; los desiertos, «Desierto».
 - Pieza compartida `FilaEquipo` (Dashboard, `FilaPartido` y `PanelEnVivo`).
 - Verificado en GitHub Actions (`ci/verificar-una-linea`): 262 comprobaciones a 390 y 1.440 px (nombres completos sin recortar, goles alineados a la derecha, en vivo, jornadas y dirigente). Build correcto; lint igual que `main`.
+
+## 2026-10-28 — Nómina: número de orden aparte del dorsal y total de jugadores
+
+**Estado:** aplicada en la rama `mejora/nomina-numeracion`. Pendiente de que Roberto la apruebe. Solo pantalla.
+
+- Reportes → Nómina (organizador y dirigente): primera columna «N.º» (1, 2, 3…, en gris, fija al deslizar) para contar los jugadores; el dorsal pasa a su propia columna «Dorsal», con el círculo de color, después del nombre. Al pie, «Total: N jugadores».
+- PDF y Excel: columna «N.º» antes del dorsal; el PDF muestra el total en el subtítulo.
+- Verificado en GitHub Actions (`ci/verificar-numeracion`): 272 comprobaciones a 390 y 1.440 px (N.º 1…6, dorsal en su columna, total; el dirigente sigue sin documentos). Build correcto; lint igual que `main`.
