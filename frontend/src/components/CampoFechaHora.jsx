@@ -37,16 +37,16 @@ export default function CampoFechaHora({ id, value, onChange, required = false }
             onChange={e => poner(e.target.value, hora, minuto)} />
         </label>
         <div className="flex items-center gap-1.5">
-          <label className="block">
+          <label className="block min-w-0 flex-1 sm:flex-none">
             <span className="sr-only">Hora (formato de 24 horas)</span>
-            <select id={`${base}-hora`} className="input-field" value={hora} required={required} style={{ width: '11.5rem' }}
+            <select id={`${base}-hora`} className="input-field sm:w-56" value={hora} required={required}
               onChange={e => poner(fecha, e.target.value, minuto)}>
               <option value="">Hora</option>
               {HORAS.map(h => <option key={h} value={h}>{nombreHora(h)}</option>)}
             </select>
           </label>
           <span className="text-gray-400" aria-hidden="true">:</span>
-          <label className="block">
+          <label className="block shrink-0">
             <span className="sr-only">Minutos</span>
             <select id={`${base}-minuto`} className="input-field" value={minuto} required={required} style={{ width: '5rem' }}
               onChange={e => poner(fecha, hora, e.target.value)}>
