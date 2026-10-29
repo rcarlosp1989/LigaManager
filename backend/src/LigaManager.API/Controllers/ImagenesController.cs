@@ -19,6 +19,9 @@ public class ImagenesController : ControllerBase
         var img = await _almacen.ObtenerAsync(id.ToLowerInvariant());
         if (img is null) return NotFound();
         Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+        // La copia guardada depende del origen: la que pidió una etiqueta <img> (sin permiso CORS)
+        // no sirve para dibujar el logo en el flyer.
+        Response.Headers.Vary = "Origin";
         return File(img.Value.Datos, img.Value.TipoMime);
     }
 }
