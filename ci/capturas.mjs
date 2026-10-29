@@ -423,7 +423,7 @@ for (const ancho of [390, 1440]) {
     const { ctx, page } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
     await page.goto(`${APP}/dashboard`)
     await page.waitForTimeout(800)
-    ok(`logo @${ancho}: menú con el logo`, await page.getByText(/Liga\s*Manager/).first().isVisible())
+    ok(`logo @${ancho}: menú con el logo`, await page.evaluate(() => [...document.querySelectorAll('svg mask')].some(m => { const r = m.closest('svg').getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top < 120 })))
     await captura(page, 'logo_menu', ancho)
     await ctx.close()
   }
