@@ -20,9 +20,9 @@ const nombreHora = (h) => {
 export default function CampoFechaHora({ id, value, onChange, required = false }) {
   const uid = useId()
   const base = id ?? uid
-  const fecha = (value ?? '').slice(0, 10)
-  const hora = (value ?? '').slice(11, 13)
-  const minuto = (value ?? '').slice(14, 16)
+  // «fecha T hora : minutos»; cualquiera de las partes puede faltar mientras se completa.
+  const [fecha = '', resto = ''] = (value ?? '').split('T')
+  const [hora = '', minuto = ''] = resto.split(':')
   const poner = (f, h, m) => onChange(`${f}T${h}:${h && !m ? '00' : m}`)
   const minutos = minuto && !MINUTOS.includes(minuto) ? [...MINUTOS, minuto].sort() : MINUTOS
   const madrugada = fechaHoraCompleta(value) && Number(hora) < 6
