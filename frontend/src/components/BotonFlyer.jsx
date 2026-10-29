@@ -23,10 +23,12 @@ export default function BotonFlyer({ campeonato, jornada, partidos, enlace, clas
         : `${campeonato} · Jornada ${jornada.numero}.`
       const archivo = `jornada_${jornada.numero}_${String(campeonato).replace(/[^\p{L}\p{N}]+/gu, '_').slice(0, 40)}.png`
       const r = await compartirFlyer(blob, { archivo, texto })
-      if (r === 'descargado') {
-        aviso.exito(enlace
-          ? 'Flyer descargado. El mensaje con el enlace se copió: péguelo al enviar la imagen.'
-          : 'Flyer descargado. Para incluir el enlace en vivo, cree el enlace público en la pestaña Dirigentes.')
+      if (r === 'descargado' || r === 'descargado_sin_texto') {
+        aviso.exito(!enlace
+          ? 'Flyer descargado. Para incluir el enlace en vivo, cree el enlace público en la pestaña Dirigentes.'
+          : r === 'descargado'
+            ? 'Flyer descargado. El mensaje con el enlace se copió: péguelo al enviar la imagen.'
+            : `Flyer descargado. Envíelo junto con este enlace: ${enlace}`)
       }
     } catch {
       aviso.error('No se pudo crear el flyer. Inténtelo de nuevo.')
