@@ -93,11 +93,11 @@ s, _ = llamar("GET", "/campeonatos", tokViejo)
 esperar("la sesión anterior funciona antes del cambio", s == 200)
 time.sleep(1.1)
 s, r = llamar("POST", "/auth/olvide-clave", cuerpo={"email": EMAIL.upper()})
-lista = [m for m in correos(EMAIL) if "Restablece" in m["asunto"]]
+lista = [m for m in correos(EMAIL) if "Restablezca" in m["asunto"]]
 esperar("olvidé la clave (sin importar mayúsculas) envía el enlace", s == 200 and len(lista) == 1, f"{s} {len(lista)}")
 c2 = codigo(lista[0], "restablecer") if lista else None
 s, r = llamar("POST", "/auth/olvide-clave", cuerpo={"email": EMAIL})
-esperar("pedirlo de nuevo enseguida no manda otro", len([m for m in correos(EMAIL) if "Restablece" in m["asunto"]]) == 1)
+esperar("pedirlo de nuevo enseguida no manda otro", len([m for m in correos(EMAIL) if "Restablezca" in m["asunto"]]) == 1)
 
 s, r = llamar("GET", f"/auth/restablecer/{c2}")
 esperar("el enlace de restablecer es válido", s == 200 and r["valido"], f"{s} {r}")
@@ -125,7 +125,7 @@ esperar("usado, ya no es válido", s == 404, f"{s} {r}")
 # Enlace vencido: se pide otro (pasado el minuto de espera, simulado en la base) y se vence.
 sql(f"UPDATE token_usuario t JOIN usuario u ON u.id_usuario = t.id_usuario SET t.creado_en = t.creado_en - INTERVAL 2 MINUTE WHERE u.email = '{EMAIL}'")
 llamar("POST", "/auth/olvide-clave", cuerpo={"email": EMAIL})
-lista = [m for m in correos(EMAIL) if "Restablece" in m["asunto"]]
+lista = [m for m in correos(EMAIL) if "Restablezca" in m["asunto"]]
 esperar("pasado el minuto se puede pedir otro enlace", len(lista) == 2, str(len(lista)))
 c3 = codigo(lista[-1], "restablecer") if len(lista) == 2 else None
 sql(f"UPDATE token_usuario t JOIN usuario u ON u.id_usuario = t.id_usuario SET t.vence_en = UTC_TIMESTAMP() - INTERVAL 1 MINUTE WHERE u.email = '{EMAIL}' AND t.usado_en IS NULL")
@@ -135,7 +135,7 @@ esperar("un enlace vencido no es válido", s == 404 and "venció" in (r.get("mot
 # Un vocal (cuenta creada con invitación) también puede restablecer.
 if sql("SELECT COUNT(*) FROM usuario WHERE email = 'vocal@prueba.ec'") == "1":
     llamar("POST", "/auth/olvide-clave", cuerpo={"email": "vocal@prueba.ec"})
-    esperar("un vocal también recibe el enlace", any("Restablece" in m["asunto"] for m in correos("vocal@prueba.ec")))
+    esperar("un vocal también recibe el enlace", any("Restablezca" in m["asunto"] for m in correos("vocal@prueba.ec")))
 
 print("\nRESUMEN", "TODO OK" if not fallas else f"{len(fallas)} fallas")
 sys.exit(1 if fallas else 0)

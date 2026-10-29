@@ -609,7 +609,7 @@ for (const ancho of [390, 1440]) {
   await page.goto(`${APP}/olvide-clave`)
   await page.getByLabel('Correo electrónico').fill('roberto@liga.ec')
   await page.getByRole('button', { name: 'Enviar enlace' }).click()
-  await page.getByText(/Si el correo está registrado/).waitFor()
+  await page.getByText(/Si el correo se encuentra registrado/).waitFor()
   ok(`olvidé @${ancho}: respuesta genérica`, true)
   await captura(page, 'olvide_clave', ancho)
 
