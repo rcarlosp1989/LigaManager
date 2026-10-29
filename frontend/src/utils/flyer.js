@@ -59,7 +59,9 @@ export function agruparPorDia(partidos) {
 async function cargarImagen(url) {
   if (!url) return null
   try {
-    const r = await fetch(urlFoto(url))
+    // «reload»: el navegador ya guardó el logo al mostrarlo en la página (sin permiso CORS);
+    // reutilizar esa copia hace fallar la descarga, así que se pide de nuevo al servidor.
+    const r = await fetch(urlFoto(url), { cache: 'reload' })
     if (!r.ok) return null
     return await createImageBitmap(await r.blob())
   } catch {

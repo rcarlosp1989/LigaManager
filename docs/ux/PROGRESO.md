@@ -1351,3 +1351,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En el celular abre el menú de compartir del sistema (WhatsApp, etc.) con la imagen y el mensaje «Campeonato · Jornada N. Siga los partidos en vivo: <enlace público>». En el computador descarga la imagen y copia el mensaje. Si el campeonato no tiene enlace público, avisa que se crea en la pestaña Dirigentes.
 - Archivos: `utils/flyer.js`, `components/BotonFlyer.jsx`; Barlow Condensed 600 en `index.html`; `DirigenteCampeonatoDetalleDto.EnlacePublico`.
 - Verificado en GitHub Actions (`ci/verificar-flyer`): 341 comprobaciones a 390 y 1.440 px (PNG de 1080×1350, nombre del archivo, mensaje copiado con el enlace, botón en las tres vistas y sin botón en jornada jugada); todas las pruebas del servidor. Build correcto; lint igual que `main`.
+
+## 2026-10-29 — Flyer: los logos de los equipos no salían
+
+**Estado:** aplicada en la rama `mejora/flyer-logos`. **Necesita deploy del backend** (encabezado de las imágenes); no necesita script.
+
+- Causa: la página ya muestra los logos y el navegador los guarda en su memoria por un año. El flyer reutilizaba esa copia, que no tiene el permiso para dibujarse en una imagen, y la descarga fallaba en silencio (salían las iniciales).
+- Arreglo: el flyer vuelve a pedir cada logo al servidor (`cache: 'reload'`), y el servidor marca las imágenes con `Vary: Origin` para que el navegador guarde copias separadas.
+- Verificado en Chromium: con el logo ya mostrado en la página, la versión anterior dibujaba 0 píxeles del logo y la nueva lo dibuja completo.
