@@ -18,7 +18,8 @@ export async function exportarExcel({ columnas, filas, archivo, hoja = 'Hoja1' }
 //  - logo (opcional): { dataUrl, ancho, alto } — se dibuja a la izquierda del título.
 //  - fotos (opcional): una por fila ({ dataUrl, formato } o null), en una primera columna
 //    «Foto»; sin foto se dibujan las iniciales de iniciales[i].
-export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo, logo, fotos, iniciales }) {
+//  - marca (opcional): el trofeo de LigaManager ({ dataUrl, ancho, alto }) para el pie de cada página.
+export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo, logo, fotos, iniciales, marca }) {
   const conFotos = Array.isArray(fotos)
   const cols = conFotos ? [{ titulo: 'Foto' }, ...columnas] : columnas
   const doc = new jsPDF({ orientation: cols.length > 6 ? 'landscape' : 'portrait' })
@@ -47,6 +48,7 @@ export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo, logo,
     startY: inicioTabla,
     head: [cols.map(c => c.titulo)],
     body: conFotos ? filas.map(f => ['', ...f]) : filas,
+    margin: { bottom: 18 },   // espacio para el pie «Generado con LigaManager»
     styles: { fontSize: 8, valign: 'middle' },
     headStyles: { fillColor: [31, 111, 92] },
     columnStyles: conFotos ? { 0: { cellWidth: FOTO + 4, minCellHeight: FOTO + 2 } } : {},
@@ -64,5 +66,19 @@ export function exportarPdf({ titulo, subtitulo, columnas, filas, archivo, logo,
       doc.text(iniciales?.[d.row.index] ?? '', cx + FOTO / 2, cy + FOTO / 2, { align: 'center', baseline: 'middle' })
     } : undefined,
   })
+  // Pie de cada página: «Generado con LigaManager» y el número de página.
+  const paginas = doc.getNumberOfPages()
+  const ancho = doc.internal.pageSize.getWidth()
+  const alto = doc.internal.pageSize.getHeight()
+  for (let i = 1; i <= paginas; i++) {
+    doc.setPage(i)
+    let xPie = 14
+    if (marca) {
+      try { doc.addImage(marca.dataUrl, marca.formato ?? 'PNG', 14, alto - 11.5, 4.4, 4.8, undefined, 'FAST'); xPie = 20 } catch { /* sin trofeo */ }
+    }
+    doc.setFontSize(8); doc.setTextColor(110)
+    doc.text('Generado con LigaManager', xPie, alto - 8)
+    doc.text(`Página ${i} de ${paginas}`, ancho - 14, alto - 8, { align: 'right' })
+  }
   doc.save(archivo)
 }

@@ -16,6 +16,7 @@ import TabNomina from '../reportes/TabNomina'
 import TabGoleadores from '../reportes/TabGoleadores'
 import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
+import MarcaLiga from '../../components/MarcaLiga'
 
 const TABS = [
   { key: 'resumen', label: 'Mi equipo', Icono: House },
@@ -58,7 +59,7 @@ export default function InicioDirigente() {
     <div className="min-h-dvh bg-gray-950 text-white">
       <header className="flex items-center gap-3 border-b border-gray-800 px-4 py-3 sm:px-6">
         <div className="min-w-0 flex-1">
-          <p className="font-display text-2xl tracking-wide">LIGA<span className="text-brand-400">MANAGER</span></p>
+          <MarcaLiga tamano="sm" />
           <p className="truncate text-sm text-gray-400">Dirigente · {user?.nombre}</p>
         </div>
         <button type="button" onClick={logout} className="flex h-11 items-center gap-2 rounded-lg border border-gray-700 px-3 text-sm text-gray-200 hover:border-gray-500">

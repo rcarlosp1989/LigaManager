@@ -2,6 +2,7 @@ import { useState, useId } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ReenviarConfirmacion from './cuenta/ReenviarConfirmacion'
+import MarcaLiga from '../components/MarcaLiga'
 
 const emailValido = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)
 
@@ -49,9 +50,7 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-10">
-          <h1 className="font-display text-5xl sm:text-6xl text-white tracking-widest">
-            LIGA<span className="text-brand-500">MANAGER</span>
-          </h1>
+          <h1 className="flex justify-center"><MarcaLiga tamano="lg" vertical como="span" /></h1>
           <p className="text-gray-500 text-sm mt-2 tracking-wider uppercase">
             Sistema de Gestión de Campeonatos
           </p>

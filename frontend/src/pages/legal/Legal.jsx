@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import MarcaLiga from '../../components/MarcaLiga'
 
 // Aviso de privacidad y términos de uso. Páginas públicas (no piden sesión).
 // La fecha de los términos debe coincidir con Terminos.Version del servidor: al cambiar el texto
@@ -10,7 +11,7 @@ function Pagina({ titulo, children }) {
   return (
     <div className="min-h-dvh bg-gray-950 px-4 py-10 text-gray-200">
       <article className="mx-auto max-w-2xl">
-        <p className="font-display text-2xl tracking-widest text-white">LIGA<span className="text-brand-500">MANAGER</span></p>
+        <MarcaLiga tamano="md" />
         <h1 className="mt-6 font-display text-4xl tracking-wide text-white">{titulo}</h1>
         <p className="mt-1 text-sm text-gray-500">Última actualización: {ACTUALIZADO}</p>
         <div className="mt-8 space-y-6 text-sm leading-relaxed [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-white [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1">

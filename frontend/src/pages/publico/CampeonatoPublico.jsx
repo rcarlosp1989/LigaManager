@@ -14,6 +14,7 @@ import TabPosiciones from '../reportes/TabPosiciones'
 import TabGoleadores from '../reportes/TabGoleadores'
 import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
+import MarcaLiga from '../../components/MarcaLiga'
 
 const TABS = [
   { key: 'resultados', label: 'Resultados', Icono: CalendarDays },
@@ -41,7 +42,7 @@ export default function CampeonatoPublico() {
   return (
     <div className="min-h-dvh bg-gray-950 text-white">
       <header className="border-b border-gray-800 px-4 py-3 sm:px-6">
-        <p className="font-display text-2xl tracking-wide">LIGA<span className="text-brand-400">MANAGER</span></p>
+        <MarcaLiga tamano="sm" />
       </header>
 
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-5 sm:px-6">

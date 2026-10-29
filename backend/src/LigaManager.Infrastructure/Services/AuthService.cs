@@ -149,9 +149,12 @@ public class AuthService : IAuthService
         return codigo;
     }
 
-    private static string Correo(string saludo, string parrafo, string boton, string enlace, string pie) => $"""
+    private string Correo(string saludo, string parrafo, string boton, string enlace, string pie) => $"""
         <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1f2937">
-          <h2 style="margin:0 0 16px">Liga<span style="color:#0f9f91">Manager</span></h2>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px"><tr>
+            <td style="padding-right:10px"><img src="{UrlFrontend}/marca-correo.png" width="36" height="40" alt="" style="display:block"></td>
+            <td style="font-family:'Arial Narrow',Arial,Helvetica,sans-serif;font-size:28px;font-weight:bold;font-style:italic;color:#0b1220">Liga<span style="color:#0f766e">Manager</span></td>
+          </tr></table>
           <p>{WebUtility.HtmlEncode(saludo)}</p>
           <p>{WebUtility.HtmlEncode(parrafo)}</p>
           <p style="margin:24px 0">
