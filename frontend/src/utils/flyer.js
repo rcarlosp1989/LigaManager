@@ -90,6 +90,30 @@ function textoQueEntra(ctx, texto, ancho, tamano, min, peso, familia) {
   return { texto: `${s}…`, t: min }
 }
 
+// Nombre de equipo: en una línea si entra con un tamaño legible; si no y la fila es alta,
+// en dos líneas; como último recurso, una línea más chica cortada con «…».
+function nombreEquipo(ctx, texto, ancho, tamano, dosLineas) {
+  const una = textoQueEntra(ctx, texto, ancho, tamano, Math.round(tamano * 0.82), 600, CUERPO)
+  if (!una.texto.endsWith('…')) return { lineas: [una.texto], t: una.t }
+  if (!dosLineas) {
+    const chica = textoQueEntra(ctx, texto, ancho, tamano, 16, 600, CUERPO)
+    return { lineas: [chica.texto], t: chica.t }
+  }
+  const t = Math.round(tamano * 0.88)
+  ctx.font = `600 ${t}px ${CUERPO}`
+  const palabras = texto.split(/\s+/)
+  let primera = palabras.shift() ?? ''
+  while (palabras.length && ctx.measureText(`${primera} ${palabras[0]}`).width <= ancho) primera += ` ${palabras.shift()}`
+  const segunda = textoQueEntra(ctx, palabras.join(' '), ancho, t, t, 600, CUERPO).texto
+  return { lineas: palabras.length ? [textoQueEntra(ctx, primera, ancho, t, t, 600, CUERPO).texto, segunda] : [primera], t }
+}
+
+function escribirNombre(ctx, nombre, x, cy) {
+  ctx.font = `600 ${nombre.t}px ${CUERPO}`
+  const alto = nombre.t * 1.12
+  nombre.lineas.forEach((l, i) => ctx.fillText(l, x, cy + (i - (nombre.lineas.length - 1) / 2) * alto))
+}
+
 function redondeado(ctx, x, y, w, h, r) {
   ctx.beginPath()
   ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h)
@@ -156,8 +180,8 @@ export async function generarFlyer(datos) {
   ctx.fillText(camp.texto, X, 72 + 22)
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
   ctx.fillStyle = C.texto
-  ctx.font = `italic 800 184px ${DISPLAY}`
-  ctx.fillText(`JORNADA ${datos.numero}`, X - 4, 112 + 160)
+  const tituloJ = textoQueEntra(ctx, `JORNADA ${datos.numero}`, ANCHO - 2 * X + 8, 184, 100, 'italic 800', DISPLAY)
+  ctx.fillText(tituloJ.texto, X - 4, 112 + 160)
   const estadios = [...new Set(todos.map(p => p.estadio).filter(Boolean))]
   const sub = [datos.instancia, datos.grupo ? `Grupo ${datos.grupo}` : null,
     estadios.length === 1 ? `Estadio ${estadios[0].replace(/^estadio\s+/i, '')}` : estadios.length > 1 ? 'Varios estadios' : null]
@@ -178,10 +202,11 @@ export async function generarFlyer(datos) {
   while (fila > 48 && necesario(fila, gap) > disponible) { fila -= 2; gap = Math.max(6, Math.round(fila / 7)) }
   const escala = fila / 88
 
-  let y = inicio
+  // Con pocos partidos, el bloque queda centrado en el espacio libre (sin bajar demasiado).
+  let y = inicio + Math.min(120, Math.max(0, Math.round((disponible - necesario(fila, gap)) / 2)))
   for (const d of dias) {
     ctx.fillStyle = C.acento; ctx.fillRect(X, y + 16, 36, 4)
-    ctx.fillStyle = '#f8fafc'; ctx.font = `600 30px ${DISPLAY}`; ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#f8fafc'; ctx.font = `600 30px ${DISPLAY}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left'
     if ('letterSpacing' in ctx) ctx.letterSpacing = '2px'
     ctx.fillText(d.nombre, X + 52, y + 18)
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
@@ -201,16 +226,15 @@ export async function generarFlyer(datos) {
       const anchoNombre = (ANCHO - 2 * X - 24 - 136 - 24 - 64) / 2 - r * 2 - 14 - 10
       escudo(ctx, logos.get(p.local), p.local, xl + r, cy, r)
       ctx.fillStyle = C.texto; ctx.textAlign = 'left'
-      const tl = textoQueEntra(ctx, p.local, anchoNombre, Math.round(25 * escala + 2), 16, 600, CUERPO)
-      ctx.fillText(tl.texto, xl + r * 2 + 14, cy)
+      const dos = fila >= 70
+      escribirNombre(ctx, nombreEquipo(ctx, p.local, anchoNombre, Math.round(25 * escala + 2), dos), xl + r * 2 + 14, cy)
       const xvs = xl + (ANCHO - 2 * X - 24 - 136 - 24) / 2
       ctx.fillStyle = C.tenue; ctx.textAlign = 'center'; ctx.font = `600 24px ${DISPLAY}`
       ctx.fillText('VS', xvs, cy)
       const xr = ANCHO - X - 24
       escudo(ctx, logos.get(p.visitante), p.visitante, xr - r, cy, r)
       ctx.fillStyle = C.texto; ctx.textAlign = 'right'
-      const tv = textoQueEntra(ctx, p.visitante, anchoNombre, Math.round(25 * escala + 2), 16, 600, CUERPO)
-      ctx.fillText(tv.texto, xr - r * 2 - 14, cy)
+      escribirNombre(ctx, nombreEquipo(ctx, p.visitante, anchoNombre, Math.round(25 * escala + 2), dos), xr - r * 2 - 14, cy)
       y += h + (i < d.partidos.length - 1 ? gap : 0)
     })
     y += gapDia
