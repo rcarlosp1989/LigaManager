@@ -1330,3 +1330,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 - Todos los textos tratan de «usted»: pantallas de cuenta («¿Olvidó su contraseña?», «Revise su correo», «Elija su nueva contraseña»), avisos y errores («Revise su conexión e inténtelo de nuevo»), selectores («Seleccione un equipo…»), invitaciones («Le invito como dirigente…»), aviso de privacidad («Sus derechos»), mensajes del servidor y los correos de confirmación y de restablecer contraseña (asuntos «Confirme su correo en LigaManager» y «Restablezca su contraseña de LigaManager», saludo «Estimado/a …:»). Redacción más completa: «tiene una validez de 1 hora», «carpetas de correo no deseado (Spam) y Promociones».
 - Verificado en GitHub Actions (`ci/verificar-usted`): todas las pruebas del servidor con los mensajes nuevos y 303 comprobaciones de pantalla, entre ellas un recorrido por 17 pantallas (públicas, organizador y dirigente) que confirma que ningún texto visible usa «tú». Build correcto; lint igual que `main`.
+
+## 2026-10-29 — Logo nuevo: trofeo con barras de posiciones
+
+**Estado:** aplicada en la rama `mejora/logo-trofeo`. Pendiente de que Roberto la apruebe. **Necesita deploy del backend** (encabezado de los correos); no necesita script. Diseño elegido en el lienzo «Logo LigaManager» (concepto 2 con los colores de la app).
+
+- Símbolo: un trofeo cuyo interior son tres barras que suben (la tabla de posiciones), en turquesa; nombre «Liga**Manager**» en Barlow Condensed 800 cursiva (Google Fonts). Componente `MarcaLiga` / `SimboloTrofeo` (las barras van recortadas con una máscara, así sirve sobre cualquier fondo).
+- Reemplaza el «LIGAMANAGER» de texto en el menú, inicio de sesión, registro, cuenta, invitaciones, vocal, dirigente, enlace público y páginas legales.
+- Ícono del navegador (`favicon.svg`) y de la app instalada (`icono-180/192/512` y `maskable`), generados desde el mismo SVG.
+- Correos: el trofeo (`/marca-correo.png`) y el nombre en el encabezado.
+- PDF: pie «Generado con LigaManager» con el trofeo y «Página X de Y» en cada página.
+- Verificado en GitHub Actions (`ci/verificar-logo`): 324 comprobaciones a 390 y 1.440 px (login, menú, enlace público, favicon nuevo, sin el texto anterior); todas las pruebas del servidor. Build correcto; lint igual que `main`.
