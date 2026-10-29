@@ -1306,3 +1306,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En vivo, los goles y las rojas de cada equipo van debajo de su nombre. Los partidos sin jugar dicen «Por jugar»; los desiertos, «Desierto».
 - Pieza compartida `FilaEquipo` (Dashboard, `FilaPartido` y `PanelEnVivo`).
 - Verificado en GitHub Actions (`ci/verificar-una-linea`): 262 comprobaciones a 390 y 1.440 px (nombres completos sin recortar, goles alineados a la derecha, en vivo, jornadas y dirigente). Build correcto; lint igual que `main`.
+
+## 2026-10-29 — Partidos: hora en formato de 24 horas y aviso de madrugada
+
+**Estado:** aplicada en la rama `mejora/hora-24h`. Pendiente de que Roberto la apruebe. Solo pantalla.
+
+- «Agregar partido» y «Editar»: la fecha con el calendario del navegador y la hora en dos listas, horas de 00 a 23 («13 (1 de la tarde)») y minutos de 5 en 5, sin a. m./p. m. (el campo anterior, en Windows, mostraba a. m./p. m. y era fácil guardar un partido de la tarde como de madrugada, por eso se ordenaban 01:30, 02:40, 12:20).
+- Si la hora queda entre 00:00 y 05:59 aparece «Ese horario es de madrugada… ¿Es correcto?» con el botón «Cambiar a 13:30 (tarde)». Sin fecha, hora o minutos no deja guardar.
+- Pieza `CampoFechaHora`.
+- Verificado en GitHub Actions (`ci/verificar-hora`): 286 comprobaciones a 390 y 1.440 px (lista de 24 horas, aviso y corrección, valor enviado al crear y al editar, hora guardada al abrir «Editar»). Build correcto; lint igual que `main`.
