@@ -1,0 +1,274 @@
+OK   dir_posiciones @390: sin desplazamiento lateral
+OK   dirigente posiciones @390: hay tablas que se deslizan
+OK   dirigente posiciones @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   dirigente posiciones @390: sombra de la columna fija
+OK   dirigente posiciones @390: no pide nóminas de otros equipos
+OK   dir_goleadores @390: sin desplazamiento lateral
+OK   dirigente goleadores @390: no pide nóminas de otros equipos
+OK   dirigente goleadores @390: sin PJ ni promedio
+OK   dirigente goleadores @390: con jugador, equipo y goles
+OK   dirigente goleadores @390: se ve el equipo del jugador
+OK   dirigente goleadores @390: entra sin deslizar
+OK   dir_tarjetas @390: sin desplazamiento lateral
+OK   dirigente tarjetas @390: hay tablas que se deslizan
+OK   dirigente tarjetas @390: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente tarjetas @390: sombra de la columna fija
+OK   dirigente tarjetas @390: no pide nóminas de otros equipos
+OK   tarjetas @390: muestra «2/5» y «4/5»
+OK   tarjetas @390: explica el historial y las acumuladas
+OK   dir_suspensiones @390: sin desplazamiento lateral
+OK   dirigente suspensiones @390: hay tablas que se deslizan
+OK   dirigente suspensiones @390: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente suspensiones @390: sombra de la columna fija
+OK   dirigente suspensiones @390: «ABAndrés Bustamante Villacís» sigue a la vista al deslizar
+OK   dirigente suspensiones @390: sombra de la columna fija
+OK   dirigente suspensiones @390: no pide nóminas de otros equipos
+OK   dir_nomina @390: sin desplazamiento lateral
+OK   dirigente nomina @390: hay tablas que se deslizan
+OK   dirigente nomina @390: «CMMendoza, Carlos» sigue a la vista al deslizar
+OK   dirigente nomina @390: sombra de la columna fija
+OK   dirigente nomina @390: no pide nóminas de otros equipos
+OK   nómina @390: sin selector de equipo
+OK   nómina dirigente @390: columnas «N.º» y «Dorsal» separadas
+OK   nómina dirigente @390: total de jugadores
+OK   nómina @390: muestra su equipo
+OK   nómina @390: sin columna «Documento»
+OK   nómina @390: ninguna cédula en pantalla
+OK   dirigente @390: bloque «En vivo» en Mi equipo
+OK   dir_en_vivo @390: sin desplazamiento lateral
+OK   dirigente jornadas @390: se pueden abrir dos jornadas a la vez
+OK   dir_jornadas_dos_abiertas @390: sin desplazamiento lateral
+OK   dirigente jornadas @390: se contrae la jornada 1
+OK   sin errores (dirigente) @390
+OK   org_reportes_posiciones @390: sin desplazamiento lateral
+OK   org_reportes_posiciones @390: hay tablas que se deslizan
+OK   org_reportes_posiciones @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_reportes_posiciones @390: sombra de la columna fija
+OK   org_tabla_general @390: sin desplazamiento lateral
+OK   org_tabla_general @390: hay tablas que se deslizan
+OK   org_tabla_general @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_tabla_general @390: sombra de la columna fija
+OK   org_equipos_inscritos @390: sin desplazamiento lateral
+OK   org_equipos_inscritos @390: hay tablas que se deslizan
+OK   org_equipos_inscritos @390: «VFVentarrón FC» sigue a la vista al deslizar
+OK   org_equipos_inscritos @390: sombra de la columna fija
+OK   org_jugadores @390: sin desplazamiento lateral
+OK   org_jugadores @390: hay tablas que se deslizan
+OK   org_jugadores @390: «CMMendoza, Carlos» sigue a la vista al deslizar
+OK   org_jugadores @390: sombra de la columna fija
+OK   jugadores @390: «Doc. pendiente» en la lista
+OK   org_campeonatos @390: sin desplazamiento lateral
+OK   org_campeonatos @390: hay tablas que se deslizan
+OK   org_campeonatos @390: «Liga Barrial Recuspro» sigue a la vista al deslizar
+OK   org_campeonatos @390: sombra de la columna fija
+OK   organizador @390: goleadores conserva PJ y promedio
+OK   organizador @390: la nómina conserva la columna «Documento»
+OK   nómina @390: N.º de orden 1, 2, 3… en la primera columna
+OK   nómina @390: el dorsal en su propia columna
+OK   nómina @390: total de jugadores
+OK   org_nomina @390: sin desplazamiento lateral
+OK   sin errores (organizador) @390
+OK   dir_posiciones @1440: sin desplazamiento lateral
+OK   dirigente posiciones @1440: no pide nóminas de otros equipos
+OK   dir_goleadores @1440: sin desplazamiento lateral
+OK   dirigente goleadores @1440: no pide nóminas de otros equipos
+OK   dirigente goleadores @1440: sin PJ ni promedio
+OK   dirigente goleadores @1440: con jugador, equipo y goles
+OK   dirigente goleadores @1440: se ve el equipo del jugador
+OK   dirigente goleadores @1440: entra sin deslizar
+OK   dir_tarjetas @1440: sin desplazamiento lateral
+OK   dirigente tarjetas @1440: «JOJorge Ortiz» sigue a la vista al deslizar
+OK   dirigente tarjetas @1440: sombra de la columna fija
+OK   dirigente tarjetas @1440: no pide nóminas de otros equipos
+OK   tarjetas @1440: muestra «2/5» y «4/5»
+OK   tarjetas @1440: explica el historial y las acumuladas
+OK   dir_suspensiones @1440: sin desplazamiento lateral
+OK   dirigente suspensiones @1440: no pide nóminas de otros equipos
+OK   dir_nomina @1440: sin desplazamiento lateral
+OK   dirigente nomina @1440: no pide nóminas de otros equipos
+OK   nómina @1440: sin selector de equipo
+OK   nómina dirigente @1440: columnas «N.º» y «Dorsal» separadas
+OK   nómina dirigente @1440: total de jugadores
+OK   nómina @1440: muestra su equipo
+OK   nómina @1440: sin columna «Documento»
+OK   nómina @1440: ninguna cédula en pantalla
+OK   dirigente @1440: bloque «En vivo» en Mi equipo
+OK   dir_en_vivo @1440: sin desplazamiento lateral
+OK   dirigente jornadas @1440: se pueden abrir dos jornadas a la vez
+OK   dir_jornadas_dos_abiertas @1440: sin desplazamiento lateral
+OK   dirigente jornadas @1440: se contrae la jornada 1
+OK   sin errores (dirigente) @1440
+OK   org_reportes_posiciones @1440: sin desplazamiento lateral
+OK   org_tabla_general @1440: sin desplazamiento lateral
+OK   org_equipos_inscritos @1440: sin desplazamiento lateral
+OK   org_jugadores @1440: sin desplazamiento lateral
+OK   jugadores @1440: «Doc. pendiente» en la lista
+OK   org_campeonatos @1440: sin desplazamiento lateral
+OK   organizador @1440: goleadores conserva PJ y promedio
+OK   organizador @1440: la nómina conserva la columna «Documento»
+OK   nómina @1440: N.º de orden 1, 2, 3… en la primera columna
+OK   nómina @1440: el dorsal en su propia columna
+OK   nómina @1440: total de jugadores
+OK   org_nomina @1440: sin desplazamiento lateral
+OK   sin errores (organizador) @1440
+OK   dashboard @390: diez filas con goles (cinco partidos)
+OK   dashboard @390: goles alineados a la derecha
+OK   dashboard @390: nombres completos, sin recortar
+OK   dashboard @390: el nombre no toca los goles
+OK   dashboard @390: «10» entra en su columna
+OK   dashboard @390: sin desplazamiento lateral
+OK   sin errores (dashboard) @390
+OK   dashboard @1440: diez filas con goles (cinco partidos)
+OK   dashboard @1440: goles alineados a la derecha
+OK   dashboard @1440: nombres completos, sin recortar
+OK   dashboard @1440: el nombre no toca los goles
+OK   dashboard @1440: «10» entra en su columna
+OK   dashboard @1440: sin desplazamiento lateral
+OK   sin errores (dashboard) @1440
+OK   privacidad @390: la organización es la responsable
+OK   legal_privacidad @390: sin desplazamiento lateral
+OK   términos @390: responsabilidad exclusiva de la organización
+OK   legal_terminos @390: sin desplazamiento lateral
+OK   login @390: enlaces a privacidad y términos
+OK   registro @390: casilla de aceptación sin marcar
+OK   registro @390: sin desplazamiento lateral
+OK   sin errores (páginas públicas) @390
+OK   términos pendientes @390: no deja entrar sin aceptar
+OK   términos pendientes @390: el botón espera la casilla
+OK   terminos_pendientes @390: sin desplazamiento lateral
+OK   términos pendientes @390: al aceptar entra a la app
+OK   nuevo jugador @390: casilla de autorización obligatoria
+OK   nuevo_jugador @390: sin desplazamiento lateral
+OK   sin errores (organizador, términos) @390
+OK   posiciones @390: nota de responsabilidad
+OK   tarjetas @390: nota de responsabilidad
+OK   suspensiones @390: nota de responsabilidad
+OK   nota_suspensiones @390: sin desplazamiento lateral
+OK   sin errores (notas) @390
+OK   privacidad @1440: la organización es la responsable
+OK   legal_privacidad @1440: sin desplazamiento lateral
+OK   términos @1440: responsabilidad exclusiva de la organización
+OK   legal_terminos @1440: sin desplazamiento lateral
+OK   login @1440: enlaces a privacidad y términos
+OK   registro @1440: casilla de aceptación sin marcar
+OK   registro @1440: sin desplazamiento lateral
+OK   sin errores (páginas públicas) @1440
+OK   términos pendientes @1440: no deja entrar sin aceptar
+OK   términos pendientes @1440: el botón espera la casilla
+OK   terminos_pendientes @1440: sin desplazamiento lateral
+OK   términos pendientes @1440: al aceptar entra a la app
+OK   nuevo jugador @1440: casilla de autorización obligatoria
+OK   nuevo_jugador @1440: sin desplazamiento lateral
+OK   sin errores (organizador, términos) @1440
+OK   posiciones @1440: nota de responsabilidad
+OK   tarjetas @1440: nota de responsabilidad
+OK   suspensiones @1440: nota de responsabilidad
+OK   nota_suspensiones @1440: sin desplazamiento lateral
+OK   sin errores (notas) @1440
+OK   público @390: no pide iniciar sesión
+OK   público @390: abre la jornada en curso (2) y deja cerrada la 1
+OK   público @390: cabecera con jugados
+OK   público @390: bloque «En vivo» con el minuto del 2.º tiempo
+OK   público @390: minuto del 1.er tiempo con añadido
+OK   público @390: marcador en vivo y goleadores
+OK   público @390: roja por doble amarilla y gol en contra
+OK   público @390: terminado y por jugar
+OK   publico_en_vivo @390: sin desplazamiento lateral
+OK   público @390: aviso de medio tiempo
+OK   público @390: la tarjeta dice «Medio tiempo»
+OK   publico_medio_tiempo @390: sin desplazamiento lateral
+OK   publico_resultados_plegado @390: sin desplazamiento lateral
+OK   público @390: al abrir la jornada 1 se ve el marcador
+OK   público @390: nombres y goles completos (un equipo por línea)
+OK   público @390: goles en vivo alineados a la derecha
+OK   publico_una_linea @390: sin desplazamiento lateral
+OK   público @390: la jornada 2 se contrae
+OK   publico_resultados @390: sin desplazamiento lateral
+OK   publico_posiciones @390: sin desplazamiento lateral
+OK   público goleadores @390: sin PJ ni promedio
+OK   público goleadores @390: la columna Goles se ve sin deslizar
+OK   publico_goleadores @390: sin desplazamiento lateral
+OK   público @390: sin «Agregar sanción»
+OK   publico_suspensiones @390: sin desplazamiento lateral
+OK   público @390: no pide nóminas ni datos privados
+OK   público @390: no tiene pestaña de nómina
+OK   público @390: código inválido muestra «Enlace no disponible»
+OK   publico_invalido @390: sin desplazamiento lateral
+OK   sin errores (público) @390
+OK   organizador @390: crea el enlace público
+OK   organizador @390: botón de WhatsApp
+OK   organizador_enlace_publico @390: sin desplazamiento lateral
+OK   organizador @390: desactiva el enlace
+OK   sin errores (organizador, enlace) @390
+OK   público @1440: no pide iniciar sesión
+OK   público @1440: abre la jornada en curso (2) y deja cerrada la 1
+OK   público @1440: cabecera con jugados
+OK   público @1440: bloque «En vivo» con el minuto del 2.º tiempo
+OK   público @1440: minuto del 1.er tiempo con añadido
+OK   público @1440: marcador en vivo y goleadores
+OK   público @1440: roja por doble amarilla y gol en contra
+OK   público @1440: terminado y por jugar
+OK   publico_en_vivo @1440: sin desplazamiento lateral
+OK   público @1440: aviso de medio tiempo
+OK   público @1440: la tarjeta dice «Medio tiempo»
+OK   publico_medio_tiempo @1440: sin desplazamiento lateral
+OK   publico_resultados_plegado @1440: sin desplazamiento lateral
+OK   público @1440: al abrir la jornada 1 se ve el marcador
+OK   público @1440: nombres y goles completos (un equipo por línea)
+OK   público @1440: goles en vivo alineados a la derecha
+OK   publico_una_linea @1440: sin desplazamiento lateral
+OK   público @1440: la jornada 2 se contrae
+OK   publico_resultados @1440: sin desplazamiento lateral
+OK   publico_posiciones @1440: sin desplazamiento lateral
+OK   público goleadores @1440: sin PJ ni promedio
+OK   publico_goleadores @1440: sin desplazamiento lateral
+OK   público @1440: sin «Agregar sanción»
+OK   publico_suspensiones @1440: sin desplazamiento lateral
+OK   público @1440: no pide nóminas ni datos privados
+OK   público @1440: no tiene pestaña de nómina
+OK   público @1440: código inválido muestra «Enlace no disponible»
+OK   publico_invalido @1440: sin desplazamiento lateral
+OK   sin errores (público) @1440
+OK   organizador @1440: crea el enlace público
+OK   organizador @1440: botón de WhatsApp
+OK   organizador_enlace_publico @1440: sin desplazamiento lateral
+OK   organizador @1440: desactiva el enlace
+OK   sin errores (organizador, enlace) @1440
+OK   login @390: «Recordarme» sin marcar
+OK   login @390: sin desplazamiento lateral
+OK   login @390: sin «Recordarme» la sesión va en sessionStorage
+OK   login @390: envía recordarme=false
+OK   login @390: con «Recordarme» la sesión va en localStorage
+OK   sesión vencida @390: lleva al login y la borra
+OK   login @390: ofrece reenviar el correo
+OK   login_sin_confirmar @390: sin desplazamiento lateral
+OK   registro @390: pide revisar el correo
+OK   registro @390: reenviar espera un minuto
+OK   registro_revisa_correo @390: sin desplazamiento lateral
+OK   olvidé @390: respuesta genérica
+OK   olvide_clave @390: sin desplazamiento lateral
+OK   restablecer @390: enlace vencido ofrece pedir otro
+OK   restablecer @390: sin desplazamiento lateral
+OK   restablecer @390: guarda y entra
+OK   confirmar @390: confirma una sola vez y entra
+OK   sin errores (cuentas) @390
+OK   login @1440: «Recordarme» sin marcar
+OK   login @1440: sin desplazamiento lateral
+OK   login @1440: sin «Recordarme» la sesión va en sessionStorage
+OK   login @1440: envía recordarme=false
+OK   login @1440: con «Recordarme» la sesión va en localStorage
+OK   sesión vencida @1440: lleva al login y la borra
+OK   login @1440: ofrece reenviar el correo
+OK   login_sin_confirmar @1440: sin desplazamiento lateral
+OK   registro @1440: pide revisar el correo
+OK   registro @1440: reenviar espera un minuto
+OK   registro_revisa_correo @1440: sin desplazamiento lateral
+OK   olvidé @1440: respuesta genérica
+OK   olvide_clave @1440: sin desplazamiento lateral
+OK   restablecer @1440: enlace vencido ofrece pedir otro
+OK   restablecer @1440: sin desplazamiento lateral
+OK   restablecer @1440: guarda y entra
+OK   confirmar @1440: confirma una sola vez y entra
+OK   sin errores (cuentas) @1440
+
+Todo bien
