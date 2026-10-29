@@ -18,7 +18,7 @@ export default function OlvideClave() {
       const { data } = await api.post('/auth/olvide-clave', { email: email.trim() })
       setListo(data.mensaje)
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo enviar. Inténtalo en un momento.'))
+      setError(mensajeDeError(err, 'No se pudo enviar. Inténtelo en unos momentos.'))
     } finally {
       setEnviando(false)
     }
@@ -29,11 +29,11 @@ export default function OlvideClave() {
       {listo ? (
         <div role="status" className="space-y-3 text-sm text-gray-300">
           <p>{listo}</p>
-          <p className="text-gray-500">El enlace vale 1 hora. Si no llega, revisa que el correo esté bien escrito.</p>
+          <p className="text-gray-500">El enlace tiene una validez de 1 hora. Si no recibe el mensaje, verifique que la dirección de correo esté escrita correctamente.</p>
         </div>
       ) : (
         <form onSubmit={enviar} className="space-y-4">
-          <p className="text-sm text-gray-400">Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.</p>
+          <p className="text-sm text-gray-400">Escriba el correo de su cuenta y le enviaremos un enlace para elegir una nueva contraseña.</p>
           <div>
             <label htmlFor={`${fid}-email`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Correo electrónico</label>
             <input id={`${fid}-email`} type="email" required autoComplete="email" className="input-field"

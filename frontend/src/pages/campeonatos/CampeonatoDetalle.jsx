@@ -691,7 +691,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
               <label htmlFor={`${fid}-c13`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo que pierde por reglamento</label>
               <select id={`${fid}-c13`} className="input-field text-sm" value={idSancionado}
                 onChange={e => { setIdSancionado(e.target.value); setGuardadoOk(false) }}>
-                <option value="">Selecciona el equipo...</option>
+                <option value="">Seleccione el equipo...</option>
                 <option value={partido.idEquipoLocal}>{partido.equipoLocal}</option>
                 <option value={partido.idEquipoVisitante}>{partido.equipoVisitante}</option>
               </select>
@@ -699,7 +699,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
           )}
           <button
             onClick={() => {
-              if (perdidaReglamento && !idSancionado) { setError('Selecciona el equipo que pierde por reglamento.'); return }
+              if (perdidaReglamento && !idSancionado) { setError('Seleccione el equipo que pierde por reglamento.'); return }
               planillaMutation.mutate({
                 observaciones: observaciones.trim() || null,
                 desierto,
@@ -849,7 +849,7 @@ function PartidoCard({ partido, idCampeonato }) {
   const reabrir = async () => {
     const ok = await confirmar({
       titulo: '¿Reabrir el partido para el vocal?',
-      mensaje: 'El partido se desmarca como jugado y sale de la tabla de posiciones hasta que se vuelva a cerrar. El vocal podrá registrar otra vez. Para corregir algo puntual, usa la planilla sin reabrirlo.',
+      mensaje: 'El partido se desmarca como jugado y sale de la tabla de posiciones hasta que se vuelva a cerrar. El vocal podrá registrar otra vez. Para corregir algo puntual, use la planilla sin reabrirlo.',
       textoConfirmar: 'Reabrir',
     })
     if (ok) reabrirMutation.mutate()
@@ -1291,7 +1291,7 @@ function GenerarCalendarioModal({ isOpen, onClose, title, postUrl, minFecha, max
             className="w-4 h-4 accent-brand-400" />
           <div>
             <label htmlFor={`${fid}-idayvuelta`} className="text-white text-sm cursor-pointer">Ida y vuelta</label>
-            <p className="text-gray-500 text-xs">Genera dos rondas: en la segunda se invierten local y visitante.</p>
+            <p className="text-gray-500 text-xs">Se generan dos rondas: en la segunda se invierten local y visitante.</p>
           </div>
         </div>
         {error && <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400 rounded-lg px-4 py-3 text-sm">{error}</div>}
@@ -1786,7 +1786,7 @@ export default function CampeonatoDetalle() {
               <Medal size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto mb-3 text-gray-600" />
               <p className="text-gray-400 text-sm">No hay grupos creados.</p>
               <p className="text-gray-600 text-xs mt-1">
-                Crea grupos si vas a dividir por fases, o genera directamente el calendario de todos contra todos sin grupos.
+                Cree grupos si va a dividir el campeonato por fases, o genere directamente el calendario de todos contra todos sin grupos.
               </p>
               <button
                 onClick={() => setShowCalendarioCampeonatoModal(true)}
@@ -1821,7 +1821,7 @@ export default function CampeonatoDetalle() {
             <div className="card text-center py-12">
               <CalendarDays size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto mb-3 text-gray-600" />
               <p className="text-gray-400 text-sm">No hay jornadas creadas.</p>
-              <p className="text-gray-600 text-xs mt-1">Crea jornadas manualmente o genera el calendario desde la pestaña Grupos.</p>
+              <p className="text-gray-600 text-xs mt-1">Cree jornadas manualmente o genere el calendario desde la pestaña Grupos.</p>
             </div>
           ) : (
             <div className="space-y-3">

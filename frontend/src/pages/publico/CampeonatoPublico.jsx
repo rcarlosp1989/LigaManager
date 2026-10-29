@@ -49,7 +49,7 @@ export default function CampeonatoPublico() {
           <p className="py-10 text-center text-gray-400">Cargando el campeonato...</p>
         ) : noExiste ? (
           <EmptyState icon={Link2Off} title="Enlace no disponible"
-            description="Este enlace no existe o la organización lo desactivó. Pide el enlace actualizado a la organización del campeonato." />
+            description="Este enlace no existe o la organización lo desactivó. Solicite el enlace actualizado a la organización del campeonato." />
         ) : q.isError ? (
           <EstadoError mensaje="No se pudo cargar el campeonato." onReintentar={q.refetch} reintentando={q.isFetching} />
         ) : (

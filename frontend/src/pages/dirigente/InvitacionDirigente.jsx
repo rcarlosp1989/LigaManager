@@ -43,7 +43,7 @@ function EscribirCodigo({ onListo }) {
   return (
     <form onSubmit={e => { e.preventDefault(); if (limpio.length >= 10) onListo(limpio) }} className="space-y-4">
       <h2 className="text-white font-semibold text-lg">Código de dirigente</h2>
-      <p className="text-gray-400 text-sm">Escribe el código que te envió el organizador del campeonato.</p>
+      <p className="text-gray-400 text-sm">Escriba el código que le envió el organizador del campeonato.</p>
       <div>
         <label htmlFor={`${fid}-codigo`} className={labelClass}>Código</label>
         <input id={`${fid}-codigo`} className="input-field font-mono tracking-widest uppercase" autoComplete="off"
@@ -99,11 +99,11 @@ function DetalleInvitacion({ codigo }) {
     <div className="space-y-5">
       <div>
         <h2 className="text-white font-semibold text-lg leading-snug">
-          {inv.organizador} te invita como dirigente de {inv.equipo} en «{inv.campeonato}»
+          {inv.organizador} le invita como dirigente de {inv.equipo} en «{inv.campeonato}»
         </h2>
         <p className="text-gray-400 text-sm mt-2">
-          Podrás ver el campeonato desde tu cuenta: jornadas, posiciones, la nómina de tu equipo, goleadores, tarjetas y suspensiones.
-          No podrás cambiar nada.
+          Podrá ver el campeonato desde su cuenta: jornadas, posiciones, la nómina de su equipo, goleadores, tarjetas y suspensiones.
+          No podrá modificar nada.
         </p>
         {inv.vigente && <p className="text-gray-500 text-xs mt-2">La invitación sirve una sola vez y vence el {formatearFecha(inv.venceEn)}.</p>}
       </div>
@@ -139,7 +139,7 @@ function DetalleInvitacion({ codigo }) {
           </div>
           {modo === 'nueva' && (
             <div>
-              <label htmlFor={`${fid}-nombre`} className={labelClass}>Tu nombre</label>
+              <label htmlFor={`${fid}-nombre`} className={labelClass}>Su nombre</label>
               <input id={`${fid}-nombre`} className="input-field" autoComplete="name" value={form.nombre} onChange={e => set('nombre', e.target.value)} />
             </div>
           )}

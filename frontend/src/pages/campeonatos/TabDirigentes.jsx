@@ -71,7 +71,7 @@ export default function TabDirigentes({ camp }) {
 
       {idEquipo === null && (
         equipos.length === 0
-          ? <p className="text-sm text-gray-500">Primero inscribe equipos en el campeonato.</p>
+          ? <p className="text-sm text-gray-500">Primero inscriba equipos en el campeonato.</p>
           : <div><button type="button" onClick={abrir} className="btn-primary">+ Invitar dirigente</button></div>
       )}
 

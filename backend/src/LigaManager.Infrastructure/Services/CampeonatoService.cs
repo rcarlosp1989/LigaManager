@@ -149,7 +149,7 @@ public class CampeonatoService : ICampeonatoService
 
         var equipoPropio = await _db.Equipos
             .AnyAsync(e => e.IdEquipo == idEquipo && e.IdUsuarioCreador == UsuarioActualId);
-        if (!equipoPropio) return ServiceResult.Fail("El equipo no pertenece a tu organización.");
+        if (!equipoPropio) return ServiceResult.Fail("El equipo no pertenece a su organización.");
 
         var existe = await _db.CampeonatoEquipos
             .AnyAsync(ce => ce.IdCampeonato == idCampeonato && ce.IdEquipo == idEquipo);

@@ -65,13 +65,13 @@ export default function TabNomina({
           // Dirigente: solo la nómina de su equipo, sin selector.
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</p>
-            <p className="text-white font-medium">{equipoNombre ?? 'Tu equipo'}</p>
+            <p className="text-white font-medium">{equipoNombre ?? 'Su equipo'}</p>
           </div>
         ) : (
         <div>
           <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Equipo</label>
           <select id={`${fid}-c1`} className="input-field w-64" value={idEquipo} onChange={e => setIdEquipo(e.target.value)}>
-            <option value="">Selecciona un equipo...</option>
+            <option value="">Seleccione un equipo...</option>
             {equipos.map(e => <option key={e.idEquipo} value={e.idEquipo}>{e.nombre}</option>)}
           </select>
           {errorEquipos && (
@@ -96,7 +96,7 @@ export default function TabNomina({
       </div>
 
       {!idEquipo && (
-        <EmptyState icon={ClipboardList} title="Elige un equipo" description="Selecciona un equipo inscrito en este campeonato para ver su nómina." />
+        <EmptyState icon={ClipboardList} title="Elija un equipo" description="Seleccione un equipo inscrito en este campeonato para ver su nómina." />
       )}
 
       {idEquipo && isLoading && (

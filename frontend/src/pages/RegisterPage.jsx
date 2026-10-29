@@ -21,10 +21,10 @@ export default function RegisterPage() {
     setError('')
 
     if (!form.nombre.trim())          return setError('El nombre es obligatorio.')
-    if (!emailValido(form.email))     return setError('Ingresa un email válido.')
+    if (!emailValido(form.email))     return setError('Ingrese un correo electrónico válido.')
     if (form.password.length < 6)     return setError('La contraseña debe tener al menos 6 caracteres.')
     if (form.password !== form.confirmar) return setError('Las contraseñas no coinciden.')
-    if (!form.acepto) return setError('Para crear la cuenta debes aceptar los términos de uso y el aviso de privacidad.')
+    if (!form.acepto) return setError('Para crear la cuenta debe aceptar los términos de uso y el aviso de privacidad.')
 
     setLoading(true)
     try {
@@ -61,11 +61,11 @@ export default function RegisterPage() {
                         shadow-2xl shadow-black/50">
           {porConfirmar ? (
             <div role="status" className="space-y-4">
-              <h2 className="text-white font-semibold text-lg">Revisa tu correo</h2>
+              <h2 className="text-white font-semibold text-lg">Revise su correo</h2>
               <p className="text-sm text-gray-300">
-                Te enviamos un correo a <strong className="text-white break-all">{porConfirmar}</strong>. Abre el enlace para activar tu cuenta.
+                Le enviamos un correo a <strong className="text-white break-all">{porConfirmar}</strong>. Abra el enlace para activar su cuenta.
               </p>
-              <p className="text-sm text-gray-500">Si no aparece en unos minutos, revisa Spam o Promociones. El enlace vale 24 horas.</p>
+              <p className="text-sm text-gray-500">Si no lo recibe en unos minutos, revise también las carpetas de correo no deseado (Spam) y Promociones. El enlace tiene una validez de 24 horas.</p>
               <ReenviarConfirmacion email={porConfirmar} />
               <Link to="/login" className="block text-center text-sm text-brand-400 hover:text-brand-300">Ir a iniciar sesión</Link>
             </div>
@@ -75,7 +75,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Nombre</label>
-              <input id={`${fid}-c1`} className="input-field" placeholder="Tu nombre" value={form.nombre}
+              <input id={`${fid}-c1`} className="input-field" placeholder="Su nombre" value={form.nombre}
                 onChange={e => set('nombre', e.target.value)} maxLength={100} required autoFocus />
             </div>
             <div>
@@ -90,7 +90,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label htmlFor={`${fid}-c4`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Confirmar contraseña</label>
-              <input id={`${fid}-c4`} type="password" className="input-field" placeholder="Repite la contraseña" value={form.confirmar}
+              <input id={`${fid}-c4`} type="password" className="input-field" placeholder="Repita la contraseña" value={form.confirmar}
                 onChange={e => set('confirmar', e.target.value)} required />
             </div>
 
@@ -118,8 +118,8 @@ export default function RegisterPage() {
           </>)}
 
           <p className="text-gray-500 text-sm text-center mt-6">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-brand-400 hover:text-brand-300">Inicia sesión</Link>
+            ¿Ya tiene una cuenta?{' '}
+            <Link to="/login" className="text-brand-400 hover:text-brand-300">Inicie sesión</Link>
           </p>
           <p className="text-gray-600 text-xs text-center mt-4">
             <Link to="/privacidad" className="hover:text-gray-400">Aviso de privacidad</Link>{' · '}

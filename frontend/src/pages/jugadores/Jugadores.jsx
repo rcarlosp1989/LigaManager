@@ -297,7 +297,7 @@ export default function Jugadores() {
       setEditModal(true)
       setEditError('')
     } catch (err) {
-      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del jugador. Inténtalo de nuevo.'))
+      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del jugador. Inténtelo de nuevo.'))
     } finally {
       setAbriendo(null)
     }
@@ -332,7 +332,7 @@ export default function Jugadores() {
         <EstadoError mensaje="No se pudieron cargar los jugadores." onReintentar={refetch} reintentando={isFetching} />
       ) : sinJugadores ? (
         <EmptyState icon={User} title="Sin jugadores"
-          description="Registra el primer jugador del sistema."
+          description="Registre el primer jugador del sistema."
           action={
             <button onClick={() => setModal(true)} className="btn-primary">
               Registrar jugador

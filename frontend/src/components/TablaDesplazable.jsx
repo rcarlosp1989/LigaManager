@@ -61,7 +61,7 @@ export default function TablaDesplazable({ children, className = '' }) {
       {lados.der && !deslizada && (
         <span aria-hidden="true"
           className="pointer-events-none absolute right-2 top-1.5 hidden [@media(pointer:coarse)]:flex items-center gap-0.5 rounded-full border border-brand-500/40 bg-gray-950/90 px-2 py-0.5 text-[11px] font-medium text-brand-300 shadow">
-          Desliza <ChevronsRight size={12} />
+          Deslice <ChevronsRight size={12} />
         </span>
       )}
     </div>

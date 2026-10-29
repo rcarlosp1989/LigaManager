@@ -9,7 +9,7 @@ export const TIPOS_DOCUMENTO = [
 
 // Jugador registrado sin documento: se guarda sin número y se completa después.
 // Solo para jugadores (los oficiales ya pueden guardarse sin documento).
-export const TIPO_PENDIENTE = { valor: 'Pendiente', texto: 'Documento pendiente', corto: 'Pendiente', ayuda: 'Se guarda sin número; complétalo cuando lo tengas.', ejemplo: '' }
+export const TIPO_PENDIENTE = { valor: 'Pendiente', texto: 'Documento pendiente', corto: 'Pendiente', ayuda: 'Se guarda sin número; complételo cuando lo tenga.', ejemplo: '' }
 
 export const tipoDocumento = (valor) => (valor === 'Pendiente' ? TIPO_PENDIENTE : TIPOS_DOCUMENTO.find(t => t.valor === valor) ?? TIPOS_DOCUMENTO[0])
 
@@ -40,10 +40,10 @@ export function cedulaEcuatorianaValida(c) {
 export function errorDocumento(tipo, numero) {
   if (tipo === 'Pendiente') return null
   const n = (numero ?? '').trim()
-  if (!n) return 'Escribe el número de documento.'
+  if (!n) return 'Escriba el número de documento.'
   if (tipo === 'Cedula') {
     if (!/^\d{10}$/.test(n)) return 'La cédula debe tener exactamente 10 números.'
-    if (!cedulaEcuatorianaValida(n)) return 'La cédula no es válida: revisa los números.'
+    if (!cedulaEcuatorianaValida(n)) return 'La cédula no es válida: revise los números.'
     return null
   }
   if (tipo === 'Extranjero') return /^\d{5,15}$/.test(n) ? null : 'El documento extranjero debe tener solo números, entre 5 y 15.'

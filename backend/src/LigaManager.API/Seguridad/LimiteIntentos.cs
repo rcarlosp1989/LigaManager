@@ -70,7 +70,7 @@ public sealed class LimitarIntentosAttribute : Attribute, IAsyncResourceFilter
             ctx.HttpContext.Response.Headers.RetryAfter = ((int)Math.Ceiling(falta.TotalSeconds)).ToString();
             ctx.Result = new ObjectResult(new
             {
-                error = $"Demasiados intentos fallidos. Espera {minutos} {(minutos == 1 ? "minuto" : "minutos")} e inténtalo de nuevo."
+                error = $"Demasiados intentos fallidos. Espere {minutos} {(minutos == 1 ? "minuto" : "minutos")} e inténtelo de nuevo."
             }) { StatusCode = StatusCodes.Status429TooManyRequests };
             return;
         }

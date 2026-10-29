@@ -29,7 +29,7 @@ export default function CampoDocumento({ tipo, numero, onChange, opcional = fals
       </div>
       {pendiente ? (
         <p className="self-end rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-200">
-          Se guarda sin número. En la nómina aparecerá «Pendiente» hasta que lo completes con Editar.
+          Se guarda sin número. En la nómina aparecerá «Pendiente» hasta que lo complete con «Editar».
         </p>
       ) : (
       <div>

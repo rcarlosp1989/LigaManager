@@ -52,7 +52,7 @@ export default function Restablecer() {
   }
 
   return (
-    <PantallaCuenta titulo="Elige tu contraseña nueva">
+    <PantallaCuenta titulo="Elija su nueva contraseña">
       <form onSubmit={guardar} className="space-y-4">
         <div>
           <label htmlFor={`${fid}-p1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Contraseña nueva (mínimo 6 caracteres)</label>
@@ -60,7 +60,7 @@ export default function Restablecer() {
             value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} autoFocus />
         </div>
         <div>
-          <label htmlFor={`${fid}-p2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Repite la contraseña</label>
+          <label htmlFor={`${fid}-p2`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Repita la contraseña</label>
           <input id={`${fid}-p2`} type="password" required autoComplete="new-password" className="input-field"
             value={form.confirmar} onChange={e => setForm(f => ({ ...f, confirmar: e.target.value }))} />
         </div>

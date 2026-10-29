@@ -49,9 +49,9 @@ export default function InicioVocal() {
 
       <main className="mx-auto max-w-2xl space-y-8 px-4 pb-16 pt-5">
         {q.isLoading ? (
-          <p className="py-10 text-center text-gray-300">Cargando tus partidos...</p>
+          <p className="py-10 text-center text-gray-300">Cargando sus partidos...</p>
         ) : q.isError && !datos ? (
-          <EstadoError mensaje="No se pudieron cargar tus partidos." onReintentar={q.refetch} reintentando={q.isFetching} />
+          <EstadoError mensaje="No se pudieron cargar sus partidos." onReintentar={q.refetch} reintentando={q.isFetching} />
         ) : (
           <>
             {sinSenal && (
@@ -68,7 +68,7 @@ export default function InicioVocal() {
               <p className="mb-4 text-sm text-gray-300">{formatearFecha(datos.hoy)}</p>
               {datos.partidosHoy.length === 0 ? (
                 <p className="rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-6 text-center text-gray-200">
-                  No tienes partidos para registrar hoy.
+                  No tiene partidos para registrar hoy.
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -88,9 +88,9 @@ export default function InicioVocal() {
             )}
 
             <section aria-labelledby="camps-titulo">
-              <h2 id="camps-titulo" className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-300">Tus campeonatos</h2>
+              <h2 id="camps-titulo" className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-300">Sus campeonatos</h2>
               {datos.campeonatos.length === 0 ? (
-                <p className="text-sm text-gray-300">No estás habilitado en ningún campeonato vigente. Pide una invitación al organizador.</p>
+                <p className="text-sm text-gray-300">No está habilitado en ningún campeonato vigente. Solicite una invitación al organizador.</p>
               ) : (
                 <ul className="space-y-3">
                   {datos.campeonatos.map(c => <TarjetaCampeonato key={`${c.idCampeonato}-${c.tipo}-${c.soloFecha ?? ''}`} campeonato={c} hoy={datos.hoy} />)}
@@ -160,7 +160,7 @@ function TarjetaCampeonato({ campeonato: c, hoy }) {
       {titular && abierto && !delegar.data && (
         <form className="mt-3 space-y-3" onSubmit={e => { e.preventDefault(); delegar.mutate() }}>
           <div>
-            <label htmlFor={`${fid}-fecha`} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-300">Día que no puedes ir</label>
+            <label htmlFor={`${fid}-fecha`} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-300">Día en que no puede asistir</label>
             <input id={`${fid}-fecha`} type="date" className="input-field" value={fecha} min={hoy} max={c.fechaFin} required
               onChange={e => setFecha(e.target.value)} />
           </div>

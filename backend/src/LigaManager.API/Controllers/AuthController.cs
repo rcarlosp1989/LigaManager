@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
         if (result.Success) return Ok(result.Data);
         // Organizador sin confirmar el correo: 403 con un código para que la pantalla ofrezca reenviarlo.
         if (result.Error == Infrastructure.Services.AuthService.ErrorCorreoSinConfirmar)
-            return StatusCode(403, new { error = "Confirma tu correo para entrar. Revisa tu bandeja de entrada (y Spam o Promociones).", codigo = result.Error });
+            return StatusCode(403, new { error = "Confirme su correo para ingresar. Revise su bandeja de entrada y también las carpetas de correo no deseado (Spam) y Promociones.", codigo = result.Error });
         return BadRequest(new { error = result.Error });
     }
 
@@ -45,7 +45,7 @@ public class AuthController : ControllerBase
     [HttpGet("opciones")]
     public IActionResult Opciones() => Ok(_auth.Opciones());
 
-    private const string Generico = "Si el correo está registrado, te llegará un mensaje en unos minutos. Revisa también Spam o Promociones.";
+    private const string Generico = "Si el correo se encuentra registrado, recibirá un mensaje en los próximos minutos. Le recomendamos revisar también las carpetas de correo no deseado (Spam) y Promociones.";
 
     [AllowAnonymous]
     [LimitarIntentos("correo")]

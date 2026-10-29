@@ -43,7 +43,7 @@ function EscribirCodigo({ onListo }) {
   return (
     <form onSubmit={e => { e.preventDefault(); if (limpio.length >= 10) onListo(limpio) }} className="space-y-4">
       <h2 className="text-white font-semibold text-lg">Código de vocal</h2>
-      <p className="text-gray-400 text-sm">Escribe el código que te dio el organizador o el vocal titular.</p>
+      <p className="text-gray-400 text-sm">Escriba el código que le entregó el organizador o el vocal titular.</p>
       <div>
         <label htmlFor={`${fid}-codigo`} className={labelClass}>Código</label>
         <input id={`${fid}-codigo`} className="input-field font-mono tracking-widest uppercase" autoComplete="off"
@@ -96,14 +96,14 @@ function DetalleInvitacion({ codigo }) {
   const inv = q.data
   const titular = inv.tipo === 'Titular'
   const alcance = titular
-    ? 'Podrás registrar los partidos de este campeonato mientras dure, cada uno el día que se juega.'
-    : `Podrás registrar los partidos del ${formatearFecha(inv.soloFecha)} como reemplazo.`
+    ? 'Podrá registrar los partidos de este campeonato mientras dure, cada uno el día en que se juega.'
+    : `Podrá registrar los partidos del ${formatearFecha(inv.soloFecha)} como reemplazo.`
 
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-white font-semibold text-lg leading-snug">
-          {inv.organizador} te invita como vocal{titular ? '' : ' (reemplazo)'} de «{inv.campeonato}»
+          {inv.organizador} le invita como vocal{titular ? '' : ' (reemplazo)'} de «{inv.campeonato}»
         </h2>
         <p className="text-gray-400 text-sm mt-2">{alcance}</p>
         {inv.vigente && <p className="text-gray-500 text-xs mt-2">La invitación sirve una sola vez y vence el {formatearFecha(inv.venceEn)}.</p>}
@@ -140,7 +140,7 @@ function DetalleInvitacion({ codigo }) {
           </div>
           {modo === 'nueva' && (
             <div>
-              <label htmlFor={`${fid}-nombre`} className={labelClass}>Tu nombre</label>
+              <label htmlFor={`${fid}-nombre`} className={labelClass}>Su nombre</label>
               <input id={`${fid}-nombre`} className="input-field" autoComplete="name" value={form.nombre} onChange={e => set('nombre', e.target.value)} />
             </div>
           )}

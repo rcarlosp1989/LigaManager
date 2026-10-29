@@ -234,7 +234,7 @@ public class GrupoService : IGrupoService
         if (grupo is null) return ServiceResult<string>.Fail("Grupo no encontrado.");
         if (grupo.Equipos.Count < 2) return ServiceResult<string>.Fail("El grupo debe tener al menos 2 equipos.");
         var yaTieneCalendario = grupo.Jornadas.Any() || await _db.Partidos.AnyAsync(p => p.IdGrupo == idGrupo);
-        if (yaTieneCalendario) return ServiceResult<string>.Fail("El grupo ya tiene un calendario generado. Elimina sus partidos primero.");
+        if (yaTieneCalendario) return ServiceResult<string>.Fail("El grupo ya tiene un calendario generado. Elimine sus partidos primero.");
 
         var equipoIds = grupo.Equipos.Select(ge => ge.IdEquipo).ToList();
         return await GenerarCalendarioInternoAsync(grupo.Campeonato, idGrupo, equipoIds, req);
@@ -250,7 +250,7 @@ public class GrupoService : IGrupoService
 
         if (campeonato is null) return ServiceResult<string>.Fail("Campeonato no encontrado.");
         if (campeonato.Grupos.Any())
-            return ServiceResult<string>.Fail("Este campeonato usa grupos: genera el calendario desde la pestaña Grupos.");
+            return ServiceResult<string>.Fail("Este campeonato usa grupos: genere el calendario desde la pestaña Grupos.");
         if (campeonato.Equipos.Count < 2)
             return ServiceResult<string>.Fail("El campeonato debe tener al menos 2 equipos inscritos.");
 

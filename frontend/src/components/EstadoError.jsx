@@ -4,7 +4,7 @@ import { AlertTriangle, RotateCw } from 'lucide-react'
 // compacto: versión en línea para formularios y secciones pequeñas.
 export default function EstadoError({
   mensaje = 'No se pudieron cargar los datos.',
-  detalle = 'Revisa tu conexión e inténtalo de nuevo.',
+  detalle = 'Revise su conexión e inténtelo de nuevo.',
   onReintentar,
   reintentando = false,
   compacto = false,

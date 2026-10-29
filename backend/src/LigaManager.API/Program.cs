@@ -110,7 +110,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ctx.Response.StatusCode  = 403;
                 ctx.Response.ContentType = "application/json";
                 return ctx.Response.WriteAsync(
-                    "{\"error\":\"No tienes permiso para esta acción.\"}");
+                    "{\"error\":\"No tiene permiso para realizar esta acción.\"}");
             },
             // Al cambiar la contraseña se cierran todas las sesiones: un token emitido antes del cambio,
             // o de una cuenta desactivada, deja de valer.
@@ -128,7 +128,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     long.TryParse(ctx.Principal!.FindFirst(AuthService.ClaimEmitido)?.Value, out var emitido);
                     var cambioUnix = new DateTimeOffset(DateTime.SpecifyKind(cambio, DateTimeKind.Utc)).ToUnixTimeSeconds();
-                    if (emitido < cambioUnix) ctx.Fail("La contraseña cambió: inicia sesión de nuevo.");
+                    if (emitido < cambioUnix) ctx.Fail("La contraseña cambió: inicie sesión nuevamente.");
                 }
             },
             OnChallenge = ctx =>
@@ -261,7 +261,7 @@ app.Use(async (ctx, next) =>
             ctx.Response.ContentType = "application/json";
             await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
             {
-                error = "Ya existe un registro con esos mismos datos. Revisa la lista: puede que ya esté guardado."
+                error = "Ya existe un registro con esos mismos datos. Revise la lista: es posible que ya esté guardado."
             }));
             return;
         }
@@ -272,7 +272,7 @@ app.Use(async (ctx, next) =>
         ctx.Response.ContentType = "application/json";
         await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
         {
-            error = peticion?.Message ?? "Ocurrió un error inesperado. Inténtalo de nuevo; si sigue pasando, avisa al administrador."
+            error = peticion?.Message ?? "Ocurrió un error inesperado. Inténtelo de nuevo; si el problema continúa, comuníquese con el administrador."
         }));
     }
 });
