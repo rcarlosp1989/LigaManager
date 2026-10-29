@@ -65,7 +65,7 @@ public class DirigenteService
         var equipo = await _db.CampeonatoEquipos
             .Where(ce => ce.IdCampeonato == idCampeonato && ce.IdEquipo == req.IdEquipo)
             .Select(ce => ce.Equipo.Nombre).FirstOrDefaultAsync();
-        if (equipo is null) return ServiceResult<InvitacionDirigenteCreadaDto>.Fail("Elige un equipo inscrito en este campeonato.");
+        if (equipo is null) return ServiceResult<InvitacionDirigenteCreadaDto>.Fail("Elija un equipo inscrito en este campeonato.");
 
         var codigo = NuevoCodigo();
         var inv = new InvitacionDirigente
@@ -139,7 +139,7 @@ public class DirigenteService
         if (inv is null) return (null, "El código no es válido.");
         if (inv.Revocada) return (inv, "Esta invitación fue anulada por el organizador.");
         if (inv.UsadaPor != null) return (inv, "Esta invitación ya se usó.");
-        if (inv.VenceEn <= DateTime.UtcNow) return (inv, "Esta invitación venció. Pide al organizador una nueva.");
+        if (inv.VenceEn <= DateTime.UtcNow) return (inv, "Esta invitación venció. Solicite una nueva al organizador.");
         return (inv, null);
     }
 
@@ -164,7 +164,7 @@ public class DirigenteService
             usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == yo && u.Activo);
             if (usuario is null) return ServiceResult<LoginResponse>.Fail("Sesión no válida.");
             if (usuario.Rol != RolUsuario.Dirigente)
-                return ServiceResult<LoginResponse>.Fail("Esta invitación es para una cuenta de dirigente. Cierra sesión y entra con otra cuenta, o crea una nueva.");
+                return ServiceResult<LoginResponse>.Fail("Esta invitación es para una cuenta de dirigente. Cierre sesión e ingrese con otra cuenta, o cree una nueva.");
         }
         else
         {
@@ -179,12 +179,12 @@ public class DirigenteService
                 if (!usuario.Activo || !BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash))
                     return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email y la contraseña no coincide.");
                 if (usuario.Rol != RolUsuario.Dirigente)
-                    return ServiceResult<LoginResponse>.Fail("Ese email ya pertenece a otra cuenta (organizador o vocal). Usa otro email para la cuenta de dirigente.");
+                    return ServiceResult<LoginResponse>.Fail("Ese correo ya pertenece a otra cuenta (organizador o vocal). Use otro correo para la cuenta de dirigente.");
             }
             else
             {
                 var nombre = req.Nombre?.Trim() ?? "";
-                if (nombre.Length == 0) return ServiceResult<LoginResponse>.Fail("Escribe tu nombre para crear la cuenta.");
+                if (nombre.Length == 0) return ServiceResult<LoginResponse>.Fail("Escriba su nombre para crear la cuenta.");
                 if (nombre.Length > 100 || email.Length > 150) return ServiceResult<LoginResponse>.Fail("Nombre o email demasiado largos.");
                 if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     return ServiceResult<LoginResponse>.Fail("El email no es válido.");
@@ -276,7 +276,7 @@ public class DirigenteService
         if (await _acceso.EquipoDelDirigenteAsync(idCampeonato) is not int propio)
             return ServiceResult<EquipoDetalleDto>.Fail("Campeonato no encontrado.");
         if (idEquipo != propio)
-            return ServiceResult<EquipoDetalleDto>.Fail("Solo puedes ver la nómina de tu equipo.");
+            return ServiceResult<EquipoDetalleDto>.Fail("Solo puede ver la nómina de su equipo.");
 
         var e = await _db.Equipos.Include(x => x.Pais).FirstAsync(x => x.IdEquipo == idEquipo);
         var jugadores = await _db.JugadorEquipos

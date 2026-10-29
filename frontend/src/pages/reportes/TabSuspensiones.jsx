@@ -52,7 +52,7 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
   })
 
   const submit = () => {
-    if (!form.idJugador) { setError('Selecciona un jugador.'); return }
+    if (!form.idJugador) { setError('Seleccione un jugador.'); return }
     if (!form.motivo.trim()) { setError('El motivo es obligatorio.'); return }
     agregarMutation.mutate({
       idJugador: parseInt(form.idJugador),

@@ -137,7 +137,7 @@ public class EquipoService : IEquipoService
     {
         var equipo = await _db.Equipos.FirstOrDefaultAsync(e => e.IdEquipo == id && e.IdUsuarioCreador == UsuarioActualId);
         if (equipo is null) return ServiceResult<EquipoDetalleDto>.Fail("Equipo no encontrado.");
-        if (datos.Length == 0) return ServiceResult<EquipoDetalleDto>.Fail("Elige una imagen para el logo.");
+        if (datos.Length == 0) return ServiceResult<EquipoDetalleDto>.Fail("Elija una imagen para el logo.");
         if (datos.Length > MaxBytesLogo) return ServiceResult<EquipoDetalleDto>.Fail("El logo no puede pesar más de 300 KB.");
         var tipo = ArchivoImagen.TipoMime(datos);
         if (tipo is null) return ServiceResult<EquipoDetalleDto>.Fail("El archivo no es una imagen JPG, PNG o WEBP válida.");

@@ -78,12 +78,12 @@ public class ArbitroService : IArbitroService
         {
             var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
             if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
-            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deja el número vacío.");
+            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deje el número vacío.");
             tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
             cedula  = doc.Numero;
             if (await _db.Arbitros.AnyAsync(a => a.IdUsuarioCreador == UsuarioActualId
                     && a.Persona.Cedula == cedula && a.Persona.TipoIdentificacion == tipoDoc))
-                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes un árbitro registrado con ese documento.");
+                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tiene un árbitro registrado con ese documento.");
         }
 
         var persona = new Persona
@@ -126,11 +126,11 @@ public class ArbitroService : IArbitroService
         {
             var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
             if (doc.Error is not null) return ServiceResult<ArbitroDetalleDto>.Fail(doc.Error);
-            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deja el número vacío.");
+            if (doc.Tipo == "Pendiente") return ServiceResult<ArbitroDetalleDto>.Fail("Para un oficial sin documento, deje el número vacío.");
             var tipoDoc = Enum.Parse<TipoIdentificacion>(doc.Tipo);
             if (await _db.Arbitros.AnyAsync(x => x.IdArbitro != id && x.IdUsuarioCreador == UsuarioActualId
                     && x.Persona.Cedula == doc.Numero && x.Persona.TipoIdentificacion == tipoDoc))
-                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tienes otro árbitro registrado con ese documento.");
+                return ServiceResult<ArbitroDetalleDto>.Fail("Ya tiene otro árbitro registrado con ese documento.");
             a.Persona.Cedula = doc.Numero;
             a.Persona.TipoIdentificacion = tipoDoc;
         }

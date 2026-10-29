@@ -39,7 +39,7 @@ export default function CampoLogo({ nombre, logoActual, valor, onChange, onProce
     try {
       const archivo = await achicarImagen(original, LADO_LOGO)
       if (archivo.size > MAX_LOGO_BYTES) {
-        setError('La imagen es muy pesada. Prueba con otra (máximo 300 KB).')
+        setError('La imagen es demasiado pesada. Pruebe con otra (máximo 300 KB).')
         return
       }
       ponerVista(archivo)

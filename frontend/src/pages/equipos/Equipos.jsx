@@ -131,7 +131,7 @@ export default function Equipos() {
       setFormError('')
       setModal({ editar: data })
     } catch (err) {
-      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del equipo. Inténtalo de nuevo.'))
+      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del equipo. Inténtelo de nuevo.'))
     } finally {
       setAbriendo(null)
     }
@@ -174,7 +174,7 @@ export default function Equipos() {
         <EstadoError mensaje="No se pudieron cargar los equipos." onReintentar={refetch} reintentando={isFetching} />
       ) : equipos.length === 0 ? (
         <EmptyState icon={Shield} title="Sin equipos"
-          description="Registra el primer equipo para comenzar."
+          description="Registre el primer equipo para comenzar."
           action={
             <button onClick={() => setModal('crear')} className="btn-primary">
               Crear equipo

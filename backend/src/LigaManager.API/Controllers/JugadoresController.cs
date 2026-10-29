@@ -90,7 +90,7 @@ public class JugadoresController : ControllerBase
     {
         if (photo is null || photo.Length == 0) return null;
         if (photo.Length > 1024 * 1024)
-            throw new BadHttpRequestException("La foto no puede superar 1 MB. La app la achica sola: vuelve a elegirla.");
+            throw new BadHttpRequestException("La foto no puede superar 1 MB. La aplicación la reduce automáticamente: vuelva a elegirla.");
 
         var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
         if (!allowed.Contains(Path.GetExtension(photo.FileName).ToLowerInvariant()))

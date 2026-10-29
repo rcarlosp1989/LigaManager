@@ -64,13 +64,13 @@ export default function Reportes() {
       <div className="max-w-xl mb-6">
         <label htmlFor={`${fid}-c1`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Campeonato</label>
         <select id={`${fid}-c1`} className="input-field" value={idCampeonato} onChange={e => elegir(e.target.value)}>
-          <option value="">Selecciona un campeonato...</option>
+          <option value="">Seleccione un campeonato...</option>
           {campeonatos.map(c => <option key={c.idCampeonato} value={c.idCampeonato}>{c.nombre} ({c.anio})</option>)}
         </select>
       </div>
 
       {!idCampeonato ? (
-        <EmptyState icon={FolderOpen} title="Elige un campeonato" description="Selecciona un campeonato para ver sus reportes." />
+        <EmptyState icon={FolderOpen} title="Elija un campeonato" description="Seleccione un campeonato para ver sus reportes." />
       ) : (
         <>
           <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">

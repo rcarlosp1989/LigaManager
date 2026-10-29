@@ -336,7 +336,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
       return
     }
     if (resultado === 'enviando') {
-      aviso.error('Se está enviando. Espera unos segundos y vuelve a intentar.')
+      aviso.error('Se está enviando. Espere unos segundos y vuelva a intentarlo.')
       return
     }
     if (!ultimo.idServidor) {
@@ -348,7 +348,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
     } catch (err) {
       aviso.error(err?.response
         ? mensajeDeError(err, 'No se pudo deshacer.')
-        : 'Sin conexión: no se puede deshacer ahora. Inténtalo cuando vuelva la señal.')
+        : 'Sin conexión: no se puede deshacer ahora. Inténtelo cuando vuelva la señal.')
       return
     }
     setUltimo(null)
@@ -368,7 +368,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
     },
     onSuccess: async ({ agregados, sinRed, errores }) => {
       if (agregados > 0) aviso.exito(agregados === 1 ? 'Jugador convocado.' : `${agregados} jugadores convocados.`)
-      if (sinRed) aviso.error('Sin conexión: la convocatoria necesita señal. Vuelve a intentarlo.')
+      if (sinRed) aviso.error('Sin conexión: la convocatoria necesita señal. Vuelva a intentarlo.')
       else if (errores.length) aviso.error(errores.join(' '))
       await obtenerPartido().catch(() => {})
     },
@@ -420,7 +420,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
   const desmarcarJugado = async () => {
     const ok = await confirmar({
       titulo: '¿Desmarcar el partido como jugado?',
-      mensaje: 'Sale de la tabla de posiciones hasta que lo vuelvas a cerrar. Podrás registrar en vivo, y el vocal también.',
+      mensaje: 'Sale de la tabla de posiciones hasta que lo vuelva a cerrar. Usted podrá registrar en vivo, y el vocal también.',
       textoConfirmar: 'Desmarcar',
     })
     if (ok) desmarcarMutation.mutate()
@@ -446,7 +446,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
       <PantallaVivo>
         <div className="p-6 space-y-4 text-center">
           <p className="text-white text-lg">Este partido no está disponible para registrar hoy.</p>
-          <p className="text-gray-300">Cada partido se registra solo el día que se juega, en un campeonato donde estés habilitado.</p>
+          <p className="text-gray-300">Cada partido se registra solo el día que se juega, en un campeonato en el que esté habilitado.</p>
           <Link to="/vocal" className="btn-primary inline-flex">Ver mis partidos</Link>
         </div>
       </PantallaVivo>
@@ -554,7 +554,7 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
               className="h-11 rounded-lg bg-sky-300 font-bold text-black">Retomar desde esa hora</button>
             <button type="button" onClick={accionesRelojVivo.iniciar} className="h-11 rounded-lg border border-sky-300 text-sky-100">Empezar de cero</button>
           </div>
-          <p className="mt-1.5 text-xs text-sky-200">Al retomar no se cuentan las pausas: corrige el minuto en cada registro si hace falta.</p>
+          <p className="mt-1.5 text-xs text-sky-200">Al retomar no se cuentan las pausas: corrija el minuto en cada registro si hace falta.</p>
         </div>
       )}
       {bloqueado && (
@@ -768,7 +768,7 @@ function VistaConvocatoria({ plantel, consulta, alineacion, fotos, onVerFoto, on
           <button type="button" onClick={onListo} className="h-11 rounded-lg border border-neutral-500 px-3 text-sm font-semibold text-white">Ir al partido</button>
         )}
       </div>
-      <p className="mb-3 text-sm text-gray-300">Marca a los jugadores presentes y conviértelos en titulares o suplentes. Toca la foto para verla grande.</p>
+      <p className="mb-3 text-sm text-gray-300">Marque a los jugadores presentes y asígnelos como titulares o suplentes. Toque la foto para verla en grande.</p>
 
       {jugadores.length === 0 && <p className="py-6 text-center text-gray-300">Este equipo no tiene jugadores habilitados para la fecha del partido.</p>}
       <ul className="space-y-2">
@@ -881,7 +881,7 @@ function VistaPartido({ alineacion, cambios, eventos, fotos, onElegir, onIrConvo
       {banca.length > 0 && (
         <>
           <h2 className="mb-2 mt-6 text-xs font-bold uppercase tracking-wider text-gray-300">Banca ({banca.length})</h2>
-          <p className="mb-2 text-xs text-gray-300">Para un cambio, toca al jugador que sale.</p>
+          <p className="mb-2 text-xs text-gray-300">Para un cambio, toque al jugador que sale.</p>
           <ul className="space-y-1.5">
             {banca.map(a => (
               <li key={a.idAlineacion} className="flex min-h-12 items-center gap-3 rounded-xl border border-neutral-800 px-3 py-1.5 text-gray-300">
@@ -958,7 +958,7 @@ function HojaJugador({ jugador, foto, minutoInicial, sinGoles, suplentes, tarjet
             <button type="button" onClick={() => ajustar(1)} aria-label="Sumar un minuto"
               className="flex h-12 w-12 items-center justify-center rounded-lg border border-neutral-500 text-white"><Plus size={20} aria-hidden="true" /></button>
           </div>
-          {!minutoValido && <p role="alert" className="mt-1.5 text-sm text-red-300">Escribe un minuto entre 1 y 120.</p>}
+          {!minutoValido && <p role="alert" className="mt-1.5 text-sm text-red-300">Escriba un minuto entre 1 y 120.</p>}
         </div>
 
         {!modoCambio ? (

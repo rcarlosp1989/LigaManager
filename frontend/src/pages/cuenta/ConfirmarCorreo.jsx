@@ -27,11 +27,11 @@ export default function ConfirmarCorreo() {
       {error ? (
         <div className="space-y-4">
           <p role="alert" className="text-sm text-gray-200">{error}</p>
-          <p className="text-sm text-gray-400">Inicia sesión con tu correo y contraseña: si la cuenta aún no está confirmada, podrás pedir otro enlace.</p>
+          <p className="text-sm text-gray-400">Inicie sesión con su correo y contraseña: si la cuenta aún no está confirmada, podrá solicitar otro enlace.</p>
           <Link to="/login" className="btn-primary inline-flex w-full justify-center">Ir a iniciar sesión</Link>
         </div>
       ) : (
-        <p className="text-sm text-gray-400">Confirmando tu correo...</p>
+        <p className="text-sm text-gray-400">Confirmando su correo...</p>
       )}
     </PantallaCuenta>
   )

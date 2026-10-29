@@ -70,10 +70,10 @@ export default function InicioDirigente() {
         {qInicio.isLoading ? (
           <p className="py-10 text-center text-gray-400">Cargando...</p>
         ) : qInicio.isError ? (
-          <EstadoError mensaje="No se pudieron cargar tus campeonatos." onReintentar={qInicio.refetch} reintentando={qInicio.isFetching} />
+          <EstadoError mensaje="No se pudieron cargar sus campeonatos." onReintentar={qInicio.refetch} reintentando={qInicio.isFetching} />
         ) : campeonatos.length === 0 ? (
           <EmptyState icon={House} title="Sin campeonatos"
-            description="Todavía no tienes acceso a ningún campeonato, o el organizador lo quitó. Pídele una invitación nueva." />
+            description="Todavía no tiene acceso a ningún campeonato, o el organizador lo retiró. Solicítele una nueva invitación." />
         ) : (
           <>
             {campeonatos.length > 1 && (

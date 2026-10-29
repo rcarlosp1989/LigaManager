@@ -60,7 +60,7 @@ export default function TabVocales({ camp }) {
         <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-1">Vocales</h2>
         <p className="text-gray-400 text-sm">
           El vocal registra los partidos desde la cancha con su propia cuenta. El titular queda habilitado mientras dure
-          el campeonato y registra cada partido el día que se juega. Si no puede ir, él o tú pueden invitar a un reemplazo para ese día.
+          el campeonato y registra cada partido el día que se juega. Si no puede asistir, él o usted pueden invitar a un reemplazo para ese día.
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export default function TabVocales({ camp }) {
           <div>
             <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Habilitados</h3>
             {q.data.vocales.length === 0 ? (
-              <p className="text-gray-500 text-sm">Todavía no hay vocales. Invita al titular para que registre los partidos desde la cancha.</p>
+              <p className="text-gray-500 text-sm">Todavía no hay vocales. Invite al titular para que registre los partidos desde la cancha.</p>
             ) : (
               <ul className="divide-y divide-gray-800 rounded-lg border border-gray-800">
                 {q.data.vocales.map(v => (

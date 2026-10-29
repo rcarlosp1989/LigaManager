@@ -36,7 +36,7 @@ export default function AceptarTerminos({ children }) {
       <div className="w-full max-w-lg rounded-2xl border border-gray-800 bg-gray-900 p-6 sm:p-8 shadow-2xl shadow-black/50">
         <ShieldCheck size={36} className="text-brand-400" aria-hidden="true" />
         <h1 className="mt-4 text-xl font-semibold text-white">Términos de uso y privacidad</h1>
-        <p className="mt-3 text-sm text-gray-300">Antes de continuar, lee y acepta lo siguiente:</p>
+        <p className="mt-3 text-sm text-gray-300">Antes de continuar, lea y acepte lo siguiente:</p>
         <ul className="mt-3 space-y-2 text-sm text-gray-300 [&_li]:ml-5 [&_li]:list-disc">
           <li>El reglamento, los resultados, las sanciones y las decisiones disciplinarias son <strong className="text-white">responsabilidad de la organización</strong>, no de LigaManager.</li>
           <li>Los cálculos de la aplicación (posiciones, tarjetas, suspensiones) son un apoyo y la organización debe revisarlos.</li>
@@ -52,7 +52,7 @@ export default function AceptarTerminos({ children }) {
             checked={marcado} onChange={e => setMarcado(e.target.checked)} />
           <span>Acepto los términos de uso y el aviso de privacidad en nombre de mi organización.</span>
         </label>
-        {aceptar.isError && <p role="alert" className="mt-3 text-sm text-red-400">{mensajeDeError(aceptar.error, 'No se pudo guardar. Inténtalo de nuevo.')}</p>}
+        {aceptar.isError && <p role="alert" className="mt-3 text-sm text-red-400">{mensajeDeError(aceptar.error, 'No se pudo guardar. Inténtelo de nuevo.')}</p>}
         <div className="mt-6 flex flex-wrap gap-2">
           <button type="button" onClick={() => aceptar.mutate()} disabled={!marcado || aceptar.isPending} className="btn-primary flex-1 disabled:opacity-40">
             {aceptar.isPending ? 'Guardando...' : 'Aceptar y continuar'}

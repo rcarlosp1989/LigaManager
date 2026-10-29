@@ -19,7 +19,7 @@ public class Ubicaciones
             return (null, null);
 
         if (idCanton is null)
-            return (null, "Selecciona la provincia y el cantón.");
+            return (null, "Seleccione la provincia y el cantón.");
 
         if (!await _db.Cantones.AnyAsync(c => c.IdCanton == idCanton && c.Provincia.IdPais == idPais))
             return (null, "El cantón no pertenece al país seleccionado.");

@@ -121,7 +121,7 @@ public class JugadorService : IJugadorService
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
 
         if (!req.AutorizacionDatos)
-            return ServiceResult<JugadorDetalleDto>.Fail("Confirma que la organización cuenta con la autorización del jugador (o de su representante legal, si es menor de edad) para tratar sus datos personales.");
+            return ServiceResult<JugadorDetalleDto>.Fail("Confirme que la organización cuenta con la autorización del jugador (o de su representante legal, si es menor de edad) para tratar sus datos personales.");
 
         var doc = Identificacion.Validar(req.TipoIdentificacion, req.Cedula);
         if (doc.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(doc.Error);
@@ -129,11 +129,11 @@ public class JugadorService : IJugadorService
         // El documento se repite solo dentro de la misma liga: el mismo jugador puede estar
         // registrado por otro organizador con su propia ficha, sin que se vean entre ellas.
         if (await CedulaDeJugadorPropioAsync(doc.Tipo, doc.Numero, null))
-            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes un jugador registrado con ese documento.");
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tiene un jugador registrado con ese documento.");
 
         var equipoExiste = await _db.Equipos
             .AnyAsync(e => e.IdEquipo == req.IdEquipo && e.IdUsuarioCreador == UsuarioActualId);
-        if (!equipoExiste) return ServiceResult<JugadorDetalleDto>.Fail("El equipo no pertenece a tu organización.");
+        if (!equipoExiste) return ServiceResult<JugadorDetalleDto>.Fail("El equipo no pertenece a su organización.");
 
         var persona = new Persona
         {
@@ -187,7 +187,7 @@ public class JugadorService : IJugadorService
         if (doc.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(doc.Error);
 
         if (await CedulaDeJugadorPropioAsync(doc.Tipo, doc.Numero, jugador.IdPersona))
-            return ServiceResult<JugadorDetalleDto>.Fail("Ya tienes otro jugador registrado con ese documento.");
+            return ServiceResult<JugadorDetalleDto>.Fail("Ya tiene otro jugador registrado con ese documento.");
 
         var ubicacion = await _ubicaciones.ValidarAsync(req.IdPais, req.IdCanton);
         if (ubicacion.Error is not null) return ServiceResult<JugadorDetalleDto>.Fail(ubicacion.Error);
@@ -269,7 +269,7 @@ public class JugadorService : IJugadorService
 
         var equipoPropio = await _db.Equipos
             .AnyAsync(e => e.IdEquipo == req.IdEquipo && e.IdUsuarioCreador == UsuarioActualId);
-        if (!equipoPropio) return ServiceResult.Fail("El equipo no pertenece a tu organización.");
+        if (!equipoPropio) return ServiceResult.Fail("El equipo no pertenece a su organización.");
 
         if (!DateOnly.TryParse(req.FechaDesde, out var fechaDesde))
             return ServiceResult.Fail("Formato de fecha inválido.");

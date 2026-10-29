@@ -53,7 +53,7 @@ public class EquiposController : ControllerBase
     [RequestSizeLimit(1024 * 1024)]
     public async Task<IActionResult> CambiarLogo(int id, IFormFile? logo)
     {
-        if (logo is null) return BadRequest(new { error = "Elige una imagen para el logo." });
+        if (logo is null) return BadRequest(new { error = "Elija una imagen para el logo." });
         using var ms = new MemoryStream();
         await logo.CopyToAsync(ms);
         var result = await _service.CambiarLogoAsync(id, ms.ToArray());

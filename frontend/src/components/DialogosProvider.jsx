@@ -61,7 +61,7 @@ function VentanaDialogo({ dialogo, onCerrar }) {
     const numero = Number(valor)
     const fueraDeRango = (min != null && numero < min) || (max != null && numero > max)
     if (valor.trim() === '' || !Number.isInteger(numero) || fueraDeRango) {
-      setError(min != null && max != null ? `Escribe un número entre ${min} y ${max}.` : 'Escribe un número válido.')
+      setError(min != null && max != null ? `Escriba un número entre ${min} y ${max}.` : 'Escriba un número válido.')
       return
     }
     onCerrar(numero)

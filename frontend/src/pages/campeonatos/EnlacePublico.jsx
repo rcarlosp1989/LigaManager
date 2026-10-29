@@ -30,16 +30,16 @@ export default function EnlacePublico({ camp }) {
 
   const token = q.data?.token
   const enlace = token ? `${window.location.origin}/publico/${token}` : ''
-  const mensaje = `Sigue el campeonato «${camp.nombre}»: resultados, posiciones, goleadores y sanciones. ${enlace}`
+  const mensaje = `Siga el campeonato «${camp.nombre}»: resultados, posiciones, goleadores y sanciones. ${enlace}`
 
   const copiar = async () => {
     try { await navigator.clipboard.writeText(enlace); setCopiado(true); setTimeout(() => setCopiado(false), 2000) }
-    catch { aviso.error('No se pudo copiar. Mantén presionado el enlace para copiarlo a mano.') }
+    catch { aviso.error('No se pudo copiar. Mantenga presionado el enlace para copiarlo manualmente.') }
   }
   const cambiar = async () => {
     const ok = await confirmar({
       titulo: '¿Cambiar el enlace público?',
-      mensaje: 'Se crea un enlace nuevo y el actual deja de funcionar. Tendrás que compartir el nuevo.',
+      mensaje: 'Se crea un enlace nuevo y el actual deja de funcionar. Deberá compartir el nuevo.',
       textoConfirmar: 'Cambiar enlace',
     })
     if (ok) generar.mutate()
@@ -47,7 +47,7 @@ export default function EnlacePublico({ camp }) {
   const apagar = async () => {
     const ok = await confirmar({
       titulo: '¿Desactivar el enlace público?',
-      mensaje: 'Nadie podrá ver el campeonato con el enlace. Puedes crear uno nuevo cuando quieras.',
+      mensaje: 'Nadie podrá ver el campeonato con el enlace. Puede crear uno nuevo cuando lo necesite.',
       textoConfirmar: 'Desactivar', peligro: true,
     })
     if (ok) desactivar.mutate()

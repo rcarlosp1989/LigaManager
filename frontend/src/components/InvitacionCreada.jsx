@@ -11,10 +11,10 @@ export default function InvitacionCreada({ invitacion, campeonato, ruta = '/invi
   const enlace = `${window.location.origin}${ruta}/${invitacion.codigo}`
   const titular = invitacion.tipo === 'Titular'
   const mensaje = equipo
-    ? `Te invito como dirigente de ${equipo} para ver el campeonato «${campeonato}» en LigaManager (posiciones, la nómina de tu equipo, goleadores y sanciones). Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
+    ? `Le invito como dirigente de ${equipo} a seguir el campeonato «${campeonato}» en LigaManager (posiciones, la nómina de su equipo, goleadores y sanciones). Abra este enlace para crear su cuenta: ${enlace} (código ${invitacion.codigo}).`
     : titular
-    ? `Te invito como vocal del campeonato «${campeonato}» en LigaManager. Abre este enlace para crear tu cuenta: ${enlace} (código ${invitacion.codigo}).`
-    : `Te pido reemplazarme como vocal del campeonato «${campeonato}» el ${formatearFecha(invitacion.soloFecha)}. Abre este enlace: ${enlace} (código ${invitacion.codigo}).`
+    ? `Le invito como vocal del campeonato «${campeonato}» en LigaManager. Abra este enlace para crear su cuenta: ${enlace} (código ${invitacion.codigo}).`
+    : `Le solicito reemplazarme como vocal del campeonato «${campeonato}» el ${formatearFecha(invitacion.soloFecha)}. Abra este enlace: ${enlace} (código ${invitacion.codigo}).`
 
   const copiar = async (texto, cual) => {
     try {
@@ -47,8 +47,8 @@ export default function InvitacionCreada({ invitacion, campeonato, ruta = '/invi
           <Share2 size={16} aria-hidden="true" /> WhatsApp
         </a>
       </div>
-      {copiado === 'error' && <p role="alert" className="text-sm text-amber-300">No se pudo copiar. Mantén presionado el código para copiarlo a mano.</p>}
-      <p className="text-xs text-gray-400">Guárdalo ahora: por seguridad no se vuelve a mostrar. Si se pierde, crea otra invitación.</p>
+      {copiado === 'error' && <p role="alert" className="text-sm text-amber-300">No se pudo copiar. Mantenga presionado el código para copiarlo manualmente.</p>}
+      <p className="text-xs text-gray-400">Guárdelo ahora: por seguridad, no se vuelve a mostrar. Si se pierde, cree otra invitación.</p>
     </div>
   )
 }

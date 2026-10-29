@@ -82,7 +82,7 @@ public class AuthService : IAuthService
         if (password.Length < 6)
             return ServiceResult<RegistroResultado>.Fail("La contraseña debe tener al menos 6 caracteres.");
         if (!request.AceptaTerminos)
-            return ServiceResult<RegistroResultado>.Fail("Para crear la cuenta debes aceptar los términos de uso y el aviso de privacidad.");
+            return ServiceResult<RegistroResultado>.Fail("Para crear la cuenta debe aceptar los términos de uso y el aviso de privacidad.");
 
         if (await _db.Usuarios.AnyAsync(u => u.Email == email))
             return ServiceResult<RegistroResultado>.Fail("Ya existe una cuenta con ese email.");
@@ -157,7 +157,7 @@ public class AuthService : IAuthService
           <p style="margin:24px 0">
             <a href="{enlace}" style="background:#0f9f91;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">{WebUtility.HtmlEncode(boton)}</a>
           </p>
-          <p style="font-size:13px;color:#6b7280">Si el botón no funciona, copia este enlace en el navegador:<br>{enlace}</p>
+          <p style="font-size:13px;color:#6b7280">Si el botón no funciona, copie este enlace en su navegador:<br>{enlace}</p>
           <p style="font-size:13px;color:#6b7280">{WebUtility.HtmlEncode(pie)}</p>
         </div>
         """;
@@ -166,10 +166,10 @@ public class AuthService : IAuthService
     {
         if (await NuevoEnlaceAsync(usuario, TipoTokenUsuario.VerificarCorreo, VigenciaConfirmacion) is not string codigo) return;
         var enlace = $"{UrlFrontend}/confirmar-correo/{codigo}";
-        var saludo = $"Hola, {usuario.Nombre}:";
-        const string parrafo = "Confirma tu correo para activar tu cuenta de LigaManager. El enlace vale 24 horas y sirve una sola vez.";
-        const string pie = "Si no creaste esta cuenta, ignora este correo.";
-        await _correo.EnviarAsync(usuario.Email, usuario.Nombre, "Confirma tu correo en LigaManager",
+        var saludo = $"Estimado/a {usuario.Nombre}:";
+        const string parrafo = "Confirme su correo para activar su cuenta de LigaManager. El enlace tiene una validez de 24 horas y puede usarse una sola vez.";
+        const string pie = "Si usted no creó esta cuenta, puede ignorar este mensaje.";
+        await _correo.EnviarAsync(usuario.Email, usuario.Nombre, "Confirme su correo en LigaManager",
             Correo(saludo, parrafo, "Confirmar mi correo", enlace, pie),
             $"{saludo}\n\n{parrafo}\n\n{enlace}\n\n{pie}");
     }
@@ -178,11 +178,11 @@ public class AuthService : IAuthService
     {
         if (await NuevoEnlaceAsync(usuario, TipoTokenUsuario.RestablecerClave, VigenciaRestablecer) is not string codigo) return;
         var enlace = $"{UrlFrontend}/restablecer/{codigo}";
-        var saludo = $"Hola, {usuario.Nombre}:";
-        const string parrafo = "Recibimos un pedido para restablecer la contraseña de tu cuenta de LigaManager. El enlace vale 1 hora y sirve una sola vez.";
-        const string pie = "Si no lo pediste, ignora este correo: tu contraseña no cambia.";
-        await _correo.EnviarAsync(usuario.Email, usuario.Nombre, "Restablece tu contraseña de LigaManager",
-            Correo(saludo, parrafo, "Elegir contraseña nueva", enlace, pie),
+        var saludo = $"Estimado/a {usuario.Nombre}:";
+        const string parrafo = "Recibimos una solicitud para restablecer la contraseña de su cuenta de LigaManager. El enlace tiene una validez de 1 hora y puede usarse una sola vez.";
+        const string pie = "Si usted no realizó esta solicitud, puede ignorar este mensaje: su contraseña no cambiará.";
+        await _correo.EnviarAsync(usuario.Email, usuario.Nombre, "Restablezca su contraseña de LigaManager",
+            Correo(saludo, parrafo, "Elegir nueva contraseña", enlace, pie),
             $"{saludo}\n\n{parrafo}\n\n{enlace}\n\n{pie}");
     }
 
@@ -194,7 +194,7 @@ public class AuthService : IAuthService
         var t = await _db.TokenesUsuario.Include(x => x.Usuario).FirstOrDefaultAsync(x => x.TokenHash == hash && x.Tipo == tipo);
         if (t is null || !t.Usuario.Activo) return (null, "El enlace no es válido.");
         if (t.UsadoEn != null) return (null, "Este enlace ya se usó o fue reemplazado por uno más nuevo.");
-        if (t.VenceEn <= DateTime.UtcNow) return (null, "Este enlace venció. Pide uno nuevo.");
+        if (t.VenceEn <= DateTime.UtcNow) return (null, "Este enlace venció. Solicite uno nuevo.");
         return (t, null);
     }
 
@@ -259,7 +259,7 @@ public class AuthService : IAuthService
     public async Task<ServiceResult<TerminosDto>> AceptarTerminosAsync(int idUsuario, AceptarTerminosRequest req)
     {
         if (req.Version != Terminos.Version)
-            return ServiceResult<TerminosDto>.Fail("Los términos cambiaron. Recarga la página para leer la versión vigente.");
+            return ServiceResult<TerminosDto>.Fail("Los términos cambiaron. Recargue la página para leer la versión vigente.");
         var u = await _db.Usuarios.FirstOrDefaultAsync(x => x.IdUsuario == idUsuario && x.Activo);
         if (u is null) return ServiceResult<TerminosDto>.Fail("Sesión no válida.");
         if (u.TerminosVersion != Terminos.Version)

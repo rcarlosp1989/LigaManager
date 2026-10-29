@@ -20,7 +20,7 @@ export default function ReenviarConfirmacion({ email, esperaInicial = 60 }) {
       setEstado({ ok: true, texto: data.mensaje })
       setEspera(60)
     } catch (err) {
-      setEstado({ ok: false, texto: mensajeDeError(err, 'No se pudo reenviar. Inténtalo en un momento.') })
+      setEstado({ ok: false, texto: mensajeDeError(err, 'No se pudo reenviar. Inténtelo en unos momentos.') })
     }
   }
 

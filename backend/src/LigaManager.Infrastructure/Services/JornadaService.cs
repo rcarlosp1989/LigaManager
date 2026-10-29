@@ -497,7 +497,7 @@ public class JornadaService : IJornadaService
             return ServiceResult<PartidoDetalleDto>.Fail("Formato de fecha inválido.");
 
         if (!req.IdEstadio.HasValue)
-            return ServiceResult<PartidoDetalleDto>.Fail("Debes asignar un estadio a este partido.");
+            return ServiceResult<PartidoDetalleDto>.Fail("Debe asignar un estadio a este partido.");
         var estadioExiste = await _db.Estadios.AnyAsync(e => e.IdEstadio == req.IdEstadio && e.IdUsuarioCreador == UsuarioActualId);
         if (!estadioExiste) return ServiceResult<PartidoDetalleDto>.Fail("Estadio no encontrado.");
 
@@ -619,7 +619,7 @@ public class JornadaService : IJornadaService
             return ServiceResult<PartidoDetalleDto>.Fail("Un partido no puede ser desierto y perdido por reglamento a la vez.");
 
         if (req.PerdidaReglamento && req.IdEquipoSancionado != p.IdEquipoLocal && req.IdEquipoSancionado != p.IdEquipoVisitante)
-            return ServiceResult<PartidoDetalleDto>.Fail("Indica cuál de los dos equipos pierde el partido por reglamento.");
+            return ServiceResult<PartidoDetalleDto>.Fail("Indique cuál de los dos equipos pierde el partido por reglamento.");
 
         if ((req.Desierto || req.PerdidaReglamento) && p.Eventos.Any(e => EsGol(e.TipoEvento)))
             return ServiceResult<PartidoDetalleDto>.Fail(req.Desierto
@@ -839,7 +839,7 @@ public class JornadaService : IJornadaService
         var tieneCambio = await _db.CambiosPartido.AnyAsync(c =>
             c.IdPartido == a.IdPartido && (c.IdJugadorSale == a.IdJugador || c.IdJugadorEntra == a.IdJugador));
         if (tieneCambio)
-            return ServiceResult.Fail("No se puede quitar: el jugador ya participa en un cambio registrado. Elimina el cambio primero.");
+            return ServiceResult.Fail("No se puede quitar: el jugador ya participa en un cambio registrado. Elimine el cambio primero.");
 
         _db.Alineaciones.Remove(a);
         await _db.SaveChangesAsync();
@@ -930,7 +930,7 @@ public class JornadaService : IJornadaService
     // ── Helper privado ───────────────────────────────────────────────────────
 
     private const string MensajePartidoRepetido =
-        "Ese partido ya está registrado en esta jornada (mismos equipos de local y visitante). Para cambiar la fecha, la hora o el estadio, usa «Editar» en el partido existente.";
+        "Ese partido ya está registrado en esta jornada (mismos equipos de local y visitante). Para cambiar la fecha, la hora o el estadio, use «Editar» en el partido existente.";
 
     private Task<bool> PartidoRepetidoAsync(int idJornada, int local, int visitante, int? excepto)
         => _db.Partidos.AnyAsync(x => x.IdJornada == idJornada && x.IdEquipoLocal == local

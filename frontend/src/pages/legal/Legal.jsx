@@ -79,10 +79,10 @@ export function Privacidad() {
         </p>
       </section>
       <section>
-        <h2>Tus derechos</h2>
+        <h2>Sus derechos</h2>
         <p>
-          Conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador, puedes pedir acceder a tus datos,
-          corregirlos, eliminarlos, oponerte a su uso o recibir una copia. Dirige tu pedido a la organización de tu campeonato,
+          Conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador, usted puede solicitar el acceso a sus datos,
+          su corrección o eliminación, oponerse a su uso o recibir una copia. Dirija su solicitud a la organización de su campeonato,
           que es quien los registró y puede atenderlo desde la aplicación.
         </p>
       </section>

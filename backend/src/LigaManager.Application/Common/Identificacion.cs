@@ -14,7 +14,7 @@ public static class Identificacion
     {
         var t = Tipos.FirstOrDefault(x => string.Equals(x, tipo?.Trim(), StringComparison.OrdinalIgnoreCase))
                 ?? (string.IsNullOrWhiteSpace(tipo) ? "Cedula" : null);
-        if (t is null) return ("", "", "Tipo de documento inválido. Usa Cédula, Extranjero, Pasaporte o Pendiente.");
+        if (t is null) return ("", "", "Tipo de documento inválido. Use Cédula, Extranjero, Pasaporte o Pendiente.");
         if (t == "Pendiente") return (t, "", null);   // sin número: se completa al tenerlo
 
         // Se toleran espacios y guiones al escribir.
@@ -27,7 +27,7 @@ public static class Identificacion
                 if (n.Length != 10 || !n.All(char.IsAsciiDigit))
                     return (t, n, "La cédula debe tener exactamente 10 números, sin letras.");
                 if (!CedulaEcuatorianaValida(n))
-                    return (t, n, "La cédula no es válida: revisa los números (el dígito verificador no coincide).");
+                    return (t, n, "La cédula no es válida: revise los números (el dígito verificador no coincide).");
                 break;
             case "Extranjero":
                 if (n.Length is < 5 or > 15 || !n.All(char.IsAsciiDigit))

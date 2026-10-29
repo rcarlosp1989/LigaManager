@@ -94,7 +94,7 @@ public class VocalService
         if (tipo == TipoVocal.Reemplazo)
         {
             if (!DateOnly.TryParse(req.Fecha, out var dia))
-                return ServiceResult<InvitacionCreadaDto>.Fail("Indica el día del reemplazo (yyyy-MM-dd).");
+                return ServiceResult<InvitacionCreadaDto>.Fail("Indique el día del reemplazo (aaaa-mm-dd).");
             if (dia < hoy) return ServiceResult<InvitacionCreadaDto>.Fail("El día del reemplazo no puede ser anterior a hoy.");
             if (dia > camp.FechaFin) return ServiceResult<InvitacionCreadaDto>.Fail("El día del reemplazo es posterior al fin del campeonato.");
             soloFecha = dia;
@@ -208,7 +208,7 @@ public class VocalService
             usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == yo && u.Activo);
             if (usuario is null) return ServiceResult<LoginResponse>.Fail("Sesión no válida.");
             if (usuario.Rol != RolUsuario.Vocal)
-                return ServiceResult<LoginResponse>.Fail("Esta invitación es para una cuenta de vocal. Cierra sesión y entra con otra cuenta, o crea una nueva.");
+                return ServiceResult<LoginResponse>.Fail("Esta invitación es para una cuenta de vocal. Cierre sesión e ingrese con otra cuenta, o cree una nueva.");
         }
         else
         {
@@ -223,12 +223,12 @@ public class VocalService
                 if (!usuario.Activo || !BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash))
                     return ServiceResult<LoginResponse>.Fail("Ya existe una cuenta con ese email y la contraseña no coincide.");
                 if (usuario.Rol != RolUsuario.Vocal)
-                    return ServiceResult<LoginResponse>.Fail("Ese email ya pertenece a otra cuenta (organizador o dirigente). Usa otro email para la cuenta de vocal.");
+                    return ServiceResult<LoginResponse>.Fail("Ese correo ya pertenece a otra cuenta (organizador o dirigente). Use otro correo para la cuenta de vocal.");
             }
             else
             {
                 var nombre = req.Nombre?.Trim() ?? "";
-                if (nombre.Length == 0) return ServiceResult<LoginResponse>.Fail("Escribe tu nombre para crear la cuenta.");
+                if (nombre.Length == 0) return ServiceResult<LoginResponse>.Fail("Escriba su nombre para crear la cuenta.");
                 if (nombre.Length > 100 || email.Length > 150) return ServiceResult<LoginResponse>.Fail("Nombre o email demasiado largos.");
                 if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     return ServiceResult<LoginResponse>.Fail("El email no es válido.");

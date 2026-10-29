@@ -218,7 +218,7 @@ export default function Campeonatos() {
       setFormError('')
       setModal({ editar: data })
     } catch (err) {
-      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del campeonato. Inténtalo de nuevo.'))
+      aviso.error(mensajeDeError(err, 'No se pudieron cargar los datos del campeonato. Inténtelo de nuevo.'))
     } finally {
       setAbriendo(null)
     }
@@ -249,7 +249,7 @@ export default function Campeonatos() {
         <EmptyState
           icon={Trophy}
           title="Sin campeonatos"
-          description="Crea tu primer campeonato para comenzar a gestionar torneos."
+          description="Cree su primer campeonato para comenzar a gestionar torneos."
           action={
             <button onClick={() => setModal('crear')} className="btn-primary">
               Crear campeonato
