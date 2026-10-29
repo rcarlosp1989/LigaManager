@@ -120,7 +120,7 @@ export default function LoginPage() {
 
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿No tiene una cuenta?{' '}
-            <Link to="/register" className="text-brand-400 hover:text-brand-300">Regístrate</Link>
+            <Link to="/register" className="text-brand-400 hover:text-brand-300">Regístrese</Link>
           </p>
           <p className="text-gray-500 text-sm text-center mt-2">
             ¿Es vocal y tiene un código?{' '}
