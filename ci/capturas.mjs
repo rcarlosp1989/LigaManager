@@ -25,7 +25,7 @@ const partido = (id, l, v, fecha, jugado, gl, gv, jornada = 1) => ({
   idPartido: id, idJornada: jornada, numeroJornada: jornada, numero: id,
   idEquipoLocal: l, local: nombre(l), equipoLocal: nombre(l), logoLocal: null,
   idEquipoVisitante: v, visitante: nombre(v), equipoVisitante: nombre(v), logoVisitante: null,
-  fecha, estadio: 'Estadio Recuspro', jugado, desierto: false, golesLocal: gl, golesVisitante: gv,
+  fecha, estadio: 'Estadio Recuspro', idEstadio: 1, jugado, desierto: false, golesLocal: gl, golesVisitante: gv,
   estado: jugado ? 'Jugado' : 'Programado', oficiales: [], eventos: [], alineacionLocal: [], alineacionVisitante: [], cambios: [],
 })
 const pendiente = (j) => (j.idJugador === 1105 ? { ...j, cedula: '', tipoIdentificacion: 'Pendiente' } : j)
