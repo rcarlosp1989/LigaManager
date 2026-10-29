@@ -6,7 +6,8 @@ import Modal from '../../components/Modal'
 import EstadoError from '../../components/EstadoError'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
-import { formatearFecha } from '../../utils/fechas'
+import { formatearFecha, fechaHoraCompleta } from '../../utils/fechas'
+import CampoFechaHora from '../../components/CampoFechaHora'
 import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
 import TabDirigentes from './TabDirigentes'
@@ -246,11 +247,7 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
           ))}
         </div>
       )}
-      <div>
-        <label htmlFor={`${fid}-c7`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</label>
-        <input id={`${fid}-c7`} type="datetime-local" className="input-field" value={form.fecha} required
-          onChange={e => set('fecha', e.target.value)} />
-      </div>
+      <CampoFechaHora id={`${fid}-c7`} value={form.fecha} required onChange={v => set('fecha', v)} />
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor={`${fid}-c8`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
@@ -283,7 +280,7 @@ function PartidoForm({ onSubmit, loading, error, idCampeonato }) {
             .filter(([, idArbitro]) => idArbitro)
             .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
         })}
-        deshabilitado={!form.idEquipoLocal || !form.idEquipoVisitante || !form.fecha || !form.idEstadio}
+        deshabilitado={!form.idEquipoLocal || !form.idEquipoVisitante || !fechaHoraCompleta(form.fecha) || !form.idEstadio}
       />
     </div>
   )
@@ -1035,11 +1032,7 @@ function PartidoCard({ partido, idCampeonato }) {
               </div>
             </div>
           )}
-          <div>
-            <label htmlFor={`${fid}-c16`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</label>
-            <input id={`${fid}-c16`} type="datetime-local" className="input-field" value={editForm.fecha}
-              onChange={e => setE('fecha', e.target.value)} />
-          </div>
+          <CampoFechaHora id={`${fid}-c16`} value={editForm.fecha} onChange={v => setE('fecha', v)} />
           <div>
             <label htmlFor={`${fid}-c17`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Estadio</label>
             <select id={`${fid}-c17`} className="input-field" value={editForm.idEstadio} required
@@ -1088,7 +1081,7 @@ function PartidoCard({ partido, idCampeonato }) {
                 .filter(([, idArbitro]) => idArbitro)
                 .map(([idCargo, idArbitro]) => ({ idCargo: parseInt(idCargo), idArbitro: parseInt(idArbitro) })),
             })}
-            deshabilitado={!editForm.idEstadio}
+            deshabilitado={!editForm.idEstadio || !fechaHoraCompleta(editForm.fecha)}
           />
         </div>
       </Modal>
