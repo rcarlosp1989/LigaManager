@@ -268,6 +268,10 @@ export async function compartirFlyer(blob, { archivo, texto }) {
   a.href = url; a.download = archivo
   document.body.appendChild(a); a.click(); a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 10000)
-  try { await navigator.clipboard?.writeText(texto) } catch { /* sin portapapeles */ }
-  return 'descargado'
+  try {
+    await navigator.clipboard.writeText(texto)
+    return 'descargado'
+  } catch {
+    return 'descargado_sin_texto' // sin portapapeles: el mensaje se muestra en el aviso
+  }
 }
