@@ -127,7 +127,7 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     if (tk !== TOKEN) return { __status: 404, error: 'Este enlace no existe o fue desactivado por la organización.' }
     const sub = resto.length ? '/' + resto.join('/') : ''
     if (sub === '') return { nombre: 'Liga Barrial Recuspro', anio: 2026, estado: 'EnCurso', fechaInicio: '2026-09-01', fechaFin: '2026-12-20', modalidad: 'Fútbol', organizacion: 'Roberto Prado', equipos }
-    if (sub === '/jornadas') return [1, 2].map(id => { const d = detalleJornada(id); return { idJornada: id, numero: id, instancia: 'Fase regular', grupo: null, partidos: d.partidos } })
+    if (sub === '/jornadas') return [1, 2].map(id => { const d = detalleJornada(id); return { idJornada: id, numero: id, instancia: 'Fase regular', grupo: null, partidos: d.partidos.map(p => (p.idEquipoLocal === 14 ? { ...p, logoLocal: '/api/imagenes/0123456789abcdef0123456789abcdef' } : p)) } })
     if (sub === '/grupos') return []
     if (sub === '/en-vivo') return enVivo()
     if (sub.startsWith('/estadisticas/')) return respuesta('GET', `/dirigente/campeonatos/1${sub}`)
@@ -197,6 +197,8 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
   return {}
 }
 
+// Logo de prueba: cuadrado rojo puro de 8×8 (para contar sus píxeles en el flyer).
+const LOGO_ROJO = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEklEQVR4nGP8z4AdMOEQH6QSAM1BAQ/oQeJvAAAAAElFTkSuQmCC', 'base64')
 const sesion = (rol, nombreUsuario) => ({ token: 'x', nombre: nombreUsuario, rol })
 
 async function abrir(browser, ancho, usuario) {
@@ -215,6 +217,10 @@ async function abrir(browser, ancho, usuario) {
   await page.route(`${API}/**`, async route => {
     const req = route.request()
     const ruta = req.url().slice(API.length)
+    if (ruta.startsWith('/imagenes/')) {
+      const origen = req.headers().origin
+      return route.fulfill({ status: 200, contentType: 'image/png', body: LOGO_ROJO, headers: origen ? { 'access-control-allow-origin': origen, 'cache-control': 'public, max-age=31536000, immutable' } : { 'cache-control': 'public, max-age=31536000, immutable' } })
+    }
     llamadas.push(`${req.method()} ${ruta}`)
     let enviado = null
     try { enviado = req.postDataJSON() } catch { /* sin cuerpo */ }
@@ -416,6 +422,14 @@ for (const ancho of [390, 1440]) {
     const cab = fs.readFileSync(ruta).subarray(16, 24)
     const w = cab.readUInt32BE(0), h = cab.readUInt32BE(4)
     ok(`flyer @${ancho}: imagen PNG 1080×1350`, w === 1080 && h === 1350 && tam > 20000, `${w}×${h} ${tam} bytes`)
+    const rojos = await page.evaluate(async (b64) => {
+      const bm = await createImageBitmap(await (await fetch(`data:image/png;base64,${b64}`)).blob())
+      const c = new OffscreenCanvas(bm.width, bm.height); const x = c.getContext('2d'); x.drawImage(bm, 0, 0)
+      const d = x.getImageData(0, 0, bm.width, bm.height).data; let n = 0
+      for (let i = 0; i < d.length; i += 4) if (d[i] > 240 && d[i + 1] < 15 && d[i + 2] < 15) n++
+      return n
+    }, fs.readFileSync(ruta).toString('base64'))
+    ok(`flyer @${ancho}: dibuja el logo del equipo`, rojos > 1500, `${rojos} píxeles`)
     ok(`flyer @${ancho}: nombre del archivo`, /^jornada_2_Liga_Barrial_Recuspro\.png$/.test(descarga.suggestedFilename()), descarga.suggestedFilename())
     await page.getByText(/Flyer descargado/).waitFor({ timeout: 5000 }).catch(() => {})
     ok(`flyer @${ancho}: aviso de mensaje copiado con el enlace`, await page.getByText(/El mensaje con el enlace se copió/).isVisible())
