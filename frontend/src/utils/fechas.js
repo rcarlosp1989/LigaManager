@@ -36,3 +36,6 @@ export function formatearRango(inicio, fin) {
 export function anioDe(valor) {
   return partes(valor)?.anio ?? null
 }
+
+// Fecha y hora de un partido en el formato del formulario: «2026-10-29T13:30».
+export const fechaHoraCompleta = (valor) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(valor ?? '')
