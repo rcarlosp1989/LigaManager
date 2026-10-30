@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 // - El organizador lo crea, lo cambia (el anterior deja de funcionar) o lo desactiva.
 // - Con el enlace se ven posiciones, resultados, goleadores, tarjetas y sanciones. Nada de
 //   nóminas, documentos, fechas de nacimiento ni fotos; los jugadores con nombre corto.
+// - El enlace para aficionados (el que va en el flyer) es otro código: muestra marcadores en vivo,
+//   resultados, posiciones y goleadores; no tarjetas ni suspensiones. Se crea junto con el enlace
+//   público y se cambia o desactiva por separado.
 // - El enlace es un código aleatorio de 22 caracteres: no se puede adivinar.
 public class PublicoService
 {
@@ -30,28 +33,36 @@ public class PublicoService
 
     // ── Organizador ──────────────────────────────────────────────────────────
 
+    private static EnlacePublicoDto Dto(Campeonato c) => new(c.TokenPublico, c.TokenAficionados);
+
     public async Task<ServiceResult<EnlacePublicoDto>> ConsultarAsync(int idCampeonato)
     {
         if (!await _acceso.CampeonatoAsync(idCampeonato)) return ServiceResult<EnlacePublicoDto>.Fail("Campeonato no encontrado.");
-        var token = await _db.Campeonatos.Where(c => c.IdCampeonato == idCampeonato).Select(c => c.TokenPublico).FirstAsync();
-        return ServiceResult<EnlacePublicoDto>.Ok(new EnlacePublicoDto(token));
+        var c = await _db.Campeonatos.AsNoTracking().FirstAsync(x => x.IdCampeonato == idCampeonato);
+        return ServiceResult<EnlacePublicoDto>.Ok(Dto(c));
     }
 
-    // Crea el enlace o lo cambia por uno nuevo (el anterior deja de funcionar).
-    public async Task<ServiceResult<EnlacePublicoDto>> GenerarAsync(int idCampeonato)
+    // Crea el enlace público o lo cambia por uno nuevo (el anterior deja de funcionar). Si aún no
+    // hay enlace para aficionados, lo crea también (es el que lleva el flyer).
+    public async Task<ServiceResult<EnlacePublicoDto>> GenerarAsync(int idCampeonato, bool aficionados = false)
     {
         if (!await _acceso.CampeonatoAsync(idCampeonato)) return ServiceResult<EnlacePublicoDto>.Fail("Campeonato no encontrado.");
         var c = await _db.Campeonatos.FirstAsync(x => x.IdCampeonato == idCampeonato);
-        c.TokenPublico = NuevoToken();
+        if (aficionados) c.TokenAficionados = NuevoToken();
+        else
+        {
+            c.TokenPublico = NuevoToken();
+            c.TokenAficionados ??= NuevoToken();
+        }
         await _db.SaveChangesAsync();
-        return ServiceResult<EnlacePublicoDto>.Ok(new EnlacePublicoDto(c.TokenPublico));
+        return ServiceResult<EnlacePublicoDto>.Ok(Dto(c));
     }
 
-    public async Task<ServiceResult> DesactivarAsync(int idCampeonato)
+    public async Task<ServiceResult> DesactivarAsync(int idCampeonato, bool aficionados = false)
     {
         if (!await _acceso.CampeonatoAsync(idCampeonato)) return ServiceResult.Fail("Campeonato no encontrado.");
         var c = await _db.Campeonatos.FirstAsync(x => x.IdCampeonato == idCampeonato);
-        c.TokenPublico = null;
+        if (aficionados) c.TokenAficionados = null; else c.TokenPublico = null;
         await _db.SaveChangesAsync();
         return ServiceResult.Ok();
     }
@@ -59,16 +70,26 @@ public class PublicoService
     // ── Público ──────────────────────────────────────────────────────────────
 
     // Campeonato del enlace, o null si no existe o está desactivado. Si existe, habilita la
-    // lectura de ese campeonato para esta petición (AccesoCampeonato).
-    public async Task<int?> AbrirAsync(string token)
+    // lectura de ese campeonato para esta petición (AccesoCampeonato). Con completo = true solo
+    // vale el enlace público (tarjetas y suspensiones); el de aficionados devuelve null.
+    public async Task<EnlaceAbierto?> AbrirAsync(string token, bool completo = false)
     {
         if (string.IsNullOrEmpty(token) || token.Length != 22 || !token.All(char.IsAsciiLetterOrDigit)) return null;
-        var id = await _db.Campeonatos.Where(c => c.TokenPublico == token).Select(c => (int?)c.IdCampeonato).FirstOrDefaultAsync();
-        if (id is int i) _acceso.PermitirLecturaPublica(i);
-        return id;
+        // MySQL compara sin distinguir mayúsculas: se trae el candidato y aquí se exige el código exacto.
+        var candidatos = await _db.Campeonatos
+            .Where(c => c.TokenPublico == token || (!completo && c.TokenAficionados == token))
+            .Select(c => new { c.IdCampeonato, c.TokenPublico, c.TokenAficionados })
+            .ToListAsync();
+        var e = candidatos
+            .Where(c => string.Equals(c.TokenPublico, token, StringComparison.Ordinal)
+                     || (!completo && string.Equals(c.TokenAficionados, token, StringComparison.Ordinal)))
+            .Select(c => new EnlaceAbierto(c.IdCampeonato, !string.Equals(c.TokenPublico, token, StringComparison.Ordinal)))
+            .FirstOrDefault();
+        if (e is not null) _acceso.PermitirLecturaPublica(e.IdCampeonato);
+        return e;
     }
 
-    public async Task<PublicoCampeonatoDto> CampeonatoAsync(int idCampeonato)
+    public async Task<PublicoCampeonatoDto> CampeonatoAsync(int idCampeonato, bool aficionados)
     {
         var c = await _db.Campeonatos
             .Include(x => x.ModalidadDeportiva)
@@ -82,7 +103,8 @@ public class PublicoService
             c.FechaInicio.ToString("yyyy-MM-dd"), c.FechaFin.ToString("yyyy-MM-dd"),
             c.ModalidadDeportiva.Nombre, organizacion,
             c.Equipos.OrderBy(ce => ce.Equipo.Nombre)
-                .Select(ce => new DirigenteEquipoDto(ce.IdEquipo, ce.Equipo.Nombre, ce.Equipo.Pais.Nombre, ce.Equipo.LogoUrl)).ToList());
+                .Select(ce => new DirigenteEquipoDto(ce.IdEquipo, ce.Equipo.Nombre, ce.Equipo.Pais.Nombre, ce.Equipo.LogoUrl)).ToList(),
+            aficionados, aficionados ? null : c.TokenAficionados);
     }
 
     // Jornadas con sus partidos: equipos, fecha, estadio y marcador. Sin planillas ni eventos.
@@ -108,3 +130,5 @@ public class PublicoService
             partidos.Where(p => p.IdJornada == j.IdJornada).ToList())).ToList();
     }
 }
+
+public record EnlaceAbierto(int IdCampeonato, bool Aficionados);

@@ -1359,3 +1359,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Causa: la página ya muestra los logos y el navegador los guarda en su memoria por un año. El flyer reutilizaba esa copia, que no tiene el permiso para dibujarse en una imagen, y la descarga fallaba en silencio (salían las iniciales).
 - Arreglo: el flyer vuelve a pedir cada logo al servidor (`cache: 'reload'`), y el servidor marca las imágenes con `Vary: Origin` para que el navegador guarde copias separadas.
 - Verificado en Chromium: con el logo ya mostrado en la página, la versión anterior dibujaba 0 píxeles del logo y la nueva lo dibuja completo.
+
+## 2026-10-30 — Enlace para aficionados (el del flyer)
+
+**Estado:** aplicada en la rama `mejora/enlace-aficionados`. Pendiente de que Roberto la apruebe. **Necesita el script `backend/database/20261030_enlace_aficionados.sql` en Railway ANTES de fusionar** y deploy del backend.
+
+- Dos enlaces sin cuenta en la pestaña Dirigentes:
+  - **Enlace para dirigentes** (el enlace público de siempre): resultados, posiciones, goleadores, tarjetas y suspensiones. Compártalo solo con los dirigentes.
+  - **Enlace para aficionados** (nuevo): marcadores en vivo, resultados, posiciones y goleadores; sin las pestañas de tarjetas ni suspensiones (el servidor responde 404 a esas consultas con este enlace).
+- El flyer de la jornada (organizador, enlace de dirigentes y dirigente con cuenta) comparte siempre el enlace para aficionados. Pie del flyer: «Marcadores minuto a minuto, resultados, posiciones y goleadores.»
+- El de aficionados se crea junto con el de dirigentes; cada uno se cambia o desactiva por separado. El script crea el de aficionados a los campeonatos que ya tienen enlace público (el enlace actual sigue igual).
+- Columna `campeonato.token_aficionados` (única). Reversa: `20261030_enlace_aficionados_reversa.sql`.

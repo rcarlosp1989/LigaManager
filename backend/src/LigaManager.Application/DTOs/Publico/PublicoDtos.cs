@@ -1,8 +1,10 @@
 namespace LigaManager.Application.DTOs.Publico;
 using LigaManager.Application.DTOs.Dirigentes;
 
-// Enlace público del campeonato (organizador). Token null = desactivado.
-public record EnlacePublicoDto(string? Token);
+// Enlaces del campeonato (organizador). Null = desactivado.
+//  - Token: enlace público completo (con tarjetas y suspensiones), para los dirigentes.
+//  - TokenAficionados: enlace del flyer, sin tarjetas ni suspensiones.
+public record EnlacePublicoDto(string? Token, string? TokenAficionados = null);
 
 // Lo que ve cualquiera con el enlace público.
 public record PublicoCampeonatoDto(
@@ -13,7 +15,9 @@ public record PublicoCampeonatoDto(
     string                   FechaFin,
     string                   Modalidad,
     string                   Organizacion,
-    List<DirigenteEquipoDto> Equipos
+    List<DirigenteEquipoDto> Equipos,
+    bool                     Aficionados       = false, // abierto con el enlace para aficionados
+    string?                  EnlaceAficionados = null   // con el enlace completo: código del de aficionados (flyer)
 );
 
 public record PublicoJornadaDto(
