@@ -136,6 +136,8 @@ s, r = llamar("GET", "/publico/abc")
 esperar("un código con otro largo no muestra nada (404)", s == 404, str(s))
 s, r = llamar("GET", f"/publico/{tok}/estadisticas/goleadores".replace(tok, tok[:-1] + ("a" if tok[-1] != "a" else "b")))
 esperar("un código casi igual no muestra nada (404)", s == 404, str(s))
+s, _ = llamar("GET", f"/publico/{tok.swapcase()}")
+esperar("el mismo código con mayúsculas y minúsculas cambiadas no muestra nada (404)", s == 404, str(s))
 
 # ── Cambiar y desactivar ──
 s, e2 = llamar("POST", f"/campeonatos/{A}/enlace-publico", org1)
