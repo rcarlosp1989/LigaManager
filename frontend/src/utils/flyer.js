@@ -251,7 +251,7 @@ export async function generarFlyer(datos) {
   ctx.fillStyle = C.texto; ctx.font = `600 42px ${DISPLAY}`
   ctx.fillText('SIGA LA JORNADA EN VIVO', X + 32, yPie + 36 + 40)
   ctx.fillStyle = C.suave; ctx.font = `400 23px ${CUERPO}`
-  ctx.fillText('Marcadores minuto a minuto, posiciones, goleadores y sanciones.', X, yPie + 36 + 84)
+  ctx.fillText('Marcadores minuto a minuto, resultados, posiciones y goleadores.', X, yPie + 36 + 84)
   // Botón «Toque el enlace del mensaje →»
   ctx.font = `700 24px ${CUERPO}`
   const textoBoton = 'Toque el enlace del mensaje'

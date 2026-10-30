@@ -1222,7 +1222,7 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
               <BotonFlyer campeonato={campFlyer.nombre}
                 jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia, grupo: jornadaDetalle?.grupo ?? jornada.grupo }}
                 partidos={partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))}
-                enlace={enlaceFlyer?.token ? `${window.location.origin}/publico/${enlaceFlyer.token}` : null} />
+                enlace={enlaceFlyer?.tokenAficionados ? `${window.location.origin}/publico/${enlaceFlyer.tokenAficionados}` : null} />
             </div>
           )}
           <button

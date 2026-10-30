@@ -7,7 +7,7 @@ import { generarFlyer, compartirFlyer } from '../utils/flyer'
 // que lleva el enlace público del campeonato (en el celular abre el menú de compartir, con
 // WhatsApp; en el computador descarga la imagen y copia el mensaje).
 // jornada: { numero, instancia, grupo }; partidos: [{ fecha, local, visitante, logoLocal, logoVisitante, estadio }]
-// enlace: dirección del enlace público, o null si el campeonato no tiene.
+// enlace: dirección del enlace para aficionados, o null si el campeonato no tiene.
 export default function BotonFlyer({ campeonato, jornada, partidos, enlace, className = '' }) {
   const aviso = useAviso()
   const [generando, setGenerando] = useState(false)
@@ -25,7 +25,7 @@ export default function BotonFlyer({ campeonato, jornada, partidos, enlace, clas
       const r = await compartirFlyer(blob, { archivo, texto })
       if (r === 'descargado' || r === 'descargado_sin_texto') {
         aviso.exito(!enlace
-          ? 'Flyer descargado. Para incluir el enlace en vivo, cree el enlace público en la pestaña Dirigentes.'
+          ? 'Flyer descargado. Para incluir el enlace en vivo, cree el enlace para aficionados en la pestaña Dirigentes.'
           : r === 'descargado'
             ? 'Flyer descargado. El mensaje con el enlace se copió: péguelo al enviar la imagen.'
             : `Flyer descargado. Envíelo junto con este enlace: ${enlace}`)

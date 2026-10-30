@@ -21,23 +21,28 @@ const TABS = [
   { key: 'resultados', label: 'Resultados', Icono: CalendarDays },
   { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
   { key: 'goleadores', label: 'Goleadores', Icono: Balon },
-  { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical },
-  { key: 'suspensiones', label: 'Suspensiones', Icono: Ban },
+  { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical, completo: true },
+  { key: 'suspensiones', label: 'Suspensiones', Icono: Ban, completo: true },
 ]
 
 const ESTADOS = { Planificado: 'Planificado', EnCurso: 'En curso', Finalizado: 'Finalizado' }
 
 // Enlace público del campeonato (/publico/{código}): se ve sin cuenta. Solo resultados, tablas y
 // estadísticas; los jugadores con nombre corto y sin fotos. Nada de nóminas ni documentos.
+// Con el enlace para aficionados (el del flyer) no hay pestañas de tarjetas ni suspensiones.
 export default function CampeonatoPublico() {
   const { token } = useParams()
   const [params, setParams] = useSearchParams()
-  const tab = TABS.some(t => t.key === params.get('tab')) ? params.get('tab') : 'resultados'
-  const setTab = (clave) => setParams(clave === 'resultados' ? {} : { tab: clave }, { replace: true })
   const base = `/publico/${encodeURIComponent(token)}`
 
   const q = useQuery({ queryKey: ['publico', token], queryFn: () => api.get(base).then(r => r.data), retry: false })
   const camp = q.data
+  const tabs = TABS.filter(t => !t.completo || (camp && !camp.aficionados))
+  const tab = tabs.some(t => t.key === params.get('tab')) ? params.get('tab') : 'resultados'
+  const setTab = (clave) => setParams(clave === 'resultados' ? {} : { tab: clave }, { replace: true })
+  // Enlace del flyer: el de aficionados (si se abrió con él, es esta misma página).
+  const enlaceFlyer = camp?.aficionados ? `${window.location.origin}${base}`
+    : camp?.enlaceAficionados ? `${window.location.origin}/publico/${camp.enlaceAficionados}` : null
   const noExiste = q.isError && q.error?.response?.status === 404
 
   return (
@@ -65,7 +70,7 @@ export default function CampeonatoPublico() {
             </section>
 
             <div className="mb-4 flex gap-1 overflow-x-auto border-b border-gray-800">
-              {TABS.map(t => (
+              {tabs.map(t => (
                 <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-current={tab === t.key ? 'true' : undefined}
                   className={`-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                     tab === t.key ? 'border-brand-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -75,7 +80,7 @@ export default function CampeonatoPublico() {
               ))}
             </div>
 
-            {tab === 'resultados' && <><PanelEnVivo url={`${base}/en-vivo`} /><Resultados base={base} campeonato={camp.nombre} enlace={`${window.location.origin}${base}`} /></>}
+            {tab === 'resultados' && <><PanelEnVivo url={`${base}/en-vivo`} /><Resultados base={base} campeonato={camp.nombre} enlace={enlaceFlyer} /></>}
             {tab === 'posiciones' && (
               <TabPosiciones idCampeonato={token} campeonato={camp} base={base}
                 logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
