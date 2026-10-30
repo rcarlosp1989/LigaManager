@@ -75,10 +75,16 @@ public class PublicoService
     public async Task<EnlaceAbierto?> AbrirAsync(string token, bool completo = false)
     {
         if (string.IsNullOrEmpty(token) || token.Length != 22 || !token.All(char.IsAsciiLetterOrDigit)) return null;
-        var e = await _db.Campeonatos
+        // MySQL compara sin distinguir mayúsculas: se trae el candidato y aquí se exige el código exacto.
+        var candidatos = await _db.Campeonatos
             .Where(c => c.TokenPublico == token || (!completo && c.TokenAficionados == token))
-            .Select(c => new EnlaceAbierto(c.IdCampeonato, c.TokenPublico != token))
-            .FirstOrDefaultAsync();
+            .Select(c => new { c.IdCampeonato, c.TokenPublico, c.TokenAficionados })
+            .ToListAsync();
+        var e = candidatos
+            .Where(c => string.Equals(c.TokenPublico, token, StringComparison.Ordinal)
+                     || (!completo && string.Equals(c.TokenAficionados, token, StringComparison.Ordinal)))
+            .Select(c => new EnlaceAbierto(c.IdCampeonato, !string.Equals(c.TokenPublico, token, StringComparison.Ordinal)))
+            .FirstOrDefault();
         if (e is not null) _acceso.PermitirLecturaPublica(e.IdCampeonato);
         return e;
     }
