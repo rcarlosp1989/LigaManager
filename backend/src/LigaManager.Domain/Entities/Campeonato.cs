@@ -15,6 +15,9 @@ public class Campeonato
     public int?              IdUsuarioCreador { get; set; }
     // Enlace público (solo lectura, sin cuenta): /publico/{TokenPublico}. Null = desactivado.
     public string?           TokenPublico     { get; set; }
+    // Enlace para aficionados (el del flyer): /publico/{TokenAficionados}. Solo marcadores en vivo,
+    // resultados, posiciones y goleadores; sin tarjetas ni suspensiones. Null = desactivado.
+    public string?           TokenAficionados { get; set; }
     public TipoPartido                   TipoPartido { get; set; } = null!;
     public Usuario?                       UsuarioCreador  { get; set; }
     public ICollection<CampeonatoEquipo> Equipos     { get; set; } = [];

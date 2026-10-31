@@ -255,6 +255,7 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Campeonato>(e =>
         {
             e.HasIndex(c => c.TokenPublico).IsUnique();
+            e.HasIndex(c => c.TokenAficionados).IsUnique();
             e.Property(c => c.IdCampeonato) .HasColumnName("id_campeonato");
             e.Property(c => c.Nombre)       .HasColumnName("nombre");
             e.Property(c => c.Anio)         .HasColumnName("anio");

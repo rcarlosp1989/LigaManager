@@ -207,7 +207,7 @@ function DetalleJornada({ base, idJornada, idEquipoPropio, camp }) {
       {q.data.partidos.some(p => !p.jugado) && (
         <div className="flex justify-end">
           <BotonFlyer campeonato={camp.nombre} jornada={q.data}
-            enlace={camp.enlacePublico ? `${window.location.origin}/publico/${camp.enlacePublico}` : null}
+            enlace={camp.enlaceAficionados ? `${window.location.origin}/publico/${camp.enlaceAficionados}` : null}
             partidos={q.data.partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))} />
         </div>
       )}
