@@ -28,6 +28,6 @@ public record PartidoEnVivoDto(
 // pantalla los sigue contando. DuracionMin: minutos de cada tiempo.
 public record RelojEnVivoDto(string Fase, int Segundos, bool Corriendo, int DuracionMin);
 
-// Tipo: GOL | GOL_EN_CONTRA | ROJA. Lado: local | visitante (para un gol, el equipo que lo
+// Tipo: GOL | GOL_EN_CONTRA | AMARILLA | ROJA. Lado: local | visitante (para un gol, el equipo que lo
 // suma; para una roja, el del jugador). DobleAmarilla: roja por segunda amarilla.
 public record EventoEnVivoDto(int Minuto, string Tipo, string Jugador, string Lado, bool DobleAmarilla);

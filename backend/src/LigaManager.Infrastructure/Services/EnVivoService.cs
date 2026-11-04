@@ -100,8 +100,11 @@ public class EnVivoService
                         break;
                     case "TARJETA_AMARILLA":
                         amarillas[e.IdJugador] = amarillas.GetValueOrDefault(e.IdJugador) + 1;
+                        // La primera amarilla se muestra como amarilla.
+                        if (amarillas[e.IdJugador] == 1)
+                            lineas.Add(new EventoEnVivoDto(e.Minuto, "AMARILLA", nombre, lado, false));
                         // La segunda amarilla es roja (si no registraron también la roja aparte).
-                        if (amarillas[e.IdJugador] == 2
+                        else if (amarillas[e.IdJugador] == 2
                             && !eventos.Any(x => x.IdPartido == p.IdPartido && x.IdJugador == e.IdJugador && x.TipoEvento == "TARJETA_ROJA"))
                             lineas.Add(new EventoEnVivoDto(e.Minuto, "ROJA", nombre, lado, true));
                         break;
