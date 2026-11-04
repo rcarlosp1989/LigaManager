@@ -9,5 +9,6 @@ public record CampeonatoDetalleDto(
     string TipoPartido,
     int    IdModalidad,
     string Modalidad,
-    List<EquipoEnCampeonatoDto> Equipos
+    List<EquipoEnCampeonatoDto> Equipos,
+    string? LogoUrl = null   // logo de la liga (acta de juego)
 );

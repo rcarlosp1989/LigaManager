@@ -10,7 +10,7 @@ const MAX_LOGO_BYTES = 300 * 1024
 //  - logoActual: URL del logo guardado, si tiene.
 //  - valor: { archivo: File | null, quitar: boolean }; onChange recibe el nuevo valor.
 // La imagen se achica a 256 px en el celular antes de subirla.
-export default function CampoLogo({ nombre, logoActual, valor, onChange, onProcesando }) {
+export default function CampoLogo({ nombre, logoActual, valor, onChange, onProcesando, etiqueta = 'Logo', ayuda }) {
   const id = useId()
   const input = useRef(null)
   const [vista, setVista] = useState(null)
@@ -55,7 +55,7 @@ export default function CampoLogo({ nombre, logoActual, valor, onChange, onProce
   return (
     <div>
       <span id={`${id}-et`} className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">
-        Logo <span className="normal-case text-gray-600">(opcional)</span>
+        {etiqueta} <span className="normal-case text-gray-600">(opcional)</span>
       </span>
       <div className="flex items-center gap-3">
         <LogoEquipo nombre={nombre || '?'} logoUrl={mostrado} tamano={64} />
@@ -78,7 +78,7 @@ export default function CampoLogo({ nombre, logoActual, valor, onChange, onProce
       <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only"
         tabIndex={-1} aria-hidden="true" onChange={elegir} />
       <p className="text-gray-500 text-xs mt-1.5">
-        {valor.quitar && !vista ? 'El logo se quitará al guardar.' : 'JPG, PNG o WEBP. Se ve mejor si es cuadrado.'}
+        {valor.quitar && !vista ? 'El logo se quitará al guardar.' : (ayuda ?? 'JPG, PNG o WEBP. Se ve mejor si es cuadrado.')}
       </p>
       {error && <p role="alert" className="text-red-400 text-xs mt-1">{error}</p>}
     </div>
