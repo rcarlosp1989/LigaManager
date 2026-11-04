@@ -191,6 +191,8 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     if (r === '/campeonatos/1') return campOrganizador
     if (r === '/campeonatos/1/jornadas') return jornadas
     if (/^\/jornadas\/\d+$/.test(r)) return detalleJornada(Number(r.split('/').pop()))
+    if (r === '/catalogos/tipos-partido') return [{ idTipoPartido: 1, nombre: 'Todos contra todos' }]
+    if (r === '/catalogos/modalidades') return [{ idModalidad: 1, nombre: 'Fútbol' }]
     if (r === '/estadios') return [{ idEstadio: 1, nombre: 'Estadio Recuspro', idPais: 1, pais: 'Ecuador' }]
     if (r === '/arbitros') return []
     if (r === '/campeonatos/1/dirigentes') return dirigentes
@@ -428,7 +430,7 @@ for (const ancho of [390, 1440]) {
   await descarga.saveAs(ruta)
   const pdf = fs.readFileSync(ruta).toString('latin1')
   ok(`acta @${ancho}: es un PDF de una página`, pdf.startsWith('%PDF') && /\/Count 1\b/.test(pdf), pdf.slice(0, 20))
-  ok(`acta @${ancho}: nombre del archivo`, /^acta_fecha2_Leones_del_Guasmo_Sporting_C\w*_vs_Ventarr\w+\.pdf$/.test(descarga.suggestedFilename()), descarga.suggestedFilename())
+  ok(`acta @${ancho}: nombre del archivo`, /^acta_fecha2_Leones_del_Guasmo_Sporting_Clu_vs_Ventarrón_FC\.pdf$/.test(descarga.suggestedFilename()), descarga.suggestedFilename())
   ok(`acta @${ancho}: encabezado, campeonato y columnas`, ['ACTA DE JUEGO', 'LIGA BARRIAL RECUSPRO', 'T/S', 'ENT', 'SAL', 'T-A', 'T-R', 'GOL', 'DELEGADO A', 'DELEGADO B'].every(t => pdf.includes(t)), '')
   ok(`acta @${ancho}: jugadores de los dos equipos`, pdf.includes('Carlos Mendoza') && pdf.includes('Kevin Pl'), '')
   ok(`acta @${ancho}: el suspendido sale marcado`, pdf.includes('SUSPENDIDO'), '')
