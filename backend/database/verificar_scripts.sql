@@ -1,0 +1,35 @@
+-- LigaManager: ¿qué scripts de backend/database faltan en esta base?
+-- Ejecútelo en la base local (o en cualquier otra). No cambia nada: solo consulta.
+-- Los PENDIENTE se ejecutan en el orden de la columna «orden».
+-- «(datos)» usa un conteo aproximado de filas: si sale PENDIENTE y la tabla tiene datos, revíselo a mano.
+
+SELECT DATABASE() AS base_revisada;
+
+SELECT  1 AS orden, '20260911_designaciones_oficiales.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido_oficial'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  2 AS orden, '20260911_jugador_identificacion.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND COLUMN_NAME='foto_url'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  3 AS orden, '20260911_privacidad_oficiales_estadios.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='arbitro' AND COLUMN_NAME='id_usuario_creador'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  4 AS orden, '20260911_privacidad_por_organizador.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='equipo' AND COLUMN_NAME='id_usuario_creador'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  5 AS orden, '20260916_jugador_posicion.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='jugador_equipo' AND COLUMN_NAME='posicion'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  6 AS orden, '20260919_alineaciones_partido.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='alineacion_jugador'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  7 AS orden, '20260923_rol_organizador.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='usuario' AND COLUMN_NAME='rol' AND COLUMN_TYPE LIKE '%ORGANIZADOR%'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  8 AS orden, '20260926_partido_grupo.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido' AND COLUMN_NAME='id_grupo'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT  9 AS orden, '20260927_pais_provincia_canton.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='canton'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 10 AS orden, '20260927_cantones_ecuador.sql (datos)' AS script, IF(COALESCE((SELECT TABLE_ROWS FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='canton'),0) > 50, 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 11 AS orden, '20260928_ubicacion_persona_estadio.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND COLUMN_NAME='id_pais'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 12 AS orden, '20260929_partido_observaciones_desierto.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido' AND COLUMN_NAME='desierto'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 13 AS orden, '20260930_perdida_reglamento_gol_en_contra.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido' AND COLUMN_NAME='perdida_reglamento'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 14 AS orden, '20261001_sancion_manual.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='sancion_manual'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 15 AS orden, '20261009_rol_vocal.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato_vocal'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 16 AS orden, '20261009_registro_en_vivo.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido' AND COLUMN_NAME='estado_registro'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 17 AS orden, '20261010_cedula_por_organizador.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND INDEX_NAME='idx_persona_cedula'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 18 AS orden, '20261010_imagenes_logos.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='equipo' AND COLUMN_NAME='logo_url'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 19 AS orden, '20261010_paises_completos.sql (datos)' AS script, IF(COALESCE((SELECT TABLE_ROWS FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='pais'),0) > 100, 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 20 AS orden, '20261010_tipo_documento.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND COLUMN_NAME='tipo_identificacion'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 21 AS orden, '20261019_documento_pendiente.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND COLUMN_NAME='tipo_identificacion' AND COLUMN_TYPE LIKE '%PENDIENTE%'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 22 AS orden, '20261019_rol_dirigente.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato_dirigente'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 23 AS orden, '20261020_privacidad_terminos.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='persona' AND COLUMN_NAME='autorizacion_datos_en'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 24 AS orden, '20261021_enlace_publico.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato' AND COLUMN_NAME='token_publico'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 25 AS orden, '20261021_seguridad_cuentas.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='token_usuario'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 26 AS orden, '20261026_reloj_en_vivo.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='partido' AND COLUMN_NAME='reloj_fase'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 27 AS orden, '20261030_enlace_aficionados.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato' AND COLUMN_NAME='token_aficionados'), 'aplicado', '>>> PENDIENTE') AS estado
+ORDER BY orden;
