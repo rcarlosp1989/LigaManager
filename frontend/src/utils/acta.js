@@ -209,14 +209,17 @@ export async function generarActa(datos) {
   campo(doc, 'Marcador equipo A', '', M, y, col)
   campo(doc, 'Marcador equipo B', '', x2, y, col)
   y += 8
-  const linea = (yy) => { punteada(doc); doc.line(M, yy, ANCHO - M, yy); continua(doc) }
-  campo(doc, 'Observación vocal', '', M, y, ANCHO - 2 * M)
-  linea(y + 6.8)
-  y += 13
-  campo(doc, 'Observación arbitral', '', M, y, ANCHO - 2 * M)
-  linea(y + 6.8)
-
   const yFirma = 297 - M - 9
+  // Observaciones: las líneas que entren entre el marcador y las firmas (al menos 2 por bloque).
+  const PASO = 6.6
+  const lineas = Math.max(2, Math.floor((yFirma - 14 - y) / (2 * PASO)))
+  const linea = (yy) => { punteada(doc); doc.line(M, yy, ANCHO - M, yy); continua(doc) }
+  for (const titulo of ['Observación vocal', 'Observación arbitral']) {
+    campo(doc, titulo, '', M, y, ANCHO - 2 * M)
+    for (let i = 1; i < lineas; i++) linea(y + 0.8 + i * PASO)
+    y += lineas * PASO
+  }
+
   const anchoFirma = (ANCHO - 2 * M - 3 * 8) / 4
   ;['Delegado A', 'Árbitro', 'Vocal', 'Delegado B'].forEach((t, i) => {
     const x = M + i * (anchoFirma + 8)
