@@ -1370,3 +1370,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - El flyer de la jornada (organizador, enlace de dirigentes y dirigente con cuenta) comparte siempre el enlace para aficionados. Pie del flyer: «Marcadores minuto a minuto, resultados, posiciones y goleadores.»
 - El de aficionados se crea junto con el de dirigentes; cada uno se cambia o desactiva por separado. El script crea el de aficionados a los campeonatos que ya tienen enlace público (el enlace actual sigue igual).
 - Columna `campeonato.token_aficionados` (única). Reversa: `20261030_enlace_aficionados_reversa.sql`.
+
+## 2026-11-04 — Marcadores en vivo: también las amarillas
+
+**Estado:** aplicada en la rama `mejora/amarillas-en-vivo`. Pendiente de que Roberto la apruebe. **Necesita deploy del backend**; no necesita script.
+
+- En la prueba del fin de semana se vieron los goles, la roja y la roja por doble amarilla, pero no las amarillas sueltas (se había definido mostrar solo goles y rojas).
+- Ahora cada amarilla aparece con su ícono, minuto y jugador, debajo del equipo. La segunda amarilla del mismo jugador sigue saliendo como roja por doble amarilla (ícono amarillo y rojo), así que no se repite.
+- Aplica al enlace para dirigentes, al de aficionados y a la cuenta de dirigente.

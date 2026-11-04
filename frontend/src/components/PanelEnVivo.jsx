@@ -7,7 +7,7 @@ import { perdio } from '../utils/marcador'
 import { Arco, Balon, Tarjeta } from './IconoEvento'
 
 // Marcadores en vivo (enlace público y dirigente): los partidos de hoy y los que estén en vivo.
-// - Marcador, goles con minuto y jugador, y rojas (también por doble amarilla).
+// - Marcador, goles con minuto y jugador, amarillas y rojas (también por doble amarilla).
 // - El minuto sale del reloj del vocal; la pantalla lo sigue contando entre consultas.
 // - Consulta cada 30 s mientras hay un partido en vivo (cada 2 min si solo hay partidos por
 //   jugar hoy) y solo con la pantalla visible.
@@ -128,7 +128,7 @@ function Estado({ p, minuto, descanso }) {
   return <span className="text-gray-400">Hoy · {p.fecha.slice(11, 16)}</span>
 }
 
-// Goles y rojas de un equipo, debajo de su nombre.
+// Goles y tarjetas de un equipo, debajo de su nombre.
 function Eventos({ lista }) {
   if (lista.length === 0) return null
   return <ul className="mt-0.5 space-y-0.5 pl-9 text-xs text-gray-300">{lista.map((e, i) => <Evento key={i} e={e} />)}</ul>
@@ -138,10 +138,11 @@ function Evento({ e }) {
   // Roja por doble amarilla: amarilla y roja juntas. En pantalla, textos cortos; el lector de pantalla lee el detalle completo.
   const icono = e.tipo === 'ROJA'
     ? (e.dobleAmarilla ? <span className="inline-flex shrink-0"><Tarjeta color="amarilla" /><Tarjeta color="roja" className="-ml-1" /></span> : <Tarjeta color="roja" />)
+    : e.tipo === 'AMARILLA' ? <Tarjeta color="amarilla" />
     : e.tipo === 'GOL_EN_CONTRA' ? <Arco /> : <Balon />
   const corto = e.tipo === 'GOL_EN_CONTRA' ? ' (e.c.)' : ''
   const detalle = e.tipo === 'GOL_EN_CONTRA' ? ' (en contra)' : e.dobleAmarilla ? ' (doble amarilla)' : ''
-  const etiqueta = e.tipo === 'ROJA' ? 'Roja' : 'Gol'
+  const etiqueta = e.tipo === 'ROJA' ? 'Roja' : e.tipo === 'AMARILLA' ? 'Amarilla' : 'Gol'
   return (
     <li className="flex items-center gap-1.5" aria-label={`${etiqueta}, minuto ${e.minuto}: ${e.jugador}${detalle}`}>
       {icono}<span className="w-7 shrink-0 tabular-nums text-gray-500">{e.minuto}'</span>
