@@ -19,6 +19,7 @@ import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
 import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User } from 'lucide-react'
 import BotonFlyer from '../../components/BotonFlyer'
+import BotonActa from '../../components/BotonActa'
 
 // «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
 const aFechaHoraLocal = (f) => (f ? f.replace(' ', 'T').slice(0, 16) : '')
@@ -741,7 +742,7 @@ function EquipoSelector({ id, idCampeonato, value, onChange, excluir }) {
 
 const ETIQUETA_EVENTO = { GOL: 'Gol', GOL_EN_CONTRA: 'Gol en contra', TARJETA_AMARILLA: 'Tarjeta amarilla', TARJETA_ROJA: 'Tarjeta roja' }
 
-function PartidoCard({ partido, idCampeonato }) {
+function PartidoCard({ partido, idCampeonato, jornada }) {
   const fid = useId()
   const queryClient = useQueryClient()
   const aviso = useAviso()
@@ -972,6 +973,7 @@ function PartidoCard({ partido, idCampeonato }) {
           onClick={() => setShowAlineacionModal(true)}
           className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5"
         ><ClipboardList size={13} aria-hidden="true" />Planilla</button>
+        {!partido.jugado && <BotonActa campeonato={camp} jornada={jornada} partido={partido} />}
         {/* Jugado: el modo en vivo solo muestra el resumen. */}
         <Link
           to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}${partido.jugado ? '&vista=cierre' : ''}`}
@@ -1214,7 +1216,8 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle }) {
             <p className="text-gray-500 text-sm text-center py-4">No hay partidos en esta jornada.</p>
           ) : (
             partidos.map(p => (
-              <PartidoCard key={p.idPartido} partido={p} idCampeonato={idCampeonato} />
+              <PartidoCard key={p.idPartido} partido={p} idCampeonato={idCampeonato}
+                jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia }} />
             ))
           )}
           {porJugar && campFlyer && (

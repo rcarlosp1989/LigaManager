@@ -1378,3 +1378,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En la prueba del fin de semana se vieron los goles, la roja y la roja por doble amarilla, pero no las amarillas sueltas (se había definido mostrar solo goles y rojas).
 - Ahora cada amarilla aparece con su ícono, minuto y jugador, debajo del equipo. La segunda amarilla del mismo jugador sigue saliendo como roja por doble amarilla (ícono amarillo y rojo), así que no se repite.
 - Aplica al enlace para dirigentes, al de aficionados y a la cuenta de dirigente.
+
+## 2026-11-04 — Acta de juego en PDF y logo de la liga
+
+**Estado:** aplicada en la rama `mejora/acta-de-juego`. Pendiente de que Roberto la apruebe. **Necesita el script `backend/database/20261104_logo_campeonato.sql` en Railway (y en la base local) ANTES de fusionar** y deploy del backend. Diseño aprobado en el lienzo «Planilla del partido», a partir de la foto del acta en papel de la liga.
+
+- Botón **«Acta PDF»** en cada partido por jugar (organizador, pestaña Jornadas). Descarga el acta A4 vertical:
+  - Logo de la liga a los dos lados; campeonato, «ACTA DE JUEGO» y el cruce.
+  - Número de fecha (con fase y grupo), hora, fecha, estadio, vocal (en blanco), árbitro (si está asignado) y los dos equipos.
+  - Una tabla por equipo con **todos los jugadores habilitados ese día**, por dorsal: No., Nombres, **T/S** (titular o suplente), Ent, Sal, T-A, T-R (sombreada) y Gol. Sin sección de suplentes ni cédulas. Los suspendidos salen tachados con «SUSPENDIDO». Al menos 3 filas vacías para anotar a mano; las filas se achican si el plantel es grande.
+  - Marcador A y B, observación del vocal y arbitral, y firmas de Delegado A, Árbitro, Vocal y Delegado B.
+- Campeonato: campo **«Logo de la liga»** al crear o editar (como el logo del equipo: se achica a 256 px, máximo 300 KB). `POST/DELETE /api/campeonatos/{id}/logo`; columna `campeonato.logo_url`. Reversa: `20261104_logo_campeonato_reversa.sql`. `verificar_scripts.sql` incluye el script nuevo.

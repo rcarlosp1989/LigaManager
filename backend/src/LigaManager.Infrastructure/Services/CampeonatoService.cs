@@ -12,7 +12,8 @@ public class CampeonatoService : ICampeonatoService
 {
     private readonly LigaManagerContext _db;
     private readonly IHttpContextAccessor _http;
-    public CampeonatoService(LigaManagerContext db, IHttpContextAccessor http) { _db = db; _http = http; }
+    private readonly IAlmacenImagenes _imagenes;
+    public CampeonatoService(LigaManagerContext db, IHttpContextAccessor http, IAlmacenImagenes imagenes) { _db = db; _http = http; _imagenes = imagenes; }
 
     private int? UsuarioActualId => int.TryParse(
         _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
@@ -62,7 +63,8 @@ public class CampeonatoService : ICampeonatoService
             c.IdModalidad, c.ModalidadDeportiva.Nombre,
             c.Equipos.Select(ce => new EquipoEnCampeonatoDto(
                 ce.IdEquipo, ce.Equipo.Nombre, ce.Equipo.Pais.Nombre
-            )).ToList()
+            )).ToList(),
+            c.LogoUrl
         ));
     }
 
@@ -136,9 +138,42 @@ public class CampeonatoService : ICampeonatoService
         if (tieneJornadas)
             return ServiceResult.Fail("No se puede eliminar: el campeonato tiene jornadas registradas.");
 
+        var logo = c.LogoUrl;
         _db.Campeonatos.Remove(c);
         await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(logo);
         return ServiceResult.Ok();
+    }
+
+    // Logo de la liga (sale en el acta de juego). Mismas reglas que el logo del equipo: la
+    // pantalla lo achica (256 px), aquí se revisa que sea una imagen y que pese 300 KB o menos.
+    public const int MaxBytesLogo = 300 * 1024;
+
+    public async Task<ServiceResult<CampeonatoDetalleDto>> CambiarLogoAsync(int id, byte[] datos)
+    {
+        var c = await CampeonatosVisibles().FirstOrDefaultAsync(x => x.IdCampeonato == id);
+        if (c is null) return ServiceResult<CampeonatoDetalleDto>.Fail("Campeonato no encontrado.");
+        if (datos.Length == 0) return ServiceResult<CampeonatoDetalleDto>.Fail("Elija una imagen para el logo.");
+        if (datos.Length > MaxBytesLogo) return ServiceResult<CampeonatoDetalleDto>.Fail("El logo no puede pesar más de 300 KB.");
+        var tipo = ArchivoImagen.TipoMime(datos);
+        if (tipo is null) return ServiceResult<CampeonatoDetalleDto>.Fail("El archivo no es una imagen JPG, PNG o WEBP válida.");
+
+        var anterior = c.LogoUrl;
+        c.LogoUrl = await _imagenes.GuardarAsync(datos, tipo);
+        await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(anterior);
+        return await GetByIdAsync(id);
+    }
+
+    public async Task<ServiceResult<CampeonatoDetalleDto>> QuitarLogoAsync(int id)
+    {
+        var c = await CampeonatosVisibles().FirstOrDefaultAsync(x => x.IdCampeonato == id);
+        if (c is null) return ServiceResult<CampeonatoDetalleDto>.Fail("Campeonato no encontrado.");
+        var anterior = c.LogoUrl;
+        c.LogoUrl = null;
+        await _db.SaveChangesAsync();
+        await _imagenes.BorrarAsync(anterior);
+        return await GetByIdAsync(id);
     }
 
     public async Task<ServiceResult> AgregarEquipoAsync(int idCampeonato, int idEquipo)

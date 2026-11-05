@@ -11,4 +11,6 @@ public interface ICampeonatoService
     Task<ServiceResult>                       DeleteAsync(int id);
     Task<ServiceResult>                       AgregarEquipoAsync(int idCampeonato, int idEquipo);
     Task<ServiceResult>                       RemoverEquipoAsync(int idCampeonato, int idEquipo);
+    Task<ServiceResult<CampeonatoDetalleDto>> CambiarLogoAsync(int id, byte[] datos);
+    Task<ServiceResult<CampeonatoDetalleDto>> QuitarLogoAsync(int id);
 }

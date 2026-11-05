@@ -18,6 +18,8 @@ public class Campeonato
     // Enlace para aficionados (el del flyer): /publico/{TokenAficionados}. Solo marcadores en vivo,
     // resultados, posiciones y goleadores; sin tarjetas ni suspensiones. Null = desactivado.
     public string?           TokenAficionados { get; set; }
+    // Logo de la liga (acta de juego). Url de /api/imagenes/…; null = sin logo.
+    public string?           LogoUrl          { get; set; }
     public TipoPartido                   TipoPartido { get; set; } = null!;
     public Usuario?                       UsuarioCreador  { get; set; }
     public ICollection<CampeonatoEquipo> Equipos     { get; set; } = [];

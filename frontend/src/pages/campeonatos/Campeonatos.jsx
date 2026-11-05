@@ -13,6 +13,7 @@ import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback
 import { anioDe, formatearRango } from '../../utils/fechas'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import { Trophy } from 'lucide-react'
+import CampoLogo from '../../components/CampoLogo'
 
 const labelClass = 'block text-xs text-gray-400 uppercase tracking-wider mb-1.5'
 
@@ -35,6 +36,8 @@ function CampeonatoForm({ inicial, onSubmit, loading, error, textoGuardar }) {
     estado:        inicial?.estado ?? 'Planificado',
   }))
   const [errorFechas, setErrorFechas] = useState('')
+  const [logo, setLogo] = useState({ archivo: null, quitar: false })
+  const [preparandoLogo, setPreparandoLogo] = useState(false)
 
   const qTipos = useQuery({
     queryKey: ['tipos-partido'],
@@ -70,7 +73,7 @@ function CampeonatoForm({ inicial, onSubmit, loading, error, textoGuardar }) {
       idTipoPartido: Number(form.idTipoPartido),
       idModalidad:   Number(form.idModalidad),
     }
-    onSubmit(edicion ? { ...datos, estado: form.estado } : datos)
+    onSubmit({ ...(edicion ? { ...datos, estado: form.estado } : datos), logo })
   }
 
   return (
@@ -145,13 +148,33 @@ function CampeonatoForm({ inicial, onSubmit, loading, error, textoGuardar }) {
           </select>
         </div>
       )}
+      <CampoLogo etiqueta="Logo de la liga" nombre={form.nombre} logoActual={inicial?.logoUrl} valor={logo}
+        onChange={setLogo} onProcesando={setPreparandoLogo}
+        ayuda="Sale a los dos lados del acta de juego. JPG, PNG o WEBP; mejor si es cuadrado." />
       {error && (
         <div role="alert" className="bg-red-900/30 border border-red-800 text-red-400
                         rounded-lg px-4 py-3 text-sm">{error}</div>
       )}
-      <AccionesFormulario guardando={loading} texto={textoGuardar} />
+      <AccionesFormulario guardando={loading || preparandoLogo} texto={textoGuardar} />
     </form>
   )
+}
+
+// Sube o quita el logo de la liga después de guardar el campeonato. Si falla, el campeonato ya
+// quedó guardado: se avisa solo lo del logo.
+async function guardarLogo(idCampeonato, logo) {
+  try {
+    if (logo?.archivo) {
+      const body = new FormData()
+      body.append('logo', logo.archivo)
+      await api.post(`/campeonatos/${idCampeonato}/logo`, body)
+    } else if (logo?.quitar) {
+      await api.delete(`/campeonatos/${idCampeonato}/logo`)
+    }
+    return null
+  } catch (err) {
+    return mensajeDeError(err, 'No se pudo guardar el logo.')
+  }
 }
 
 export default function Campeonatos() {
@@ -171,22 +194,31 @@ export default function Campeonatos() {
   const cerrarModal = () => { setModal(null); setFormError('') }
 
   const createMutation = useMutation({
-    mutationFn: (data) => api.post('/campeonatos', data),
-    onSuccess: () => {
+    mutationFn: async ({ logo, ...data }) => {
+      const { data: creado } = await api.post('/campeonatos', data)
+      return guardarLogo(creado.idCampeonato, logo)
+    },
+    onSuccess: (errorLogo) => {
       queryClient.invalidateQueries({ queryKey: ['campeonatos'] })
       cerrarModal()
-      aviso.exito('Campeonato creado.')
+      if (errorLogo) aviso.error(`Campeonato creado, pero el logo no se guardó: ${errorLogo}`)
+      else aviso.exito('Campeonato creado.')
     },
     onError: (err) => setFormError(mensajeDeError(err, 'Error al guardar.')),
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ idCampeonato, ...data }) => api.put(`/campeonatos/${idCampeonato}`, data),
-    onSuccess: (_, { idCampeonato }) => {
+    mutationFn: async ({ idCampeonato, logo, ...data }) => {
+      await api.put(`/campeonatos/${idCampeonato}`, data)
+      return guardarLogo(idCampeonato, logo)
+    },
+    onSuccess: (errorLogo, { idCampeonato }) => {
       queryClient.invalidateQueries({ queryKey: ['campeonatos'] })
       queryClient.invalidateQueries({ queryKey: ['campeonato', String(idCampeonato)] })
+      queryClient.invalidateQueries({ queryKey: ['campeonato', idCampeonato] })
       cerrarModal()
-      aviso.exito('Cambios guardados.')
+      if (errorLogo) aviso.error(`Cambios guardados, pero el logo no se guardó: ${errorLogo}`)
+      else aviso.exito('Cambios guardados.')
     },
     onError: (err) => setFormError(mensajeDeError(err, 'Error al guardar los cambios.')),
   })
