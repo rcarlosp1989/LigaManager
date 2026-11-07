@@ -1389,3 +1389,17 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - Una tabla por equipo con **todos los jugadores habilitados ese día**, por dorsal: No., Nombres, **T/S** (titular o suplente), Ent, Sal, T-A, T-R (sombreada) y Gol. Sin sección de suplentes ni cédulas. Los suspendidos salen tachados con «SUSPENDIDO». Al menos 3 filas vacías para anotar a mano; las filas se achican si el plantel es grande.
   - Marcador A y B, observación del vocal y arbitral, y firmas de Delegado A, Árbitro, Vocal y Delegado B.
 - Campeonato: campo **«Logo de la liga»** al crear o editar (como el logo del equipo: se achica a 256 px, máximo 300 KB). `POST/DELETE /api/campeonatos/{id}/logo`; columna `campeonato.logo_url`. Reversa: `20261104_logo_campeonato_reversa.sql`. `verificar_scripts.sql` incluye el script nuevo.
+
+## 2026-11-07 — Fase eliminatoria, entrega 1 (configuración, llaves manuales y cuadro)
+
+**Estado:** aplicada en la rama `mejora/fase-eliminatoria`. Pendiente de que Roberto la apruebe. **Necesita el script `backend/database/20261107_fase_eliminatoria.sql` en Railway (y en la base local) ANTES de fusionar** y deploy del backend. Es el único script de la fase eliminatoria: la entrega 2 no necesita otro. Diseño aprobado en el lienzo «Fase eliminatoria».
+
+- Pestaña **Llaves** del organizador:
+  - **Configurar:** modo manual (automático «próximamente»), equipos que clasifican (2, 4, 8 o 16), partido por el tercer puesto, por ronda partido único o ida y vuelta, criterio si la llave empata (penales, prórroga y penales, mejor ubicado) y gol de visitante (solo ida y vuelta, antes del criterio). Regla de tarjetas al empezar la fase (se guarda; se aplica en la entrega 2).
+  - **Armar la primera ronda:** la tabla con los primeros marcados (se pueden cambiar), los cruces (con «Sugerir: 1.º contra el último») y la fecha y hora de la ida y de la vuelta. Crea las jornadas «Cuartos de final», «Semifinal», etc. con sus partidos.
+  - **Siguientes rondas:** cuando todas las llaves tienen ganador, se arman con los ganadores (el tercer puesto con los perdedores de las semifinales).
+  - **Cuadro:** ida, vuelta y global, ganador resaltado, detalle del desempate y campeón. Penales de una llave empatada. Eliminar la última ronda si ningún partido empezó.
+- Enlace para dirigentes, de aficionados y cuenta de dirigente: pestaña **Llaves** de solo lectura cuando hay rondas armadas.
+- La tabla de posiciones cuenta solo la fase regular y marca como clasificados los que indica la fase. Los partidos de una llave no cambian de equipos ni se eliminan sueltos.
+- Tablas `fase_eliminatoria`, `ronda_eliminatoria`, `llave`; `partido.id_llave`, `penales_local`, `penales_visitante`; instancias del catálogo. Reversa: `20261107_fase_eliminatoria_reversa.sql`.
+- **Entrega 2 (pendiente):** penales y prórroga al cerrar el partido (vocal y planilla) y aplicar la regla de tarjetas en suspensiones.
