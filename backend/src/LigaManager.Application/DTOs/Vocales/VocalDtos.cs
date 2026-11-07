@@ -92,6 +92,7 @@ public record VocalPartidoDetalleDto(
     EquipoDetalleDto  Visitante
 );
 
-public record CerrarPartidoVocalRequest(string? Observaciones);
+// Penales: solo cuando el partido cierra una llave empatada que se define por penales.
+public record CerrarPartidoVocalRequest(string? Observaciones, int? PenalesLocal = null, int? PenalesVisitante = null);
 
 public record DelegarRequest(string Fecha);

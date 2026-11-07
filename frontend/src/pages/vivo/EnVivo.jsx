@@ -284,6 +284,23 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
   const vista = bloqueado ? 'cierre'
     : VISTAS.some(([v]) => v === params.get('vista')) ? params.get('vista') : (hayConvocados ? 'partido' : 'convocatoria')
 
+  // Fase eliminatoria: si al cerrar este partido la llave queda empatada, se piden los penales
+  // (o se avisa que pasa el mejor ubicado), según las reglas de la ronda.
+  const qLlave = useQuery({
+    queryKey: ['llave-cierre', idPartido],
+    queryFn: () => api.get(`${base}/partidos/${idPartido}/llave`).then(r => (r.status === 204 ? null : r.data)),
+    enabled: !!partido?.idLlave && vista === 'cierre' && !bloqueado,
+  })
+  const [penales, setPenales] = useState({ local: '', visitante: '' })
+  const llave = qLlave.data ?? null
+  const totalLocal = (llave?.previosLocal ?? 0) + marcador.local
+  const totalVisitante = (llave?.previosVisitante ?? 0) + marcador.visitante
+  const empataVisita = !llave?.golVisitante
+    || (llave.visitaPreviosLocal === llave.visitaPreviosVisitante + marcador.visitante)
+  const llaveEmpatada = !!llave && llave.esUltimo && !sinGoles && totalLocal === totalVisitante && empataVisita
+  const pidePenales = llaveEmpatada && llave.desempate !== 'MEJOR_UBICADO'
+  const penalesListos = !pidePenales || (penales.local !== '' && penales.visitante !== '' && Number(penales.local) !== Number(penales.visitante))
+
   // El servidor guarda la hora de inicio (Fase 8): avisa que el partido empezó y permite retomar el reloj.
   const iniciarEnServidor = () => {
     api.put(`${base}/partidos/${idPartido}/iniciar`, null, { timeout: TIEMPO_ESPERA })
@@ -393,9 +410,12 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
 
   const cerrarMutation = useMutation({
     // El vocal cierra con sus observaciones; el organizador marca el partido como jugado.
-    mutationFn: (observaciones) => vocal
-      ? api.put(`/vocal/partidos/${idPartido}/cerrar`, { observaciones: observaciones || null }, { timeout: TIEMPO_ESPERA })
-      : api.put(`/partidos/${idPartido}/cerrar`, { observaciones: null }, { timeout: TIEMPO_ESPERA }),
+    mutationFn: (observaciones) => {
+      const pen = pidePenales ? { penalesLocal: Number(penales.local), penalesVisitante: Number(penales.visitante) } : {}
+      return vocal
+        ? api.put(`/vocal/partidos/${idPartido}/cerrar`, { observaciones: observaciones || null, ...pen }, { timeout: TIEMPO_ESPERA })
+        : api.put(`/partidos/${idPartido}/cerrar`, { observaciones: null, ...pen }, { timeout: TIEMPO_ESPERA })
+    },
     onSuccess: (r) => {
       ponerPartido(r.data)
       invalidarTablas()
@@ -429,7 +449,9 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
   const cerrarPartido = async (observaciones) => {
     const ok = await confirmar({
       titulo: '¿Cerrar el partido y marcarlo como jugado?',
-      mensaje: `Resultado: ${nombreEquipo.local} ${marcador.local} – ${marcador.visitante} ${nombreEquipo.visitante}. La tabla de posiciones se actualiza. Las correcciones posteriores se hacen desde la planilla.`,
+      mensaje: `Resultado: ${nombreEquipo.local} ${marcador.local} – ${marcador.visitante} ${nombreEquipo.visitante}`
+        + (pidePenales ? ` (penales ${penales.local}-${penales.visitante})` : '')
+        + '. La tabla de posiciones se actualiza. Las correcciones posteriores se hacen desde la planilla.',
       textoConfirmar: 'Cerrar partido',
     })
     if (ok) cerrarMutation.mutate(observaciones)
@@ -640,6 +662,12 @@ function PartidoEnVivo({ modo, idPartido, idJornada, params, setParams }) {
             cerrando={cerrarMutation.isPending}
             onSalir={salir}
             vocal={vocal}
+            llave={llave}
+            llaveEmpatada={llaveEmpatada}
+            pidePenales={pidePenales}
+            penales={penales}
+            onPenales={setPenales}
+            penalesListos={penalesListos}
           />
         )}
       </main>
@@ -1030,7 +1058,9 @@ function FotoGrande({ url, nombre, dorsal, onCerrar }) {
   )
 }
 
-function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, sinConexion, onReintentar, onCerrar, cerrando, onSalir, vocal }) {
+function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, sinConexion, onReintentar, onCerrar, cerrando, onSalir, vocal,
+  llave, llaveEmpatada, pidePenales, penales, onPenales, penalesListos }) {
+  const idPen = useId()
   const obsId = useId()
   const [observaciones, setObservaciones] = useState(partido.observaciones ?? '')
   const registros = [
@@ -1115,10 +1145,41 @@ function VistaCierre({ partido, marcador, eventos, cambios, ladoDe, pendientes, 
         </p>
       )}
 
+      {llave && !estaCerrado(partido) && (
+        <p className="text-sm text-gray-300">
+          {llave.ronda}{llave.pierna === 'IDA' ? ' · ida' : llave.pierna === 'VUELTA' ? ' · vuelta' : ''}
+          {llave.pierna === 'VUELTA' && ` · global ${llave.previosLocal + marcador.local}-${llave.previosVisitante + marcador.visitante}`}
+        </p>
+      )}
+      {llaveEmpatada && !pidePenales && !estaCerrado(partido) && (
+        <p role="status" className="rounded-xl border border-amber-400 bg-amber-950/70 p-3 text-sm text-amber-50">
+          La llave terminó empatada: pasa el mejor ubicado en la fase regular.
+        </p>
+      )}
+      {pidePenales && !estaCerrado(partido) && (
+        <fieldset className="space-y-3 rounded-xl border border-amber-400 bg-amber-950/70 p-3 text-amber-50">
+          <legend className="px-1 font-semibold">La llave terminó empatada</legend>
+          <p className="text-sm">
+            Se define por penales. {llave.desempate === 'PRORROGA_PENALES' && 'Si se jugó prórroga, registre primero sus goles. '}Escriba los penales convertidos por cada equipo:
+          </p>
+          <div className="grid grid-cols-[1fr_5rem] items-center gap-2">
+            <label htmlFor={`${idPen}-l`} className="truncate text-base font-semibold text-white">{partido.equipoLocal}</label>
+            <input id={`${idPen}-l`} type="number" min="0" max="99" inputMode="numeric" value={penales.local}
+              onChange={e => onPenales(p => ({ ...p, local: e.target.value }))}
+              className="h-12 rounded-lg border border-neutral-500 bg-black text-center text-xl font-bold text-white" />
+            <label htmlFor={`${idPen}-v`} className="truncate text-base font-semibold text-white">{partido.equipoVisitante}</label>
+            <input id={`${idPen}-v`} type="number" min="0" max="99" inputMode="numeric" value={penales.visitante}
+              onChange={e => onPenales(p => ({ ...p, visitante: e.target.value }))}
+              className="h-12 rounded-lg border border-neutral-500 bg-black text-center text-xl font-bold text-white" />
+          </div>
+          {penales.local !== '' && penales.local === penales.visitante && <p className="text-sm text-amber-200">Los penales no pueden terminar empatados.</p>}
+        </fieldset>
+      )}
+
       {estaCerrado(partido) ? (
         <button type="button" onClick={onSalir} className="h-14 w-full rounded-xl bg-white text-base font-bold text-black">{vocal ? 'Volver a mis partidos' : 'Volver a la jornada'}</button>
       ) : (
-        <button type="button" onClick={() => onCerrar(observaciones.trim())} disabled={pendientes > 0 || cerrando}
+        <button type="button" onClick={() => onCerrar(observaciones.trim())} disabled={pendientes > 0 || cerrando || !penalesListos}
           className="h-14 w-full rounded-xl bg-green-500 text-base font-bold text-black disabled:opacity-40">
           {cerrando ? 'Cerrando...' : 'Cerrar partido y marcarlo como jugado'}
         </button>

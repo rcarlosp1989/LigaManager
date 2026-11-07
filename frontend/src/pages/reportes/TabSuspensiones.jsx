@@ -193,8 +193,9 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
                       <td className="px-3 py-2 text-center"><Avance hecho={s.partidosCumplidos} total={s.partidosSancion} /></td>
                       <td className="px-3 py-2 text-center">
                         <span className={`text-xs px-2 py-0.5 rounded ${
-                          s.estado === 'Suspendido' ? 'bg-red-900/30 text-red-400' : 'bg-green-900/30 text-green-400'
-                        }`}>{s.estado}</span>
+                          s.estado === 'Suspendido' ? 'bg-red-900/30 text-red-400'
+                            : s.estado === 'Anulada' ? 'bg-gray-800 text-gray-400' : 'bg-green-900/30 text-green-400'
+                        }`} title={s.estado === 'Anulada' ? 'Se borró al empezar la fase eliminatoria, según la regla del campeonato.' : undefined}>{s.estado}</span>
                       </td>
                       <td className="px-3 py-2 text-center">
                         {s.manual && !soloLectura && (

@@ -129,7 +129,7 @@ public record RegistrarEventoRequest(
 public record MarcarJugadoRequest(bool Jugado);
 
 // Fase 8: cerrar el registro del partido desde el modo en vivo.
-public record CerrarRegistroRequest(string? Observaciones);
+public record CerrarRegistroRequest(string? Observaciones, int? PenalesLocal = null, int? PenalesVisitante = null);
 
 // Reloj del modo en vivo. Fase: antes | 1T | descanso | 2T | final. Segundos: jugados en el
 // tiempo en curso al momento de enviar (sin contar pausas). DuracionMin: minutos de cada tiempo.

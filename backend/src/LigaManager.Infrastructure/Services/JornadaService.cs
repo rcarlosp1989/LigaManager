@@ -14,7 +14,9 @@ public class JornadaService : IJornadaService
     private readonly LigaManagerContext _db;
     private readonly IHttpContextAccessor _http;
     private readonly AccesoCampeonato _acceso;
-    public JornadaService(LigaManagerContext db, IHttpContextAccessor http, AccesoCampeonato acceso) { _db = db; _http = http; _acceso = acceso; }
+    private readonly EliminatoriaService _eliminatoria;
+    public JornadaService(LigaManagerContext db, IHttpContextAccessor http, AccesoCampeonato acceso, EliminatoriaService eliminatoria)
+    { _db = db; _http = http; _acceso = acceso; _eliminatoria = eliminatoria; }
     private int? UsuarioActualId => int.TryParse(_http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
     // ── Helpers de proyección ────────────────────────────────────────────────
@@ -127,6 +129,8 @@ public class JornadaService : IJornadaService
         if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Partido no encontrado.");
         var obs = req.Observaciones?.Trim();
         if (obs is { Length: > 2000 }) return ServiceResult<PartidoDetalleDto>.Fail("Las observaciones no pueden pasar de 2000 caracteres.");
+        // En una transacción: si el partido cierra una llave empatada y faltan los penales, no se cierra.
+        await using var tx = await _db.Database.BeginTransactionAsync();
         var p = await _db.Partidos.FirstAsync(x => x.IdPartido == idPartido);
         if (!string.IsNullOrEmpty(obs)) p.Observaciones = obs;
         p.EstadoRegistro  = EstadoRegistro.Cerrado;
@@ -134,7 +138,16 @@ public class JornadaService : IJornadaService
         p.CerradoEn       = DateTime.UtcNow;
         p.IdUsuarioCierre = UsuarioActualId;
         await _db.SaveChangesAsync();
-        return await MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(true));
+        var r = await MarcarJugadoAsync(idPartido, new MarcarJugadoRequest(true));
+        if (!r.Success) return r;
+        if (p.IdLlave is not null)
+        {
+            var error = await _eliminatoria.PenalesAlCerrarAsync(idPartido, req.PenalesLocal, req.PenalesVisitante);
+            if (error is not null) return ServiceResult<PartidoDetalleDto>.Fail(error);
+            r = await GetPartidoDetalleAsync(idPartido);
+        }
+        await tx.CommitAsync();
+        return r;
     }
 
     // Solo el organizador: devuelve el partido al vocal para que siga registrando.

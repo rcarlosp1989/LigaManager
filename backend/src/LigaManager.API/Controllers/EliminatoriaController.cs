@@ -38,6 +38,14 @@ public class EliminatoriaController : ControllerBase
     public async Task<IActionResult> EliminarRonda(int idCampeonato, string tipo)
         => Resultado(await _service.EliminarRondaAsync(idCampeonato, tipo));
 
+    // Datos de la llave para cerrar el partido en vivo (204 si no es de la fase eliminatoria).
+    [HttpGet("api/partidos/{idPartido:int}/llave")]
+    public async Task<IActionResult> InfoCierre(int idPartido)
+    {
+        var r = await _service.InfoCierreAsync(idPartido);
+        return !r.Success ? BadRequest(new { error = r.Error }) : r.Data is null ? NoContent() : Ok(r.Data);
+    }
+
     [HttpPut("api/llaves/{idLlave:int}/penales")]
     public async Task<IActionResult> Penales(int idLlave, [FromBody] PenalesRequest req)
         => Resultado(await _service.PenalesAsync(idLlave, req));

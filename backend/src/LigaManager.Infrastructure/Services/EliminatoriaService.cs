@@ -430,4 +430,64 @@ public class EliminatoriaService
         await _db.SaveChangesAsync();
         return await ConsultarAsync(llave.Ronda.Fase.IdCampeonato);
     }
+
+    // ── Cierre de un partido de llave (modo en vivo) ─────────────────────────
+
+    private Task<Llave?> LlaveDePartidoAsync(int idPartido) => _db.Llaves
+        .Include(l => l.Ronda)
+        .Include(l => l.Partidos).ThenInclude(p => p.Jornada)
+        .FirstOrDefaultAsync(l => l.Partidos.Any(p => p.IdPartido == idPartido));
+
+    // Null si el partido no es de la fase eliminatoria.
+    public async Task<ServiceResult<LlaveCierreDto?>> InfoCierreAsync(int idPartido)
+    {
+        if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<LlaveCierreDto?>.Fail("Partido no encontrado.");
+        var l = await LlaveDePartidoAsync(idPartido);
+        if (l is null) return ServiceResult<LlaveCierreDto?>.Ok(null);
+        var partidos = PartidosOrdenados(l);
+        var actual = partidos.First(p => p.IdPartido == idPartido);
+        var otros = partidos.Where(p => p.IdPartido != idPartido && p.Jugado).ToList();
+        var esUltimo = partidos.Count == (l.Ronda.IdaYVuelta ? 2 : 1) && partidos.Where(p => p.IdPartido != idPartido).All(p => p.Jugado);
+        int Previos(int idEq) => otros.Sum(p => GolesDe(p, idEq) ?? 0);
+        int Visita(int idEq) => otros.Where(p => p.IdEquipoVisitante == idEq).Sum(p => GolesDe(p, idEq) ?? 0);
+        var pierna = !l.Ronda.IdaYVuelta ? "UNICO" : partidos.IndexOf(actual) == 0 ? "IDA" : "VUELTA";
+        return ServiceResult<LlaveCierreDto?>.Ok(new LlaveCierreDto(
+            NombreRonda(l.Ronda.Tipo), pierna, esUltimo, l.Ronda.IdaYVuelta && l.Ronda.GolVisitante, l.Ronda.Desempate.ToString(),
+            Previos(actual.IdEquipoLocal), Previos(actual.IdEquipoVisitante),
+            Visita(actual.IdEquipoLocal), Visita(actual.IdEquipoVisitante)));
+    }
+
+    // Después de marcar el partido como jugado (con su marcador ya calculado): si cierra una llave
+    // empatada que se define por penales, exige los penales y los guarda; si no, los limpia.
+    // Devuelve el mensaje de error o null.
+    public async Task<string?> PenalesAlCerrarAsync(int idPartido, int? penalesLocal, int? penalesVisitante)
+    {
+        var l = await LlaveDePartidoAsync(idPartido);
+        if (l is null) return null;
+        var partidos = PartidosOrdenados(l);
+        var actual = partidos.First(p => p.IdPartido == idPartido);
+        var completa = partidos.Count == (l.Ronda.IdaYVuelta ? 2 : 1) && partidos.All(p => p.Jugado);
+        var ultimo = partidos[^1].IdPartido == idPartido;
+        var ga = partidos.Sum(p => GolesDe(p, l.IdEquipoA) ?? 0);
+        var gb = partidos.Sum(p => GolesDe(p, l.IdEquipoB) ?? 0);
+        var visA = partidos.Where(p => p.IdEquipoVisitante == l.IdEquipoA).Sum(p => GolesDe(p, l.IdEquipoA) ?? 0);
+        var visB = partidos.Where(p => p.IdEquipoVisitante == l.IdEquipoB).Sum(p => GolesDe(p, l.IdEquipoB) ?? 0);
+        var empatada = ga == gb && !(l.Ronda.IdaYVuelta && l.Ronda.GolVisitante && visA != visB);
+        var pidePenales = completa && ultimo && empatada && l.Ronda.Desempate != DesempateRonda.MEJOR_UBICADO;
+
+        if (!pidePenales)
+        {
+            actual.PenalesLocal = actual.PenalesVisitante = null;
+            await _db.SaveChangesAsync();
+            return null;
+        }
+        var global = l.Ronda.IdaYVuelta ? $"global {ga}-{gb}" : $"{ga}-{gb}";
+        if (penalesLocal is not int pl || penalesVisitante is not int pv || pl < 0 || pv < 0 || pl > 99 || pv > 99)
+            return $"La llave terminó empatada ({global}): registre los penales para cerrar el partido.";
+        if (pl == pv) return "Los penales no pueden terminar empatados.";
+        actual.PenalesLocal = pl;
+        actual.PenalesVisitante = pv;
+        await _db.SaveChangesAsync();
+        return null;
+    }
 }

@@ -16,7 +16,9 @@ public class VocalesController : ControllerBase
 {
     private readonly VocalService    _vocales;
     private readonly IJornadaService _jornadas;
-    public VocalesController(VocalService vocales, IJornadaService jornadas) { _vocales = vocales; _jornadas = jornadas; }
+    private readonly EliminatoriaService _eliminatoria;
+    public VocalesController(VocalService vocales, IJornadaService jornadas, EliminatoriaService eliminatoria)
+    { _vocales = vocales; _jornadas = jornadas; _eliminatoria = eliminatoria; }
 
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
     private IActionResult Resultado(Application.Common.ServiceResult r)       => r.Success ? NoContent() : BadRequest(new { error = r.Error });
@@ -118,6 +120,15 @@ public class VocalesController : ControllerBase
     [HttpDelete("api/vocal/cambios/{idCambio:int}")]
     public async Task<IActionResult> EliminarCambio(int idCambio)
         => await SiCerrado(await _vocales.PartidoDeCambioAsync(idCambio)) ?? Resultado(await _jornadas.EliminarCambioAsync(idCambio));
+
+    // Fase eliminatoria: datos de la llave para pedir los penales al cerrar (204 si no es de llave).
+    [Authorize(Policy = Politicas.SoloVocal)]
+    [HttpGet("api/vocal/partidos/{idPartido:int}/llave")]
+    public async Task<IActionResult> Llave(int idPartido)
+    {
+        var r = await _eliminatoria.InfoCierreAsync(idPartido);
+        return !r.Success ? NotFound(new { error = r.Error }) : r.Data is null ? NoContent() : Ok(r.Data);
+    }
 
     [Authorize(Policy = Politicas.SoloVocal)]
     [HttpPut("api/vocal/partidos/{idPartido:int}/cerrar")]
