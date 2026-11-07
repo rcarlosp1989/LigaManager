@@ -25,6 +25,9 @@ public class LigaManagerContext : DbContext
     public DbSet<Grupo>              Grupos                { get; set; }
     public DbSet<GrupoEquipo>        GrupoEquipos          { get; set; }
     public DbSet<FaseCampeonato>     FasesCampeonato       { get; set; }
+    public DbSet<FaseEliminatoria>   FasesEliminatorias    { get; set; }
+    public DbSet<RondaEliminatoria>  RondasEliminatorias   { get; set; }
+    public DbSet<Llave>              Llaves                { get; set; }
     public DbSet<PosicionGrupo>      PosicionesGrupo       { get; set; }
     public DbSet<CatalogoInstancia>  CatalogoInstancias    { get; set; }
     public DbSet<Jornada>            Jornadas              { get; set; }
@@ -695,6 +698,38 @@ public class LigaManagerContext : DbContext
         {
             e.HasOne(x => x.UsuarioRegistro).WithMany().HasForeignKey(x => x.IdUsuarioRegistro).OnDelete(DeleteBehavior.SetNull);
         });
+
+        // ── Fase eliminatoria ────────────────────────────────────────────────
+        modelBuilder.Entity<FaseEliminatoria>(e =>
+        {
+            e.ToTable("fase_eliminatoria");
+            e.HasKey(f => f.IdFaseEliminatoria);
+            e.HasIndex(f => f.IdCampeonato).IsUnique();
+            e.Property(f => f.Modo).HasConversion<string>();
+            e.Property(f => f.ReglaTarjetas).HasConversion<string>();
+            e.HasOne(f => f.Campeonato).WithMany().HasForeignKey(f => f.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<RondaEliminatoria>(e =>
+        {
+            e.ToTable("ronda_eliminatoria");
+            e.HasKey(r => r.IdRonda);
+            e.HasIndex(r => new { r.IdFaseEliminatoria, r.Tipo }).IsUnique();
+            e.Property(r => r.Tipo).HasConversion<string>();
+            e.Property(r => r.Desempate).HasConversion<string>();
+            e.HasOne(r => r.Fase).WithMany(f => f.Rondas).HasForeignKey(r => r.IdFaseEliminatoria).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<Llave>(e =>
+        {
+            e.ToTable("llave");
+            e.HasKey(l => l.IdLlave);
+            e.HasIndex(l => new { l.IdRonda, l.Orden }).IsUnique();
+            e.HasOne(l => l.Ronda).WithMany(r => r.Llaves).HasForeignKey(l => l.IdRonda).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(l => l.EquipoA).WithMany().HasForeignKey(l => l.IdEquipoA).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(l => l.EquipoB).WithMany().HasForeignKey(l => l.IdEquipoB).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Equipo>().WithMany().HasForeignKey(l => l.IdGanador).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<Partido>()
+            .HasOne(p => p.Llave).WithMany(l => l.Partidos).HasForeignKey(p => p.IdLlave).OnDelete(DeleteBehavior.Restrict);
 
         // ── Convención snake_case (SIEMPRE AL FINAL) ─────────────────────────
         foreach (var entity in modelBuilder.Model.GetEntityTypes())

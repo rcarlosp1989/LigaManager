@@ -18,11 +18,12 @@ public class PublicoController : ControllerBase
     private readonly PublicoService       _publico;
     private readonly IEstadisticasService _estadisticas;
     private readonly IGrupoService        _grupos;
+    private readonly EliminatoriaService  _eliminatoria;
     private readonly EnVivoService        _enVivo;
 
-    public PublicoController(PublicoService publico, IEstadisticasService estadisticas, IGrupoService grupos, EnVivoService enVivo)
+    public PublicoController(PublicoService publico, IEstadisticasService estadisticas, IGrupoService grupos, EnVivoService enVivo, EliminatoriaService eliminatoria)
     {
-        _publico = publico; _estadisticas = estadisticas; _grupos = grupos; _enVivo = enVivo;
+        _publico = publico; _estadisticas = estadisticas; _grupos = grupos; _enVivo = enVivo; _eliminatoria = eliminatoria;
     }
 
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
@@ -78,6 +79,11 @@ public class PublicoController : ControllerBase
         => await _publico.AbrirAsync(token) is { IdCampeonato: var id } ? Ok(await _enVivo.ConsultarAsync(id)) : NotFound(NoDisponible);
 
     [AllowAnonymous, LimitarIntentos("publico")]
+    [HttpGet("api/publico/{token}/eliminatoria")]
+    public async Task<IActionResult> Eliminatoria(string token)
+        => await _publico.AbrirAsync(token) is { IdCampeonato: var id } && await _eliminatoria.ConsultarAsync(id) is { Success: true } r
+            ? Ok(r.Data) : NotFound(NoDisponible);
+
     [HttpGet("api/publico/{token}/grupos")]
     public async Task<IActionResult> Grupos(string token)
         => await _publico.AbrirAsync(token) is { IdCampeonato: var id } ? Ok(await _grupos.GetByCampeonatoAsync(id)) : NotFound(NoDisponible);

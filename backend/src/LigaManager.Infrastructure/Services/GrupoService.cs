@@ -31,7 +31,10 @@ public class GrupoService : IGrupoService
                 .Where(f => f.IdCampeonato == g.IdCampeonato)
                 .OrderBy(f => f.Orden)
                 .FirstOrDefaultAsync();
-            equiposClasifican = fase?.EquiposClasifican ?? 0;
+            equiposClasifican = await _db.FasesEliminatorias
+                .Where(f => f.IdCampeonato == g.IdCampeonato)
+                .Select(f => (int?)f.EquiposClasifican)
+                .FirstOrDefaultAsync() ?? fase?.EquiposClasifican ?? 0;
         }
 
         var equipos = g.Equipos.Select(ge => new EquipoGrupoDto(
@@ -74,8 +77,9 @@ public class GrupoService : IGrupoService
             .Where(ce => ce.IdCampeonato == idCampeonato)
             .Include(ce => ce.Equipo)
             .ToListAsync();
+        // Solo la fase regular: los partidos de la fase eliminatoria (con llave) no suman.
         var partidos = await _db.Partidos
-            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado)
+            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && p.IdLlave == null)
             .ToListAsync();
 
         var posiciones = equipos.ToDictionary(

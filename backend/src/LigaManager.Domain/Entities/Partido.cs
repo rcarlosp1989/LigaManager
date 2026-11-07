@@ -32,6 +32,12 @@ public class Partido
     public DateTime? RelojDesde         { get; set; }   // UTC; null = en pausa
     public int?      RelojDuracionMin   { get; set; }
     public DateTime? RelojActualizadoEn { get; set; }   // UTC
+
+    // Fase eliminatoria: llave a la que pertenece (null = fase regular) y penales, si los hubo.
+    public int?   IdLlave          { get; set; }
+    public int?   PenalesLocal     { get; set; }
+    public int?   PenalesVisitante { get; set; }
+    public Llave? Llave            { get; set; }
     public Jornada  Jornada           { get; set; } = null!;
     public Equipo   EquipoLocal       { get; set; } = null!;
     public Equipo   EquipoVisitante   { get; set; } = null!;

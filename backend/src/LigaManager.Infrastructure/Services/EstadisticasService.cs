@@ -37,13 +37,18 @@ public class EstadisticasService : IEstadisticasService
         // el campeonato (evita una consulta por equipo).
         var partidosParaForma = await _db.Partidos
             .AsNoTracking()
-            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && !p.Desierto)
+            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && !p.Desierto && p.IdLlave == null)
             .Select(p => new PartidoFormaRaw(p.Fecha, p.IdEquipoLocal, p.IdEquipoVisitante, p.GolesLocal ?? 0, p.GolesVisitante ?? 0))
             .ToListAsync();
 
         // Equipos que clasifican: los de la primera fase del campeonato (si existe alguna), igual
         // que GrupoService. Si no hay fases, no clasifica nadie (no se marca el visto).
-        var equiposClasifican = await _db.FasesCampeonato
+        // Con fase eliminatoria configurada, clasifican los que ella indica.
+        var equiposClasifican = await _db.FasesEliminatorias
+            .Where(f => f.IdCampeonato == idCampeonato)
+            .Select(f => (int?)f.EquiposClasifican)
+            .FirstOrDefaultAsync()
+            ?? await _db.FasesCampeonato
             .Where(f => f.IdCampeonato == idCampeonato)
             .OrderBy(f => f.Orden)
             .Select(f => (int?)f.EquiposClasifican)
@@ -92,9 +97,10 @@ public class EstadisticasService : IEstadisticasService
             .Include(ce => ce.Equipo)
             .ToListAsync();
 
+        // Solo la fase regular: los partidos de la fase eliminatoria (con llave) no suman.
         var partidosJugados = await _db.Partidos
             .AsNoTracking()
-            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado)
+            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && p.IdLlave == null)
             .ToListAsync();
 
         var posiciones = equipos.ToDictionary(ce => ce.IdEquipo, ce => new PosicionGrupo { IdGrupo = 0, IdEquipo = ce.IdEquipo });

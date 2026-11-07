@@ -49,7 +49,11 @@ public record PartidoDetalleDto(
     int?    IdEstadio      = null,
     int?    IdArbitro      = null,
     string? LogoLocal      = null,
-    string? LogoVisitante  = null
+    string? LogoVisitante  = null,
+    // Fase eliminatoria: llave del partido (null = fase regular) y penales.
+    int?    IdLlave        = null,
+    int?    PenalesLocal   = null,
+    int?    PenalesVisitante = null
 );
 
 public record AlineacionJugadorDto(
