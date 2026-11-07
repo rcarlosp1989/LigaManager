@@ -69,7 +69,7 @@ const detalleJornada = (id) => ({
   idJornada: id, numero: id, idCampeonato: 1, idInstancia: 1, instancia: 'Fase regular', idGrupo: null, grupo: null, equipoLibre: null,
   partidos: id === 1
     ? [partido(1, 11, 12, '2026-10-11 10:00', true, 2, 1), partido(2, 13, 14, '2026-10-11 12:00', true, 0, 0)]
-    : [partido(3, 14, 11, '2026-10-25 10:00', false, null, null, 2), partido(4, 12, 13, '2026-10-25 12:00', false, null, null, 2)],
+    : [{ ...partido(3, 14, 11, '2026-10-25 10:00', false, null, null, 2), ...(llaveVivo ? { idLlave: 77 } : {}) }, partido(4, 12, 13, '2026-10-25 12:00', false, null, null, 2)],
 })
 const campDirigente = {
   idCampeonato: 1, nombre: 'Liga Barrial Recuspro', anio: 2026, estado: 'EnCurso', fechaInicio: '2026-09-01', fechaFin: '2026-12-20',
@@ -97,6 +97,8 @@ const TOKEN_AF = 'AficionadosXyZ23456789'
 let enlaceToken = null
 let enlaceAf = null
 // ── Fase eliminatoria (mock): config y semifinal del organizador; cuadro fijo para los enlaces ──
+let llaveVivo = false
+let cierreEnviado = null
 let elimConfig = null
 let elimLlaves = null
 let elimEnviado = null
@@ -172,6 +174,8 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     if (metodo === 'DELETE') { elimConfig = null; return { __status: 204 } }
     return elimDto(elimConfig, elimLlaves)
   }
+  if (r === '/partidos/3/llave') return { ronda: 'Semifinal', pierna: 'VUELTA', esUltimo: true, golVisitante: false, desempate: 'PENALES', previosLocal: 1, previosVisitante: 1, visitaPreviosLocal: 1, visitaPreviosVisitante: 0 }
+  if (r === '/partidos/3/cerrar' && metodo === 'PUT') { cierreEnviado = cuerpoPedido; return { ...partido(3, 14, 11, '2026-10-25 10:00', true, 0, 0, 2), estadoRegistro: 'Cerrado', idLlave: 77 } }
   if (/^\/llaves\/\d+\/penales$/.test(r) && metodo === 'PUT') {
     elimLlaves = elimLlaves.map(l => (l.estado === 'FALTAN_PENALES'
       ? { ...l, idGanador: l.equipoB.idEquipo, estado: 'DEFINIDA', detalle: `Global 2-2 · penales ${cuerpoPedido.penalesA}-${cuerpoPedido.penalesB}`,
@@ -540,6 +544,30 @@ for (const ancho of [1440, 390]) {
     ok(`sin errores (llaves ${quien}) @${ancho}`, e2.length === 0, e2.join(' | '))
     await c2.close()
   }
+}
+// ── Fase eliminatoria: penales al cerrar en vivo ──
+for (const ancho of [390, 1440]) {
+  llaveVivo = true; cierreEnviado = null
+  const { ctx, page, errores } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
+  await page.goto(`${APP}/partidos/3/en-vivo?jornada=2&vista=cierre`)
+  const caja = page.getByRole('group', { name: 'La llave terminó empatada' })
+  await caja.waitFor({ timeout: 15000 }).catch(() => {})
+  ok(`cierre llave @${ancho}: con el global empatado pide los penales`, await caja.isVisible())
+  ok(`cierre llave @${ancho}: muestra ronda, vuelta y global`, await page.getByText('Semifinal · vuelta · global 1-1').isVisible())
+  const boton = page.getByRole('button', { name: 'Cerrar partido y marcarlo como jugado' })
+  ok(`cierre llave @${ancho}: sin penales no deja cerrar`, await boton.isDisabled())
+  await caja.getByLabel('Leones del Guasmo Sporting Club').fill('4')
+  await caja.getByLabel('Ventarrón FC').fill('4')
+  ok(`cierre llave @${ancho}: penales empatados tampoco`, await boton.isDisabled() && await page.getByText('Los penales no pueden terminar empatados.').isVisible())
+  await caja.getByLabel('Ventarrón FC').fill('3')
+  await captura(page, 'cierre_penales', ancho)
+  await boton.click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar partido' }).click()
+  await page.waitForTimeout(800)
+  ok(`cierre llave @${ancho}: envía los penales al cerrar`, cierreEnviado?.penalesLocal === 4 && cierreEnviado?.penalesVisitante === 3, JSON.stringify(cierreEnviado))
+  ok(`sin errores (cierre llave) @${ancho}`, errores.length === 0, errores.join(' | '))
+  await ctx.close()
+  llaveVivo = false
 }
 // ── Acta de juego (PDF) ──
 for (const ancho of [390, 1440]) {

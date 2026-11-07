@@ -167,6 +167,48 @@ s, est = llamar("GET", f"/campeonatos/{A}/estadisticas/posiciones", token=o1)
 filas = [f for g in est.get("grupos", []) for f in g.get("posiciones", [])] if isinstance(est, dict) else []
 esperar("estadísticas: la tabla marca 4 clasificados", sum(1 for f in filas if f.get("clasifica")) == 4 or not filas, str(est)[:300])
 
+# ── Entrega 2: penales al cerrar en vivo ──
+s, x = llamar("GET", E, token=o1)
+pt = next(y for y in x["rondas"] if y["tipo"] == "TERCER_PUESTO")["llaves"][0]["partidos"][0]["idPartido"]
+s, info = llamar("GET", f"/partidos/{pt}/llave", token=o1)
+esperar("info de cierre: tercer puesto, último partido, penales", s == 200 and info["esUltimo"] and info["desempate"] == "PENALES" and info["pierna"] == "UNICO", str(info))
+s, _ = llamar("GET", f"/partidos/{D['mananaA']}/llave", token=o1)
+esperar("un partido de la fase regular no tiene llave (204)", s == 204, str(s))
+s, r = llamar("PUT", f"/partidos/{pt}/cerrar", {"observaciones": None}, o1)
+esperar("0-0 sin penales: no se cierra", s == 400 and "penales" in str(r), str(r))
+s, p = llamar("GET", f"/partidos/{pt}", token=o1)
+esperar("y el partido sigue sin jugar (se deshizo)", s == 200 and not p["jugado"] and p["estadoRegistro"] != "Cerrado", str(p)[:200])
+s, r = llamar("PUT", f"/partidos/{pt}/cerrar", {"observaciones": None, "penalesLocal": 3, "penalesVisitante": 3}, o1)
+esperar("penales empatados no cierran", s == 400, str(r))
+s, r = llamar("PUT", f"/partidos/{pt}/cerrar", {"observaciones": None, "penalesLocal": 5, "penalesVisitante": 4}, o1)
+esperar("con penales 5-4 se cierra", s == 200 and r["jugado"] and r.get("penalesLocal") == 5, str(r)[:200])
+s, x = llamar("GET", E, token=o1)
+lt = next(y for y in x["rondas"] if y["tipo"] == "TERCER_PUESTO")["llaves"][0]
+esperar("tercer puesto: gana el local por penales 5-4", lt.get("idGanador") == lt["equipoA"]["idEquipo"] and "penales 5-4" in (lt.get("detalle") or ""), str(lt)[:250])
+
+# ── Entrega 2: regla de tarjetas ──
+H = D["hoyA"]
+sql(f"UPDATE partido SET jugado = 1 WHERE id_partido = {H}")
+sql(f"UPDATE partido SET jugado = 0 WHERE id_partido = {D['mananaA']}")
+s, ph = llamar("GET", f"/partidos/{H}", token=o1)
+s, eqh = llamar("GET", f"/equipos/{ph['idEquipoLocal']}", token=o1)
+jr = eqh["jugadores"][-1]["idJugador"]
+s, _ = llamar("POST", f"/partidos/{H}/eventos", {"idJugador": jr, "tipoEvento": "TARJETA_ROJA", "minuto": 80}, o1)
+esperar("roja en el último partido de la fase regular", s == 200, str(s))
+def estado_roja(regla):
+    llamar("PUT", E, config(regla=regla), o1)
+    s, su = llamar("GET", f"/campeonatos/{A}/estadisticas/suspensiones", token=o1)
+    lista = [x for x in (su or {}).get("sanciones", []) if x["idJugador"] == jr and x["motivo"] == "Roja directa"]
+    return s, (lista[0]["estado"] if lista else None)
+s, e1 = estado_roja("BORRAR_TODO")
+esperar("«Borrar todo»: la sanción pendiente se anula", s == 200 and e1 == "Anulada", str(e1))
+s, e2 = estado_roja("BORRAR_SALVO_EXPULSION_FINAL")
+esperar("«Borrar, salvo expulsión al final»: la roja del último partido sigue", s == 200 and e2 in ("Suspendido", "Cumplida"), str(e2))
+s, e3 = estado_roja("MANTENER")
+esperar("«Mantener todo»: la sanción sigue", s == 200 and e3 in ("Suspendido", "Cumplida"), str(e3))
+s, ta = llamar("GET", f"/campeonatos/{A}/estadisticas/tarjetas", token=o1)
+esperar("el reporte de tarjetas responde con la regla", s == 200, str(s))
+
 # Lectura pública y permisos.
 s, e = llamar("POST", f"/campeonatos/{A}/enlace-publico", None, o1)
 s, pub = llamar("GET", f"/publico/{e['token']}/eliminatoria")
