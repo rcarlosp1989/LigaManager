@@ -172,6 +172,13 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     if (metodo === 'DELETE') { elimConfig = null; return { __status: 204 } }
     return elimDto(elimConfig, elimLlaves)
   }
+  if (/^\/llaves\/\d+\/penales$/.test(r) && metodo === 'PUT') {
+    elimLlaves = elimLlaves.map(l => (l.estado === 'FALTAN_PENALES'
+      ? { ...l, idGanador: l.equipoB.idEquipo, estado: 'DEFINIDA', detalle: `Global 2-2 · penales ${cuerpoPedido.penalesA}-${cuerpoPedido.penalesB}`,
+          partidos: l.partidos.map((pp, i) => (i === 1 ? { ...pp, penalesA: cuerpoPedido.penalesA, penalesB: cuerpoPedido.penalesB } : pp)) }
+      : l))
+    return elimDto(elimConfig, elimLlaves)
+  }
   if (r === '/campeonatos/1/eliminatoria/rondas/SEMIFINAL' && metodo === 'POST') {
     elimRondaEnviada = cuerpoPedido
     elimLlaves = llavesDe(cuerpoPedido.llaves.map(l => [l.idEquipoA, l.idEquipoB]), cuerpoPedido.fechaIda.replace('T', ' '), (cuerpoPedido.fechaVuelta ?? '').replace('T', ' '))
@@ -510,6 +517,16 @@ for (const ancho of [1440, 390]) {
   ok(`llaves @${ancho}: llave empatada pide penales`, await page.getByRole('button', { name: 'Guardar penales' }).count() === 1)
   ok(`llaves @${ancho}: se puede eliminar la semifinal (nada empezó)`, await page.getByRole('button', { name: 'Eliminar semifinal' }).isVisible())
   await captura(page, 'llaves_cuadro', ancho)
+  const formPen = page.locator('form').filter({ has: page.getByRole('button', { name: 'Guardar penales' }) })
+  await formPen.getByRole('spinbutton').nth(0).fill('3')
+  await formPen.getByRole('spinbutton').nth(1).fill('4')
+  await formPen.getByRole('button', { name: 'Guardar penales' }).click()
+  await page.getByText('Global 2-2 · penales 3-4').waitFor({ timeout: 10000 }).catch(() => {})
+  ok(`llaves @${ancho}: al guardar los penales el recuadro se cierra`, await page.getByText('Global 2-2 · penales 3-4').isVisible()
+     && await page.getByRole('button', { name: 'Guardar penales' }).count() === 0)
+  ok(`llaves @${ancho}: «Corregir penales» lo vuelve a abrir`, await page.getByRole('button', { name: 'Corregir penales' }).count() === 1)
+  await page.getByRole('button', { name: 'Corregir penales' }).click()
+  ok(`llaves @${ancho}: al corregir trae los penales guardados`, await page.getByRole('spinbutton').nth(0).inputValue() === '3')
   ok(`sin errores (llaves) @${ancho}`, errores.length === 0, errores.join(' | '))
   await ctx.close()
 
