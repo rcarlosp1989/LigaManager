@@ -365,7 +365,7 @@ public class VocalService
     public async Task<ServiceResult<PartidoDetalleDto>> CerrarAsync(int idPartido, CerrarPartidoVocalRequest req)
     {
         if (!await _acceso.PartidoAsync(idPartido)) return ServiceResult<PartidoDetalleDto>.Fail("Este partido no está disponible para registrar hoy.");
-        return await _jornadas.CerrarRegistroAsync(idPartido, new CerrarRegistroRequest(req.Observaciones));
+        return await _jornadas.CerrarRegistroAsync(idPartido, new CerrarRegistroRequest(req.Observaciones, req.PenalesLocal, req.PenalesVisitante));
     }
 
     // ── Bloqueo después del cierre (Fase 8) ──────────────────────────────────

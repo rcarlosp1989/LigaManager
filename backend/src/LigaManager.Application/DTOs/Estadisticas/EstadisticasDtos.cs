@@ -84,7 +84,7 @@ public record SuspensionDto(
     string  FechaPartidoSancion,
     int     PartidosSancion,
     int     PartidosCumplidos,   // cuántos de los PartidosSancion ya los jugó el equipo
-    string  Estado,              // "Suspendido" | "Cumplida"
+    string  Estado,              // "Suspendido" | "Cumplida" | "Anulada" (borrada al empezar la fase eliminatoria)
     bool    Manual,               // true si la agregó la comisión disciplinaria, no una tarjeta
     int?    IdSancion = null,     // solo en una sanción manual: id para poder eliminarla
     string? FotoUrl = null

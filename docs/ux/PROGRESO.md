@@ -1411,3 +1411,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Observación de Roberto en la prueba local: después de guardar los penales, el recuadro seguía abierto.
 - Ahora se cierra y la llave muestra «Global 2-2 · penales 3-4» con el ganador. «Corregir penales» lo vuelve a abrir con los valores guardados.
 - Verificado en `ci/verificar-eliminatoria` a 390 y 1.440 px.
+
+## 2026-11-07 — Fase eliminatoria, entrega 2 (penales al cerrar y regla de tarjetas)
+
+**Estado:** aplicada en la rama `mejora/eliminatoria-entrega2`. Pendiente de que Roberto la apruebe. **No necesita script** (usa las columnas de la entrega 1); necesita deploy del backend.
+
+- **Penales al cerrar en vivo** (vocal y organizador): si con el marcador el partido deja la llave empatada (global y, si está activo, gol de visitante), el cierre pide los penales de cada equipo; el botón no se activa sin ellos ni con penales iguales. Con «prórroga y penales» recuerda registrar antes los goles de la prórroga; con «mejor ubicado» solo avisa. El servidor lo exige también: sin penales no cierra y deja el partido como estaba (transacción). `GET /api/partidos/{id}/llave` y `/api/vocal/partidos/{id}/llave`.
+- **Regla de tarjetas** (desde el primer partido de llave):
+  - Mantener todo: sin cambios.
+  - Borrar todo: amarillas a 0 y sanciones pendientes de la fase regular «Anulada».
+  - Borrar, salvo expulsión al final: lo mismo, pero sigue la sanción por roja o doble amarilla en el último partido jugado del equipo en la fase regular.
+  - Las sanciones manuales de la comisión no cambian. «Anulada» se ve en gris en Suspensiones; el acta de juego solo tacha a los «Suspendido».
