@@ -331,7 +331,8 @@ public class EliminatoriaService
         var instancia = await _db.CatalogoInstancias.FirstOrDefaultAsync(i => i.Nombre == nombre);
         if (instancia is null)
         {
-            instancia = new CatalogoInstancia { Nombre = nombre };
+            var ordenInstancia = (await _db.CatalogoInstancias.MaxAsync(i => (int?)i.Orden) ?? 0) + 1;
+            instancia = new CatalogoInstancia { Nombre = nombre, Orden = ordenInstancia };
             _db.CatalogoInstancias.Add(instancia);
         }
 

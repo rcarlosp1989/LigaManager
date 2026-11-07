@@ -48,7 +48,7 @@ public class CatalogosController : ControllerBase
     [HttpGet("instancias")]
     public async Task<IActionResult> GetInstancias()
         => Ok(await _db.CatalogoInstancias
-            .OrderBy(i => i.Nombre)
+            .OrderBy(i => i.Orden).ThenBy(i => i.Nombre)
             .Select(i => new { i.IdInstancia, i.Nombre })
             .ToListAsync());
 
