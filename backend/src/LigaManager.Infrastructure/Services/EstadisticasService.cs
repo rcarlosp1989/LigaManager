@@ -247,8 +247,9 @@ public class EstadisticasService : IEstadisticasService
             .AsNoTracking()
             .Where(e => (e.TipoEvento == "TARJETA_AMARILLA" || e.TipoEvento == "TARJETA_ROJA")
                      && e.Partido.Jugado && e.Partido.Jornada.IdCampeonato == idCampeonato)
-            .Select(e => new { e.IdJugador, e.TipoEvento, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante })
+            .Select(e => new { e.IdJugador, e.TipoEvento, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante, EsLlave = e.Partido.IdLlave != null })
             .ToListAsync();
+        var corteTarjetas = await CorteEliminatoriaAsync(idCampeonato);
 
         if (eventos.Count == 0) return new TarjetasDto([], [], _reglas.AmarillasParaSuspension);
 
@@ -270,7 +271,7 @@ public class EstadisticasService : IEstadisticasService
             var porDobleAmarilla = g.GroupBy(e => e.IdPartido)
                 .Count(p => p.Count(e => e.TipoEvento == "TARJETA_AMARILLA") >= 2 && !p.Any(e => e.TipoEvento == "TARJETA_ROJA"));
             var rojas = g.Count(e => e.TipoEvento == "TARJETA_ROJA") + porDobleAmarilla;
-            var acumuladas = AmarillasEnCiclo(g.Select(e => (e.IdPartido, e.Fecha, e.TipoEvento)));
+            var acumuladas = AmarillasEnCiclo(g.Select(e => (e.IdPartido, e.Fecha, e.TipoEvento, e.EsLlave)), corteTarjetas is not null);
             return new TarjetasJugadorDto(g.Key, NombreJugador(jugador.Persona), EquipoActual(jugador), amarillas, rojas, amarillas + rojas,
                 jugador.Persona.FotoUrl, acumuladas, porDobleAmarilla);
         })
@@ -333,17 +334,37 @@ public class EstadisticasService : IEstadisticasService
     //  - 2 amarillas en el mismo partido (doble amarilla): no suman; generan su propia sanción.
     //  - 1 amarilla y 1 roja en el mismo partido: la amarilla suma.
     //  - al llegar al límite se genera la suspensión y la cuenta vuelve a 0.
-    private int AmarillasEnCiclo(IEnumerable<(int IdPartido, DateTime Fecha, string Tipo)> eventos)
+    //  - con la regla de la fase eliminatoria que borra tarjetas, la cuenta vuelve a 0 en el
+    //    primer partido de llave.
+    private int AmarillasEnCiclo(IEnumerable<(int IdPartido, DateTime Fecha, string Tipo, bool EsLlave)> eventos, bool reiniciarEnLlaves = false)
     {
         var enCiclo = 0;
-        foreach (var partido in eventos.GroupBy(e => (e.IdPartido, e.Fecha)).OrderBy(g => g.Key.Fecha))
+        var reiniciado = false;
+        foreach (var partido in eventos.GroupBy(e => (e.IdPartido, e.Fecha, e.EsLlave)).OrderBy(g => g.Key.Fecha))
         {
+            if (reiniciarEnLlaves && partido.Key.EsLlave && !reiniciado) { enCiclo = 0; reiniciado = true; }
             var amarillas = partido.Count(e => e.Tipo == "TARJETA_AMARILLA");
             if (amarillas != 1) continue;
             enCiclo++;
             if (enCiclo >= _reglas.AmarillasParaSuspension) enCiclo = 0;
         }
         return enCiclo;
+    }
+
+    // ── Fase eliminatoria: tarjetas y suspensiones al empezar ───────────────────
+    // Regla y fecha del primer partido de llave, o null si la fase no existe, todavía no tiene
+    // partidos o la regla es «Mantener todo».
+    private async Task<(ReglaTarjetasEliminatoria Regla, DateTime Inicio)?> CorteEliminatoriaAsync(int idCampeonato)
+    {
+        var regla = await _db.FasesEliminatorias.AsNoTracking()
+            .Where(f => f.IdCampeonato == idCampeonato)
+            .Select(f => (ReglaTarjetasEliminatoria?)f.ReglaTarjetas)
+            .FirstOrDefaultAsync();
+        if (regla is null or ReglaTarjetasEliminatoria.MANTENER) return null;
+        var inicio = await _db.Partidos.AsNoTracking()
+            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.IdLlave != null)
+            .MinAsync(p => (DateTime?)p.Fecha);
+        return inicio is null ? null : (regla.Value, inicio.Value);
     }
 
     // ── Módulo B: Suspensiones ────────────────────────────────────────────────
@@ -356,8 +377,10 @@ public class EstadisticasService : IEstadisticasService
             .AsNoTracking()
             .Where(e => (e.TipoEvento == "TARJETA_AMARILLA" || e.TipoEvento == "TARJETA_ROJA")
                      && e.Partido.Jugado && e.Partido.Jornada.IdCampeonato == idCampeonato)
-            .Select(e => new { e.IdJugador, e.TipoEvento, e.Minuto, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante })
+            .Select(e => new { e.IdJugador, e.TipoEvento, e.Minuto, e.IdPartido, e.Partido.Fecha, e.Partido.IdEquipoLocal, e.Partido.IdEquipoVisitante, EsLlave = e.Partido.IdLlave != null })
             .ToListAsync();
+        // Regla de la fase eliminatoria (borrar amarillas y sanciones pendientes al empezarla).
+        var corte = await CorteEliminatoriaAsync(idCampeonato);
 
         var sancionesManuales = await _db.SancionesManuales
             .AsNoTracking()
@@ -388,12 +411,15 @@ public class EstadisticasService : IEstadisticasService
         var partidosCampeonato = await _db.Partidos
             .AsNoTracking()
             .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado)
-            .Select(p => new { p.Fecha, p.IdEquipoLocal, p.IdEquipoVisitante })
+            .Select(p => new { p.Fecha, p.IdEquipoLocal, p.IdEquipoVisitante, EsLlave = p.IdLlave != null })
             .OrderBy(p => p.Fecha)
             .ToListAsync();
 
         int PartidosJugadosDespues(int idEquipo, DateOnly fecha) => partidosCampeonato.Count(p =>
             DateOnly.FromDateTime(p.Fecha) > fecha && (p.IdEquipoLocal == idEquipo || p.IdEquipoVisitante == idEquipo));
+        // Solo los de la fase regular (para saber qué quedó pendiente al empezar la eliminatoria).
+        int PartidosRegularesDespues(int idEquipo, DateOnly fecha) => partidosCampeonato.Count(p =>
+            !p.EsLlave && DateOnly.FromDateTime(p.Fecha) > fecha && (p.IdEquipoLocal == idEquipo || p.IdEquipoVisitante == idEquipo));
 
         (string Nombre, int IdEquipo) EquipoALaFecha(Jugador jugador, DateOnly fecha, int idEquipoLocal, int idEquipoVisitante)
         {
@@ -424,15 +450,18 @@ public class EstadisticasService : IEstadisticasService
             // Agrupado por partido y en orden cronológico: una doble amarilla solo cuenta si fue
             // en el mismo partido.
             var porPartido = grupoJugador
-                .GroupBy(e => new { e.IdPartido, e.Fecha, e.IdEquipoLocal, e.IdEquipoVisitante })
+                .GroupBy(e => new { e.IdPartido, e.Fecha, e.IdEquipoLocal, e.IdEquipoVisitante, e.EsLlave })
                 .OrderBy(g => g.Key.Fecha)
                 .ToList();
 
             var acumuladasEnCiclo = 0;
+            var reiniciado = false;
             var sancionesDeEsteJugador = new List<SuspensionDto>();
 
             foreach (var partidoGrupo in porPartido)
             {
+                // Al empezar la fase eliminatoria (si la regla borra tarjetas) la cuenta vuelve a 0.
+                if (corte is not null && partidoGrupo.Key.EsLlave && !reiniciado) { acumuladasEnCiclo = 0; reiniciado = true; }
                 var amarillas = partidoGrupo.Count(e => e.TipoEvento == "TARJETA_AMARILLA");
                 var rojas = partidoGrupo.Count(e => e.TipoEvento == "TARJETA_ROJA");
 
@@ -479,6 +508,21 @@ public class EstadisticasService : IEstadisticasService
                 var (equipoNombre, idEquipoSancion) = EquipoALaFecha(jugador, fechaSancion, partidoGrupo.Key.IdEquipoLocal, partidoGrupo.Key.IdEquipoVisitante);
                 var partidosCumplidos = Math.Min(PartidosJugadosDespues(idEquipoSancion, fechaSancion), partidosSancion);
                 var estado = partidosCumplidos >= partidosSancion ? "Cumplida" : "Suspendido";
+
+                // Sanción de la fase regular que seguía pendiente al empezar la eliminatoria: con
+                // «Borrar todo» se anula; con «Borrar, salvo expulsión al final» solo sigue la de una
+                // expulsión (roja o doble amarilla) en el último partido de su equipo en la fase regular.
+                if (corte is not null && !partidoGrupo.Key.EsLlave)
+                {
+                    var regularesDespues = PartidosRegularesDespues(idEquipoSancion, fechaSancion);
+                    if (regularesDespues < partidosSancion)
+                    {
+                        var esExpulsion = motivo is "Roja directa" or "Doble amarilla";
+                        var sigue = corte.Value.Regla == ReglaTarjetasEliminatoria.BORRAR_SALVO_EXPULSION_FINAL
+                                    && esExpulsion && regularesDespues == 0;
+                        if (!sigue) { partidosCumplidos = regularesDespues; estado = "Anulada"; }
+                    }
+                }
 
                 sancionesDeEsteJugador.Add(new SuspensionDto(
                     grupoJugador.Key, nombreJugador, equipoNombre, motivo,

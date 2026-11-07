@@ -22,6 +22,21 @@ public record CrearRondaRequest(List<LlaveRequest> Llaves, string FechaIda, stri
 
 public record PenalesRequest(int? PenalesA, int? PenalesB);
 
+// Lo que el modo en vivo necesita para saber, con el marcador actual, si la llave queda empatada
+// al cerrar este partido. «Previos»: goles de cada equipo de ESTE partido en los otros partidos
+// jugados de la llave; «VisitaPrevios»: los que hizo jugando de visitante en ellos.
+public record LlaveCierreDto(
+    string  Ronda,
+    string  Pierna,           // IDA | VUELTA | UNICO
+    bool    EsUltimo,         // al cerrar este partido termina la llave
+    bool    GolVisitante,
+    string  Desempate,        // PENALES | PRORROGA_PENALES | MEJOR_UBICADO
+    int     PreviosLocal,
+    int     PreviosVisitante,
+    int     VisitaPreviosLocal,
+    int     VisitaPreviosVisitante
+);
+
 public record EquipoLlaveDto(int IdEquipo, string Nombre, string? LogoUrl);
 
 // Pierna: IDA | VUELTA | UNICO. Goles y penales vistos desde A y B (no local/visitante).
