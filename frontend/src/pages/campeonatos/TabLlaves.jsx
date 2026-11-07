@@ -394,11 +394,20 @@ function Penales({ llave, onGuardado }) {
   const ultimo = llave.partidos[llave.partidos.length - 1]
   const [a, setA] = useState(ultimo?.penalesA ?? '')
   const [b, setB] = useState(ultimo?.penalesB ?? '')
+  // Con los penales ya registrados el recuadro se cierra; «Corregir penales» lo vuelve a abrir.
+  const [abierto, setAbierto] = useState(false)
   const guardar = useMutation({
     mutationFn: () => api.put(`/llaves/${llave.idLlave}/penales`, { penalesA: Number(a), penalesB: Number(b) }).then(r => r.data),
-    onSuccess: (d) => { onGuardado(d); aviso.exito('Penales guardados.') },
+    onSuccess: (d) => { setAbierto(false); onGuardado(d); aviso.exito('Penales guardados.') },
     onError: (err) => aviso.error(mensajeDeError(err, 'No se pudieron guardar los penales.')),
   })
+  if (llave.estado !== 'FALTAN_PENALES' && !abierto) {
+    return (
+      <button type="button" className="mt-1 text-xs text-gray-400 hover:text-white" onClick={() => setAbierto(true)}>
+        Corregir penales
+      </button>
+    )
+  }
   return (
     <form className="mt-2 space-y-2 rounded-lg border border-amber-400/40 bg-amber-400/5 p-2" onSubmit={e => { e.preventDefault(); guardar.mutate() }}>
       <p className="text-xs font-semibold text-amber-200">Penales</p>
