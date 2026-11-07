@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Ban, CalendarDays, ChartColumn, ChevronDown, Link2Off, RectangleVertical } from 'lucide-react'
+import { Ban, CalendarDays, ChartColumn, ChevronDown, GitFork, Link2Off, RectangleVertical } from 'lucide-react'
 import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
@@ -16,10 +16,12 @@ import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
 import BotonFlyer from '../../components/BotonFlyer'
+import CuadroLlaves from '../../components/CuadroLlaves'
 
 const TABS = [
   { key: 'resultados', label: 'Resultados', Icono: CalendarDays },
   { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
+  { key: 'llaves', label: 'Llaves', Icono: GitFork, llaves: true },
   { key: 'goleadores', label: 'Goleadores', Icono: Balon },
   { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical, completo: true },
   { key: 'suspensiones', label: 'Suspensiones', Icono: Ban, completo: true },
@@ -37,7 +39,10 @@ export default function CampeonatoPublico() {
 
   const q = useQuery({ queryKey: ['publico', token], queryFn: () => api.get(base).then(r => r.data), retry: false })
   const camp = q.data
-  const tabs = TABS.filter(t => !t.completo || (camp && !camp.aficionados))
+  // Pestaña «Llaves» solo cuando la organización ya armó alguna ronda de la fase eliminatoria.
+  const qLlaves = useQuery({ queryKey: ['publico-llaves', token], queryFn: () => api.get(`${base}/eliminatoria`).then(r => r.data), enabled: !!camp, retry: false })
+  const conLlaves = qLlaves.data?.rondas?.some(r => r.creada) ?? false
+  const tabs = TABS.filter(t => (!t.completo || (camp && !camp.aficionados)) && (!t.llaves || conLlaves))
   const tab = tabs.some(t => t.key === params.get('tab')) ? params.get('tab') : 'resultados'
   const setTab = (clave) => setParams(clave === 'resultados' ? {} : { tab: clave }, { replace: true })
   // Enlace del flyer: el de aficionados (si se abrió con él, es esta misma página).
@@ -85,6 +90,7 @@ export default function CampeonatoPublico() {
               <TabPosiciones idCampeonato={token} campeonato={camp} base={base}
                 logos={new Map(camp.equipos.filter(e => e.logoUrl).map(e => [e.idEquipo, e.logoUrl]))} />
             )}
+            {tab === 'llaves' && <CuadroLlaves datos={qLlaves.data} />}
             {tab === 'goleadores' && <TabGoleadores idCampeonato={token} base={base} simple />}
             {tab === 'tarjetas' && <TabTarjetas idCampeonato={token} base={base} />}
             {tab === 'suspensiones' && <TabSuspensiones idCampeonato={token} base={base} soloLectura />}

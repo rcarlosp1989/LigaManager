@@ -88,7 +88,10 @@ public class JornadaService : IJornadaService
         p.IdEstadio,
         p.IdArbitro,
         p.EquipoLocal.LogoUrl,
-        p.EquipoVisitante.LogoUrl
+        p.EquipoVisitante.LogoUrl,
+        p.IdLlave,
+        p.PenalesLocal,
+        p.PenalesVisitante
     );
 
     private static string? HoraEcuador(DateTime? utc) => utc?.AddHours(-5).ToString("yyyy-MM-dd HH:mm");
@@ -515,6 +518,8 @@ public class JornadaService : IJornadaService
         // Cambio de equipos solo si realmente difieren del equipo actual, y solo si no hay eventos
         var cambiaEquipoLocal     = req.IdEquipoLocal.HasValue && req.IdEquipoLocal.Value != p.IdEquipoLocal;
         var cambiaEquipoVisitante = req.IdEquipoVisitante.HasValue && req.IdEquipoVisitante.Value != p.IdEquipoVisitante;
+        if ((cambiaEquipoLocal || cambiaEquipoVisitante) && p.IdLlave is not null)
+            return ServiceResult<PartidoDetalleDto>.Fail("Los equipos de un partido de la fase eliminatoria no se cambian: elimine la ronda en la pestaña Llaves y ármela de nuevo.");
         if (cambiaEquipoLocal || cambiaEquipoVisitante)
         {
             if (p.Eventos.Any())
@@ -774,6 +779,8 @@ public class JornadaService : IJornadaService
             .Include(p => p.Cambios)
             .FirstOrDefaultAsync(p => p.IdPartido == idPartido);
         if (p is null) return ServiceResult.Fail("Partido no encontrado.");
+        if (p.IdLlave is not null)
+            return ServiceResult.Fail("Este partido es de la fase eliminatoria: para quitarlo, elimine la ronda en la pestaña Llaves.");
         _db.EventosPartido.RemoveRange(p.Eventos);
         _db.CambiosPartido.RemoveRange(p.Cambios);
         _db.Alineaciones.RemoveRange(p.Alineaciones);

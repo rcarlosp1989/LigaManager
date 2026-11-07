@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Ban, CalendarDays, ChartColumn, ChevronDown, ClipboardList, House, LogOut, RectangleVertical } from 'lucide-react'
+import { Ban, CalendarDays, ChartColumn, ChevronDown, ClipboardList, GitFork, House, LogOut, RectangleVertical } from 'lucide-react'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import EstadoError from '../../components/EstadoError'
@@ -18,11 +18,13 @@ import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
 import BotonFlyer from '../../components/BotonFlyer'
+import CuadroLlaves from '../../components/CuadroLlaves'
 
 const TABS = [
   { key: 'resumen', label: 'Mi equipo', Icono: House },
   { key: 'jornadas', label: 'Jornadas', Icono: CalendarDays },
   { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
+  { key: 'llaves', label: 'Llaves', Icono: GitFork, llaves: true },
   { key: 'nomina', label: 'Nómina', Icono: ClipboardList },
   { key: 'goleadores', label: 'Goleadores', Icono: Balon },
   { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical },
@@ -40,7 +42,7 @@ export default function InicioDirigente() {
   const navigate = useNavigate()
   const { idCampeonato: idUrl } = useParams()
   const [params, setParams] = useSearchParams()
-  const tab = TABS.some(t => t.key === params.get('tab')) ? params.get('tab') : 'resumen'
+  const pedido = params.get('tab')
   const setTab = (clave) => setParams(clave === 'resumen' ? {} : { tab: clave }, { replace: true })
 
   const qInicio = useQuery({ queryKey: ['dirigente-inicio'], queryFn: () => api.get('/dirigente/inicio').then(r => r.data) })
@@ -55,6 +57,15 @@ export default function InicioDirigente() {
     enabled: !!idCampeonato,
   })
   const camp = qCamp.data
+  // Pestaña «Llaves» solo cuando la organización ya armó alguna ronda de la fase eliminatoria.
+  const qLlaves = useQuery({
+    queryKey: ['dirigente-llaves', idCampeonato],
+    queryFn: () => api.get(`${base}/eliminatoria`).then(r => r.data),
+    enabled: !!camp, retry: false,
+  })
+  const conLlaves = qLlaves.data?.rondas?.some(r => r.creada) ?? false
+  const tabs = TABS.filter(t => !t.llaves || conLlaves)
+  const tab = tabs.some(t => t.key === pedido) ? pedido : 'resumen'
 
   return (
     <div className="min-h-dvh bg-gray-950 text-white">
@@ -105,7 +116,7 @@ export default function InicioDirigente() {
                 </section>
 
                 <div className="mb-4 flex gap-1 overflow-x-auto border-b border-gray-800">
-                  {TABS.map(t => (
+                  {tabs.map(t => (
                     <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-current={tab === t.key ? 'true' : undefined}
                       className={`-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                         tab === t.key ? 'border-brand-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
@@ -126,6 +137,7 @@ export default function InicioDirigente() {
                   <TabNomina idCampeonato={idCampeonato} campeonato={camp} base={base} idEquipoPropio={camp.idEquipoPropio}
                     rutaEquipo={(id) => `${base}/equipos/${id}`} />
                 )}
+                {tab === 'llaves' && <CuadroLlaves datos={qLlaves.data} />}
                 {tab === 'goleadores' && <TabGoleadores idCampeonato={idCampeonato} base={base} simple />}
                 {tab === 'tarjetas' && <TabTarjetas idCampeonato={idCampeonato} base={base} />}
                 {tab === 'suspensiones' && <TabSuspensiones idCampeonato={idCampeonato} base={base} soloLectura />}
