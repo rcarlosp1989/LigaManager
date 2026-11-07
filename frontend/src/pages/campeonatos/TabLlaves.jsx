@@ -80,7 +80,7 @@ export default function TabLlaves({ camp }) {
           </div>
         </div>
         <button type="button" className="btn-primary" onClick={() => setConfig(true)}>Configurar fase eliminatoria</button>
-        <Modal isOpen={config} onClose={() => setConfig(false)} title="FASE ELIMINATORIA">
+        <Modal isOpen={config} onClose={() => setConfig(false)} title="FASE ELIMINATORIA" maxWidth="max-w-2xl">
           <FormConfig camp={camp} datos={datos} onGuardado={(d) => { actualizar(d); setConfig(false); aviso.exito('Fase eliminatoria configurada.') }} onCancelar={() => setConfig(false)} />
         </Modal>
       </div>
@@ -140,10 +140,10 @@ export default function TabLlaves({ camp }) {
         </div>
       ))}
 
-      <Modal isOpen={config} onClose={() => setConfig(false)} title="FASE ELIMINATORIA">
+      <Modal isOpen={config} onClose={() => setConfig(false)} title="FASE ELIMINATORIA" maxWidth="max-w-2xl">
         <FormConfig camp={camp} datos={datos} onGuardado={(d) => { actualizar(d); setConfig(false); aviso.exito('Reglas guardadas.') }} onCancelar={() => setConfig(false)} />
       </Modal>
-      <Modal isOpen={!!armar} onClose={() => setArmar(null)} title={armar ? armar.nombre.toUpperCase() : ''}>
+      <Modal isOpen={!!armar} onClose={() => setArmar(null)} title={armar ? armar.nombre.toUpperCase() : ''} maxWidth="max-w-2xl">
         {armar && <ArmarRonda camp={camp} datos={datos} ronda={armar} onGuardado={(d) => { actualizar(d); setArmar(null); aviso.exito(`${armar.nombre} armada.`) }} onCancelar={() => setArmar(null)} />}
       </Modal>
     </div>
