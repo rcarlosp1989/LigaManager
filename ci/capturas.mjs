@@ -489,6 +489,7 @@ for (const ancho of [1440, 390]) {
   await page.getByRole('button', { name: 'Elegir clasificados y cruces' }).click()
   const dlg2 = page.getByRole('dialog')
   await dlg2.getByText('1 · Marque los clasificados').waitFor()
+  await dlg2.getByText('4 de 4').waitFor({ timeout: 10000 }).catch(() => {})
   ok(`llaves @${ancho}: vienen marcados los 4 primeros de la tabla`, await dlg2.getByText('4 de 4').isVisible())
   ok(`llaves @${ancho}: crear queda desactivado hasta completar`, await dlg2.getByRole('button', { name: 'Crear semifinal' }).isDisabled())
   await dlg2.getByRole('button', { name: /Sugerir/ }).click()
