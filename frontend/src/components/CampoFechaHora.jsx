@@ -17,7 +17,7 @@ const nombreHora = (h) => {
   return n < 12 ? `${h} (${n} de la mañana)` : `${h} (${n - 12} de la tarde)`
 }
 
-export default function CampoFechaHora({ id, value, onChange, required = false }) {
+export default function CampoFechaHora({ id, value, onChange, required = false, leyenda = 'Fecha y hora' }) {
   const uid = useId()
   const base = id ?? uid
   // «fecha T hora : minutos»; cualquiera de las partes puede faltar mientras se completa.
@@ -29,7 +29,7 @@ export default function CampoFechaHora({ id, value, onChange, required = false }
 
   return (
     <fieldset>
-      <legend className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Fecha y hora</legend>
+      <legend className="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">{leyenda}</legend>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
         <label className="block">
           <span className="sr-only">Fecha</span>
