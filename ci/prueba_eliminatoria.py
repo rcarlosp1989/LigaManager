@@ -189,7 +189,8 @@ esperar("tercer puesto: gana el local por penales 5-4", lt.get("idGanador") == l
 # ── Entrega 2: regla de tarjetas ──
 H = D["hoyA"]
 sql(f"UPDATE partido SET jugado = 1 WHERE id_partido = {H}")
-sql(f"UPDATE partido SET jugado = 0 WHERE id_partido = {D['mananaA']}")
+# Que hoyA sea el último partido jugado de la fase regular (otras pruebas crean partidos en A).
+sql(f"UPDATE partido p JOIN jornada j ON j.id_jornada = p.id_jornada SET p.jugado = 0 WHERE j.id_campeonato = {A} AND p.id_llave IS NULL AND p.id_partido <> {H}")
 s, ph = llamar("GET", f"/partidos/{H}", token=o1)
 s, eqh = llamar("GET", f"/equipos/{ph['idEquipoLocal']}", token=o1)
 jr = eqh["jugadores"][-1]["idJugador"]

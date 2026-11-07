@@ -562,7 +562,7 @@ for (const ancho of [390, 1440]) {
   await caja.getByLabel('Ventarrón FC').fill('3')
   await captura(page, 'cierre_penales', ancho)
   await boton.click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar partido' }).click()
+  await page.getByRole('button', { name: 'Cerrar partido', exact: true }).click()
   await page.waitForTimeout(800)
   ok(`cierre llave @${ancho}: envía los penales al cerrar`, cierreEnviado?.penalesLocal === 4 && cierreEnviado?.penalesVisitante === 3, JSON.stringify(cierreEnviado))
   ok(`sin errores (cierre llave) @${ancho}`, errores.length === 0, errores.join(' | '))
