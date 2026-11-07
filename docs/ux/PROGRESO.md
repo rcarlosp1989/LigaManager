@@ -1403,3 +1403,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - La tabla de posiciones cuenta solo la fase regular y marca como clasificados los que indica la fase. Los partidos de una llave no cambian de equipos ni se eliminan sueltos.
 - Tablas `fase_eliminatoria`, `ronda_eliminatoria`, `llave`; `partido.id_llave`, `penales_local`, `penales_visitante`; instancias del catálogo. Reversa: `20261107_fase_eliminatoria_reversa.sql`.
 - **Entrega 2 (pendiente):** penales y prórroga al cerrar el partido (vocal y planilla) y aplicar la regla de tarjetas en suspensiones.
+
+## 2026-11-07 — Llaves: el recuadro de penales se cierra al guardar
+
+**Estado:** aplicada en la rama `mejora/penales-cerrar`. Solo frontend; no necesita script.
+
+- Observación de Roberto en la prueba local: después de guardar los penales, el recuadro seguía abierto.
+- Ahora se cierra y la llave muestra «Global 2-2 · penales 3-4» con el ganador. «Corregir penales» lo vuelve a abrir con los valores guardados.
+- Verificado en `ci/verificar-eliminatoria` a 390 y 1.440 px.
