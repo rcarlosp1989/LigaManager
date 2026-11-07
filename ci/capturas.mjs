@@ -96,6 +96,34 @@ const TOKEN = 'AbCdEfGhJkLmNpQrStUvWx'
 const TOKEN_AF = 'AficionadosXyZ23456789'
 let enlaceToken = null
 let enlaceAf = null
+// ── Fase eliminatoria (mock): config y semifinal del organizador; cuadro fijo para los enlaces ──
+let elimConfig = null
+let elimLlaves = null
+let elimEnviado = null
+let elimRondaEnviada = null
+const eqLl = (id) => ({ idEquipo: id, nombre: nombre(id), logoUrl: null })
+const NOMBRES_RONDA = { SEMIFINAL: 'Semifinal', TERCER_PUESTO: 'Tercer puesto', FINAL: 'Final' }
+const llavesDe = (pares, ida, vuelta) => pares.map(([a, b], i) => ({
+  idLlave: 50 + i, orden: i + 1, equipoA: eqLl(a), equipoB: eqLl(b),
+  partidos: [
+    { idPartido: 500 + i * 2, idJornada: 9, numeroJornada: 3, pierna: 'IDA', fecha: ida, jugado: true, golesA: i ? 1 : 2, golesB: 1 },
+    { idPartido: 501 + i * 2, idJornada: 10, numeroJornada: 4, pierna: 'VUELTA', fecha: vuelta, jugado: true, golesA: i ? 1 : 0, golesB: 1 },
+  ],
+  globalA: 2, globalB: 2, idGanador: i ? null : b, estado: i ? 'FALTAN_PENALES' : 'DEFINIDA',
+  detalle: i ? 'Global 2-2 · faltan los penales' : 'Global 2-2 · gol de visitante',
+}))
+const elimDto = (config, llaves) => !config
+  ? { configurada: false, modo: 'MANUAL', equiposClasifican: 0, tercerPuesto: false, reglaTarjetas: 'BORRAR_SALVO_EXPULSION_FINAL', rondas: [] }
+  : { configurada: true, modo: 'MANUAL', equiposClasifican: config.equiposClasifican, tercerPuesto: config.tercerPuesto, reglaTarjetas: config.reglaTarjetas,
+      rondas: config.rondas.map(r => ({ ...r, nombre: NOMBRES_RONDA[r.tipo], totalLlaves: r.tipo === 'SEMIFINAL' ? 2 : 1,
+        creada: r.tipo === 'SEMIFINAL' && !!llaves, completa: false, puedeCrearse: r.tipo === 'SEMIFINAL' && !llaves,
+        puedeEliminarse: r.tipo === 'SEMIFINAL' && !!llaves, llaves: r.tipo === 'SEMIFINAL' && llaves ? llaves : [], candidatos: [] })) }
+const elimPublico = () => elimDto(
+  { equiposClasifican: 4, tercerPuesto: true, reglaTarjetas: 'MANTENER', rondas: [
+    { tipo: 'SEMIFINAL', idaYVuelta: true, desempate: 'PENALES', golVisitante: true },
+    { tipo: 'TERCER_PUESTO', idaYVuelta: false, desempate: 'PENALES', golVisitante: false },
+    { tipo: 'FINAL', idaYVuelta: false, desempate: 'PRORROGA_PENALES', golVisitante: false }] },
+  llavesDe([[14, 11], [12, 13]], '2026-12-06 10:00', '2026-12-13 10:00'))
 // Marcadores en vivo: un partido en el 2.º tiempo, otro en medio tiempo (o según faseVivo), uno terminado y uno por jugar.
 let faseVivo = '1T'
 let partidoEnviado = null
@@ -132,11 +160,22 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     const af = tk === TOKEN_AF
     if ((tk !== TOKEN && !af) || (af && /\/(tarjetas|suspensiones)$/.test(sub))) return { __status: 404, error: 'Este enlace no existe o fue desactivado por la organización.' }
     if (sub === '') return { nombre: 'Liga Barrial Recuspro', anio: 2026, estado: 'EnCurso', fechaInicio: '2026-09-01', fechaFin: '2026-12-20', modalidad: 'Fútbol', organizacion: 'Roberto Prado', equipos, ...(af ? { aficionados: true } : { enlaceAficionados: TOKEN_AF }) }
+    if (sub === '/eliminatoria') return elimPublico()
     if (sub === '/jornadas') return [1, 2].map(id => { const d = detalleJornada(id); return { idJornada: id, numero: id, instancia: 'Fase regular', grupo: null, partidos: d.partidos.map(p => (p.idEquipoLocal === 14 ? { ...p, logoLocal: '/api/imagenes/0123456789abcdef0123456789abcdef' } : p)) } })
     if (sub === '/grupos') return []
     if (sub === '/en-vivo') return enVivo()
     if (sub.startsWith('/estadisticas/')) return respuesta('GET', `/dirigente/campeonatos/1${sub}`)
     return { __status: 404 }
+  }
+  if (r === '/campeonatos/1/eliminatoria') {
+    if (metodo === 'PUT') { elimEnviado = cuerpoPedido; elimConfig = cuerpoPedido }
+    if (metodo === 'DELETE') { elimConfig = null; return { __status: 204 } }
+    return elimDto(elimConfig, elimLlaves)
+  }
+  if (r === '/campeonatos/1/eliminatoria/rondas/SEMIFINAL' && metodo === 'POST') {
+    elimRondaEnviada = cuerpoPedido
+    elimLlaves = llavesDe(cuerpoPedido.llaves.map(l => [l.idEquipoA, l.idEquipoB]), cuerpoPedido.fechaIda.replace('T', ' '), (cuerpoPedido.fechaVuelta ?? '').replace('T', ' '))
+    return elimDto(elimConfig, elimLlaves)
   }
   if (r === '/campeonatos/1/enlace-publico') {
     if (metodo === 'POST') { enlaceToken = TOKEN; enlaceAf ??= TOKEN_AF }
@@ -168,6 +207,7 @@ function respuesta(metodo, ruta, cuerpoPedido = null) {
     if (r === `${d}/equipos/11`) return { idEquipo: 11, nombre: 'Ventarrón FC', idPais: 1, pais: 'Ecuador', jugadores: jugadores(11, false), logoUrl: null }
     if (r.startsWith(`${d}/equipos/`)) { const id = Number(r.split('/').pop()); return { idEquipo: id, nombre: nombre(id), idPais: 1, pais: 'Ecuador', jugadores: jugadores(id, false), logoUrl: null } }
     if (r === `${d}/jornadas`) return jornadas
+    if (r === `${d}/eliminatoria`) return elimPublico()
     if (r === `${d}/en-vivo`) return enVivo()
     if (r.startsWith(`${d}/jornadas/`)) return detalleJornada(Number(r.split('/').pop()))
     if (r.endsWith('/estadisticas/posiciones')) return posiciones
@@ -418,12 +458,78 @@ for (const ancho of [390, 1440]) {
   partidoEnviado = null; partidoEditado = null
   await ctx.close()
 }
+// ── Fase eliminatoria (llaves) ──
+for (const ancho of [1440, 390]) {
+  elimConfig = null; elimLlaves = null; elimEnviado = null; elimRondaEnviada = null
+  const { ctx, page, errores } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
+  await page.goto(`${APP}/campeonatos/1?tab=llaves`)
+  const configurar = page.getByRole('button', { name: 'Configurar fase eliminatoria' })
+  await configurar.waitFor()
+  ok(`llaves @${ancho}: sin fase, ofrece configurarla`, await configurar.isVisible())
+  await configurar.click()
+  const dlg = page.getByRole('dialog')
+  await dlg.getByText('Cómo se arman las llaves').waitFor()
+  ok(`llaves @${ancho}: modo manual activo y automático «próximamente»`, await dlg.getByText(/Próximamente/).isVisible() && await dlg.getByRole('radio').nth(1).isDisabled())
+  await dlg.getByLabel('Equipos que clasifican').selectOption('4')
+  await dlg.getByLabel('Partido por el tercer puesto').check()
+  await dlg.getByLabel('Formato de Semifinal').selectOption('IV')
+  ok(`llaves @${ancho}: gol de visitante solo aparece en ida y vuelta`, await dlg.getByLabel(/Gol de visitante/).count() === 1)
+  await dlg.getByLabel(/Gol de visitante/).check()
+  await dlg.getByLabel('Desempate de Final').selectOption('PRORROGA_PENALES')
+  await dlg.getByLabel(/Mantener todo/).check()
+  await captura(page, 'llaves_configurar', ancho)
+  await dlg.getByRole('button', { name: 'Guardar' }).click()
+  await page.getByRole('button', { name: 'Elegir clasificados y cruces' }).waitFor({ timeout: 10000 }).catch(() => {})
+  const env = elimEnviado ?? {}
+  const rondas = Object.fromEntries((env.rondas ?? []).map(r => [r.tipo, r]))
+  ok(`llaves @${ancho}: guarda 4 clasificados con tercer puesto`, env.equiposClasifican === 4 && env.tercerPuesto === true && Object.keys(rondas).join() === 'SEMIFINAL,TERCER_PUESTO,FINAL', JSON.stringify(env))
+  ok(`llaves @${ancho}: semifinal ida y vuelta con gol de visitante; final única con prórroga`, rondas.SEMIFINAL?.idaYVuelta && rondas.SEMIFINAL?.golVisitante && !rondas.FINAL?.idaYVuelta && !rondas.FINAL?.golVisitante && rondas.FINAL?.desempate === 'PRORROGA_PENALES', JSON.stringify(env.rondas))
+  ok(`llaves @${ancho}: regla de tarjetas elegida`, env.reglaTarjetas === 'MANTENER', env.reglaTarjetas)
+
+  await page.getByRole('button', { name: 'Elegir clasificados y cruces' }).click()
+  const dlg2 = page.getByRole('dialog')
+  await dlg2.getByText('1 · Marque los clasificados').waitFor()
+  ok(`llaves @${ancho}: vienen marcados los 4 primeros de la tabla`, await dlg2.getByText('4 de 4').isVisible())
+  ok(`llaves @${ancho}: crear queda desactivado hasta completar`, await dlg2.getByRole('button', { name: 'Crear semifinal' }).isDisabled())
+  await dlg2.getByRole('button', { name: /Sugerir/ }).click()
+  for (const [leyenda, fecha] of [['Fecha y hora de la ida', '2026-12-06'], ['Fecha y hora de la vuelta', '2026-12-13']]) {
+    const grupo = dlg2.getByRole('group', { name: leyenda })
+    await grupo.getByLabel('Fecha', { exact: true }).fill(fecha)
+    await grupo.getByLabel('Hora (formato de 24 horas)').selectOption('10')
+    await grupo.getByLabel('Minutos').selectOption('00')
+  }
+  await captura(page, 'llaves_armar', ancho)
+  await dlg2.getByRole('button', { name: 'Crear semifinal' }).click()
+  await page.getByRole('region', { name: 'Semifinal' }).waitFor({ timeout: 10000 }).catch(() => {})
+  const env2 = elimRondaEnviada ?? {}
+  ok(`llaves @${ancho}: crea 2 llaves (1.º contra 4.º, 2.º contra 3.º) con ida y vuelta`, env2.llaves?.length === 2 && env2.fechaIda === '2026-12-06T10:00' && env2.fechaVuelta === '2026-12-13T10:00'
+     && env2.llaves.every(l => l.idEquipoA && l.idEquipoB && l.idEquipoA !== l.idEquipoB), JSON.stringify(env2))
+  ok(`llaves @${ancho}: el cuadro muestra la semifinal`, await page.getByRole('region', { name: 'Semifinal' }).isVisible())
+  ok(`llaves @${ancho}: ganador por gol de visitante`, await page.getByText('Global 2-2 · gol de visitante').isVisible())
+  ok(`llaves @${ancho}: llave empatada pide penales`, await page.getByRole('button', { name: 'Guardar penales' }).count() === 1)
+  ok(`llaves @${ancho}: se puede eliminar la semifinal (nada empezó)`, await page.getByRole('button', { name: 'Eliminar semifinal' }).isVisible())
+  await captura(page, 'llaves_cuadro', ancho)
+  ok(`sin errores (llaves) @${ancho}`, errores.length === 0, errores.join(' | '))
+  await ctx.close()
+
+  for (const [quien, url, usuario] of [['público', `${APP}/publico/${TOKEN}?tab=llaves`, null], ['aficionados', `${APP}/publico/${TOKEN_AF}?tab=llaves`, null], ['dirigente', `${APP}/dirigente?tab=llaves`, sesion('Dirigente', 'Pedro Alvarado')]]) {
+    const { ctx: c2, page: p2, errores: e2 } = await abrir(browser, ancho, usuario)
+    await p2.goto(url)
+    await p2.getByRole('region', { name: 'Semifinal' }).waitFor({ timeout: 10000 }).catch(() => {})
+    ok(`llaves ${quien} @${ancho}: pestaña y cuadro de solo lectura`, await p2.getByRole('button', { name: 'Llaves', exact: true }).isVisible()
+       && await p2.getByRole('region', { name: 'Semifinal' }).isVisible() && await p2.getByRole('button', { name: 'Guardar penales' }).count() === 0)
+    if (quien === 'público') await captura(p2, 'llaves_publico', ancho)
+    ok(`sin errores (llaves ${quien}) @${ancho}`, e2.length === 0, e2.join(' | '))
+    await c2.close()
+  }
+}
 // ── Acta de juego (PDF) ──
 for (const ancho of [390, 1440]) {
   const { ctx, page, errores } = await abrir(browser, ancho, sesion('Organizador', 'Roberto Prado'))
   await page.goto(`${APP}/campeonatos/1?tab=jornadas&jornada=2`)
   await page.getByRole('button', { name: '+ Agregar partido' }).waitFor()
   const botones = page.getByRole('button', { name: 'Acta PDF' })
+  await botones.nth(1).waitFor({ timeout: 10000 }).catch(() => {})
   ok(`acta @${ancho}: un botón «Acta PDF» por partido por jugar`, await botones.count() === 2, String(await botones.count()))
   const [descarga] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }), botones.first().click()])
   const ruta = `capturas/acta_${ancho}.pdf`
