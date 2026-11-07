@@ -65,10 +65,12 @@ ALTER TABLE partido
     ADD KEY idx_partido_llave (id_llave),
     ADD CONSTRAINT fk_partido_llave FOREIGN KEY (id_llave) REFERENCES llave (id_llave);
 
-INSERT INTO catalogoinstancia (nombre)
-SELECT t.nombre FROM (
-    SELECT 'Octavos de final' AS nombre UNION ALL SELECT 'Cuartos de final' UNION ALL
-    SELECT 'Semifinal' UNION ALL SELECT 'Tercer puesto' UNION ALL SELECT 'Final'
+-- catalogoinstancia.orden es obligatoria: las nuevas van después de las que ya existen.
+INSERT INTO catalogoinstancia (nombre, orden)
+SELECT t.nombre, (SELECT COALESCE(MAX(c2.orden), 0) FROM catalogoinstancia c2) + t.n
+FROM (
+    SELECT 'Octavos de final' AS nombre, 1 AS n UNION ALL SELECT 'Cuartos de final', 2 UNION ALL
+    SELECT 'Semifinal', 3 UNION ALL SELECT 'Tercer puesto', 4 UNION ALL SELECT 'Final', 5
 ) t
 WHERE NOT EXISTS (SELECT 1 FROM catalogoinstancia c WHERE c.nombre = t.nombre);
 
