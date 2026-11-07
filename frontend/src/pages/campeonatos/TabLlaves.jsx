@@ -12,7 +12,7 @@ import { fechaHoraCompleta } from '../../utils/fechas'
 // Pestaña «Llaves» del organizador: configura la fase eliminatoria, arma cada ronda a mano
 // (modo manual) y muestra el cuadro. El modo automático queda para más adelante.
 
-export const NOMBRES_RONDA = {
+const NOMBRES_RONDA = {
   OCTAVOS: 'Octavos de final', CUARTOS: 'Cuartos de final', SEMIFINAL: 'Semifinal',
   TERCER_PUESTO: 'Tercer puesto', FINAL: 'Final',
 }
@@ -28,7 +28,7 @@ const REGLAS_TARJETAS = [
 ]
 const LLAVES_POR_CLASIFICADOS = { 2: 'la final', 4: 'semifinal', 8: 'cuartos de final', 16: 'octavos de final' }
 
-export function rondasDe(n, tercer) {
+function rondasDe(n, tercer) {
   const l = []
   if (n >= 16) l.push('OCTAVOS')
   if (n >= 8) l.push('CUARTOS')
