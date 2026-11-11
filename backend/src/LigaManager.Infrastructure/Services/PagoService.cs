@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 // - Todos los cobros van a nombre del equipo (pago.id_equipo); el jugador, si lo hay, va en el
 //   detalle. La base exige un solo destino por pago (trigger trg_pago_destino_*).
 // - Cobros automáticos: inscripción de cada equipo, refuerzos (jugadores inscritos desde el
-//   inicio de la segunda etapa), arbitraje de cada equipo por partido jugado y tarjetas. Se
+//   inicio de la segunda etapa), arbitraje de cada equipo por partido jugado (en un desierto,
+//   solo si llegó a jugarse o ya estaba cargado) y tarjetas. Se
 //   generan al consultar los pagos (Sincronizar), una sola vez cada uno gracias a clave_auto, con
 //   el valor vigente en ese momento: cambiar los valores no altera los cobros ya generados.
 // - Si su origen desaparece (se borra la tarjeta, el partido vuelve a pendiente, el equipo sale
@@ -101,12 +102,21 @@ public class PagoService
         }
 
         var partidos = await _db.Partidos
-            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado && !p.Desierto)
+            .Where(p => p.Jornada.IdCampeonato == idCampeonato && p.Jugado)
             .Select(p => new { p.IdPartido, p.Fecha, p.Jornada.Numero, p.IdEquipoLocal, p.IdEquipoVisitante,
-                Local = p.EquipoLocal.Nombre, Visitante = p.EquipoVisitante.Nombre })
+                Local = p.EquipoLocal.Nombre, Visitante = p.EquipoVisitante.Nombre,
+                // Desierto: no se cobra arbitraje si ninguno se presentó. Si el partido llegó a
+                // jugarse (tiene tarjetas o el reloj arrancó) o su arbitraje ya estaba cargado
+                // antes de declararlo desierto, el arbitraje se mantiene.
+                Disputado = !p.Desierto || p.Eventos.Any() || p.RelojFase != FaseReloj.Antes })
             .ToListAsync();
+        var arbitrajeCargado = (await _db.Pagos
+            .Where(x => x.IdCampeonato == idCampeonato && x.ClaveAuto != null && x.ClaveAuto.StartsWith(pre + "ARB:"))
+            .Select(x => x.ClaveAuto!).ToListAsync())
+            .Select(c => int.Parse(c.Split(':')[2])).ToHashSet();
         foreach (var p in partidos)
         {
+            if (!p.Disputado && !arbitrajeCargado.Contains(p.IdPartido)) continue;
             var dia = DateOnly.FromDateTime(p.Fecha);
             fuentes[$"{pre}ARB:{p.IdPartido}:{p.IdEquipoLocal}"] = new Fuente(p.IdEquipoLocal, "ARBITRAJE", t.Arbitraje, dia,
                 $"Jornada {p.Numero} · vs {p.Visitante}", p.IdPartido);
