@@ -56,8 +56,7 @@ ALTER TABLE pago
     ADD COLUMN descripcion VARCHAR(200) NULL,
     ADD COLUMN id_partido  INT NULL,
     ADD COLUMN clave_auto  VARCHAR(60) NULL,
-    ADD UNIQUE KEY uq_pago_clave_auto (clave_auto),
-    ADD KEY idx_pago_campeonato_equipo (id_campeonato, id_equipo);
+    ADD UNIQUE KEY uq_pago_clave_auto (clave_auto);
 
 ALTER TABLE abono
     ADD COLUMN metodo     ENUM('EFECTIVO','TRANSFERENCIA','DEPOSITO','OTRO') NOT NULL DEFAULT 'EFECTIVO',
