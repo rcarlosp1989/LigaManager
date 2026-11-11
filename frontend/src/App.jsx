@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { inicioDeRol } from './utils/roles'
 import Layout            from './components/Layout'
@@ -22,6 +23,8 @@ import OlvideClave       from './pages/cuenta/OlvideClave'
 import Restablecer       from './pages/cuenta/Restablecer'
 import ConfirmarCorreo   from './pages/cuenta/ConfirmarCorreo'
 import AceptarTerminos   from './components/AceptarTerminos'
+import NoEncontrada      from './components/NoEncontrada'
+import { tituloDe, tituloDeRuta } from './utils/titulo'
 
 // La administración no es para el vocal ni para el dirigente: los lleva a su propia pantalla.
 // (El servidor igual rechaza sus llamadas; esto solo evita pantallas de error.)
@@ -44,9 +47,18 @@ function SinDirigente({ children }) {
   return user.rol === 'Dirigente' ? <Navigate to="/dirigente" replace /> : children
 }
 
+// Título de la pestaña del navegador según la pantalla (antes siempre «LigaManager»).
+// Va antes de <Routes>: sus efectos corren primero y una pantalla puede afinarlo con useTitulo.
+function TituloPorRuta() {
+  const { pathname } = useLocation()
+  useEffect(() => { document.title = tituloDe(tituloDeRuta(pathname)) }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <TituloPorRuta />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -90,6 +102,7 @@ export default function App() {
           <Route path="estadios"             element={<Navigate to="/mantenimiento" replace />} />
           <Route path="oficiales"            element={<Navigate to="/mantenimiento" replace />} />
         </Route>
+        <Route path="*" element={<NoEncontrada />} />
       </Routes>
     </AuthProvider>
   )

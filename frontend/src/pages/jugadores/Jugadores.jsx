@@ -121,7 +121,7 @@ function JugadorForm({ onSubmit, loading, error }) {
         <span>
           La organización cuenta con la autorización del jugador (o de su padre, madre o representante legal, si es menor
           de edad) para tratar sus datos personales.{' '}
-          <Link to="/privacidad" target="_blank" className="text-brand-400 hover:text-brand-300">Aviso de privacidad</Link>
+          <Link to="/privacidad" target="_blank" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Aviso de privacidad</Link>
         </span>
       </label>
       {error && (

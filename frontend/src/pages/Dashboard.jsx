@@ -74,8 +74,8 @@ export default function Dashboard() {
                   {/* Lleva a la jornada del partido. Con idJornada (pendiente en la API) abre la jornada exacta y el modo en vivo. */}
                   <Link to={rutaJornada(p)} className="block focus-visible:outline-2 focus-visible:outline-brand-400 rounded">
                     <div className="flex flex-wrap items-center justify-between gap-x-2 mb-1">
-                      <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
-                      <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
+                      <span className="text-xs text-gray-400">{p.campeonato} · {p.jornada}</span>
+                      <span className="text-xs text-gray-400">{formatearFecha(p.fecha)}</span>
                     </div>
                     {/* Un equipo por línea: los nombres se leen completos también en celular. */}
                     <div className="space-y-1">
@@ -114,8 +114,8 @@ export default function Dashboard() {
                   className="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors focus-visible:outline-2 focus-visible:outline-brand-400"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-x-2 mb-1">
-                    <span className="text-xs text-gray-500">{p.campeonato} · {p.jornada}</span>
-                    <span className="text-xs text-gray-500">{formatearFecha(p.fecha)}</span>
+                    <span className="text-xs text-gray-400">{p.campeonato} · {p.jornada}</span>
+                    <span className="text-xs text-gray-400">{formatearFecha(p.fecha)}</span>
                   </div>
                   {/* Un equipo por línea con sus goles a la derecha: los nombres se leen completos
                       también en celular y los marcadores quedan en la misma columna. */}

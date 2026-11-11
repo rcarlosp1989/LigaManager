@@ -38,6 +38,9 @@ export default function Layout() {
 
   return (
     <div className="flex h-dvh bg-gray-950 overflow-hidden">
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-lg focus:bg-brand-400 focus:px-4 focus:py-3 focus:font-semibold focus:text-gray-950">
+        Saltar al contenido
+      </a>
       {/* Fondo oscuro detrás del menú abierto (solo pantallas angostas) */}
       {menuAbierto && (
         <div className="fixed inset-0 z-30 bg-black/60 lg:hidden" onClick={cerrarMenu} aria-hidden="true" />
@@ -126,7 +129,7 @@ export default function Layout() {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto">
+        <main id="contenido" tabIndex={-1} className="flex-1 overflow-auto focus:outline-none">
           <Outlet />
         </main>
       </div>

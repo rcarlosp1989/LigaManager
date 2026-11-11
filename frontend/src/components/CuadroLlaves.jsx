@@ -24,7 +24,7 @@ export default function CuadroLlaves({ datos, accionesLlave, accionesRonda, most
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-4 lg:flex-row lg:overflow-x-auto lg:pb-2">
+      <div className="flex flex-col gap-4 lg:flex-row lg:overflow-x-auto lg:pb-2 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400" tabIndex={0} role="region" aria-label="Cuadro de llaves (deslice para ver todas las rondas)">
         {rondas.map(r => (
           <section key={r.tipo} aria-label={r.nombre} className="lg:w-80 lg:shrink-0 space-y-3">
             <div className="flex items-baseline justify-between gap-2">
