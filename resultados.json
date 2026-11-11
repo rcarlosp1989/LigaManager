@@ -1,0 +1,6648 @@
+{
+ "pantallas": [
+  {
+   "id": "001",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "login",
+   "archivo": "001_visitante_login_390.png",
+   "url": "/login",
+   "cargaMs": 1388,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 252,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "292x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "input:admin@ligamanager.com",
+     "input:••••••••",
+     "a:¿Olvidó su contraseña?",
+     "input:on",
+     "button:Ingresar",
+     "a:Regístrese"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "002",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "login-vacio",
+   "archivo": "002_visitante_login-vacio_390.png",
+   "url": "/login",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 252,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "292x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "003",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "login-clave-mala",
+   "archivo": "003_visitante_login-clave-mala_390.png",
+   "url": "/login",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 252,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "292x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+   ]
+  },
+  {
+   "id": "004",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "registro",
+   "archivo": "004_visitante_registro_390.png",
+   "url": "/register",
+   "cargaMs": 1131,
+   "desborde": 0,
+   "alto": 911,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Crear cuenta · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "100x16",
+     "txt": "términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "77x16",
+     "txt": "Inicie sesión",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 2,
+   "chicos44ej": [
+    {
+     "tam": "251x36",
+     "txt": "aviso de privacidad",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "292x44",
+     "txt": "Registrarme",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "input:Su nombre",
+     "input:tucorreo@ejemplo.com",
+     "input:Mínimo 6 caracteres",
+     "input:Repita la contraseña",
+     "input:on",
+     "a:términos de uso"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "005",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "registro-vacio",
+   "archivo": "005_visitante_registro-vacio_390.png",
+   "url": "/register",
+   "desborde": 0,
+   "alto": 911,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Crear cuenta · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "100x16",
+     "txt": "términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "77x16",
+     "txt": "Inicie sesión",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 2,
+   "chicos44ej": [
+    {
+     "tam": "251x36",
+     "txt": "aviso de privacidad",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "292x44",
+     "txt": "Registrarme",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "006",
+   "rol": "visitante",
+   "ancho": 390,
+   "nombre": "olvide-clave",
+   "archivo": "006_visitante_olvide-clave_390.png",
+   "url": "/olvide-clave",
+   "cargaMs": 1109,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 72,
+   "h1": [
+    "Restablecer contraseña"
+   ],
+   "titulo": "Recuperar contraseña · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "308x44",
+     "txt": "Enviar enlace",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 23,
+    "sinAnillo": [],
+    "sinNombre": [
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input"
+    ],
+    "primeros": [
+     "input:",
+     "button:Enviar enlace",
+     "a:Volver a iniciar sesión",
+     "input:",
+     "button:Enviar enlace",
+     "a:Volver a iniciar sesión"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "007",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "login",
+   "archivo": "007_visitante_login_1440.png",
+   "url": "/login",
+   "cargaMs": 1338,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 200,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 3,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "input:admin@ligamanager.com",
+     "input:••••••••",
+     "a:¿Olvidó su contraseña?",
+     "input:on",
+     "button:Ingresar",
+     "a:Regístrese"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "008",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "login-vacio",
+   "archivo": "008_visitante_login-vacio_1440.png",
+   "url": "/login",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 200,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 3,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "009",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "login-clave-mala",
+   "archivo": "009_visitante_login-clave-mala_1440.png",
+   "url": "/login",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 200,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Ingresar · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "148x16",
+     "txt": "¿Olvidó su contraseña?",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "68x16",
+     "txt": "Regístrese",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "67x16",
+     "txt": "Úselo aquí",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 3,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Ingresar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+   ]
+  },
+  {
+   "id": "010",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "registro",
+   "archivo": "010_visitante_registro_1440.png",
+   "url": "/register",
+   "cargaMs": 1150,
+   "desborde": 0,
+   "alto": 911,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Crear cuenta · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "100x16",
+     "txt": "términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "77x16",
+     "txt": "Inicie sesión",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "text",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "251x36",
+     "txt": "aviso de privacidad",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Registrarme",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "input:Su nombre",
+     "input:tucorreo@ejemplo.com",
+     "input:Mínimo 6 caracteres",
+     "input:Repita la contraseña",
+     "input:on",
+     "a:términos de uso"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "011",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "registro-vacio",
+   "archivo": "011_visitante_registro-vacio_1440.png",
+   "url": "/register",
+   "desborde": 0,
+   "alto": 911,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Crear cuenta · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "100x16",
+     "txt": "términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "77x16",
+     "txt": "Inicie sesión",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "text",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "password",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "251x36",
+     "txt": "aviso de privacidad",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Registrarme",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "012",
+   "rol": "visitante",
+   "ancho": 1440,
+   "nombre": "olvide-clave",
+   "archivo": "012_visitante_olvide-clave_1440.png",
+   "url": "/olvide-clave",
+   "cargaMs": 1132,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 76,
+   "h1": [
+    "Restablecer contraseña"
+   ],
+   "titulo": "Recuperar contraseña · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 2,
+   "chicos44ej": [
+    {
+     "tam": "318x44",
+     "txt": "email",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "318x44",
+     "txt": "Enviar enlace",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 23,
+    "sinAnillo": [],
+    "sinNombre": [
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input"
+    ],
+    "primeros": [
+     "input:",
+     "button:Enviar enlace",
+     "a:Volver a iniciar sesión",
+     "input:",
+     "button:Enviar enlace",
+     "a:Volver a iniciar sesión"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "013",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "inicio-tras-login",
+   "archivo": "013_organizador_inicio-tras-login_390.png",
+   "url": "/dashboard",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 232,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Inicio · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "a:Senior A · Jornada 4695 mié 11 nov 2026 ",
+     "a:● Registrar en vivo",
+     "a:Senior A · Jornada 55074 mié 11 nov 2026",
+     "a:● Registrar en vivo",
+     "a:Senior A · Jornada 1 jue 12 nov 2026 · 1"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "014",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "menu-movil",
+   "archivo": "014_organizador_menu-movil_390.png",
+   "url": "/dashboard",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 232,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Inicio · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "015",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonatos",
+   "archivo": "015_organizador_campeonatos_390.png",
+   "url": "/campeonatos",
+   "cargaMs": 1163,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 116,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 26,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:+ Nuevo Campeonato",
+     "div:Tabla (deslice para ver más columnas)",
+     "a:Senior A",
+     "button:Acciones de Senior A",
+     "a:Saltar al contenido"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "016",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-campeonato",
+   "archivo": "016_organizador_nuevo-campeonato_390.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 116,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x44",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "125x44",
+     "txt": "Subir logo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Cancelar",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Crear campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [
+     "input:",
+     "input:",
+     "input:",
+     "input:"
+    ],
+    "sinNombre": [
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input"
+    ],
+    "primeros": [
+     "button:Cerrar",
+     "input:Copa Ecuador 2025",
+     "select:Seleccionar... Todos contra todos",
+     "select:Seleccionar... Fútbol 7",
+     "input:",
+     "input:"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "017",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-campeonato-vacio",
+   "archivo": "017_organizador_nuevo-campeonato-vacio_390.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 116,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "018",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "tras-escape-en-formulario",
+   "archivo": "018_organizador_tras-escape-en-formulario_390.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 116,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "019",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-equipos",
+   "archivo": "019_organizador_campeonato-equipos_390.png",
+   "url": "/campeonatos/1",
+   "cargaMs": 1153,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Equipos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "151x44",
+     "txt": "+ Agregar equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:← Campeonatos",
+     "button:Ver más",
+     "button:Competencia",
+     "button:Pagos",
+     "button:Accesos"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "020",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-grupos",
+   "archivo": "020_organizador_campeonato-grupos_390.png",
+   "url": "/campeonatos/1?tab=grupos",
+   "cargaMs": 1054,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Grupos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "137x44",
+     "txt": "+ Nuevo Grupo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "021",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-jornadas",
+   "archivo": "021_organizador_campeonato-jornadas_390.png",
+   "url": "/campeonatos/1?tab=jornadas",
+   "cargaMs": 1042,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "149x44",
+     "txt": "+ Nueva Jornada",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:← Campeonatos",
+     "button:Ver más",
+     "button:Competencia",
+     "button:Pagos",
+     "button:Accesos"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "022",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "jornada-abierta",
+   "archivo": "022_organizador_jornada-abierta_390.png",
+   "url": "/campeonatos/1?tab=jornadas&jornada=1",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "149x44",
+     "txt": "+ Nueva Jornada",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:← Campeonatos",
+     "button:Ver más",
+     "button:Competencia",
+     "button:Pagos",
+     "button:Accesos"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "023",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "planilla",
+   "archivo": "023_organizador_planilla_390.png",
+   "url": "/campeonatos/1?tab=jornadas&jornada=1",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 2,
+   "chicos44ej": [
+    {
+     "tam": "149x44",
+     "txt": "+ Nueva Jornada",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Guardar observaciones y estado",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Cerrar",
+     "button:Quitar a J3 Senior A Local de la planill",
+     "button:Gol de Carlos Andrés Mendoza Pérez",
+     "button:Gol en contra de Carlos Andrés Mendoza P",
+     "button:Tarjeta amarilla a Carlos Andrés Mendoza",
+     "button:Tarjeta roja a Carlos Andrés Mendoza Pér"
+    ]
+   },
+   "errores": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "id": "024",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-llaves",
+   "archivo": "024_organizador_campeonato-llaves_390.png",
+   "url": "/campeonatos/1?tab=llaves",
+   "cargaMs": 1065,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Llaves · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "119x44",
+     "txt": "Editar reglas",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "025",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-pagos",
+   "archivo": "025_organizador_campeonato-pagos_390.png",
+   "url": "/campeonatos/1?tab=pagos",
+   "cargaMs": 1051,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Pagos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "161x44",
+     "txt": "Configurar valores",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "026",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-vocales",
+   "archivo": "026_organizador_campeonato-vocales_390.png",
+   "url": "/campeonatos/1?tab=vocales",
+   "cargaMs": 1122,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Vocales · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 2,
+   "chicos44ej": [
+    {
+     "tam": "174x44",
+     "txt": "+ Invitar vocal titular",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "221x44",
+     "txt": "Invitar reemplazo por un día",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "027",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "campeonato-dirigentes",
+   "archivo": "027_organizador_campeonato-dirigentes_390.png",
+   "url": "/campeonatos/1?tab=dirigentes",
+   "cargaMs": 1055,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Dirigentes · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 3,
+   "chicos44ej": [
+    {
+     "tam": "154x44",
+     "txt": "+ Invitar dirigente",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "316x44",
+     "txt": "Copiar enlace",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "316x44",
+     "txt": "Copiar enlace",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "028",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "equipos",
+   "archivo": "028_organizador_equipos_390.png",
+   "url": "/equipos",
+   "cargaMs": 1150,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:+ Nuevo Equipo",
+     "button:Acciones de Senior A Cuatro",
+     "button:Acciones de Senior A Local",
+     "button:Acciones de Senior A Tres",
+     "button:Acciones de Senior A Visita"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "029",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-equipo",
+   "archivo": "029_organizador_nuevo-equipo_390.png",
+   "url": "/equipos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x44",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "125x44",
+     "txt": "Subir logo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Cancelar",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Guardar Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "030",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-equipo-vacio",
+   "archivo": "030_organizador_nuevo-equipo-vacio_390.png",
+   "url": "/equipos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x44",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "125x44",
+     "txt": "Subir logo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Cancelar",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Guardar Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "031",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "jugadores",
+   "archivo": "031_organizador_jugadores_390.png",
+   "url": "/jugadores",
+   "cargaMs": 1196,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:+ Nuevo Jugador",
+     "input:Buscar jugadores",
+     "div:Tabla (deslice para ver más columnas)",
+     "button:Editar",
+     "button:Eliminar"
+    ]
+   },
+   "errores": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "id": "032",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-jugador",
+   "archivo": "032_organizador_nuevo-jugador_390.png",
+   "url": "/jugadores",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x44",
+     "txt": "file",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "121x16",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "122x44",
+     "txt": "Subir foto",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Cancelar",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Registrar Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "033",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "nuevo-jugador-vacio",
+   "archivo": "033_organizador_nuevo-jugador-vacio_390.png",
+   "url": "/jugadores",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 100,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x44",
+     "txt": "file",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "121x16",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "122x44",
+     "txt": "Subir foto",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Cancelar",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "358x44",
+     "txt": "Registrar Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "034",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "reportes",
+   "archivo": "034_organizador_reportes_390.png",
+   "url": "/reportes",
+   "cargaMs": 1184,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 104,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Reportes · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "select:Seleccione un campeonato... Senior A (20",
+     "button:Posiciones",
+     "button:Nómina",
+     "button:Goleadores",
+     "button:Tarjetas"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "035",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "mantenimiento",
+   "archivo": "035_organizador_mantenimiento_390.png",
+   "url": "/mantenimiento",
+   "cargaMs": 1149,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Mantenimiento · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "144x44",
+     "txt": "+ Nuevo estadio",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "button:Estadios",
+     "button:Oficiales",
+     "button:+ Nuevo estadio",
+     "button:Acciones de Estadio Hora",
+     "button:Acciones de Estadio Ofi"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "036",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "dashboard",
+   "archivo": "036_organizador_dashboard_390.png",
+   "url": "/dashboard",
+   "cargaMs": 1194,
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 104,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Inicio · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x44",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Abrir menú",
+     "a:Senior A · Jornada 4695 mié 11 nov 2026 ",
+     "a:● Registrar en vivo",
+     "a:Senior A · Jornada 55074 mié 11 nov 2026",
+     "a:● Registrar en vivo",
+     "a:Senior A · Jornada 1 jue 12 nov 2026 · 1"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "037",
+   "rol": "organizador",
+   "ancho": 390,
+   "nombre": "ruta-inexistente",
+   "archivo": "037_organizador_ruta-inexistente_390.png",
+   "url": "/no-existe",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 76,
+   "h1": [
+    "Página no encontrada"
+   ],
+   "titulo": "Página no encontrada · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "038",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "inicio-tras-login",
+   "archivo": "038_organizador_inicio-tras-login_1440.png",
+   "url": "/dashboard",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.003,
+   "lcp": 212,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Inicio · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 12,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "127x30",
+     "txt": "● Registrar en vivo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "039",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonatos",
+   "archivo": "039_organizador_campeonatos_1440.png",
+   "url": "/campeonatos",
+   "cargaMs": 1172,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.002,
+   "lcp": 112,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "040",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-campeonato",
+   "archivo": "040_organizador_nuevo-campeonato_1440.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.002,
+   "lcp": 112,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x1",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 18,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Senior A",
+     "button:Acciones de Senior A",
+     "a:Saltar al contenido",
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "041",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-campeonato-vacio",
+   "archivo": "041_organizador_nuevo-campeonato-vacio_1440.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.002,
+   "lcp": 112,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "042",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "tras-escape-en-formulario",
+   "archivo": "042_organizador_tras-escape-en-formulario_1440.png",
+   "url": "/campeonatos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.002,
+   "lcp": 112,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Campeonatos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "60x17",
+     "txt": "Senior A",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x44",
+     "txt": "+ Nuevo Campeonato",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "043",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-equipos",
+   "archivo": "043_organizador_campeonato-equipos_1440.png",
+   "url": "/campeonatos/1",
+   "cargaMs": 1172,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 108,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Equipos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 13,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "044",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-grupos",
+   "archivo": "044_organizador_campeonato-grupos_1440.png",
+   "url": "/campeonatos/1?tab=grupos",
+   "cargaMs": 1077,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Grupos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 11,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "045",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-jornadas",
+   "archivo": "045_organizador_campeonato-jornadas_1440.png",
+   "url": "/campeonatos/1?tab=jornadas",
+   "cargaMs": 1078,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 20,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "046",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "jornada-abierta",
+   "archivo": "046_organizador_jornada-abierta_1440.png",
+   "url": "/campeonatos/1?tab=jornadas&jornada=1",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "129x22",
+     "txt": "Reabrir para el vocal",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 38,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "047",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "planilla",
+   "archivo": "047_organizador_planilla_1440.png",
+   "url": "/campeonatos/1?tab=jornadas&jornada=1",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Jornadas · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "129x22",
+     "txt": "Reabrir para el vocal",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 65,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Ver resumen",
+     "button:Editar",
+     "button:Eliminar",
+     "button:Eliminar tarjeta amarilla de Carlos Andr",
+     "button:✓ Marcar jugado",
+     "button:Planilla"
+    ]
+   },
+   "errores": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "id": "048",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-llaves",
+   "archivo": "048_organizador_campeonato-llaves_1440.png",
+   "url": "/campeonatos/1?tab=llaves",
+   "cargaMs": 1097,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Llaves · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 11,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "049",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-pagos",
+   "archivo": "049_organizador_campeonato-pagos_1440.png",
+   "url": "/campeonatos/1?tab=pagos",
+   "cargaMs": 1067,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Pagos · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "050",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-vocales",
+   "archivo": "050_organizador_campeonato-vocales_1440.png",
+   "url": "/campeonatos/1?tab=vocales",
+   "cargaMs": 1145,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Vocales · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 16,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "051",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "campeonato-dirigentes",
+   "archivo": "051_organizador_campeonato-dirigentes_1440.png",
+   "url": "/campeonatos/1?tab=dirigentes",
+   "cargaMs": 1079,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 120,
+   "h1": [
+    "LigaManager",
+    "Senior A"
+   ],
+   "titulo": "Dirigentes · Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 24,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "120x24",
+     "txt": "← Campeonatos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "052",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "equipos",
+   "archivo": "052_organizador_equipos_1440.png",
+   "url": "/equipos",
+   "cargaMs": 1158,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.004,
+   "lcp": 96,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 12,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "053",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-equipo",
+   "archivo": "053_organizador_nuevo-equipo_1440.png",
+   "url": "/equipos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.004,
+   "lcp": 96,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x1",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 18,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "054",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-equipo-vacio",
+   "archivo": "054_organizador_nuevo-equipo-vacio_1440.png",
+   "url": "/equipos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.004,
+   "lcp": 96,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Equipos · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x1",
+     "txt": "file",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 18,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "142x44",
+     "txt": "+ Nuevo Equipo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "055",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "jugadores",
+   "archivo": "055_organizador_jugadores_1440.png",
+   "url": "/jugadores",
+   "cargaMs": 1200,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.01,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 61,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "id": "056",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-jugador",
+   "archivo": "056_organizador_nuevo-jugador_1440.png",
+   "url": "/jugadores",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.01,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x1",
+     "txt": "file",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "121x16",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 76,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "057",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "nuevo-jugador-vacio",
+   "archivo": "057_organizador_nuevo-jugador-vacio_1440.png",
+   "url": "/jugadores",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.01,
+   "lcp": 92,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Jugadores · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "1x1",
+     "txt": "file",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "121x16",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 76,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "150x44",
+     "txt": "+ Nuevo Jugador",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "058",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "reportes",
+   "archivo": "058_organizador_reportes_1440.png",
+   "url": "/reportes",
+   "cargaMs": 1188,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 124,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Reportes · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 16,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "576x41",
+     "txt": "Seleccione un campeonato...Senior A (202",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "059",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "mantenimiento",
+   "archivo": "059_organizador_mantenimiento_1440.png",
+   "url": "/mantenimiento",
+   "cargaMs": 1154,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 96,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Mantenimiento · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 14,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "116x42",
+     "txt": "Estadios",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "060",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "dashboard",
+   "archivo": "060_organizador_dashboard_1440.png",
+   "url": "/dashboard",
+   "cargaMs": 1238,
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0,
+   "lcp": 112,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Inicio · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "1x1",
+     "txt": "Saltar al contenido",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "51x12",
+     "txt": "Privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "46x12",
+     "txt": "Términos",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 12,
+   "chicos44ej": [
+    {
+     "tam": "231x40",
+     "txt": "Dashboard",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Campeonatos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Equipos",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Jugadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Reportes",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "231x40",
+     "txt": "Mantenimiento",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "32x24",
+     "txt": "Salir",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "127x30",
+     "txt": "● Registrar en vivo",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": true,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "a:Dashboard",
+     "a:Campeonatos",
+     "a:Equipos",
+     "a:Jugadores",
+     "a:Reportes",
+     "a:Mantenimiento"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "061",
+   "rol": "organizador",
+   "ancho": 1440,
+   "nombre": "ruta-inexistente",
+   "archivo": "061_organizador_ruta-inexistente_1440.png",
+   "url": "/no-existe",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.001,
+   "lcp": 68,
+   "h1": [
+    "Página no encontrada"
+   ],
+   "titulo": "Página no encontrada · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "101x44",
+     "txt": "Ir al inicio",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "062",
+   "rol": "vocal",
+   "ancho": 390,
+   "nombre": "invitacion",
+   "archivo": "062_vocal_invitacion_390.png",
+   "url": "/invitacion/CNT87-6GKY3",
+   "cargaMs": 1330,
+   "desborde": 0,
+   "alto": 864,
+   "cls": 0,
+   "lcp": 176,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Invitación de vocal · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "308x44",
+     "txt": "Crear cuenta y aceptar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input"
+    ],
+    "primeros": [
+     "button:Crear cuenta",
+     "button:Ya soy vocal",
+     "input:",
+     "input:",
+     "input:",
+     "button:Crear cuenta y aceptar"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "063",
+   "rol": "vocal",
+   "ancho": 390,
+   "nombre": "invitacion-llena",
+   "archivo": "063_vocal_invitacion-llena_390.png",
+   "url": "/invitacion/CNT87-6GKY3",
+   "desborde": 0,
+   "alto": 864,
+   "cls": 0,
+   "lcp": 176,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Invitación de vocal · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "308x44",
+     "txt": "Crear cuenta y aceptar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "064",
+   "rol": "vocal",
+   "ancho": 390,
+   "nombre": "inicio",
+   "archivo": "064_vocal_inicio_390.png",
+   "url": "/vocal",
+   "desborde": 0,
+   "alto": 2542,
+   "cls": 0,
+   "lcp": 176,
+   "h1": [
+    "HOY"
+   ],
+   "titulo": "Mis partidos · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 25,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir",
+     "a:Registrar",
+     "a:Ver resumen",
+     "a:Registrar",
+     "button:No puedo ir: delegar un día",
+     "button:Salir"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "065",
+   "rol": "vocal",
+   "ancho": 390,
+   "nombre": "en-vivo",
+   "archivo": "065_vocal_en-vivo_390.png",
+   "url": "/partidos/8/en-vivo",
+   "desborde": 0,
+   "alto": 1916,
+   "cls": 0,
+   "lcp": 176,
+   "h1": [],
+   "titulo": "Partido en vivo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir del modo en vivo",
+     "button:Iniciar partido",
+     "button:Opciones del reloj",
+     "button:Convocatoria",
+     "button:Partido",
+     "button:Cierre"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "066",
+   "rol": "vocal",
+   "ancho": 1440,
+   "nombre": "inicio",
+   "archivo": "066_vocal_inicio_1440.png",
+   "url": "/vocal",
+   "desborde": 0,
+   "alto": 1966,
+   "cls": 0.003,
+   "lcp": 204,
+   "h1": [
+    "HOY"
+   ],
+   "titulo": "Mis partidos · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 25,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir",
+     "a:Registrar",
+     "a:Ver resumen",
+     "a:Registrar",
+     "button:No puedo ir: delegar un día",
+     "button:Salir"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "067",
+   "rol": "vocal",
+   "ancho": 1440,
+   "nombre": "en-vivo",
+   "archivo": "067_vocal_en-vivo_1440.png",
+   "url": "/partidos/8/en-vivo",
+   "desborde": 0,
+   "alto": 1896,
+   "cls": 0.003,
+   "lcp": 204,
+   "h1": [],
+   "titulo": "Partido en vivo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "36x36",
+     "txt": "Opciones del reloj",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 30,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir del modo en vivo",
+     "button:Iniciar partido",
+     "button:Opciones del reloj",
+     "button:Convocatoria",
+     "button:Partido",
+     "button:Cierre"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "068",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "invitacion",
+   "archivo": "068_dirigente_invitacion_390.png",
+   "url": "/invitacion-dirigente/RYTAS-YQDZ5",
+   "cargaMs": 1329,
+   "desborde": 0,
+   "alto": 904,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Invitación de dirigente · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "308x44",
+     "txt": "Crear cuenta y aceptar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 27,
+    "sinAnillo": [],
+    "sinNombre": [
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input",
+     "input"
+    ],
+    "primeros": [
+     "button:Crear cuenta",
+     "button:Ya soy dirigente",
+     "input:",
+     "input:",
+     "input:",
+     "button:Crear cuenta y aceptar"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "069",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "invitacion-llena",
+   "archivo": "069_dirigente_invitacion-llena_390.png",
+   "url": "/invitacion-dirigente/RYTAS-YQDZ5",
+   "desborde": 0,
+   "alto": 904,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "LigaManager"
+   ],
+   "titulo": "Invitación de dirigente · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "308x44",
+     "txt": "Crear cuenta y aceptar",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "070",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "inicio",
+   "archivo": "070_dirigente_inicio_390.png",
+   "url": "/dirigente",
+   "desborde": 0,
+   "alto": 1794,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir",
+     "button:Mi equipo",
+     "button:Jornadas",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Nómina"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "071",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "tab-posiciones",
+   "archivo": "071_dirigente_tab-posiciones_390.png",
+   "url": "/dirigente?tab=posiciones",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "072",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "tab-goleadores",
+   "archivo": "072_dirigente_tab-goleadores_390.png",
+   "url": "/dirigente?tab=goleadores",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "073",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "tab-suspensiones",
+   "archivo": "073_dirigente_tab-suspensiones_390.png",
+   "url": "/dirigente?tab=suspensiones",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "074",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "tab-pagos",
+   "archivo": "074_dirigente_tab-pagos_390.png",
+   "url": "/dirigente?tab=pagos",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "075",
+   "rol": "dirigente",
+   "ancho": 390,
+   "nombre": "tab-llaves",
+   "archivo": "075_dirigente_tab-llaves_390.png",
+   "url": "/dirigente?tab=llaves",
+   "desborde": 0,
+   "alto": 1058,
+   "cls": 0,
+   "lcp": 204,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "076",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "inicio",
+   "archivo": "076_dirigente_inicio_1440.png",
+   "url": "/dirigente",
+   "desborde": 0,
+   "alto": 1233,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 28,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Salir",
+     "button:Mi equipo",
+     "button:Jornadas",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Nómina"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "077",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "tab-posiciones",
+   "archivo": "077_dirigente_tab-posiciones_1440.png",
+   "url": "/dirigente?tab=posiciones",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 12,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "078",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "tab-goleadores",
+   "archivo": "078_dirigente_tab-goleadores_1440.png",
+   "url": "/dirigente?tab=goleadores",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 10,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "079",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "tab-suspensiones",
+   "archivo": "079_dirigente_tab-suspensiones_1440.png",
+   "url": "/dirigente?tab=suspensiones",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "080",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "tab-pagos",
+   "archivo": "080_dirigente_tab-pagos_1440.png",
+   "url": "/dirigente?tab=pagos",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 14,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "081",
+   "rol": "dirigente",
+   "ancho": 1440,
+   "nombre": "tab-llaves",
+   "archivo": "081_dirigente_tab-llaves_1440.png",
+   "url": "/dirigente?tab=llaves",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.006,
+   "lcp": 220,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Mi equipo · LigaManager",
+   "lang": "es",
+   "chicos24": [],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "124x42",
+     "txt": "Mi equipo",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "121x42",
+     "txt": "Jornadas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "110x42",
+     "txt": "Nómina",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "082",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "inicio",
+   "archivo": "082_publico_inicio_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4",
+   "cargaMs": 1337,
+   "desborde": 0,
+   "alto": 1897,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "339x30",
+     "txt": "Términos de uso",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Resultados",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Goleadores",
+     "button:Tarjetas",
+     "button:Suspensiones"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "083",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-resultados",
+   "archivo": "083_publico_boton-resultados_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4",
+   "desborde": 0,
+   "alto": 1897,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "339x30",
+     "txt": "Términos de uso",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "084",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-posiciones",
+   "archivo": "084_publico_boton-posiciones_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=posiciones",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "085",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-llaves",
+   "archivo": "085_publico_boton-llaves_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=llaves",
+   "desborde": 0,
+   "alto": 1070,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "086",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-goleadores",
+   "archivo": "086_publico_boton-goleadores_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=goleadores",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "087",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-tarjetas",
+   "archivo": "087_publico_boton-tarjetas_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=tarjetas",
+   "desborde": 0,
+   "alto": 923,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "339x30",
+     "txt": "Términos de uso",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "088",
+   "rol": "publico",
+   "ancho": 390,
+   "nombre": "boton-suspensiones",
+   "archivo": "088_publico_boton-suspensiones_390.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=suspensiones",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 236,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "089",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "inicio",
+   "archivo": "089_publico_inicio_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4",
+   "cargaMs": 1428,
+   "desborde": 0,
+   "alto": 1730,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Resultados",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Goleadores",
+     "button:Tarjetas",
+     "button:Suspensiones"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "090",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-resultados",
+   "archivo": "090_publico_boton-resultados_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4",
+   "desborde": 0,
+   "alto": 1730,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "091",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-posiciones",
+   "archivo": "091_publico_boton-posiciones_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=posiciones",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 9,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x41",
+     "txt": "Todos los gruposGrupo Grupo Secreto",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "83x38",
+     "txt": "⬇ Excel",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "092",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-llaves",
+   "archivo": "092_publico_boton-llaves_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=llaves",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "093",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-goleadores",
+   "archivo": "093_publico_boton-goleadores_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=goleadores",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 7,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "112x41",
+     "txt": "51020Todos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "094",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-tarjetas",
+   "archivo": "094_publico_boton-tarjetas_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=tarjetas",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "095",
+   "rol": "publico",
+   "ancho": 1440,
+   "nombre": "boton-suspensiones",
+   "archivo": "095_publico_boton-suspensiones_1440.png",
+   "url": "/publico/c56omv3wqQPbk4xQeZYmz4?tab=suspensiones",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.054,
+   "lcp": 280,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 6,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "111x42",
+     "txt": "Tarjetas",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "156x42",
+     "txt": "Suspensiones",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "096",
+   "rol": "aficionado",
+   "ancho": 390,
+   "nombre": "inicio",
+   "archivo": "096_aficionado_inicio_390.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV",
+   "cargaMs": 1336,
+   "desborde": 0,
+   "alto": 1897,
+   "cls": 0,
+   "lcp": 212,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "339x30",
+     "txt": "Términos de uso",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Resultados",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Goleadores",
+     "button:Jornada 1Fase regular · 1 de 2 jugados",
+     "button:Compartir flyer"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "097",
+   "rol": "aficionado",
+   "ancho": 390,
+   "nombre": "boton-resultados",
+   "archivo": "097_aficionado_boton-resultados_390.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV",
+   "desborde": 0,
+   "alto": 1897,
+   "cls": 0,
+   "lcp": 212,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 1,
+   "chicos44ej": [
+    {
+     "tam": "339x30",
+     "txt": "Términos de uso",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "098",
+   "rol": "aficionado",
+   "ancho": 390,
+   "nombre": "boton-posiciones",
+   "archivo": "098_aficionado_boton-posiciones_390.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=posiciones",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 212,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "099",
+   "rol": "aficionado",
+   "ancho": 390,
+   "nombre": "boton-llaves",
+   "archivo": "099_aficionado_boton-llaves_390.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=llaves",
+   "desborde": 0,
+   "alto": 1070,
+   "cls": 0,
+   "lcp": 212,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "100",
+   "rol": "aficionado",
+   "ancho": 390,
+   "nombre": "boton-goleadores",
+   "archivo": "100_aficionado_boton-goleadores_390.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=goleadores",
+   "desborde": 0,
+   "alto": 844,
+   "cls": 0,
+   "lcp": 212,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 0,
+   "chicos44ej": [],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "101",
+   "rol": "aficionado",
+   "ancho": 1440,
+   "nombre": "inicio",
+   "archivo": "101_aficionado_inicio_1440.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV",
+   "cargaMs": 1504,
+   "desborde": 0,
+   "alto": 1730,
+   "cls": 0.047,
+   "lcp": 284,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "teclado": {
+    "recorridos": 29,
+    "sinAnillo": [],
+    "sinNombre": [],
+    "primeros": [
+     "button:Resultados",
+     "button:Posiciones",
+     "button:Llaves",
+     "button:Goleadores",
+     "button:Jornada 1Fase regular · 1 de 2 jugados",
+     "button:Compartir flyer"
+    ]
+   },
+   "errores": []
+  },
+  {
+   "id": "102",
+   "rol": "aficionado",
+   "ancho": 1440,
+   "nombre": "boton-resultados",
+   "archivo": "102_aficionado_boton-resultados_1440.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV",
+   "desborde": 0,
+   "alto": 1730,
+   "cls": 0.047,
+   "lcp": 284,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "103",
+   "rol": "aficionado",
+   "ancho": 1440,
+   "nombre": "boton-posiciones",
+   "archivo": "103_aficionado_boton-posiciones_1440.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=posiciones",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.047,
+   "lcp": 284,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 7,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "180x41",
+     "txt": "Todos los gruposGrupo Grupo Secreto",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "83x38",
+     "txt": "⬇ Excel",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "75x38",
+     "txt": "⬇ PDF",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "104",
+   "rol": "aficionado",
+   "ancho": 1440,
+   "nombre": "boton-llaves",
+   "archivo": "104_aficionado_boton-llaves_1440.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=llaves",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.047,
+   "lcp": 284,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 4,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  },
+  {
+   "id": "105",
+   "rol": "aficionado",
+   "ancho": 1440,
+   "nombre": "boton-goleadores",
+   "archivo": "105_aficionado_boton-goleadores_1440.png",
+   "url": "/publico/zeD9GaUUUkzDGfasJ7xaqV?tab=goleadores",
+   "desborde": 0,
+   "alto": 900,
+   "cls": 0.047,
+   "lcp": 284,
+   "h1": [
+    "SENIOR A"
+   ],
+   "titulo": "Senior A · LigaManager",
+   "lang": "es",
+   "chicos24": [
+    {
+     "tam": "104x14",
+     "txt": "Aviso de privacidad",
+     "nivel": "menor-24"
+    },
+    {
+     "tam": "89x14",
+     "txt": "Términos de uso",
+     "nivel": "menor-24"
+    }
+   ],
+   "chicos44": 5,
+   "chicos44ej": [
+    {
+     "tam": "135x42",
+     "txt": "Resultados",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "132x42",
+     "txt": "Posiciones",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "101x42",
+     "txt": "Llaves",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "138x42",
+     "txt": "Goleadores",
+     "nivel": "menor-44"
+    },
+    {
+     "tam": "112x41",
+     "txt": "51020Todos",
+     "nivel": "menor-44"
+    }
+   ],
+   "saltar": false,
+   "axe": [],
+   "errores": []
+  }
+ ],
+ "pasos": [
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "iniciar sesión (org1@prueba.ec)",
+   "ok": true,
+   "detalle": "220 ms"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir el menú principal en celular",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir «Nuevo campeonato»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "guardar el formulario vacío",
+   "ok": false,
+   "detalle": "locator.click: Timeout 6000ms exceeded."
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: los 3 grupos se ven completos sin deslizar ni bajar",
+   "ok": true,
+   "detalle": "[true,true,true]"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: título con pestaña y campeonato",
+   "ok": true,
+   "detalle": "Equipos · Senior A · LigaManager"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: ficha plegada en celular",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: «Ver más» despliega la ficha",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: un grupo recuerda su última pestaña",
+   "ok": true,
+   "detalle": "http://localhost:4173/campeonatos/1?tab=dirigentes"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Grupos",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Jornadas",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir la primera jornada",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)",
+   "ok": true,
+   "detalle": "[[44,44],[44,44],[44,44],[44,44],[44,44],[44,44]]"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir planilla/resultado de un partido",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Llaves",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Pagos",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir estado de cuenta de un equipo",
+   "ok": false,
+   "detalle": "locator.click: Timeout 6000ms exceeded."
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Vocales",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "pestaña Dirigentes",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir «Nuevo equipo»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "guardar equipo vacío",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "abrir «Nuevo jugador»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "guardar jugador vacío",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 390,
+   "texto": "VERIFICAR: página no encontrada con salida",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "iniciar sesión (org1@prueba.ec)",
+   "ok": true,
+   "detalle": "225 ms"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir «Nuevo campeonato»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "guardar el formulario vacío",
+   "ok": false,
+   "detalle": "locator.click: Timeout 6000ms exceeded."
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: los 3 grupos se ven completos sin deslizar ni bajar",
+   "ok": true,
+   "detalle": "[true,true,true]"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: título con pestaña y campeonato",
+   "ok": true,
+   "detalle": "Equipos · Senior A · LigaManager"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: el primer Tab es «Saltar al contenido»",
+   "ok": true,
+   "detalle": "Saltar al contenido"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: un grupo recuerda su última pestaña",
+   "ok": true,
+   "detalle": "http://localhost:4173/campeonatos/1?tab=dirigentes"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Grupos",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Jornadas",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir la primera jornada",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)",
+   "ok": true,
+   "detalle": "[[28,28],[28,28],[28,28],[28,28],[28,28],[28,28]]"
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir planilla/resultado de un partido",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Llaves",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Pagos",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir estado de cuenta de un equipo",
+   "ok": false,
+   "detalle": "locator.click: Timeout 6000ms exceeded."
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Vocales",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "pestaña Dirigentes",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir «Nuevo equipo»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "guardar equipo vacío",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "abrir «Nuevo jugador»",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "guardar jugador vacío",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "organizador",
+   "ancho": 1440,
+   "texto": "VERIFICAR: página no encontrada con salida",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "vocal",
+   "ancho": 390,
+   "texto": "aceptar la invitación y entrar",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "vocal",
+   "ancho": 390,
+   "texto": "abrir un partido para registrar en vivo",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "vocal",
+   "ancho": 1440,
+   "texto": "iniciar sesión (vocal.auditoria@prueba.ec)",
+   "ok": true,
+   "detalle": "228 ms"
+  },
+  {
+   "rol": "vocal",
+   "ancho": 1440,
+   "texto": "abrir un partido para registrar en vivo",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "dirigente",
+   "ancho": 390,
+   "texto": "aceptar la invitación y entrar",
+   "ok": true,
+   "detalle": ""
+  },
+  {
+   "rol": "dirigente",
+   "ancho": 1440,
+   "texto": "iniciar sesión (dir.auditoria@prueba.ec)",
+   "ok": true,
+   "detalle": "214 ms"
+  }
+ ]
+}
