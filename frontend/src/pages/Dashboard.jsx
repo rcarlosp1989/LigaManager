@@ -82,7 +82,7 @@ export default function Dashboard() {
                       <FilaEquipo nombre={p.equipoLocal} logoUrl={p.logoLocal} />
                       <FilaEquipo nombre={p.equipoVisitante} logoUrl={p.logoVisitante} />
                     </div>
-                    <p className="flex items-center gap-1 text-gray-500 text-xs mt-1"><MapPin size={12} aria-hidden="true" />{p.estadio}</p>
+                    <p className="flex items-center gap-1 text-gray-400 text-xs mt-1"><MapPin size={12} aria-hidden="true" />{p.estadio}</p>
                   </Link>
                   {p.idJornada && (
                     <Link to={`/partidos/${p.idPartido}/en-vivo?jornada=${p.idJornada}`}

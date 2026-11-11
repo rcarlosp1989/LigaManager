@@ -19,7 +19,7 @@ function Acumuladas({ valor, limite }) {
   const alLimite = valor > 0 && valor >= limite - 1
   const estilo = alLimite
     ? 'bg-amber-400/15 text-amber-300 ring-amber-400/40 font-semibold'
-    : valor > 0 ? 'bg-yellow-400/10 text-yellow-200 ring-yellow-400/20' : 'text-gray-600 ring-transparent'
+    : valor > 0 ? 'bg-yellow-400/10 text-yellow-200 ring-yellow-400/20' : 'text-gray-400 ring-transparent'
   return (
     <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs tabular-nums ring-1 ring-inset ${estilo}`}
       title={alLimite ? 'Con una amarilla más queda suspendido' : undefined}>
