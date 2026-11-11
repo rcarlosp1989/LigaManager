@@ -61,6 +61,7 @@ public class PagoService
         if (t is null) { t = new CampeonatoTarifa { IdCampeonato = idCampeonato }; _db.CampeonatoTarifas.Add(t); }
         t.Inscripcion = req.Inscripcion; t.Refuerzo = req.Refuerzo; t.Apelacion = req.Apelacion;
         t.Arbitraje = req.Arbitraje; t.Amarilla = req.Amarilla; t.Roja = req.Roja; t.InicioSegundaEtapa = inicio;
+        t.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         return ServiceResult<ValoresDto>.Ok(Valores(t));
     }

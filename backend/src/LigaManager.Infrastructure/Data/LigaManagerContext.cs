@@ -137,12 +137,10 @@ public class LigaManagerContext : DbContext
             e.HasOne(t => t.Campeonato).WithMany().HasForeignKey(t => t.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
             foreach (var n in new[] { "Inscripcion", "Refuerzo", "Apelacion", "Arbitraje", "Amarilla", "Roja" })
                 e.Property<decimal>(n).HasPrecision(10, 2);
-            e.Property(t => t.UpdatedAt).ValueGeneratedOnAddOrUpdate().HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
         modelBuilder.Entity<Pago>(e =>
         {
             e.Property(p => p.Monto).HasPrecision(10, 2);
-            e.Property(p => p.CreatedAt).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP");
             e.Property(p => p.Descripcion).HasMaxLength(200);
             e.Property(p => p.ClaveAuto).HasMaxLength(60);
             e.HasIndex(p => p.ClaveAuto).IsUnique();
@@ -151,7 +149,6 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Abono>(e =>
         {
             e.Property(a => a.Monto).HasPrecision(10, 2);
-            e.Property(a => a.CreatedAt).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP");
             e.Property(a => a.Metodo).HasConversion<string>();
             e.Property(a => a.Referencia).HasMaxLength(100);
             e.Property(a => a.Lote).HasMaxLength(32);
