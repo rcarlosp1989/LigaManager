@@ -86,7 +86,7 @@ jobs:
       - name: Arrancar API
         run: |
           ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5080 ASPNETCORE_ENVIRONMENT=Development \
-            Correo__Modo=Prueba Correo__CarpetaPrueba="$CORREOS" App__UrlFrontend=http://localhost:4173 \
+            Correo__Modo=Prueba Correo__CarpetaPrueba="$CORREOS" App__UrlFrontend=http://localhost:4173 Cors__AllowedOrigins=http://localhost:4173 \
             nohup dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > api.log 2>&1 &
           for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5080/api/auth/login && break; sleep 2; done
       - name: Pruebas de las fases 7 y 8
