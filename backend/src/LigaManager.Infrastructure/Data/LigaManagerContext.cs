@@ -145,6 +145,10 @@ public class LigaManagerContext : DbContext
             e.Property(p => p.ClaveAuto).HasMaxLength(60);
             e.HasIndex(p => p.ClaveAuto).IsUnique();
             e.HasMany(p => p.Abonos).WithOne(a => a.Pago).HasForeignKey(a => a.IdPago).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(p => p.Campeonato).WithMany().HasForeignKey(p => p.IdCampeonato).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(p => p.Equipo).WithMany().HasForeignKey(p => p.IdEquipo).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(p => p.Jugador).WithMany().HasForeignKey(p => p.IdJugador).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(p => p.Concepto).WithMany(c => c.Pagos).HasForeignKey(p => p.IdConcepto).OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<Abono>(e =>
         {
