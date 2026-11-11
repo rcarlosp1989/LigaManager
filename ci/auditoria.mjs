@@ -186,12 +186,48 @@ for (const ancho of [390, 1440]) {
   }
   const tabs = ['Equipos', 'Grupos', 'Jornadas', 'Llaves', 'Pagos', 'Vocales', 'Dirigentes']
   t0 = await ir(page, `/campeonatos/${P.campA}`); await revisar(page, rol, ancho, 'campeonato-equipos', { t0 })
+  {
+    const nav = page.getByRole('navigation', { name: 'Secciones del campeonato' })
+    const grupos = []
+    for (const g of ['Competencia', 'Pagos', 'Accesos']) {
+      const b = nav.getByRole('button', { name: g, exact: true })
+      const box = await b.boundingBox().catch(() => null)
+      grupos.push(box && box.x >= 0 && box.x + box.width <= ancho + 1 && box.y + box.height <= 900)
+    }
+    paso(rol, ancho, 'VERIFICAR: los 3 grupos se ven completos sin deslizar ni bajar', grupos.every(Boolean), JSON.stringify(grupos))
+    const tit = await page.title()
+    paso(rol, ancho, 'VERIFICAR: título con pestaña y campeonato', /^Equipos · .+ · LigaManager$/.test(tit), tit)
+    if (ancho < 500) {
+      const info = await page.getByText('Información general').isVisible().catch(() => false)
+      paso(rol, ancho, 'VERIFICAR: ficha plegada en celular', !info)
+      await page.getByRole('button', { name: 'Ver más' }).click().catch(() => {})
+      paso(rol, ancho, 'VERIFICAR: «Ver más» despliega la ficha', await page.getByText('Modalidad', { exact: true }).isVisible().catch(() => false))
+      await page.getByRole('button', { name: 'Ver menos' }).click().catch(() => {})
+    } else {
+      await page.mouse.click(1, 1); await page.keyboard.press('Tab')
+      const f = await page.evaluate(() => document.activeElement?.textContent?.trim())
+      paso(rol, ancho, 'VERIFICAR: el primer Tab es «Saltar al contenido»', f === 'Saltar al contenido', f)
+      await page.keyboard.press('Escape')
+    }
+    await nav.getByRole('button', { name: 'Accesos', exact: true }).click()
+    await nav.getByRole('button', { name: 'Dirigentes', exact: true }).click()
+    await nav.getByRole('button', { name: 'Competencia', exact: true }).click()
+    await nav.getByRole('button', { name: 'Accesos', exact: true }).click()
+    paso(rol, ancho, 'VERIFICAR: un grupo recuerda su última pestaña', page.url().includes('tab=dirigentes'), page.url())
+    await nav.getByRole('button', { name: 'Competencia', exact: true }).click()
+    await page.waitForTimeout(300)
+  }
   for (const t of tabs.slice(1)) {
     const t1 = Date.now()
-    if (await clic(page, page.getByRole('button', { name: t, exact: true }), rol, ancho, `pestaña ${t}`)) await revisar(page, rol, ancho, `campeonato-${t.toLowerCase()}`, { t0: t1, teclado: t === 'Jornadas' })
+    const GRUPO = { Grupos: 'Competencia', Jornadas: 'Competencia', Llaves: 'Competencia', Vocales: 'Accesos', Dirigentes: 'Accesos' }
+    const nav = page.getByRole('navigation', { name: 'Secciones del campeonato' })
+    if (GRUPO[t] && !(await nav.getByRole('button', { name: t, exact: true }).isVisible().catch(() => false))) await nav.getByRole('button', { name: GRUPO[t], exact: true }).click().catch(() => {})
+    if (await clic(page, nav.getByRole('button', { name: t, exact: true }), rol, ancho, `pestaña ${t}`)) await revisar(page, rol, ancho, `campeonato-${t.toLowerCase()}`, { t0: t1, teclado: t === 'Jornadas' })
     if (t === 'Jornadas') {
       const jornada = page.getByRole('button', { name: /Jornada \d/ })
       if (await clic(page, jornada, rol, ancho, 'abrir la primera jornada')) await revisar(page, rol, ancho, 'jornada-abierta')
+      const xs = await page.locator('button[aria-label^="Eliminar "]').evaluateAll(bs => bs.filter(b => b.offsetParent).map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)] }))
+      paso(rol, ancho, 'VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)', xs.length > 0 && xs.every(([w, h]) => w >= (ancho < 500 ? 44 : 24) && h >= (ancho < 500 ? 44 : 24)), JSON.stringify(xs.slice(0, 6)))
       const planilla = page.getByRole('button', { name: /Planilla|Registrar|Resultado/i })
       if (await clic(page, planilla, rol, ancho, 'abrir planilla/resultado de un partido')) { await revisar(page, rol, ancho, 'planilla'); await page.keyboard.press('Escape') }
     }
@@ -218,6 +254,7 @@ for (const ancho of [390, 1440]) {
   t0 = await ir(page, '/mantenimiento'); await revisar(page, rol, ancho, 'mantenimiento', { t0 })
   t0 = await ir(page, '/dashboard'); await revisar(page, rol, ancho, 'dashboard', { t0 })
   await ir(page, '/no-existe'); await revisar(page, rol, ancho, 'ruta-inexistente', { teclado: false })
+  paso(rol, ancho, 'VERIFICAR: página no encontrada con salida', await page.getByRole('heading', { name: 'Página no encontrada' }).isVisible().catch(() => false) && await page.getByRole('link', { name: 'Ir al inicio' }).isVisible().catch(() => false))
   await ctx.close()
 }
 

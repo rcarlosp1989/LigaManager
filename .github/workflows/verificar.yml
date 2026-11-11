@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/auditoria-ux' ] } }
+on: { push: { branches: [ 'ci/verificar-navegacion' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -137,7 +137,9 @@ jobs:
         working-directory: frontend
         run: |
           npm ci --no-audit --no-fund > /dev/null
-          VITE_API_URL=http://localhost:5080/api npm run build > build.txt 2>&1
+          npx eslint src > lint.txt 2>&1 || true
+          echo "::notice title=lint::$(grep -E 'problems?|error' lint.txt | tail -3 | tr '\n' ' ')"
+          VITE_API_URL=http://localhost:5080/api npm run build > build.txt 2>&1 || (cat build.txt; exit 1)
           nohup npx vite preview --port 4173 --strictPort > preview.txt 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:4173 && break; sleep 1; done
       - name: Auditoría
@@ -155,4 +157,4 @@ jobs:
           cp ../auditoria.txt ../../api.log . 2>/dev/null || true
           git init -q -b r && git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "auditoria ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-auditoria
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-navegacion
