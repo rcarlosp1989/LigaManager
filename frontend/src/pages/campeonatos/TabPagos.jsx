@@ -68,12 +68,12 @@ export default function TabPagos({ camp }) {
       ) : (
         <div className="card !p-0 overflow-hidden">
         <TablaDesplazable>
-          <table className="tabla w-full min-w-[920px] text-sm tabular-nums">
+          <table className="tabla w-full min-w-[860px] text-sm tabular-nums">
             <thead>
               <tr className="border-b border-gray-800 text-xs uppercase tracking-wider text-gray-500">
                 <th scope="col" className="fija fija-borde px-4 py-3 text-left font-medium">Equipo</th>
                 {['Inscripción', 'Refuerzos', 'Arbitraje', 'Tarjetas', 'Multas y apel.', 'Total', 'Pagado', 'Saldo'].map(t => (
-                  <th key={t} scope="col" className="px-3 py-3 text-right font-medium whitespace-nowrap">{t}</th>
+                  <th key={t} scope="col" className="px-2.5 py-3 text-right font-medium whitespace-nowrap">{t}</th>
                 ))}
                 <th scope="col"><span className="sr-only">Ver cuenta</span></th>
               </tr>
@@ -84,15 +84,15 @@ export default function TabPagos({ camp }) {
                   <th scope="row" className="fija fija-borde px-4 py-2.5 text-left font-semibold text-white">
                     <button type="button" className="flex items-center gap-2 text-left" onClick={(ev) => { ev.stopPropagation(); setEquipo(e) }}>
                       <LogoEquipo nombre={e.nombre} logoUrl={e.logoUrl} tamano={26} />
-                      <span className="max-w-[8.5rem] sm:max-w-[14rem] truncate">{e.nombre}</span>
+                      <span className="max-w-[8.5rem] sm:max-w-[12rem] truncate">{e.nombre}</span>
                     </button>
                   </th>
                   {[e.inscripcion, e.refuerzos, e.arbitraje, e.tarjetas, e.multas].map((v, i) => (
-                    <td key={i} className="px-3 py-2.5 text-right text-gray-300 whitespace-nowrap">{v ? dinero(v) : '—'}</td>
+                    <td key={i} className="px-2.5 py-2.5 text-right text-gray-300 whitespace-nowrap">{v ? dinero(v) : '—'}</td>
                   ))}
-                  <td className="px-3 py-2.5 text-right font-semibold text-white whitespace-nowrap">{dinero(e.total)}</td>
-                  <td className="px-3 py-2.5 text-right text-brand-300 whitespace-nowrap">{dinero(e.pagado)}</td>
-                  <td className={`px-3 py-2.5 text-right font-bold whitespace-nowrap ${e.saldo > 0 ? 'text-amber-300' : 'text-brand-300'}`}>{e.saldo > 0 ? dinero(e.saldo) : 'Al día'}</td>
+                  <td className="px-2.5 py-2.5 text-right font-semibold text-white whitespace-nowrap">{dinero(e.total)}</td>
+                  <td className="px-2.5 py-2.5 text-right text-brand-300 whitespace-nowrap">{dinero(e.pagado)}</td>
+                  <td className={`px-2.5 py-2.5 text-right font-bold whitespace-nowrap ${e.saldo > 0 ? 'text-amber-300' : 'text-brand-300'}`}>{e.saldo > 0 ? dinero(e.saldo) : 'Al día'}</td>
                   <td className="pr-3 text-gray-600"><ChevronRight size={16} aria-hidden="true" /></td>
                 </tr>
               ))}
