@@ -106,7 +106,8 @@ s, r = llamar("GET", P, token=o2)
 exp = esperado()
 por_equipo = {e["idEquipo"]: e for e in (r or {}).get("equipos", [])}
 esperar("resumen: total por equipo = esperado", s == 200 and all(abs(por_equipo[e]["total"] - exp[e]) < 0.001 for e in exp), f"{ {e: por_equipo.get(e, {}).get('total') for e in exp} } vs {dict(exp)}")
-esperar("resumen: categorías de local (inscripción 150, refuerzo 25)", por_equipo[local]["inscripcion"] == 150 and por_equipo[local]["refuerzos"] == 25, str(por_equipo[local]))
+nref = int(sql(f"SELECT COUNT(*) FROM jugador_equipo WHERE id_equipo = {local} AND fecha_desde >= '{hoy}'").strip())
+esperar("resumen: categorías de local (inscripción 150, 25 por refuerzo)", nref >= 1 and por_equipo[local]["inscripcion"] == 150 and por_equipo[local]["refuerzos"] == 25 * nref, f"{nref} refuerzos · {por_equipo[local]}")
 esperar("resumen: arbitraje 10 al visitante por el partido jugado", por_equipo[visita]["arbitraje"] >= 10, str(por_equipo[visita]))
 n1 = int(sql(f"SELECT COUNT(*) FROM pago WHERE id_campeonato = {B}").strip())
 llamar("GET", P, token=o2)
@@ -115,12 +116,12 @@ esperar("consultar de nuevo no duplica cobros", n1 == n2 and n1 > 0, f"{n1} → 
 esperar("todos los cobros van a nombre del equipo (sin jugador)", sql(f"SELECT COUNT(*) FROM pago WHERE id_campeonato = {B} AND (id_equipo IS NULL OR id_jugador IS NOT NULL)").strip() == "0")
 
 s, c = llamar("GET", f"{P}/equipos/{local}", token=o2)
-textos = [x["descripcion"] or "" for x in c["cobros"]]
+textos = [x.get("descripcion") or "" for x in c["cobros"]]
 n2 = filas(f"SELECT p.nombre FROM persona p JOIN jugador j ON j.id_persona = p.id_persona WHERE j.id_jugador = {jl[1]}")[0][0]
-de2 = [x for x in c["cobros"] if f"· {n2} " in (x["descripcion"] or "")]
-esperar("doble amarilla: una sola roja «doble amarilla»", [(x["concepto"], "doble amarilla" in x["descripcion"]) for x in de2] == [("ROJA", True)], str([(x["concepto"], x["descripcion"]) for x in de2]))
-esperar("refuerzo con nombre e «inscrito el»", any(x["concepto"] == "REFUERZO" and "inscrito el" in (x["descripcion"] or "") for x in c["cobros"]), str(textos))
-esperar("arbitraje con «Jornada N · vs»", any(x["concepto"] == "ARBITRAJE" and " · vs " in (x["descripcion"] or "") for x in c["cobros"]), str(textos))
+de2 = [x for x in c["cobros"] if f"· {n2} " in (x.get("descripcion") or "")]
+esperar("doble amarilla: una sola roja «doble amarilla»", [(x["concepto"], "doble amarilla" in x.get("descripcion")) for x in de2] == [("ROJA", True)], str([(x["concepto"], x.get("descripcion")) for x in de2]))
+esperar("refuerzo con nombre e «inscrito el»", any(x["concepto"] == "REFUERZO" and "inscrito el" in (x.get("descripcion") or "") for x in c["cobros"]), str(textos))
+esperar("arbitraje con «Jornada N · vs»", any(x["concepto"] == "ARBITRAJE" and " · vs " in (x.get("descripcion") or "") for x in c["cobros"]), str(textos))
 esperar("cobros ordenados por fecha", [x["fecha"] for x in c["cobros"]] == sorted(x["fecha"] for x in c["cobros"]))
 
 # Cambiar los valores no altera lo generado.
@@ -180,7 +181,7 @@ esperar("eliminar el abono devuelve los saldos", s == 200 and next(x for x in c[
 amarilla = next(x for x in c["cobros"] if x["concepto"] == "AMARILLA")
 sql(f"DELETE FROM eventopartido WHERE id_partido = {D['hoyB']} AND id_jugador = {jl[0]} AND tipo_evento = 'TARJETA_AMARILLA'")
 s, c = llamar("GET", f"{P}/equipos/{local}", token=o2)
-esperar("se borra la tarjeta → su cobro (sin abonos) desaparece", not any(x["idPago"] == amarilla["idPago"] for x in c["cobros"]), str([(x["concepto"], x["descripcion"]) for x in c["cobros"]]))
+esperar("se borra la tarjeta → su cobro (sin abonos) desaparece", not any(x["idPago"] == amarilla["idPago"] for x in c["cobros"]), str([(x["concepto"], x.get("descripcion")) for x in c["cobros"]]))
 # Un abono a la roja de la visita y luego el partido vuelve a pendiente: el arbitraje se va, la roja con abono queda.
 _, cv = llamar("GET", f"{P}/equipos/{visita}", token=o2)
 roja = next(x for x in cv["cobros"] if x["concepto"] == "ROJA")
