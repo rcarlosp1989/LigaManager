@@ -111,7 +111,8 @@ export default function TabDirigentes({ camp }) {
                     <div className="min-w-0 flex-1">
                       <p className="text-white text-sm font-medium">{d.nombre}</p>
                       <p className="text-gray-300 text-xs">{d.equipo}</p>
-                      <p className="text-gray-500 text-xs break-all">{d.email} · desde el {formatearFecha(d.desde)}</p>
+                      <p className="text-gray-400 text-xs break-all">{d.email}</p>
+                      <p className="text-gray-400 text-xs">desde el {formatearFecha(d.desde)}</p>
                     </div>
                     <button type="button" onClick={() => quitar(d)} className="text-sm text-gray-400 hover:text-red-400 px-2">Quitar acceso</button>
                   </li>

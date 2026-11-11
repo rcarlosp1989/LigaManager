@@ -36,7 +36,7 @@ export default function CampoDocumento({ tipo, numero, onChange, opcional = fals
         <label htmlFor={`${fid}-num`} className={etiqueta}>
           Número {opcional && <span className="normal-case text-gray-600">(opcional)</span>}
         </label>
-        <input ref={ref} id={`${fid}-num`} className="input-field" value={numero} required={!opcional}
+        <input ref={ref} id={`${fid}-num`} data-mensaje-propio={error ? "" : undefined} className="input-field" value={numero} required={!opcional}
           inputMode={tipo === 'Pasaporte' ? 'text' : 'numeric'} autoCapitalize="characters" autoComplete="off"
           maxLength={tipo === 'Cedula' ? 10 : tipo === 'Extranjero' ? 15 : 20}
           placeholder={info.ejemplo}

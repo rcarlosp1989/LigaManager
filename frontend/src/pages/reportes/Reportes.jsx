@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import api from '../../services/api'
 import EstadoError from '../../components/EstadoError'
 import PageHeader from '../../components/PageHeader'
@@ -35,7 +36,9 @@ function guardarUltimo(valor) {
 export default function Reportes() {
   const fid = useId()
   const [elegido, setElegido] = useState(null)   // null = el usuario aún no eligió en esta visita
-  const [tab, setTab] = useState('posiciones')
+  // «Ver reportes» desde un campeonato llega con ?campeonato=ID&tab=...: abre ese campeonato.
+  const [params] = useSearchParams()
+  const [tab, setTab] = useState(() => TABS.some(t => t.key === params.get('tab')) ? params.get('tab') : 'posiciones')
 
   const { data: campeonatos = [], isError, refetch, isFetching } = useQuery({
     queryKey: ['campeonatos'],
@@ -45,8 +48,10 @@ export default function Reportes() {
   // Si no eligió nada todavía: el último usado (si sigue existiendo) o el único que hay.
   const existe = (valor) => campeonatos.some(c => String(c.idCampeonato) === valor)
   const ultimo = leerUltimo()
+  const pedido = params.get('campeonato') ?? ''
   const idCampeonato = elegido ?? (
-    existe(ultimo) ? ultimo
+    existe(pedido) ? pedido
+      : existe(ultimo) ? ultimo
       : campeonatos.length === 1 ? String(campeonatos[0].idCampeonato)
       : ''
   )

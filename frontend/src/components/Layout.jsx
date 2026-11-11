@@ -10,7 +10,7 @@ const navItems = [
   { to: '/equipos',       label: 'Equipos',       icon: Shield },
   { to: '/jugadores',     label: 'Jugadores',     icon: Users },
   { to: '/reportes',      label: 'Reportes',      icon: TrendingUp },
-  { to: '/mantenimiento', label: 'Mantenimiento', icon: Wrench },
+  { to: '/mantenimiento', label: 'Estadios y oficiales', icon: Wrench },
 ]
 
 function Logo({ grande = false }) {
