@@ -6,7 +6,8 @@ import Modal from '../../components/Modal'
 import EstadoError from '../../components/EstadoError'
 import AccionesFormulario from '../../components/AccionesFormulario'
 import { useAviso, useDialogos, mensajeDeError, erroresDe } from '../../feedback/contextos'
-import { formatearFecha, fechaHoraCompleta } from '../../utils/fechas'
+import { formatearFecha, formatearRango, fechaHoraCompleta } from '../../utils/fechas'
+import { useTitulo } from '../../utils/titulo'
 import CampoFechaHora from '../../components/CampoFechaHora'
 import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
@@ -309,20 +310,20 @@ function FilaJugadorPlanilla({ jugador, enCancha, sinGoles, onQuitar, onEvento }
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol'} disabled={sinGoles}
               aria-label={`Gol de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL')}
-              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL" /></button>
+              className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL" /></button>
             <button title={sinGoles ? 'Este partido no admite goles' : 'Gol en contra (suma al equipo rival, no cuenta como gol del jugador)'} disabled={sinGoles}
               aria-label={`Gol en contra de ${jugador.jugador}`}
               onClick={() => onEvento(jugador.idJugador, 'GOL_EN_CONTRA')}
-              className="opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL_EN_CONTRA" /></button>
+              className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded opacity-70 hover:opacity-100 disabled:opacity-20 disabled:cursor-not-allowed transition-opacity text-base leading-none"><IconoEvento tipo="GOL_EN_CONTRA" /></button>
             <button title="Tarjeta amarilla" aria-label={`Tarjeta amarilla a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_AMARILLA')}
-              className="opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_AMARILLA" /></button>
+              className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_AMARILLA" /></button>
             <button title="Tarjeta roja" aria-label={`Tarjeta roja a ${jugador.jugador}`} onClick={() => onEvento(jugador.idJugador, 'TARJETA_ROJA')}
-              className="opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_ROJA" /></button>
+              className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded opacity-70 hover:opacity-100 transition-opacity text-base leading-none"><IconoEvento tipo="TARJETA_ROJA" /></button>
           </>
         ) : (
-          <span className="text-gray-600 italic">banca</span>
+          <span className="text-gray-400 italic">banca</span>
         )}
-        <button onClick={() => onQuitar(jugador.idAlineacion)} className="text-gray-600 hover:text-red-400 transition-colors"
+        <button onClick={() => onQuitar(jugador.idAlineacion)} className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded text-gray-400 hover:text-red-400 transition-colors"
           aria-label={`Quitar a ${jugador.jugador} de la planilla`} title="Quitar de la planilla">✕</button>
       </div>
     </div>
@@ -602,7 +603,7 @@ function AlineacionModal({ isOpen, onClose, partido, idCampeonato, onRegistrarEv
             {cambios.map(c => (
               <div key={c.idCambio} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1.5">
                 <span>min. {c.minuto} — <span className="text-red-400">↓ {c.jugadorSale}</span> / <span className="text-green-400">↑ {c.jugadorEntra}</span></span>
-                <button onClick={() => eliminarCambioMutation.mutate(c.idCambio)} className="text-gray-600 hover:text-red-400 transition-colors ml-2"
+                <button onClick={() => eliminarCambioMutation.mutate(c.idCambio)} className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded -my-1 text-gray-400 hover:text-red-400 transition-colors ml-2"
                   aria-label={`Eliminar el cambio del minuto ${c.minuto}`}>✕</button>
               </div>
             ))}
@@ -922,11 +923,11 @@ function PartidoCard({ partido, idCampeonato, jornada }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-gray-500">
         {partido.estadio
           ? <span className="inline-flex items-center gap-1"><MapPin size={13} aria-hidden="true" />{partido.estadio}</span>
-          : <span className="inline-flex items-center gap-1 text-gray-700"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
+          : <span className="inline-flex items-center gap-1 text-gray-400"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
         {partido.arbitro
           ? <span className="inline-flex items-center gap-1"><User size={13} aria-hidden="true" />{partido.arbitro}</span>
           : partido.jugado
-            ? <span className="inline-flex items-center gap-1 text-gray-700"><User size={13} aria-hidden="true" />Sin árbitro</span>
+            ? <span className="inline-flex items-center gap-1 text-gray-400"><User size={13} aria-hidden="true" />Sin árbitro</span>
             : <span className="inline-flex items-center gap-1 text-amber-300/80"><User size={13} aria-hidden="true" />Árbitro por designar</span>}
       </div>
 
@@ -951,7 +952,7 @@ function PartidoCard({ partido, idCampeonato, jornada }) {
               <span><IconoEvento tipo={ev.tipoEvento} className="mr-0.5" /> {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span>{ev.registradoPor && <span className="text-gray-600"> · registrado por {ev.registradoPor}</span>}</span>
               <button
                 onClick={() => eliminarEvento(ev)}
-                className="text-gray-600 hover:text-red-400 transition-colors ml-2"
+                className="inline-flex items-center justify-center min-w-7 min-h-7 pointer-coarse:min-w-11 pointer-coarse:min-h-11 rounded -my-1 text-gray-400 hover:text-red-400 transition-colors ml-2"
                 aria-label={`Eliminar ${(ETIQUETA_EVENTO[ev.tipoEvento] ?? 'evento').toLowerCase()} de ${ev.jugador}, minuto ${ev.minuto}`}
               >✕</button>
             </div>
@@ -1519,6 +1520,14 @@ function TablaCampeonato({ idCampeonato }) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['llaves', 'Llaves', GitFork], ['pagos', 'Pagos', Wallet], ['vocales', 'Vocales', Mic], ['dirigentes', 'Dirigentes', Eye]]
+// Las pestañas se agrupan para que en celular quepan sin deslizar: arriba los grupos, debajo
+// las pestañas del grupo elegido (un grupo de una sola pestaña no muestra la segunda fila).
+const GRUPOS_DETALLE = [
+  ['competencia', 'Competencia', ['equipos', 'grupos', 'jornadas', 'llaves']],
+  ['pagos', 'Pagos', ['pagos']],
+  ['accesos', 'Accesos', ['vocales', 'dirigentes']],
+]
+const grupoDeTab = (tab) => GRUPOS_DETALLE.find(([, , tabs]) => tabs.includes(tab))
 
 export default function CampeonatoDetalle() {
   const logos = useLogosEquipos()
@@ -1535,6 +1544,11 @@ export default function CampeonatoDetalle() {
   const tab = TABS_DETALLE.some(([clave]) => clave === params.get('tab')) ? params.get('tab') : 'equipos'
   const jornadaAbierta = params.get('jornada')
   const setTab = (clave) => setParams(clave === 'equipos' ? {} : { tab: clave }, { replace: true })
+  // Última pestaña visitada de cada grupo: volver a un grupo abre donde se quedó.
+  const [ultimaDeGrupo, setUltimaDeGrupo] = useState({})
+  const elegirTab = (clave) => { setUltimaDeGrupo(u => ({ ...u, [grupoDeTab(clave)[0]]: clave })); setTab(clave) }
+  const [grupoActual, , tabsDelGrupo] = grupoDeTab(tab)
+  const [verInfo, setVerInfo] = useState(false)
   const alternarJornada = (idJornada) => setParams(
     jornadaAbierta === String(idJornada) ? { tab: 'jornadas' } : { tab: 'jornadas', jornada: String(idJornada) },
     { replace: true },
@@ -1552,6 +1566,7 @@ export default function CampeonatoDetalle() {
     queryKey: ['campeonato', id],
     queryFn:  () => api.get(`/campeonatos/${id}`).then(r => r.data),
   })
+  useTitulo(camp ? `${TABS_DETALLE.find(([k]) => k === tab)[1]} · ${camp.nombre}` : null)
 
   const qJornadas = useQuery({
     queryKey: ['jornadas', id],
@@ -1669,30 +1684,56 @@ export default function CampeonatoDetalle() {
       </div>
 
       <div className="card mb-6">
-        <h2 className="text-xs text-gray-500 uppercase tracking-wider mb-4">Información general</h2>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
-          <InfoItem label="Año"       value={camp.anio} />
-          <InfoItem label="Modalidad" value={camp.modalidad} />
-          <InfoItem label="Tipo"      value={camp.tipoPartido} />
-          <InfoItem label="Equipos"   value={`${equiposInscritos.length} inscritos`} />
-          <InfoItem label="Inicio"    value={formatearFecha(camp.fechaInicio)} />
-          <InfoItem label="Fin"       value={formatearFecha(camp.fechaFin)} />
+        {/* En celular la ficha se pliega a una línea para que las pestañas queden a la vista. */}
+        <div className="flex items-center justify-between gap-3 sm:hidden">
+          <p className="text-sm text-gray-300 min-w-0">
+            {camp.modalidad} · {equiposInscritos.length} equipos · {formatearRango(camp.fechaInicio, camp.fechaFin)}
+          </p>
+          <button type="button" onClick={() => setVerInfo(v => !v)} aria-expanded={verInfo} aria-controls={`${fid}-info`}
+            className="shrink-0 text-sm text-brand-300 hover:text-brand-200 min-h-[44px] px-1">
+            {verInfo ? 'Ver menos' : 'Ver más'}
+          </button>
+        </div>
+        <div id={`${fid}-info`} className={verInfo ? 'mt-4 sm:mt-0' : 'hidden sm:block'}>
+          <h2 className="text-xs text-gray-400 uppercase tracking-wider mb-4 hidden sm:block">Información general</h2>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+            <InfoItem label="Año"       value={camp.anio} />
+            <InfoItem label="Modalidad" value={camp.modalidad} />
+            <InfoItem label="Tipo"      value={camp.tipoPartido} />
+            <InfoItem label="Equipos"   value={`${equiposInscritos.length} inscritos`} />
+            <InfoItem label="Inicio"    value={formatearFecha(camp.fechaInicio)} />
+            <InfoItem label="Fin"       value={formatearFecha(camp.fechaFin)} />
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
-        {TABS_DETALLE.map(([key, label, Icono]) => (
-          <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'true' : undefined}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap shrink-0 inline-flex items-center gap-2 ${
-              tab === key
-                ? 'border-brand-400 text-white'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
-            }`}>
-            <Icono size={15} aria-hidden="true" />{label}
-          </button>
-        ))}
-      </div>
+      <nav aria-label="Secciones del campeonato" className="mb-4 space-y-3">
+        <div className="grid grid-cols-3 gap-1 rounded-xl border border-gray-800 bg-gray-900/60 p-1 sm:inline-grid sm:w-auto">
+          {GRUPOS_DETALLE.map(([clave, nombre, tabs]) => (
+            <button key={clave} type="button" onClick={() => elegirTab(ultimaDeGrupo[clave] ?? tabs[0])}
+              aria-current={grupoActual === clave ? 'true' : undefined}
+              className={`min-h-[44px] rounded-lg px-3 text-sm font-semibold transition-colors sm:px-5 ${
+                grupoActual === clave ? 'bg-brand-400 text-gray-950' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+              }`}>
+              {nombre}
+            </button>
+          ))}
+        </div>
+        {tabsDelGrupo.length > 1 && (
+          <div className="flex flex-wrap gap-x-1 border-b border-gray-800">
+            {TABS_DETALLE.filter(([key]) => tabsDelGrupo.includes(key)).map(([key, label, Icono]) => (
+              <button key={key} type="button" onClick={() => elegirTab(key)} aria-current={tab === key ? 'true' : undefined}
+                className={`min-h-[44px] px-3 sm:px-4 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap inline-flex items-center gap-2 ${
+                  tab === key
+                    ? 'border-brand-400 text-white'
+                    : 'border-transparent text-gray-400 hover:text-gray-200'
+                }`}>
+                <Icono size={15} aria-hidden="true" />{label}
+              </button>
+            ))}
+          </div>
+        )}
+      </nav>
 
       {/* Tab Equipos */}
       {tab === 'equipos' && (

@@ -16,6 +16,7 @@ import TabTarjetas from '../reportes/TabTarjetas'
 import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
 import BotonFlyer from '../../components/BotonFlyer'
+import { useTitulo } from '../../utils/titulo'
 import CuadroLlaves from '../../components/CuadroLlaves'
 
 const TABS = [
@@ -39,6 +40,7 @@ export default function CampeonatoPublico() {
 
   const q = useQuery({ queryKey: ['publico', token], queryFn: () => api.get(base).then(r => r.data), retry: false })
   const camp = q.data
+  useTitulo(camp?.nombre)
   // Pestaña «Llaves» solo cuando la organización ya armó alguna ronda de la fase eliminatoria.
   const qLlaves = useQuery({ queryKey: ['publico-llaves', token], queryFn: () => api.get(`${base}/eliminatoria`).then(r => r.data), enabled: !!camp, retry: false })
   const conLlaves = qLlaves.data?.rondas?.some(r => r.creada) ?? false

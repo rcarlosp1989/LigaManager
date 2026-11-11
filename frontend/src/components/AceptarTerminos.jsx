@@ -43,9 +43,9 @@ export default function AceptarTerminos({ children }) {
           <li>La organización es la responsable de los datos personales que registra y debe contar con la autorización de cada jugador (o de su representante, si es menor de edad).</li>
         </ul>
         <p className="mt-3 text-sm">
-          <Link to="/terminos" target="_blank" className="text-brand-400 hover:text-brand-300">Leer los términos completos</Link>
+          <Link to="/terminos" target="_blank" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Leer los términos completos</Link>
           {' · '}
-          <Link to="/privacidad" target="_blank" className="text-brand-400 hover:text-brand-300">Aviso de privacidad</Link>
+          <Link to="/privacidad" target="_blank" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Aviso de privacidad</Link>
         </p>
         <label htmlFor={`${fid}-acepto`} className="mt-5 flex items-start gap-3 text-sm text-gray-200">
           <input id={`${fid}-acepto`} type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-500"

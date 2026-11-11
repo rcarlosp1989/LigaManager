@@ -16,7 +16,7 @@ import { ChevronsRight } from 'lucide-react'
 // (sr-only) queda dentro de ella y no ensancha la página en el celular.
 const BORDE = 28 // px del difuminado
 
-export default function TablaDesplazable({ children, className = '' }) {
+export default function TablaDesplazable({ children, className = '', etiqueta = 'Tabla' }) {
   const ref = useRef(null)
   const [lados, setLados] = useState({ izq: false, der: false, fija: false })
   const [deslizada, setDeslizada] = useState(false)
@@ -54,7 +54,11 @@ export default function TablaDesplazable({ children, className = '' }) {
 
   return (
     <div className="relative">
-      <div ref={ref} className={`relative overflow-x-auto ${className}`} data-desplazada={lados.izq && lados.fija ? '' : undefined}
+      {/* Si la tabla no cabe, el área se puede enfocar y deslizar con las flechas del teclado. */}
+      <div ref={ref} className={`relative overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400 rounded ${className}`} data-desplazada={lados.izq && lados.fija ? '' : undefined}
+        tabIndex={lados.izq || lados.der ? 0 : undefined}
+        role={lados.izq || lados.der ? 'region' : undefined}
+        aria-label={lados.izq || lados.der ? `${etiqueta} (deslice para ver más columnas)` : undefined}
         style={mascara ? { maskImage: mascara, WebkitMaskImage: mascara } : undefined}>
         {children}
       </div>

@@ -23,7 +23,7 @@ function Acumuladas({ valor, limite }) {
   return (
     <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs tabular-nums ring-1 ring-inset ${estilo}`}
       title={alLimite ? 'Con una amarilla más queda suspendido' : undefined}>
-      {valor}<span className="opacity-60">/{limite}</span>
+      {valor}<span className="opacity-80">/{limite}</span>
       {alLimite && <span className="sr-only">(a una de la suspensión)</span>}
     </span>
   )

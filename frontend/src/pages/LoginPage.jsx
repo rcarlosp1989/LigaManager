@@ -86,7 +86,7 @@ export default function LoginPage() {
               />
               {opciones.data?.correo && (
                 <p className="mt-2 text-right text-sm">
-                  <Link to="/olvide-clave" className="text-brand-400 hover:text-brand-300">¿Olvidó su contraseña?</Link>
+                  <Link to="/olvide-clave" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">¿Olvidó su contraseña?</Link>
                 </p>
               )}
             </div>
@@ -119,11 +119,11 @@ export default function LoginPage() {
 
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿No tiene una cuenta?{' '}
-            <Link to="/register" className="text-brand-400 hover:text-brand-300">Regístrese</Link>
+            <Link to="/register" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Regístrese</Link>
           </p>
           <p className="text-gray-500 text-sm text-center mt-2">
             ¿Es vocal y tiene un código?{' '}
-            <Link to="/invitacion" className="text-brand-400 hover:text-brand-300">Úselo aquí</Link>
+            <Link to="/invitacion" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Úselo aquí</Link>
           </p>
           <p className="text-gray-600 text-xs text-center mt-4">
             <Link to="/privacidad" className="hover:text-gray-400">Aviso de privacidad</Link>{' · '}
