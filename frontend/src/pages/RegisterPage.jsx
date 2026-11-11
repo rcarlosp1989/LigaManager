@@ -97,8 +97,8 @@ export default function RegisterPage() {
               <input id={`${fid}-acepto`} type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-500"
                 checked={form.acepto} onChange={e => set('acepto', e.target.checked)} />
               <span>
-                Acepto los <Link to="/terminos" target="_blank" className="text-brand-400 hover:text-brand-300">términos de uso</Link> y
-                el <Link to="/privacidad" target="_blank" className="text-brand-400 hover:text-brand-300">aviso de privacidad</Link>.
+                Acepto los <Link to="/terminos" target="_blank" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">términos de uso</Link> y
+                el <Link to="/privacidad" target="_blank" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">aviso de privacidad</Link>.
                 Entiendo que el reglamento, las sanciones y los datos registrados son responsabilidad de mi organización.
               </span>
             </label>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
 
           <p className="text-gray-500 text-sm text-center mt-6">
             ¿Ya tiene una cuenta?{' '}
-            <Link to="/login" className="text-brand-400 hover:text-brand-300">Inicie sesión</Link>
+            <Link to="/login" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Inicie sesión</Link>
           </p>
           <p className="text-gray-600 text-xs text-center mt-4">
             <Link to="/privacidad" className="hover:text-gray-400">Aviso de privacidad</Link>{' · '}

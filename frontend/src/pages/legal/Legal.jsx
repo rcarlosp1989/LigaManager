@@ -18,9 +18,9 @@ function Pagina({ titulo, children }) {
           {children}
         </div>
         <p className="mt-10 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-          <Link to="/privacidad" className="text-brand-400 hover:text-brand-300">Aviso de privacidad</Link>
-          <Link to="/terminos" className="text-brand-400 hover:text-brand-300">Términos de uso</Link>
-          <Link to="/login" className="text-brand-400 hover:text-brand-300">Volver a la aplicación</Link>
+          <Link to="/privacidad" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Aviso de privacidad</Link>
+          <Link to="/terminos" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Términos de uso</Link>
+          <Link to="/login" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">Volver a la aplicación</Link>
         </p>
       </article>
     </div>
@@ -125,7 +125,7 @@ export function Terminos() {
       <section>
         <h2>3. Datos personales</h2>
         <ul>
-          <li>La organización es la responsable del tratamiento de los datos que registra (ver el <Link to="/privacidad" className="text-brand-400 hover:text-brand-300">aviso de privacidad</Link>).</li>
+          <li>La organización es la responsable del tratamiento de los datos que registra (ver el <Link to="/privacidad" className="text-brand-400 underline underline-offset-2 hover:text-brand-300">aviso de privacidad</Link>).</li>
           <li>Antes de registrar a un jugador, debe contar con su autorización o, si es menor de edad, con la de su representante legal.</li>
           <li>Debe registrar datos verdaderos, mantenerlos al día y atender los pedidos de acceso, corrección o eliminación de sus jugadores.</li>
           <li>Es responsable del uso que se dé a los reportes que descarga y comparte.</li>

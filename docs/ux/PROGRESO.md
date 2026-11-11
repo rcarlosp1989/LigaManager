@@ -1437,3 +1437,14 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Todos los cobros van a nombre del equipo; el jugador va en el detalle. El trigger `trg_pago_destino_*` de producción no se toca.
 - Eliminar un equipo o un campeonato borra sus cobros sin abonos; con abonos no se permite.
 - Script: tabla `campeonato_tarifa`; `conceptopago.codigo` y 8 conceptos; `pago.descripcion`, `id_partido`, `clave_auto`; `abono.metodo`, `referencia`, `lote`. Reversa: `20261110_pagos_reversa.sql`. `verificar_scripts.sql` lo incluye (n.º 30).
+
+## 2026-11-11 — Navegación del campeonato y accesibilidad (evaluación UX)
+
+**Estado:** aplicada en la rama `mejora/navegacion`. Pendiente de que Roberto la apruebe. Sin script de base de datos. Origen: documento «Evaluación UX de LigaManager», hallazgos 1 al 9 (opción A del lienzo «Pestañas del campeonato»).
+
+- **Pestañas agrupadas:** Competencia (Equipos, Grupos, Jornadas, Llaves), Pagos y Accesos (Vocales, Dirigentes). Caben sin deslizar en 390 px; cada grupo recuerda su última pestaña. Las direcciones `?tab=` no cambian.
+- **Ficha del campeonato** plegada a una línea en celular, con «Ver más».
+- **Página «no encontrada»** con «Ir al inicio» (antes, pantalla vacía).
+- **Botones ✕** de goles, tarjetas, cambios y planilla: 28 px con mouse y 44 px en pantallas táctiles.
+- **Accesibilidad:** enlaces dentro de frases subrayados; tablas y cuadro de llaves que se deslizan, enfocables con teclado; título de la pestaña del navegador por pantalla (y con el nombre del campeonato); contraste de textos grises pequeños; enlace «Saltar al contenido».
+- Verificado en la app real (API + frontend) a 390 y 1440 px: 105 pantallas con axe-core WCAG 2.2 A/AA pasaron de 4 tipos de falla en 27 pantallas a 0.
