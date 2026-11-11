@@ -137,6 +137,8 @@ public class CampeonatoService : ICampeonatoService
         var tieneJornadas = await _db.Jornadas.AnyAsync(j => j.IdCampeonato == id);
         if (tieneJornadas)
             return ServiceResult.Fail("No se puede eliminar: el campeonato tiene jornadas registradas.");
+        if (!await PagoService.LiberarCobrosAsync(_db, idCampeonato: id))
+            return ServiceResult.Fail("No se puede eliminar: el campeonato tiene pagos registrados.");
 
         var logo = c.LogoUrl;
         _db.Campeonatos.Remove(c);

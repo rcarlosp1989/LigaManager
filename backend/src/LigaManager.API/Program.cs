@@ -37,6 +37,7 @@ builder.Services.AddScoped<DirigenteService>();
 builder.Services.AddScoped<PublicoService>();
 builder.Services.AddScoped<EnVivoService>();
 builder.Services.AddScoped<EliminatoriaService>();
+builder.Services.AddScoped<PagoService>();
 
 // ── Correo ───────────────────────────────────────────────────────────────────
 // Con Correo__BrevoApiKey se envía por Brevo. Con Correo__Modo=Prueba, el envío de prueba (no manda

@@ -41,6 +41,7 @@ public class LigaManagerContext : DbContext
     public DbSet<Abono>              Abonos                { get; set; }
     public DbSet<ConceptoPago>       ConceptosPago         { get; set; }
     public DbSet<Pago>               Pagos                 { get; set; }
+    public DbSet<CampeonatoTarifa>   CampeonatoTarifas     { get; set; }
     public DbSet<SancionManual>      SancionesManuales     { get; set; }
     public DbSet<CampeonatoVocal>    CampeonatoVocales     { get; set; }
     public DbSet<InvitacionVocal>    InvitacionesVocal     { get; set; }
@@ -129,6 +130,37 @@ public class LigaManagerContext : DbContext
         modelBuilder.Entity<Abono>()             .HasKey(a  => a.IdAbono);
         modelBuilder.Entity<ConceptoPago>()      .HasKey(c  => c.IdConcepto);
         modelBuilder.Entity<Pago>()              .HasKey(p  => p.IdPago);
+        modelBuilder.Entity<CampeonatoTarifa>(e =>
+        {
+            e.ToTable("campeonato_tarifa");
+            e.HasKey(t => t.IdCampeonato);
+            e.HasOne(t => t.Campeonato).WithMany().HasForeignKey(t => t.IdCampeonato).OnDelete(DeleteBehavior.Cascade);
+            foreach (var n in new[] { "Inscripcion", "Refuerzo", "Apelacion", "Arbitraje", "Amarilla", "Roja" })
+                e.Property<decimal>(n).HasPrecision(10, 2);
+            e.Property(t => t.UpdatedAt).ValueGeneratedOnAddOrUpdate().HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+        modelBuilder.Entity<Pago>(e =>
+        {
+            e.Property(p => p.Monto).HasPrecision(10, 2);
+            e.Property(p => p.CreatedAt).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.Property(p => p.Descripcion).HasMaxLength(200);
+            e.Property(p => p.ClaveAuto).HasMaxLength(60);
+            e.HasIndex(p => p.ClaveAuto).IsUnique();
+            e.HasMany(p => p.Abonos).WithOne(a => a.Pago).HasForeignKey(a => a.IdPago).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<Abono>(e =>
+        {
+            e.Property(a => a.Monto).HasPrecision(10, 2);
+            e.Property(a => a.CreatedAt).ValueGeneratedOnAdd().HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.Property(a => a.Metodo).HasConversion<string>();
+            e.Property(a => a.Referencia).HasMaxLength(100);
+            e.Property(a => a.Lote).HasMaxLength(32);
+        });
+        modelBuilder.Entity<ConceptoPago>(e =>
+        {
+            e.Property(c => c.Codigo).HasMaxLength(20);
+            e.HasIndex(c => c.Codigo).IsUnique();
+        });
         modelBuilder.Entity<SancionManual>()     .HasKey(s  => s.IdSancion);
 
         modelBuilder.Entity<CampeonatoEquipo>()

@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Ban, CalendarDays, ChartColumn, ChevronDown, ClipboardList, GitFork, House, LogOut, RectangleVertical } from 'lucide-react'
+import { Ban, CalendarDays, ChartColumn, ChevronDown, ClipboardList, GitFork, House, LogOut, RectangleVertical, Wallet } from 'lucide-react'
 import api from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import EstadoError from '../../components/EstadoError'
@@ -19,6 +19,7 @@ import TabSuspensiones from '../reportes/TabSuspensiones'
 import MarcaLiga from '../../components/MarcaLiga'
 import BotonFlyer from '../../components/BotonFlyer'
 import CuadroLlaves from '../../components/CuadroLlaves'
+import CuentaEquipo from '../../components/CuentaEquipo'
 
 const TABS = [
   { key: 'resumen', label: 'Mi equipo', Icono: House },
@@ -29,6 +30,7 @@ const TABS = [
   { key: 'goleadores', label: 'Goleadores', Icono: Balon },
   { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical },
   { key: 'suspensiones', label: 'Suspensiones', Icono: Ban },
+  { key: 'pagos', label: 'Pagos', Icono: Wallet },
 ]
 
 const ESTADOS = { Planificado: 'Planificado', EnCurso: 'En curso', Finalizado: 'Finalizado' }
@@ -140,6 +142,7 @@ export default function InicioDirigente() {
                 {tab === 'llaves' && <CuadroLlaves datos={qLlaves.data} />}
                 {tab === 'goleadores' && <TabGoleadores idCampeonato={idCampeonato} base={base} simple />}
                 {tab === 'tarjetas' && <TabTarjetas idCampeonato={idCampeonato} base={base} />}
+                {tab === 'pagos' && <PagosEquipo base={base} />}
                 {tab === 'suspensiones' && <TabSuspensiones idCampeonato={idCampeonato} base={base} soloLectura />}
               </>
             )}
@@ -223,6 +226,19 @@ function DetalleJornada({ base, idJornada, idEquipoPropio, camp }) {
             partidos={q.data.partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))} />
         </div>
       )}
+    </div>
+  )
+}
+
+// Pagos: solo la cuenta del equipo del dirigente (los abonos los registra la organización).
+function PagosEquipo({ base }) {
+  const q = useQuery({ queryKey: ['dirigente-pagos', base], queryFn: () => api.get(`${base}/pagos`).then(r => r.data) })
+  if (q.isLoading) return <p className="text-sm text-gray-500">Cargando...</p>
+  if (q.isError) return <EstadoError compacto mensaje="No se pudieron cargar los pagos." onReintentar={q.refetch} reintentando={q.isFetching} />
+  return (
+    <div className="space-y-3">
+      <CuentaEquipo cuenta={q.data} />
+      <p className="text-sm text-gray-500">Para pagar, comuníquese con la organización del campeonato. Los abonos los registra el organizador.</p>
     </div>
   )
 }

@@ -121,6 +121,8 @@ public class EquipoService : IEquipoService
             .AnyAsync(p => p.IdEquipoLocal == id || p.IdEquipoVisitante == id);
         if (enPartido)
             return ServiceResult.Fail("No se puede eliminar: el equipo tiene partidos registrados.");
+        if (!await PagoService.LiberarCobrosAsync(_db, idEquipo: id))
+            return ServiceResult.Fail("No se puede eliminar: el equipo tiene pagos registrados.");
 
         var logo = equipo.LogoUrl;
         _db.Equipos.Remove(equipo);
