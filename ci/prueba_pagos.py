@@ -194,6 +194,24 @@ esperar("partido pendiente: su arbitraje sin abonos desaparece", sum(1 for x in 
 esperar("partido pendiente: la roja con abono se conserva", any(x["idPago"] == roja["idPago"] for x in cv["cobros"]), str(cv["cobros"])[:300])
 sql(f"UPDATE partido SET jugado = 1 WHERE id_partido = {D['hoyB']}")
 
+# ── Desierto ──
+M = D["mananaB"]
+def arb(pid): return int(sql(f"SELECT COUNT(*) FROM pago WHERE id_partido = {pid} AND clave_auto LIKE '%:ARB:%'").strip())
+sql(f"DELETE FROM eventopartido WHERE id_partido = {M}; UPDATE partido SET jugado = 1, desierto = 1, goles_local = 0, goles_visitante = 0, reloj_fase = 'ANTES' WHERE id_partido = {M}")
+llamar("GET", P, token=o2)
+esperar("desierto (ninguno se presentó): sin arbitraje", arb(M) == 0, str(arb(M)))
+sql(f"UPDATE partido SET desierto = 0 WHERE id_partido = {M}")
+llamar("GET", P, token=o2)
+esperar("jugado normal: arbitraje a los dos equipos", arb(M) == 2, str(arb(M)))
+sql(f"UPDATE partido SET desierto = 1 WHERE id_partido = {M}")
+llamar("GET", P, token=o2)
+esperar("declarado desierto después de jugado: el arbitraje se mantiene", arb(M) == 2, str(arb(M)))
+sql(f"DELETE FROM pago WHERE id_partido = {M}; UPDATE partido SET reloj_fase = 'FINAL' WHERE id_partido = {M}")
+llamar("GET", P, token=o2)
+esperar("desierto con el reloj ya jugado: se cobra arbitraje", arb(M) == 2, str(arb(M)))
+sql(f"UPDATE partido SET jugado = 0, desierto = 0, reloj_fase = 'ANTES' WHERE id_partido = {M}")
+llamar("GET", P, token=o2)
+
 # ── Dirigente ──
 s, inv = llamar("POST", f"/campeonatos/{B}/dirigentes/invitaciones", {"idEquipo": local}, o2)
 s, ses = llamar("POST", f"/invitaciones-dirigente/{inv['codigo']}/aceptar", {"nombre": "Dirigente Pagos", "email": "dir.pagos@prueba.ec", "password": "clave123"})
