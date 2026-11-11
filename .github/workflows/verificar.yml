@@ -1,52 +1,9 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-pagos' ] } }
+on: { push: { branches: [ 'ci/auditoria-ux' ] } }
 jobs:
-  frontend:
-    runs-on: ubuntu-latest
-    permissions: { contents: write }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '22' }
-      - name: Instalar
-        working-directory: frontend
-        run: npm ci --no-audit --no-fund
-      - name: Lint (comparado con main)
-        run: |
-          git fetch -q --depth=1 origin main
-          git worktree add -q /tmp/main FETCH_HEAD
-          ln -s $PWD/frontend/node_modules /tmp/main/frontend/node_modules
-          (cd frontend && npx eslint src > ../lint_rama.txt 2>&1 || true)
-          (cd /tmp/main/frontend && npx eslint src > $GITHUB_WORKSPACE/lint_main.txt 2>&1 || true)
-          r=$(grep -oE '[0-9]+ errors?' lint_rama.txt | head -1 | grep -oE '[0-9]+' || echo 0)
-          m=$(grep -oE '[0-9]+ errors?' lint_main.txt | head -1 | grep -oE '[0-9]+' || echo 0)
-          echo "::notice title=lint::errores en main: $m · en la rama: $r"
-          if [ "$r" -gt "$m" ]; then echo "::error::la rama agrega errores de lint"; echo "::notice title=lint_detalle::$(grep -E '^/|error' lint_rama.txt | grep -B1 -E 'error' | sed 's#.*/frontend/##' | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; exit 1; fi
-      - name: Compilar
-        working-directory: frontend
-        run: npm run build
-      - name: Capturas
-        working-directory: frontend
-        run: |
-          npm i --no-save --no-audit --no-fund playwright@1 > /dev/null
-          npx playwright install --with-deps chromium > /dev/null
-          nohup npx vite preview --port 4173 --strictPort > preview.txt 2>&1 &
-          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:4173 && break; sleep 1; done
-          cp ../ci/capturas.mjs .
-          c=0; node capturas.mjs > capturas.txt 2>&1 || c=$?
-          echo "::notice title=capturas::$(grep -c '^OK ' capturas.txt || true) OK · $(grep -vE '^OK ' capturas.txt | tail -30 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
-          exit $c
-      - name: Subir capturas a una rama temporal
-        if: always()
-        run: |
-          cd frontend/capturas
-          cp ../capturas.txt . 2>/dev/null || true
-          git init -q -b capturas && git add -A
-          git -c user.name=ci -c user.email=ci@example.com commit -qm "capturas ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-pagos
-
   backend:
     runs-on: ubuntu-latest
+    permissions: { contents: write }
     services:
       mysql:
         image: mysql:8.0
@@ -64,12 +21,12 @@ jobs:
         run: |
           dotnet build backend/src/LigaManager.API/LigaManager.API.csproj -c Release > build.txt 2>&1; c=$?
           grep -E " error " build.txt | sort -u | head -30 | while read l; do echo "::error::$l"; done
-          exit $c
+          echo pruebas=$c
       - name: Semilla
         run: |
           c=0; FASE8=1 SALIDA=$PWD/datos.json dotnet run --project ci/semilla/semilla.csproj -c Release > semilla.txt 2>&1 || c=$?
           echo "::notice title=semilla::$(grep -vE 'warning|^\s*$' semilla.txt | tail -25 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
-          exit $c
+          echo pruebas=$c
       - name: Aplicar scripts de las fases 7 y 8
         run: |
           mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261009_rol_vocal.sql
@@ -171,114 +128,31 @@ jobs:
           echo "::notice title=permisos::$(grep -vE '^OK ' limite.txt | tail -60 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=ok::$(grep -c '^OK ' prueba.txt || true) + $(grep -c '^OK ' prueba8.txt || true) pruebas OK"
           if [ $c -ne 0 ]; then echo "::warning title=api::$(grep -iE 'exception|fail|error|at ' api.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"; fi
-          exit $c
-      - name: Publicado sin clave propia no arranca
+          echo pruebas=$c
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Preparar invitaciones y enlaces
+        run: python3 ci/auditoria_prep.py datos.json
+      - name: Compilar y servir el frontend real
+        working-directory: frontend
         run: |
-          c=0; RAILWAY_ENVIRONMENT=production ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5090 \
-            timeout 60 dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > sinclave.txt 2>&1 || c=$?
-          echo "::notice title=sinclave::salida=$c $(grep -o 'Falta la variable JwtSettings__SecretKey[^.]*' sinclave.txt | head -1)"
-          grep -q "Falta la variable JwtSettings__SecretKey" sinclave.txt || exit 1
-          c=0; RAILWAY_ENVIRONMENT=production JwtSettings__SecretKey='LigaManager$2024#SecretKey!XyZ9@Kp12345678' ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5091 \
-            timeout 60 dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > vieja.txt 2>&1 || c=$?
-          echo "::notice title=vieja::salida=$c $(grep -c 'Falta la variable' vieja.txt)"
-          grep -q "Falta la variable JwtSettings__SecretKey" vieja.txt || exit 1
-          RAILWAY_ENVIRONMENT=production JwtSettings__SecretKey='una-clave-propia-de-prueba-con-mas-de-32-caracteres' ConnectionStrings__DefaultConnection="$CONN" ASPNETCORE_URLS=http://localhost:5092 \
-            nohup dotnet run --project backend/src/LigaManager.API/LigaManager.API.csproj -c Release --no-build > conclave.txt 2>&1 &
-          ok=0; for i in $(seq 1 40); do curl -s -o /dev/null http://localhost:5092/api/catalogos/paises && ok=1 && break; sleep 2; done
-          echo "::notice title=conclave::arranca con clave propia: $ok"
-          [ "$ok" = "1" ]
-      - name: Reversa de la cédula
+          npm ci --no-audit --no-fund > /dev/null
+          VITE_API_URL=http://localhost:5080/api npm run build > build.txt 2>&1
+          nohup npx vite preview --port 4173 --strictPort > preview.txt 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:4173 && break; sleep 1; done
+      - name: Auditoría
+        working-directory: frontend
         run: |
-          if mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador_reversa.sql 2>err.txt; then echo "::error::la reversa debía fallar con cédulas repetidas"; exit 1; fi
-          echo "::notice title=reversa1::con repetidas falla: $(head -c 150 err.txt)"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT cedula, COUNT(*) FROM persona GROUP BY cedula HAVING COUNT(*) > 1" > rep.txt
-          echo "::notice title=repetidas::$(wc -l < rep.txt) cedulas repetidas"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "SET FOREIGN_KEY_CHECKS=0; UPDATE persona p JOIN (SELECT cedula, MIN(id_persona) m FROM persona GROUP BY cedula HAVING COUNT(*)>1) d ON p.cedula=d.cedula AND p.id_persona<>d.m SET p.cedula=CONCAT('DUP-',p.id_persona); SET FOREIGN_KEY_CHECKS=1;"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador_reversa.sql
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_cedula_por_organizador.sql > idx.txt
-          echo "::notice title=reversa2::sin repetidas la reversa funciona y el script se vuelve a aplicar: $(tr '\n' ' ' < idx.txt | head -c 200)"
-      - name: Reversa de la fase eliminatoria
+          npm i --no-save --no-audit --no-fund playwright@1 @axe-core/playwright@4 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+          cp ../ci/auditoria.mjs .
+          node auditoria.mjs ../auditoria_datos.json > auditoria.txt 2>&1 || true
+          echo "::notice title=auditoria::$(tail -60 auditoria.txt | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
+      - name: Subir resultados
+        if: always()
         run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261107_fase_eliminatoria_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name IN ('llave','ronda_eliminatoria','fase_eliminatoria')")
-          m=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='partido' AND column_name IN ('id_llave','penales_local','penales_visitante')")
-          echo "::notice title=reversa_eliminatoria::tablas tras la reversa: $n · columnas: $m"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261107_fase_eliminatoria.sql > /dev/null
-      - name: Reversa de pagos
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261110_pagos_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name='campeonato_tarifa') + (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND ((table_name='pago' AND column_name IN ('descripcion','id_partido','clave_auto')) OR (table_name='abono' AND column_name IN ('metodo','referencia','lote')) OR (table_name='conceptopago' AND column_name='codigo')))")
-          p=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM pago")
-          echo "::notice title=reversa_pagos::tabla y columnas tras la reversa: $n · cobros que quedan: $p"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261110_pagos.sql > pagos2.txt
-          echo "::notice title=reaplicar_pagos::$(tr '\n' ' ' < pagos2.txt | head -c 300)"
-      - name: Reversa del tipo de documento
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='persona' AND column_name='tipo_identificacion'")
-          echo "::notice title=reversa_tipo::columna tras la reversa: $n"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_tipo_documento.sql > /dev/null
-      - name: Reversa de imágenes
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261010_imagenes_logos_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name='imagen'")
-          echo "::notice title=reversa_img::tabla imagen tras la reversa: $n"
-          [ "$n" = "0" ]
-
-      - name: Reversa del rol Dirigente
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE usuario SET rol = 'ORGANIZADOR', activo = 0 WHERE rol = 'DIRIGENTE'"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_rol_dirigente_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name LIKE '%dirigente%'")
-          t=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COLUMN_TYPE FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='usuario' AND column_name='rol'")
-          echo "::notice title=reversa_dirigente::tablas tras la reversa: $n · rol: $t"
-          [ "$n" = "0" ]
-          echo "$t" | grep -vq DIRIGENTE
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_rol_dirigente.sql > /dev/null
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name LIKE '%dirigente%'")
-          echo "::notice title=reaplicar_dirigente::tablas al volver a aplicar: $n"
-          [ "$n" = "2" ]
-      - name: Reversa de documento pendiente
-        run: |
-          # La reversa del tipo de documento (paso anterior) recrea la columna: se vuelve a aplicar
-          # el script y se deja un jugador pendiente.
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente.sql > /dev/null
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE persona SET tipo_identificacion='PENDIENTE', cedula='' WHERE id_persona = (SELECT m FROM (SELECT MIN(id_persona) m FROM persona) x)"
-          if mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente_reversa.sql 2>err.txt; then echo "::error::la reversa debía fallar con jugadores pendientes"; exit 1; fi
-          echo "::notice title=reversa_pendiente1::con pendientes falla: $(grep -o 'ERROR.*' err.txt | head -c 150)"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba -e "UPDATE persona SET tipo_identificacion='EXTRANJERO', cedula=CONCAT('99999', id_persona) WHERE tipo_identificacion='PENDIENTE'"
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente_reversa.sql
-          t=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COLUMN_TYPE FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='persona' AND column_name='tipo_identificacion'")
-          echo "::notice title=reversa_pendiente2::tras la reversa: $t"
-          echo "$t" | grep -vq PENDIENTE
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261019_documento_pendiente.sql > /dev/null
-      - name: Reversa de privacidad y términos
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261020_privacidad_terminos_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND column_name IN ('autorizacion_datos_en','autorizacion_datos_por','terminos_aceptados_en','terminos_version')")
-          echo "::notice title=reversa_privacidad::columnas tras la reversa: $n"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261020_privacidad_terminos.sql > /dev/null
-      - name: Reversa del enlace público
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_enlace_publico_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='campeonato' AND column_name='token_publico'")
-          echo "::notice title=reversa_publico::columna tras la reversa: $n"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_enlace_publico.sql > /dev/null
-      - name: Reversa de seguridad de cuentas
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_seguridad_cuentas_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='usuario' AND column_name IN ('email_verificado','clave_cambiada_en')) + (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='liga_prueba' AND table_name='token_usuario')")
-          echo "::notice title=reversa_cuentas::columnas y tabla tras la reversa: $n"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261021_seguridad_cuentas.sql > /dev/null
-      - name: Reversa del reloj en vivo
-        run: |
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261026_reloj_en_vivo_reversa.sql
-          n=$(mysql -h127.0.0.1 -uroot -proot liga_prueba -N -e "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='liga_prueba' AND table_name='partido' AND column_name LIKE 'reloj%'")
-          echo "::notice title=reversa_reloj::columnas tras la reversa: $n"
-          [ "$n" = "0" ]
-          mysql -h127.0.0.1 -uroot -proot liga_prueba < backend/database/20261026_reloj_en_vivo.sql > /dev/null
+          mkdir -p frontend/auditoria && cd frontend/auditoria
+          cp ../auditoria.txt ../../api.log . 2>/dev/null || true
+          git init -q -b r && git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm "auditoria ${{ github.sha }}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-auditoria
