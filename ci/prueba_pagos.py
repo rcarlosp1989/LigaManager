@@ -178,7 +178,8 @@ s, c = llamar("DELETE", f"{P}/abonos/{lote['lote']}", None, o2)
 esperar("eliminar el abono devuelve los saldos", s == 200 and next(x for x in c["cobros"] if x["concepto"] == "INSCRIPCION")["saldo"] == 150 and len(c["abonos"]) == 1, str(c["abonos"]))
 
 # ── Origen que desaparece ──
-amarilla = next(x for x in c["cobros"] if x["concepto"] == "AMARILLA")
+n1 = filas(f"SELECT p.nombre FROM persona p JOIN jugador j ON j.id_persona = p.id_persona WHERE j.id_jugador = {jl[0]}")[0][0]
+amarilla = next(x for x in c["cobros"] if x["concepto"] == "AMARILLA" and f"· {n1} " in (x.get("descripcion") or ""))
 sql(f"DELETE FROM eventopartido WHERE id_partido = {D['hoyB']} AND id_jugador = {jl[0]} AND tipo_evento = 'TARJETA_AMARILLA'")
 s, c = llamar("GET", f"{P}/equipos/{local}", token=o2)
 esperar("se borra la tarjeta → su cobro (sin abonos) desaparece", not any(x["idPago"] == amarilla["idPago"] for x in c["cobros"]), str([(x["concepto"], x.get("descripcion")) for x in c["cobros"]]))
