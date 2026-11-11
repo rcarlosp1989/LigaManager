@@ -15,7 +15,7 @@ const POR_RUTA = [
   ['/vocal', 'Mis partidos'], ['/dirigente', 'Mi equipo'], ['/partidos/', 'Partido en vivo'],
   ['/publico/', 'Campeonato'], ['/dashboard', 'Inicio'], ['/campeonatos', 'Campeonatos'],
   ['/equipos', 'Equipos'], ['/jugadores', 'Jugadores'], ['/reportes', 'Reportes'],
-  ['/mantenimiento', 'Mantenimiento'], ['/privacidad', 'Aviso de privacidad'], ['/terminos', 'Términos de uso'],
+  ['/mantenimiento', 'Estadios y oficiales'], ['/privacidad', 'Aviso de privacidad'], ['/terminos', 'Términos de uso'],
 ]
 
 // Título por ruta; las pantallas con un nombre propio (un campeonato) lo afinan con useTitulo.

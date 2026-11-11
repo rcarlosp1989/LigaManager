@@ -8,6 +8,7 @@ import '@fontsource/oswald/latin-500.css'
 import '@fontsource/oswald/latin-600.css'
 import './index.css'
 import App from './App.jsx'
+import { instalarValidacion } from './utils/validacion'
 import AvisosProvider from './components/AvisosProvider'
 import DialogosProvider from './components/DialogosProvider'
 
@@ -24,6 +25,8 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+instalarValidacion()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

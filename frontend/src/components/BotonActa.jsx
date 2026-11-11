@@ -50,7 +50,7 @@ export default function BotonActa({ campeonato, jornada, partido }) {
 
   return (
     <button type="button" onClick={descargar} disabled={generando || !campeonato}
-      className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5 disabled:opacity-50">
+      className="text-xs min-h-9 pointer-coarse:min-h-11 px-3 rounded border border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5 disabled:opacity-50">
       <FileDown size={13} aria-hidden="true" />{generando ? 'Creando acta...' : 'Acta PDF'}
     </button>
   )

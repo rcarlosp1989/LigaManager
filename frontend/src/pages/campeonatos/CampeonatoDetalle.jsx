@@ -20,7 +20,7 @@ import IconoEvento from '../../components/IconoEvento'
 import LogoEquipo from '../../components/LogoEquipo'
 import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
-import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User, GitFork, Wallet } from 'lucide-react'
+import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, ChartColumn, Pencil, Radio, Shield, Trash2, User, GitFork, Wallet } from 'lucide-react'
 import BotonFlyer from '../../components/BotonFlyer'
 import BotonActa from '../../components/BotonActa'
 
@@ -961,10 +961,21 @@ function PartidoCard({ partido, idCampeonato, jornada }) {
       )}
 
       <div className="flex gap-2 flex-wrap">
+        {/* Orden: lo más usado primero; «Eliminar» al final y en rojo. Todos con el mismo alto y letra. */}
+        {/* Jugado: el modo en vivo solo muestra el resumen. */}
+        <Link
+          to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}${partido.jugado ? '&vista=cierre' : ''}`}
+          className={`${BTN_PARTIDO} border-brand-700 text-brand-300 hover:bg-brand-900/30 font-semibold`}
+        >{partido.jugado ? <><Eye size={13} aria-hidden="true" />Ver resumen</> : <><Radio size={13} aria-hidden="true" />En vivo</>}</Link>
+        <button
+          onClick={() => setShowAlineacionModal(true)}
+          className={`${BTN_PARTIDO} border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white`}
+        ><ClipboardList size={13} aria-hidden="true" />Planilla</button>
+        {!partido.jugado && <BotonActa campeonato={camp} jornada={jornada} partido={partido} />}
         <button
           onClick={() => marcarMutation.mutate()}
           disabled={marcarMutation.isPending}
-          className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+          className={`${BTN_PARTIDO} ${
             partido.jugado
               ? 'border-gray-700 text-gray-400 hover:border-red-800 hover:text-red-400'
               : 'border-green-800 text-green-400 hover:bg-green-900/20'
@@ -972,16 +983,6 @@ function PartidoCard({ partido, idCampeonato, jornada }) {
         >
           {partido.jugado ? '↩ Desmarcar jugado' : '✓ Marcar jugado'}
         </button>
-        <button
-          onClick={() => setShowAlineacionModal(true)}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors inline-flex items-center gap-1.5"
-        ><ClipboardList size={13} aria-hidden="true" />Planilla</button>
-        {!partido.jugado && <BotonActa campeonato={camp} jornada={jornada} partido={partido} />}
-        {/* Jugado: el modo en vivo solo muestra el resumen. */}
-        <Link
-          to={`/partidos/${partido.idPartido}/en-vivo?jornada=${partido.idJornada}${partido.jugado ? '&vista=cierre' : ''}`}
-          className="text-xs px-3 py-1.5 rounded border border-brand-700 text-brand-300 hover:bg-brand-900/30 transition-colors inline-flex items-center"
-        >{partido.jugado ? 'Ver resumen' : '● En vivo'}</Link>
         <button
           onClick={() => {
             setEditForm({
@@ -994,12 +995,12 @@ function PartidoCard({ partido, idCampeonato, jornada }) {
             })
             setShowEditModal(true)
           }}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-blue-700 hover:text-blue-400 transition-colors inline-flex items-center gap-1.5"
+          className={`${BTN_PARTIDO} border-gray-700 text-gray-300 hover:border-blue-700 hover:text-blue-300`}
         ><Pencil size={13} aria-hidden="true" />Editar</button>
         <button
           onClick={eliminarPartido}
           disabled={eliminarPartidoMutation.isPending}
-          className="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-500 hover:border-red-800 hover:text-red-400 transition-colors inline-flex items-center gap-1.5"
+          className={`${BTN_PARTIDO} sm:ml-auto border-transparent text-red-400 hover:border-red-800 hover:text-red-300`}
         ><Trash2 size={13} aria-hidden="true" />Eliminar</button>
       </div>
 
@@ -1381,7 +1382,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
       queryClient.invalidateQueries({ queryKey: ['grupo', idGrupo] })
       aviso.exito('Equipo quitado del grupo.')
     },
-    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede remover.')),
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se pudo quitar el equipo del grupo.')),
   })
 
   const removerDelGrupo = async (e) => {
@@ -1430,7 +1431,7 @@ function TablaPosiciones({ idGrupo, idCampeonato }) {
               <span className="flex items-center gap-1.5 text-gray-300"><LogoEquipo nombre={e.nombre} logoUrl={logos.get(e.idEquipo)} tamano={18} />{e.nombre}</span>
               <button
                 onClick={() => removerDelGrupo(e)}
-                className="text-gray-600 hover:text-red-400 transition-colors"
+                className="inline-flex items-center justify-center min-w-6 min-h-6 pointer-coarse:min-w-11 pointer-coarse:min-h-11 -my-1 rounded text-gray-400 hover:text-red-400 transition-colors"
                 aria-label={`Quitar a ${e.nombre} del grupo`}
               >✕</button>
             </div>
@@ -1518,6 +1519,9 @@ function TablaCampeonato({ idCampeonato }) {
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
+
+// Botones de cada partido en la jornada: mismo alto, letra y borde (44 px en pantallas táctiles).
+const BTN_PARTIDO = 'text-xs min-h-9 pointer-coarse:min-h-11 px-3 rounded border transition-colors inline-flex items-center gap-1.5 disabled:opacity-50'
 
 const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['llaves', 'Llaves', GitFork], ['pagos', 'Pagos', Wallet], ['vocales', 'Vocales', Mic], ['dirigentes', 'Dirigentes', Eye]]
 // Las pestañas se agrupan para que en celular quepan sin deslizar: arriba los grupos, debajo
@@ -1621,15 +1625,15 @@ export default function CampeonatoDetalle() {
     mutationFn: (idEquipo) => api.delete(`/campeonatos/${id}/equipos/${idEquipo}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campeonato', id] })
-      aviso.exito('Equipo removido del campeonato.')
+      aviso.exito('Equipo quitado del campeonato.')
     },
-    onError: (err) => aviso.error(mensajeDeError(err, 'No se puede remover el equipo.')),
+    onError: (err) => aviso.error(mensajeDeError(err, 'No se pudo quitar el equipo.')),
   })
 
   const removerEquipo = async (e) => {
     const ok = await confirmar({
-      titulo: `¿Remover a ${e.nombre} del campeonato?`,
-      textoConfirmar: 'Remover',
+      titulo: `¿Quitar a ${e.nombre} del campeonato?`,
+      textoConfirmar: 'Quitar',
       peligro: true,
     })
     if (ok) removerEquipoMutation.mutate(e.idEquipo)
@@ -1676,11 +1680,16 @@ export default function CampeonatoDetalle() {
         ← Campeonatos
       </button>
 
-      <div className="flex items-start justify-between mb-8">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
+        <div className="min-w-0">
           <h1 className="font-display text-3xl sm:text-4xl text-white tracking-wide mb-2 break-words">{camp.nombre}</h1>
           <EstadoBadge estado={camp.estado} />
         </div>
+        {/* Las mismas posiciones y estadísticas, con exportación a Excel y PDF, en Reportes. */}
+        <Link to={`/reportes?campeonato=${camp.idCampeonato}`}
+          className="inline-flex items-center gap-2 min-h-11 px-4 rounded-lg border border-gray-700 text-sm text-gray-200 hover:border-brand-400 hover:text-white transition-colors">
+          <ChartColumn size={16} aria-hidden="true" />Reportes de este campeonato
+        </Link>
       </div>
 
       <div className="card mb-6">
@@ -1822,9 +1831,9 @@ export default function CampeonatoDetalle() {
                     </th>
                     <td className="px-3 py-3 text-gray-400 text-sm">{e.pais}</td>
                     <td className="px-3 py-3 text-right">
-                      <button onClick={() => removerEquipo(e)}
-                        className="text-gray-600 hover:text-red-400 transition-colors text-sm">
-                        Remover
+                      <button onClick={() => removerEquipo(e)} aria-label={`Quitar a ${e.nombre} del campeonato`}
+                        className="min-h-9 pointer-coarse:min-h-11 px-2 text-gray-400 hover:text-red-400 transition-colors text-sm">
+                        Quitar
                       </button>
                     </td>
                   </tr>
