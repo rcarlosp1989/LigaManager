@@ -226,7 +226,7 @@ for (const ancho of [390, 1440]) {
     if (t === 'Jornadas') {
       const jornada = page.getByRole('button', { name: /Jornada \d/ })
       if (await clic(page, jornada, rol, ancho, 'abrir la primera jornada')) await revisar(page, rol, ancho, 'jornada-abierta')
-      const xs = await page.locator('button[aria-label^="Eliminar "]').evaluateAll(bs => bs.filter(b => b.offsetParent).map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)] }))
+      const xs = await page.locator('button[aria-label^="Eliminar "]').evaluateAll(bs => bs.filter(b => b.offsetParent && b.textContent.trim() === '✕').map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)] }))
       paso(rol, ancho, 'VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)', xs.length > 0 && xs.every(([w, h]) => w >= (ancho < 500 ? 44 : 24) && h >= (ancho < 500 ? 44 : 24)), JSON.stringify(xs.slice(0, 6)))
       const planilla = page.getByRole('button', { name: /Planilla|Registrar|Resultado/i })
       if (await clic(page, planilla, rol, ancho, 'abrir planilla/resultado de un partido')) { await revisar(page, rol, ancho, 'planilla'); await page.keyboard.press('Escape') }
