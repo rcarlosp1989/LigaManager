@@ -1,0 +1,146 @@
+  001_visitante_login_390.png · axe 1 · carga 1348ms · cls 0 · desborde 0
+  002_visitante_login-vacio_390.png · axe 1 · carga -ms · cls 0 · desborde 0
+  003_visitante_login-clave-mala_390.png · axe 1 · carga -ms · cls 0 · desborde 0
+  004_visitante_registro_390.png · axe 1 · carga 1178ms · cls 0 · desborde 0
+  005_visitante_registro-vacio_390.png · axe 1 · carga -ms · cls 0 · desborde 0
+  006_visitante_olvide-clave_390.png · axe 0 · carga 1134ms · cls 0 · desborde 0
+  007_visitante_login_1440.png · axe 1 · carga 1289ms · cls 0.006 · desborde 0
+  008_visitante_login-vacio_1440.png · axe 1 · carga -ms · cls 0.006 · desborde 0
+  009_visitante_login-clave-mala_1440.png · axe 1 · carga -ms · cls 0.006 · desborde 0
+  010_visitante_registro_1440.png · axe 1 · carga 1203ms · cls 0 · desborde 0
+  011_visitante_registro-vacio_1440.png · axe 1 · carga -ms · cls 0 · desborde 0
+  012_visitante_olvide-clave_1440.png · axe 0 · carga 1142ms · cls 0 · desborde 0
+OK   [organizador 390] iniciar sesión (org1@prueba.ec) — 202 ms
+  013_organizador_inicio-tras-login_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] abrir el menú principal en celular
+  014_organizador_menu-movil_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  015_organizador_campeonatos_390.png · axe 0 · carga 1175ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo campeonato»
+  016_organizador_nuevo-campeonato_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+NO   [organizador 390] guardar el formulario vacío — locator.click: Timeout 6000ms exceeded.
+  017_organizador_nuevo-campeonato-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  018_organizador_tras-escape-en-formulario_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  019_organizador_campeonato-equipos_390.png · axe 0 · carga 1168ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Grupos
+  020_organizador_campeonato-grupos_390.png · axe 0 · carga 1066ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Jornadas
+  021_organizador_campeonato-jornadas_390.png · axe 1 · carga 1052ms · cls 0 · desborde 0
+OK   [organizador 390] abrir la primera jornada
+  022_organizador_jornada-abierta_390.png · axe 2 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] abrir planilla/resultado de un partido
+  023_organizador_planilla_390.png · axe 2 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Llaves
+  024_organizador_campeonato-llaves_390.png · axe 0 · carga 1061ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Pagos
+  025_organizador_campeonato-pagos_390.png · axe 0 · carga 1041ms · cls 0 · desborde 0
+NO   [organizador 390] abrir estado de cuenta de un equipo — locator.click: Timeout 6000ms exceeded.
+OK   [organizador 390] pestaña Vocales
+  026_organizador_campeonato-vocales_390.png · axe 0 · carga 1033ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Dirigentes
+  027_organizador_campeonato-dirigentes_390.png · axe 0 · carga 1056ms · cls 0 · desborde 0
+  028_organizador_equipos_390.png · axe 0 · carga 1166ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo equipo»
+  029_organizador_nuevo-equipo_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] guardar equipo vacío
+  030_organizador_nuevo-equipo-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  031_organizador_jugadores_390.png · axe 0 · carga 1191ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo jugador»
+  032_organizador_nuevo-jugador_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] guardar jugador vacío
+  033_organizador_nuevo-jugador-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  034_organizador_reportes_390.png · axe 0 · carga 1188ms · cls 0 · desborde 0
+  035_organizador_mantenimiento_390.png · axe 0 · carga 1160ms · cls 0 · desborde 0
+  036_organizador_dashboard_390.png · axe 0 · carga 1181ms · cls 0 · desborde 0
+  037_organizador_ruta-inexistente_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] iniciar sesión (org1@prueba.ec) — 204 ms
+  038_organizador_inicio-tras-login_1440.png · axe 1 · carga -ms · cls 0.019 · desborde 0
+  039_organizador_campeonatos_1440.png · axe 0 · carga 1195ms · cls 0.002 · desborde 0
+OK   [organizador 1440] abrir «Nuevo campeonato»
+  040_organizador_nuevo-campeonato_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+NO   [organizador 1440] guardar el formulario vacío — locator.click: Timeout 6000ms exceeded.
+  041_organizador_nuevo-campeonato-vacio_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+  042_organizador_tras-escape-en-formulario_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+  043_organizador_campeonato-equipos_1440.png · axe 0 · carga 1190ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Grupos
+  044_organizador_campeonato-grupos_1440.png · axe 0 · carga 1090ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Jornadas
+  045_organizador_campeonato-jornadas_1440.png · axe 0 · carga 1075ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir la primera jornada
+  046_organizador_jornada-abierta_1440.png · axe 1 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir planilla/resultado de un partido
+  047_organizador_planilla_1440.png · axe 2 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Llaves
+  048_organizador_campeonato-llaves_1440.png · axe 0 · carga 1094ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Pagos
+  049_organizador_campeonato-pagos_1440.png · axe 0 · carga 1062ms · cls 0 · desborde 0
+NO   [organizador 1440] abrir estado de cuenta de un equipo — locator.click: Timeout 6000ms exceeded.
+OK   [organizador 1440] pestaña Vocales
+  050_organizador_campeonato-vocales_1440.png · axe 0 · carga 1073ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Dirigentes
+  051_organizador_campeonato-dirigentes_1440.png · axe 0 · carga 1077ms · cls 0 · desborde 0
+  052_organizador_equipos_1440.png · axe 0 · carga 1176ms · cls 0.004 · desborde 0
+OK   [organizador 1440] abrir «Nuevo equipo»
+  053_organizador_nuevo-equipo_1440.png · axe 0 · carga -ms · cls 0.004 · desborde 0
+OK   [organizador 1440] guardar equipo vacío
+  054_organizador_nuevo-equipo-vacio_1440.png · axe 0 · carga -ms · cls 0.004 · desborde 0
+  055_organizador_jugadores_1440.png · axe 0 · carga 1228ms · cls 0.01 · desborde 0
+OK   [organizador 1440] abrir «Nuevo jugador»
+  056_organizador_nuevo-jugador_1440.png · axe 0 · carga -ms · cls 0.01 · desborde 0
+OK   [organizador 1440] guardar jugador vacío
+  057_organizador_nuevo-jugador-vacio_1440.png · axe 0 · carga -ms · cls 0.01 · desborde 0
+  058_organizador_reportes_1440.png · axe 0 · carga 1195ms · cls 0 · desborde 0
+  059_organizador_mantenimiento_1440.png · axe 0 · carga 1185ms · cls 0 · desborde 0
+  060_organizador_dashboard_1440.png · axe 0 · carga 1229ms · cls 0 · desborde 0
+  061_organizador_ruta-inexistente_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+  062_vocal_invitacion_390.png · axe 0 · carga 1277ms · cls 0 · desborde 0
+  063_vocal_invitacion-llena_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 390] aceptar la invitación y entrar
+  064_vocal_inicio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 390] abrir un partido para registrar en vivo
+  065_vocal_en-vivo_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 1440] iniciar sesión (vocal.auditoria@prueba.ec) — 207 ms
+  066_vocal_inicio_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+OK   [vocal 1440] abrir un partido para registrar en vivo
+  067_vocal_en-vivo_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  068_dirigente_invitacion_390.png · axe 0 · carga 1284ms · cls 0 · desborde 0
+  069_dirigente_invitacion-llena_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [dirigente 390] aceptar la invitación y entrar
+  070_dirigente_inicio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  071_dirigente_tab-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  072_dirigente_tab-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  073_dirigente_tab-suspensiones_390.png · axe 1 · carga -ms · cls 0 · desborde 0
+  074_dirigente_tab-pagos_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  075_dirigente_tab-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [dirigente 1440] iniciar sesión (dir.auditoria@prueba.ec) — 195 ms
+  076_dirigente_inicio_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  077_dirigente_tab-posiciones_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  078_dirigente_tab-goleadores_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  079_dirigente_tab-suspensiones_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  080_dirigente_tab-pagos_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  081_dirigente_tab-llaves_1440.png · axe 1 · carga -ms · cls 0.019 · desborde 0
+  082_publico_inicio_390.png · axe 0 · carga 1324ms · cls 0 · desborde 0
+  083_publico_boton-resultados_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  084_publico_boton-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  085_publico_boton-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  086_publico_boton-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  087_publico_boton-tarjetas_390.png · axe 2 · carga -ms · cls 0 · desborde 0
+  088_publico_boton-suspensiones_390.png · axe 1 · carga -ms · cls 0 · desborde 0
+  089_publico_inicio_1440.png · axe 0 · carga 1413ms · cls 0.093 · desborde 0
+  090_publico_boton-resultados_1440.png · axe 0 · carga -ms · cls 0.093 · desborde 0
+  091_publico_boton-posiciones_1440.png · axe 0 · carga -ms · cls 0.093 · desborde 0
+  092_publico_boton-llaves_1440.png · axe 1 · carga -ms · cls 0.093 · desborde 0
+  093_publico_boton-goleadores_1440.png · axe 0 · carga -ms · cls 0.093 · desborde 0
+  094_publico_boton-tarjetas_1440.png · axe 1 · carga -ms · cls 0.093 · desborde 0
+  095_publico_boton-suspensiones_1440.png · axe 0 · carga -ms · cls 0.093 · desborde 0
+  096_aficionado_inicio_390.png · axe 0 · carga 1328ms · cls 0 · desborde 0
+  097_aficionado_boton-resultados_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  098_aficionado_boton-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  099_aficionado_boton-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  100_aficionado_boton-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  101_aficionado_inicio_1440.png · axe 0 · carga 1431ms · cls 0.047 · desborde 0
+  102_aficionado_boton-resultados_1440.png · axe 0 · carga -ms · cls 0.047 · desborde 0
+  103_aficionado_boton-posiciones_1440.png · axe 0 · carga -ms · cls 0.047 · desborde 0
+  104_aficionado_boton-llaves_1440.png · axe 1 · carga -ms · cls 0.047 · desborde 0
+  105_aficionado_boton-goleadores_1440.png · axe 0 · carga -ms · cls 0.047 · desborde 0
+
+105 pantallas · 4 pasos no completados
