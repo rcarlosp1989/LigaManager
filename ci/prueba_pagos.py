@@ -195,7 +195,11 @@ esperar("partido pendiente: la roja con abono se conserva", any(x["idPago"] == r
 sql(f"UPDATE partido SET jugado = 1 WHERE id_partido = {D['hoyB']}")
 
 # ── Desierto ──
-M = D["mananaB"]
+otros = filas(f"SELECT p.id_partido FROM partido p JOIN jornada j ON j.id_jornada = p.id_jornada WHERE j.id_campeonato = {B} AND p.id_partido <> {D['hoyB']} ORDER BY p.id_partido LIMIT 1")
+if not otros:
+    sql(f"INSERT INTO partido (id_jornada, id_equipo_local, id_equipo_visitante, fecha) SELECT id_jornada, id_equipo_visitante, id_equipo_local, fecha FROM partido WHERE id_partido = {D['hoyB']}")
+    otros = filas(f"SELECT MAX(p.id_partido) FROM partido p JOIN jornada j ON j.id_jornada = p.id_jornada WHERE j.id_campeonato = {B}")
+M = int(otros[0][0])
 def arb(pid): return int(sql(f"SELECT COUNT(*) FROM pago WHERE id_partido = {pid} AND clave_auto LIKE '%:ARB:%'").strip())
 sql(f"DELETE FROM eventopartido WHERE id_partido = {M}; UPDATE partido SET jugado = 1, desierto = 1, goles_local = 0, goles_visitante = 0, reloj_fase = 'ANTES' WHERE id_partido = {M}")
 llamar("GET", P, token=o2)
