@@ -1,0 +1,43 @@
+OK   pagos_sin_valores @390: sin desplazamiento lateral
+OK   pagos_valores @390: sin desplazamiento lateral
+OK   valores @390: se envían como números (10,50 → 10.5)
+OK   pagos_resumen @390: sin desplazamiento lateral
+OK   resumen @390: «Al día» para quien no debe
+OK   resumen @390: la tabla se desliza y el equipo sigue a la vista
+OK   cobro @390: la apelación sugiere el valor del campeonato
+OK   pagos_cobro_manual @390: sin desplazamiento lateral
+OK   cobro @390: la multa sin motivo no se envía
+OK   cobro @390: se envía la multa
+OK   pagos_cuenta @390: sin desplazamiento lateral
+OK   abono @390: se reparte (sin cobro elegido)
+OK   abono @390: «Abonar» en una fila elige ese cobro
+OK   abono @390: abono a un cobro puntual
+OK   pagos_cuenta_abonada @390: sin desplazamiento lateral
+OK   recibo @390: se descarga un PDF
+OK   sin errores (organizador) @390
+OK   dir_pagos @390: sin desplazamiento lateral
+OK   dirigente @390: sin formulario de abono ni botones para eliminar
+OK   dirigente @390: solo pide su cuenta
+OK   sin errores (dirigente) @390
+OK   pagos_sin_valores @1440: sin desplazamiento lateral
+OK   pagos_valores @1440: sin desplazamiento lateral
+OK   valores @1440: se envían como números (10,50 → 10.5)
+OK   pagos_resumen @1440: sin desplazamiento lateral
+OK   resumen @1440: «Al día» para quien no debe
+OK   cobro @1440: la apelación sugiere el valor del campeonato
+OK   pagos_cobro_manual @1440: sin desplazamiento lateral
+OK   cobro @1440: la multa sin motivo no se envía
+OK   cobro @1440: se envía la multa
+OK   pagos_cuenta @1440: sin desplazamiento lateral
+OK   abono @1440: se reparte (sin cobro elegido)
+OK   abono @1440: «Abonar» en una fila elige ese cobro
+OK   abono @1440: abono a un cobro puntual
+OK   pagos_cuenta_abonada @1440: sin desplazamiento lateral
+OK   recibo @1440: se descarga un PDF
+OK   sin errores (organizador) @1440
+OK   dir_pagos @1440: sin desplazamiento lateral
+OK   dirigente @1440: sin formulario de abono ni botones para eliminar
+OK   dirigente @1440: solo pide su cuenta
+OK   sin errores (dirigente) @1440
+
+0 fallas
