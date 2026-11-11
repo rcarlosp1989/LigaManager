@@ -255,6 +255,54 @@ for (const ancho of [390, 1440]) {
   t0 = await ir(page, '/dashboard'); await revisar(page, rol, ancho, 'dashboard', { t0 })
   await ir(page, '/no-existe'); await revisar(page, rol, ancho, 'ruta-inexistente', { teclado: false })
   paso(rol, ancho, 'VERIFICAR: página no encontrada con salida', await page.getByRole('heading', { name: 'Página no encontrada' }).isVisible().catch(() => false) && await page.getByRole('link', { name: 'Ir al inicio' }).isVisible().catch(() => false))
+  // ── Hallazgos 10 a 15 ──
+  {
+    const R = (t, ok, d = '') => paso(rol, ancho, 'VERIFICAR: ' + t, ok, d)
+    await ir(page, '/campeonatos'); await esperar(page)
+    await page.getByRole('button', { name: /Nuevo Campeonato/i }).first().click()
+    const dlg = page.getByRole('dialog')
+    await dlg.getByRole('button', { name: /Crear campeonato/i }).click()
+    await page.waitForTimeout(400)
+    const errs = await dlg.locator('[data-error]').evaluateAll(es => es.map(e => e.getAttribute('data-error')))
+    const foco = await page.evaluate(() => ({ inv: document.activeElement?.getAttribute('aria-invalid'), id: document.activeElement?.id }))
+    R('formulario vacío: mensajes propios en español bajo los campos', errs.length >= 3 && errs.every(m => /Complete|Elija|Indique/.test(m)), JSON.stringify(errs))
+    R('formulario vacío: foco en el primer campo con error', foco.inv === 'true', JSON.stringify(foco))
+    await revisar(page, rol, ancho, 'validacion-campeonato', { teclado: false })
+    await dlg.getByLabel('Nombre').fill('Copa Validación')
+    await page.waitForTimeout(200)
+    const despues = await dlg.locator('[data-error]').count()
+    R('al corregir un campo su mensaje desaparece', despues === errs.length - 1, `${errs.length} → ${despues}`)
+    await page.keyboard.press('Escape'); await page.waitForTimeout(300)
+    const desc = page.getByRole('button', { name: /Descartar|Salir sin guardar|Sí/i }); if (await desc.count()) await desc.first().click().catch(() => {})
+
+    if (ancho < 500) await page.getByRole('button', { name: 'Abrir menú' }).click()
+    R('menú dice «Estadios y oficiales»', await page.getByRole('link', { name: 'Estadios y oficiales' }).isVisible().catch(() => false) && !(await page.getByRole('link', { name: 'Mantenimiento' }).count()))
+    if (ancho < 500) await page.keyboard.press('Escape')
+
+    await ir(page, `/campeonatos/${P.campA}`); await esperar(page)
+    R('no queda el verbo «Remover»', (await page.getByText(/Remover/).count()) === 0)
+    await page.getByRole('link', { name: 'Reportes de este campeonato' }).click()
+    await esperar(page)
+    const sel = await page.getByLabel('Campeonato', { exact: true }).inputValue().catch(() => '')
+    R('«Reportes de este campeonato» abre Reportes con ese campeonato', page.url().includes(`campeonato=${P.campA}`) && sel === String(P.campA), `${page.url()} sel=${sel}`)
+    await revisar(page, rol, ancho, 'reportes-desde-campeonato', { teclado: false })
+
+    await ir(page, `/campeonatos/${P.campA}?tab=jornadas`); await esperar(page)
+    await page.getByRole('button', { name: /Jornada \d/ }).first().click().catch(() => {}); await esperar(page)
+    const altos = await page.locator('button, a').evaluateAll(es => {
+      const fila = es.find(e => /Planilla/.test(e.textContent || ''))?.parentElement
+      return fila ? [...fila.children].filter(c => c.offsetParent).map(c => [c.textContent.trim().slice(0, 14), Math.round(c.getBoundingClientRect().height)]) : []
+    })
+    const hs = new Set(altos.map(a => a[1]))
+    R('botones de un partido con el mismo alto' + (ancho < 500 ? ' (44 px táctil)' : ''), altos.length >= 4 && hs.size === 1 && (ancho >= 500 || [...hs][0] >= 44), JSON.stringify(altos))
+    R('«Eliminar» es el último botón del partido', altos.length > 0 && /Eliminar/.test(altos[altos.length - 1][0]), JSON.stringify(altos.map(a => a[0])))
+    await revisar(page, rol, ancho, 'partido-botones', { teclado: false })
+
+    await ir(page, `/campeonatos/${P.campA}?tab=dirigentes`); await esperar(page)
+    const lineas = await page.getByText(/^desde el /).evaluateAll(es => es.map(e => Math.round(e.getBoundingClientRect().height)))
+    R('«desde el …» en una sola línea', lineas.length > 0 && lineas.every(h => h <= 20), JSON.stringify(lineas))
+    await revisar(page, rol, ancho, 'dirigentes-fecha', { teclado: false })
+  }
   await ctx.close()
 }
 
