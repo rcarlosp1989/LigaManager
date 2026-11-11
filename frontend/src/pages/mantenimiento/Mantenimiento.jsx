@@ -14,7 +14,7 @@ export default function Mantenimiento() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <PageHeader title="MANTENIMIENTO" subtitle="Estadios y oficiales" />
+      <PageHeader title="ESTADIOS Y OFICIALES" subtitle="Canchas, árbitros y demás oficiales que se asignan a los partidos" />
 
       <div className="flex gap-1 mb-4 border-b border-gray-800 overflow-x-auto">
         {TABS.map(t => (
