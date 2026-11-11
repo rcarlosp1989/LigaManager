@@ -204,7 +204,7 @@ for (const ancho of [390, 1440]) {
       paso(rol, ancho, 'VERIFICAR: «Ver más» despliega la ficha', await page.getByText('Modalidad', { exact: true }).isVisible().catch(() => false))
       await page.getByRole('button', { name: 'Ver menos' }).click().catch(() => {})
     } else {
-      await page.mouse.click(1, 1); await page.keyboard.press('Tab')
+      await page.reload(); await esperar(page); await page.keyboard.press('Tab')
       const f = await page.evaluate(() => document.activeElement?.textContent?.trim())
       paso(rol, ancho, 'VERIFICAR: el primer Tab es «Saltar al contenido»', f === 'Saltar al contenido', f)
       await page.keyboard.press('Escape')
