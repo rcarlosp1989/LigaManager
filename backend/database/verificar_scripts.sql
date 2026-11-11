@@ -34,4 +34,5 @@ UNION ALL SELECT 26 AS orden, '20261026_reloj_en_vivo.sql' AS script, IF(EXISTS(
 UNION ALL SELECT 27 AS orden, '20261030_enlace_aficionados.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato' AND COLUMN_NAME='token_aficionados'), 'aplicado', '>>> PENDIENTE') AS estado
 UNION ALL SELECT 28 AS orden, '20261104_logo_campeonato.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato' AND COLUMN_NAME='logo_url'), 'aplicado', '>>> PENDIENTE') AS estado
 UNION ALL SELECT 29 AS orden, '20261107_fase_eliminatoria.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='llave'), 'aplicado', '>>> PENDIENTE') AS estado
+UNION ALL SELECT 30 AS orden, '20261110_pagos.sql' AS script, IF(EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='campeonato_tarifa'), 'aplicado', '>>> PENDIENTE') AS estado
 ORDER BY orden;

@@ -24,10 +24,11 @@ public class DirigentesController : ControllerBase
     private readonly IJornadaService      _jornadas;
     private readonly EnVivoService        _enVivo;
     private readonly EliminatoriaService  _eliminatoria;
+    private readonly PagoService          _pagos;
 
-    public DirigentesController(DirigenteService dirigentes, IEstadisticasService estadisticas, IGrupoService grupos, IJornadaService jornadas, EnVivoService enVivo, EliminatoriaService eliminatoria)
+    public DirigentesController(DirigenteService dirigentes, IEstadisticasService estadisticas, IGrupoService grupos, IJornadaService jornadas, EnVivoService enVivo, EliminatoriaService eliminatoria, PagoService pagos)
     {
-        _dirigentes = dirigentes; _estadisticas = estadisticas; _grupos = grupos; _jornadas = jornadas; _enVivo = enVivo; _eliminatoria = eliminatoria;
+        _dirigentes = dirigentes; _estadisticas = estadisticas; _grupos = grupos; _jornadas = jornadas; _enVivo = enVivo; _eliminatoria = eliminatoria; _pagos = pagos;
     }
 
     private IActionResult Resultado<T>(Application.Common.ServiceResult<T> r) => r.Success ? Ok(r.Data) : BadRequest(new { error = r.Error });
@@ -107,6 +108,11 @@ public class DirigentesController : ControllerBase
     [Authorize(Policy = Politicas.SoloDirigente)]
     [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/eliminatoria")]
     public async Task<IActionResult> Eliminatoria(int idCampeonato) => NoEncontrado(await _eliminatoria.ConsultarAsync(idCampeonato));
+
+    // Pagos: solo la cuenta del equipo del dirigente.
+    [Authorize(Policy = Politicas.SoloDirigente)]
+    [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/pagos")]
+    public async Task<IActionResult> Pagos(int idCampeonato) => NoEncontrado(await _pagos.CuentaDirigenteAsync(idCampeonato));
 
     [Authorize(Policy = Politicas.SoloDirigente)]
     [HttpGet("api/dirigente/campeonatos/{idCampeonato:int}/en-vivo")]

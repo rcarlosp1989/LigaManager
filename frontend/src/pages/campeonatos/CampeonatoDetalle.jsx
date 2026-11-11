@@ -12,13 +12,14 @@ import { ordenarPorDorsal, jugadoresEnCancha } from '../../utils/planilla'
 import TabVocales from './TabVocales'
 import TabDirigentes from './TabDirigentes'
 import TabLlaves from './TabLlaves'
+import TabPagos from './TabPagos'
 import TablaDesplazable from '../../components/TablaDesplazable'
 import TablaDePosiciones from '../../components/TablaPosiciones'
 import IconoEvento from '../../components/IconoEvento'
 import LogoEquipo from '../../components/LogoEquipo'
 import FotoJugador from '../../components/FotoJugador'
 import { useLogosEquipos } from '../../utils/logos'
-import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User, GitFork } from 'lucide-react'
+import { Armchair, CalendarDays, ClipboardList, Eye, Medal, Mic, MapPin, NotebookPen, Pencil, Shield, Trash2, User, GitFork, Wallet } from 'lucide-react'
 import BotonFlyer from '../../components/BotonFlyer'
 import BotonActa from '../../components/BotonActa'
 
@@ -1517,7 +1518,7 @@ function TablaCampeonato({ idCampeonato }) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['llaves', 'Llaves', GitFork], ['vocales', 'Vocales', Mic], ['dirigentes', 'Dirigentes', Eye]]
+const TABS_DETALLE = [['equipos', 'Equipos', Shield], ['grupos', 'Grupos', Medal], ['jornadas', 'Jornadas', CalendarDays], ['llaves', 'Llaves', GitFork], ['pagos', 'Pagos', Wallet], ['vocales', 'Vocales', Mic], ['dirigentes', 'Dirigentes', Eye]]
 
 export default function CampeonatoDetalle() {
   const logos = useLogosEquipos()
@@ -1861,6 +1862,7 @@ export default function CampeonatoDetalle() {
       )}
 
       {tab === 'llaves' && <TabLlaves camp={camp} />}
+      {tab === 'pagos' && <TabPagos camp={camp} />}
       {tab === 'vocales' && <TabVocales camp={camp} />}
       {tab === 'dirigentes' && <TabDirigentes camp={camp} />}
 

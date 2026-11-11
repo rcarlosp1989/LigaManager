@@ -1422,3 +1422,18 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
   - Borrar todo: amarillas a 0 y sanciones pendientes de la fase regular «Anulada».
   - Borrar, salvo expulsión al final: lo mismo, pero sigue la sanción por roja o doble amarilla en el último partido jugado del equipo en la fase regular.
   - Las sanciones manuales de la comisión no cambian. «Anulada» se ve en gris en Suspensiones; el acta de juego solo tacha a los «Suspendido».
+
+## 2026-11-10 — Pagos del campeonato
+
+**Estado:** aplicada en la rama `mejora/pagos`. Pendiente de que Roberto la apruebe. **Necesita el script `backend/database/20261110_pagos.sql` en Railway (y en la base local) ANTES de fusionar** y deploy del backend. Diseño aprobado en el lienzo «Pagos del campeonato».
+
+- Pestaña **Pagos** del organizador:
+  - **Valores del campeonato:** inscripción del equipo (valor único), refuerzo, apelación, arbitraje (a cada equipo por partido), tarjeta amarilla y roja, e inicio de la segunda etapa. Vacío = no se cobra. Cambiar un valor no altera los cobros ya generados.
+  - **Resumen por equipo:** inscripción, refuerzos, arbitraje, tarjetas, multas y apelaciones, total, pagado y saldo; totales del campeonato.
+  - **Cobros automáticos** (se generan al consultar, una sola vez cada uno): inscripción de cada equipo inscrito; refuerzo por cada jugador inscrito desde el inicio de la segunda etapa; arbitraje a los dos equipos de cada partido jugado (en un desierto, cuando ninguno se presentó, no se cobra; si el partido llegó a jugarse —tiene tarjetas o el reloj arrancó— o su arbitraje ya estaba cargado, se mantiene); cada amarilla y cada roja. La doble amarilla se cobra como una roja (sus amarillas no aparte). Si el origen desaparece (se borra la tarjeta, el partido vuelve a pendiente, el equipo sale del campeonato) y el cobro no tiene abonos, se borra solo.
+  - **Cobros manuales:** multa (con motivo), apelación (toma el valor del campeonato; se cobra se gane o se pierda) y otro. Se eliminan si no tienen abonos.
+  - **Estado de cuenta y abonos:** monto, fecha, método (efectivo, transferencia, depósito, otro) y referencia. Sin elegir cobro se reparte del más antiguo al más nuevo; «Abonar» en una fila lo aplica a ese cobro. Recibo PDF de cada abono. Un abono se puede eliminar.
+- **Dirigente:** pestaña **Pagos** de solo lectura con la cuenta de su equipo (nada de otros equipos).
+- Todos los cobros van a nombre del equipo; el jugador va en el detalle. El trigger `trg_pago_destino_*` de producción no se toca.
+- Eliminar un equipo o un campeonato borra sus cobros sin abonos; con abonos no se permite.
+- Script: tabla `campeonato_tarifa`; `conceptopago.codigo` y 8 conceptos; `pago.descripcion`, `id_partido`, `clave_auto`; `abono.metodo`, `referencia`, `lote`. Reversa: `20261110_pagos_reversa.sql`. `verificar_scripts.sql` lo incluye (n.º 30).
