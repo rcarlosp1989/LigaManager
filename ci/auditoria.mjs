@@ -276,7 +276,7 @@ for (const ancho of [390, 1440]) {
     const desc = page.getByRole('button', { name: /Descartar|Salir sin guardar|Sí/i }); if (await desc.count()) await desc.first().click().catch(() => {})
 
     if (ancho < 500) await page.getByRole('button', { name: 'Abrir menú' }).click()
-    R('menú dice «Estadios y oficiales»', await page.getByRole('link', { name: 'Estadios y oficiales' }).isVisible().catch(() => false) && !(await page.getByRole('link', { name: 'Mantenimiento' }).count()))
+    R('menú dice «Estadios y oficiales»', await page.getByRole('link', { name: 'Estadios y oficiales' }).waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false) && !(await page.getByRole('link', { name: 'Mantenimiento' }).count()))
     if (ancho < 500) await page.keyboard.press('Escape')
 
     await ir(page, `/campeonatos/${P.campA}`); await esperar(page)
