@@ -90,7 +90,7 @@ export default function CuentaEquipo({ cuenta, onAbonar, onEliminarCobro, onElim
               <li key={a.lote} className="flex items-start gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-white">{fechaCorta(a.fecha)} · {nombreMetodo(a.metodo)}{a.referencia ? ` · ${a.referencia}` : ''}</p>
-                  <p className="text-xs text-gray-500 break-words">{a.cobros.join(' · ')}</p>
+                  <p className="text-xs text-gray-500 break-words">{a.cobros.join('; ')}</p>
                 </div>
                 <p className="shrink-0 font-semibold text-brand-300 tabular-nums">{dinero(a.monto)}</p>
                 {(onRecibo || onEliminarAbono) && (
