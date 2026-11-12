@@ -287,6 +287,28 @@ for (const ancho of [390, 1440]) {
     R('«Reportes de este campeonato» abre Reportes con ese campeonato', page.url().includes(`campeonato=${P.campA}`) && sel === String(P.campA), `${page.url()} sel=${sel}`)
     await revisar(page, rol, ancho, 'reportes-desde-campeonato', { teclado: false })
 
+    // Editar jugador desde la nómina (organizador)
+    await ir(page, `/reportes?campeonato=${P.campA}&tab=nomina`); await esperar(page)
+    await page.getByLabel('Equipo', { exact: true }).selectOption({ index: 1 }); await esperar(page)
+    const botonesEditar = page.getByRole('button', { name: /^Editar a / })
+    const nEditar = await botonesEditar.count()
+    R('nómina: el organizador ve «Editar» en cada jugador', nEditar > 0, String(nEditar))
+    if (nEditar) {
+      await botonesEditar.first().click()
+      const ventana = page.getByRole('dialog')
+      await ventana.getByLabel('Apellido').waitFor({ timeout: 5000 }).catch(() => {})
+      const ap = await ventana.getByLabel('Apellido').inputValue().catch(() => '')
+      await revisar(page, rol, ancho, 'nomina-editar', { teclado: false })
+      await ventana.getByLabel('Apellido').fill(ap + ' Ed')
+      await ventana.getByRole('button', { name: 'Guardar cambios' }).click(); await esperar(page)
+      const cerrada = await page.getByRole('dialog').count() === 0
+      const visto = await page.getByText(`${ap} Ed,`).count()
+      R('nómina: guardar cierra la ventana y la nómina muestra el cambio', cerrada && visto > 0, `cerrada=${cerrada} visto=${visto}`)
+      await page.getByRole('button', { name: new RegExp(`^Editar a .* ${ap} Ed$`) }).first().click().catch(() => {})
+      await page.getByRole('dialog').getByLabel('Apellido').fill(ap).catch(() => {})
+      await page.getByRole('dialog').getByRole('button', { name: 'Guardar cambios' }).click().catch(() => {}); await esperar(page)
+    }
+
     await ir(page, `/campeonatos/${P.campA}?tab=jornadas`); await esperar(page)
     await page.getByRole('button', { name: /Jornada \d/ }).first().click().catch(() => {}); await esperar(page)
     const altos = await page.locator('button, a').evaluateAll(es => {
@@ -349,6 +371,9 @@ if (P.dirigente) {
       const b = page.getByRole('button', { name: t, exact: true })
       if (await b.count()) { await b.first().click(); await revisar(page, rol, ancho, `tab-${t.toLowerCase().replace(' ', '-')}`, { teclado: false }) }
     }
+    const nom = page.getByRole('button', { name: 'Nómina', exact: true })
+    if (await nom.count()) { await nom.first().click(); await esperar(page) }
+    R('dirigente: sin botón «Editar» en la nómina', (await page.getByRole('button', { name: /^Editar a / }).count()) === 0)
     await ctx.close()
   }
 } else paso('dirigente', 0, 'crear invitación de dirigente', false, 'sin código')
