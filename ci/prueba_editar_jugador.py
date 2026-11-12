@@ -31,8 +31,8 @@ def sql(q):
 login = lambda e: json.loads(llamar("POST", "/auth/login", cuerpo={"email": e, "password": "clave123"})[1])["token"]
 EMAIL = "org1@prueba.ec"
 o1 = login(EMAIL)
-eq = json.loads(llamar("GET", "/equipos", o1)[1])[0]["idEquipo"]
-idj = json.loads(llamar("GET", f"/equipos/{eq}", o1)[1])["jugadores"][2]["idJugador"]
+equipos = [e["idEquipo"] for e in json.loads(llamar("GET", "/equipos", o1)[1])]
+idj = next(js[0]["idJugador"] for js in (json.loads(llamar("GET", f"/equipos/{e}", o1)[1]).get("jugadores") or [] for e in equipos) if js)
 j = json.loads(llamar("GET", f"/jugadores/{idj}", o1)[1])
 actual = next((h for h in j.get("historial", []) if not h.get("fechaHasta")), {})
 campos = lambda apellido: {"Nombre": j["nombre"], "Apellido": apellido, "Cedula": j["cedula"] or "", "TipoIdentificacion": j.get("tipoIdentificacion") or "Cedula",

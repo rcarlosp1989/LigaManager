@@ -140,7 +140,7 @@ jobs:
         run: |
           npm ci --no-audit --no-fund > /dev/null
           npx eslint src > lint.txt 2>&1 || true
-          echo "::notice title=lint::$(grep -E 'problems?|error' lint.txt | tail -3 | tr '\n' ' ')"
+          echo "::notice title=lint::$(grep -E 'problems?|error|^\/' lint.txt | tail -40 | tr '\n' ' ')"
           VITE_API_URL=http://localhost:5080/api npm run build > build.txt 2>&1 || (cat build.txt; exit 1)
           nohup npx vite preview --port 4173 --strictPort > preview.txt 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:4173 && break; sleep 1; done

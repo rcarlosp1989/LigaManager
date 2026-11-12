@@ -373,7 +373,7 @@ if (P.dirigente) {
     }
     const nom = page.getByRole('button', { name: 'Nómina', exact: true })
     if (await nom.count()) { await nom.first().click(); await esperar(page) }
-    R('dirigente: sin botón «Editar» en la nómina', (await page.getByRole('button', { name: /^Editar a / }).count()) === 0)
+    paso(rol, ancho, 'VERIFICAR: dirigente: sin botón «Editar» en la nómina', (await page.getByRole('button', { name: /^Editar a / }).count()) === 0)
     await ctx.close()
   }
 } else paso('dirigente', 0, 'crear invitación de dirigente', false, 'sin código')
