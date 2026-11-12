@@ -124,10 +124,18 @@ esperar("refuerzo con nombre e «inscrito el»", any(x["concepto"] == "REFUERZO"
 esperar("arbitraje con «Jornada N · vs»", any(x["concepto"] == "ARBITRAJE" and " · vs " in (x.get("descripcion") or "") for x in c["cobros"]), str(textos))
 esperar("cobros ordenados por fecha", [x["fecha"] for x in c["cobros"]] == sorted(x["fecha"] for x in c["cobros"]))
 
-# Cambiar los valores no altera lo generado.
+# Cambiar un valor corrige los cobros sin abonos (y volver al anterior los deja como estaban).
+def arbs(res): return {e["idEquipo"]: e["arbitraje"] for e in res["equipos"]}
 s, _ = llamar("PUT", P + "/valores", {**v, "arbitraje": 99, "inicioSegundaEtapa": hoy}, o2)
 s, r2 = llamar("GET", P, token=o2)
-esperar("cambiar el valor del arbitraje no altera los cobros ya generados", {e["idEquipo"]: e["total"] for e in r2["equipos"]} == {e["idEquipo"]: e["total"] for e in r["equipos"]})
+antes, despues = arbs(r), arbs(r2)
+esperar("subir el arbitraje de 10 a 99 corrige los cobros sin abonos", all(abs(despues[k] - antes[k] * 9.9) < 0.001 for k in antes) and any(antes.values()), f"{antes} → {despues}")
+llamar("PUT", P + "/valores", {**v, "inicioSegundaEtapa": hoy}, o2)
+s, r3 = llamar("GET", P, token=o2)
+esperar("volver al valor anterior deja los totales como estaban", {e["idEquipo"]: e["total"] for e in r3["equipos"]} == {e["idEquipo"]: e["total"] for e in r["equipos"]}, str(r3["equipos"])[:300])
+s, _ = llamar("PUT", P + "/valores", {**v, "amarilla": 0, "inicioSegundaEtapa": hoy}, o2)
+s, r4 = llamar("GET", P, token=o2)
+esperar("dejar vacía la amarilla quita sus cobros sin abonos", all(e["tarjetas"] <= next(x for x in r["equipos"] if x["idEquipo"] == e["idEquipo"])["tarjetas"] for e in r4["equipos"]) and sum(e["total"] for e in r4["equipos"]) < sum(e["total"] for e in r["equipos"]), str(r4["equipos"])[:300])
 llamar("PUT", P + "/valores", {**v, "inicioSegundaEtapa": hoy}, o2)
 
 # ── Cobros manuales ──
@@ -166,6 +174,13 @@ apel2 = next(x for x in c["cobros"] if x["idPago"] == apel["idPago"])
 esperar("abono a un cobro puntual (apelación)", s == 200 and apel2["saldo"] == 0, str(apel2))
 s, r = llamar("POST", f"{P}/equipos/{local}/abonos", {"monto": 1, "fecha": hoy, "metodo": "EFECTIVO", "idPago": apel["idPago"]}, o2)
 esperar("no se abona a un cobro ya pagado", s == 400, str(r))
+
+# Un cobro con abonos conserva su monto aunque cambie el valor.
+s, _ = llamar("PUT", P + "/valores", {**v, "inscripcion": 500, "inicioSegundaEtapa": hoy}, o2)
+s, c = llamar("GET", f"{P}/equipos/{local}", token=o2)
+ins2 = next(x for x in c["cobros"] if x["idPago"] == ins["idPago"])
+esperar("la inscripción ya pagada sigue en 150 aunque el valor suba a 500", ins2["monto"] == 150 and ins2["saldo"] == 0, str(ins2))
+llamar("PUT", P + "/valores", {**v, "inicioSegundaEtapa": hoy}, o2)
 
 # ── Eliminar ──
 s, r = llamar("DELETE", f"{P}/cobros/{apel['idPago']}", None, o2)
