@@ -1,0 +1,200 @@
+  001_visitante_login_390.png · axe 0 · carga 1278ms · cls 0 · desborde 0
+  002_visitante_login-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  003_visitante_login-clave-mala_390.png · axe 0 · carga -ms · cls 0.015 · desborde 0
+  004_visitante_registro_390.png · axe 0 · carga 1109ms · cls 0 · desborde 0
+  005_visitante_registro-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  006_visitante_olvide-clave_390.png · axe 0 · carga 1080ms · cls 0 · desborde 0
+  007_visitante_login_1440.png · axe 0 · carga 1184ms · cls 0.019 · desborde 0
+  008_visitante_login-vacio_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  009_visitante_login-clave-mala_1440.png · axe 0 · carga -ms · cls 0.022 · desborde 0
+  010_visitante_registro_1440.png · axe 0 · carga 1119ms · cls 0 · desborde 0
+  011_visitante_registro-vacio_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+  012_visitante_olvide-clave_1440.png · axe 0 · carga 1084ms · cls 0 · desborde 0
+OK   [organizador 390] iniciar sesión (org1@prueba.ec) — 166 ms
+  013_organizador_inicio-tras-login_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] abrir el menú principal en celular
+  014_organizador_menu-movil_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  015_organizador_campeonatos_390.png · axe 0 · carga 1109ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo campeonato»
+  016_organizador_nuevo-campeonato_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+NO   [organizador 390] guardar el formulario vacío — locator.click: Timeout 6000ms exceeded.
+  017_organizador_nuevo-campeonato-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  018_organizador_tras-escape-en-formulario_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  019_organizador_campeonato-equipos_390.png · axe 0 · carga 1132ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: los 3 grupos se ven completos sin deslizar ni bajar — [true,true,true]
+OK   [organizador 390] VERIFICAR: título con pestaña y campeonato — Equipos · Senior A · LigaManager
+OK   [organizador 390] VERIFICAR: ficha plegada en celular
+OK   [organizador 390] VERIFICAR: «Ver más» despliega la ficha
+OK   [organizador 390] VERIFICAR: un grupo recuerda su última pestaña — http://localhost:4173/campeonatos/1?tab=dirigentes
+OK   [organizador 390] pestaña Grupos
+  020_organizador_campeonato-grupos_390.png · axe 0 · carga 1038ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Jornadas
+  021_organizador_campeonato-jornadas_390.png · axe 0 · carga 1053ms · cls 0 · desborde 0
+OK   [organizador 390] abrir la primera jornada
+  022_organizador_jornada-abierta_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil) — [[44,44],[44,44],[44,44],[44,44],[44,44],[44,44]]
+OK   [organizador 390] abrir planilla/resultado de un partido
+  023_organizador_planilla_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Llaves
+  024_organizador_campeonato-llaves_390.png · axe 0 · carga 1054ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Pagos
+  025_organizador_campeonato-pagos_390.png · axe 0 · carga 1043ms · cls 0 · desborde 0
+NO   [organizador 390] abrir estado de cuenta de un equipo — locator.click: Timeout 6000ms exceeded.
+OK   [organizador 390] pestaña Vocales
+  026_organizador_campeonato-vocales_390.png · axe 0 · carga 1095ms · cls 0 · desborde 0
+OK   [organizador 390] pestaña Dirigentes
+  027_organizador_campeonato-dirigentes_390.png · axe 0 · carga 1037ms · cls 0 · desborde 0
+  028_organizador_equipos_390.png · axe 0 · carga 1112ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo equipo»
+  029_organizador_nuevo-equipo_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] guardar equipo vacío
+  030_organizador_nuevo-equipo-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  031_organizador_jugadores_390.png · axe 0 · carga 1145ms · cls 0 · desborde 0
+OK   [organizador 390] abrir «Nuevo jugador»
+  032_organizador_nuevo-jugador_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] guardar jugador vacío
+  033_organizador_nuevo-jugador-vacio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  034_organizador_reportes_390.png · axe 0 · carga 1118ms · cls 0 · desborde 0
+  035_organizador_mantenimiento_390.png · axe 0 · carga 1101ms · cls 0 · desborde 0
+  036_organizador_dashboard_390.png · axe 0 · carga 1117ms · cls 0 · desborde 0
+  037_organizador_ruta-inexistente_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: página no encontrada con salida
+OK   [organizador 390] VERIFICAR: formulario vacío: mensajes propios en español bajo los campos — ["Complete este campo.","Elija una opción.","Elija una opción.","Indique la fecha.","Indique la fecha."]
+OK   [organizador 390] VERIFICAR: formulario vacío: foco en el primer campo con error — {"inv":"true","id":"_r_5_-nombre"}
+  038_organizador_validacion-campeonato_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: al corregir un campo su mensaje desaparece — 5 → 4
+OK   [organizador 390] VERIFICAR: menú dice «Estadios y oficiales»
+OK   [organizador 390] VERIFICAR: no queda el verbo «Remover»
+OK   [organizador 390] VERIFICAR: «Reportes de este campeonato» abre Reportes con ese campeonato — http://localhost:4173/reportes?campeonato=1 sel=1
+  039_organizador_reportes-desde-campeonato_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: nómina: el organizador ve «Editar» en cada jugador — 18
+  040_organizador_nomina-editar_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: nómina: guardar cierra la ventana y la nómina muestra el cambio — cerrada=true visto=1
+OK   [organizador 390] VERIFICAR: botones de un partido con el mismo alto (44 px táctil) — [["Ver resumen",44],["Planilla",44],["↩ Desmarcar ju",44],["Editar",44],["Eliminar",44]]
+OK   [organizador 390] VERIFICAR: «Eliminar» es el último botón del partido — ["Ver resumen","Planilla","↩ Desmarcar ju","Editar","Eliminar"]
+  041_organizador_partido-botones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: «desde el …» en una sola línea — [16]
+  042_organizador_dirigentes-fecha_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: montos: «2», «4,5» y «1,250.00» se guardan como 2.00, 4.50 y 1250.00 — ["2.00","4.50","1250.00"]
+  043_organizador_pagos-valores-dolar_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 390] VERIFICAR: montos de Pagos con punto decimal, sin «$2,00» — $5,010.50 $0.00 $5,010.50 $1,250.00 | viejos: 
+OK   [organizador 1440] iniciar sesión (org1@prueba.ec) — 175 ms
+  044_organizador_inicio-tras-login_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  045_organizador_campeonatos_1440.png · axe 0 · carga 1112ms · cls 0.002 · desborde 0
+OK   [organizador 1440] abrir «Nuevo campeonato»
+  046_organizador_nuevo-campeonato_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+NO   [organizador 1440] guardar el formulario vacío — locator.click: Timeout 6000ms exceeded.
+  047_organizador_nuevo-campeonato-vacio_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+  048_organizador_tras-escape-en-formulario_1440.png · axe 0 · carga -ms · cls 0.002 · desborde 0
+  049_organizador_campeonato-equipos_1440.png · axe 0 · carga 1125ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: los 3 grupos se ven completos sin deslizar ni bajar — [true,true,true]
+OK   [organizador 1440] VERIFICAR: título con pestaña y campeonato — Equipos · Senior A · LigaManager
+OK   [organizador 1440] VERIFICAR: el primer Tab es «Saltar al contenido» — Saltar al contenido
+OK   [organizador 1440] VERIFICAR: un grupo recuerda su última pestaña — http://localhost:4173/campeonatos/1?tab=dirigentes
+OK   [organizador 1440] pestaña Grupos
+  050_organizador_campeonato-grupos_1440.png · axe 0 · carga 1053ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Jornadas
+  051_organizador_campeonato-jornadas_1440.png · axe 0 · carga 1069ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir la primera jornada
+  052_organizador_jornada-abierta_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil) — [[28,28],[28,28],[28,28],[28,28],[28,28],[28,28]]
+OK   [organizador 1440] abrir planilla/resultado de un partido
+  053_organizador_planilla_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Llaves
+  054_organizador_campeonato-llaves_1440.png · axe 0 · carga 1068ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Pagos
+  055_organizador_campeonato-pagos_1440.png · axe 0 · carga 1069ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir estado de cuenta de un equipo
+  056_organizador_pagos-cuenta_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Vocales
+  057_organizador_campeonato-vocales_1440.png · axe 0 · carga 1122ms · cls 0 · desborde 0
+OK   [organizador 1440] pestaña Dirigentes
+  058_organizador_campeonato-dirigentes_1440.png · axe 0 · carga 1056ms · cls 0 · desborde 0
+  059_organizador_equipos_1440.png · axe 0 · carga 1134ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir «Nuevo equipo»
+  060_organizador_nuevo-equipo_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] guardar equipo vacío
+  061_organizador_nuevo-equipo-vacio_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+  062_organizador_jugadores_1440.png · axe 0 · carga 1157ms · cls 0 · desborde 0
+OK   [organizador 1440] abrir «Nuevo jugador»
+  063_organizador_nuevo-jugador_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] guardar jugador vacío
+  064_organizador_nuevo-jugador-vacio_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+  065_organizador_reportes_1440.png · axe 0 · carga 1139ms · cls 0 · desborde 0
+  066_organizador_mantenimiento_1440.png · axe 0 · carga 1111ms · cls 0 · desborde 0
+  067_organizador_dashboard_1440.png · axe 0 · carga 1162ms · cls 0 · desborde 0
+  068_organizador_ruta-inexistente_1440.png · axe 0 · carga -ms · cls 0.001 · desborde 0
+OK   [organizador 1440] VERIFICAR: página no encontrada con salida
+OK   [organizador 1440] VERIFICAR: formulario vacío: mensajes propios en español bajo los campos — ["Complete este campo.","Elija una opción.","Elija una opción.","Indique la fecha.","Indique la fecha."]
+OK   [organizador 1440] VERIFICAR: formulario vacío: foco en el primer campo con error — {"inv":"true","id":"_r_5_-nombre"}
+  069_organizador_validacion-campeonato_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: al corregir un campo su mensaje desaparece — 5 → 4
+OK   [organizador 1440] VERIFICAR: menú dice «Estadios y oficiales»
+OK   [organizador 1440] VERIFICAR: no queda el verbo «Remover»
+OK   [organizador 1440] VERIFICAR: «Reportes de este campeonato» abre Reportes con ese campeonato — http://localhost:4173/reportes?campeonato=1 sel=1
+  070_organizador_reportes-desde-campeonato_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: nómina: el organizador ve «Editar» en cada jugador — 18
+  071_organizador_nomina-editar_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: nómina: guardar cierra la ventana y la nómina muestra el cambio — cerrada=true visto=1
+OK   [organizador 1440] VERIFICAR: botones de un partido con el mismo alto — [["Ver resumen",36],["Planilla",36],["↩ Desmarcar ju",36],["Editar",36],["Eliminar",36]]
+OK   [organizador 1440] VERIFICAR: «Eliminar» es el último botón del partido — ["Ver resumen","Planilla","↩ Desmarcar ju","Editar","Eliminar"]
+  072_organizador_partido-botones_1440.png · axe 0 · carga -ms · cls 0.026 · desborde 0
+OK   [organizador 1440] VERIFICAR: «desde el …» en una sola línea — [16]
+  073_organizador_dirigentes-fecha_1440.png · axe 0 · carga -ms · cls 0.006 · desborde 0
+OK   [organizador 1440] VERIFICAR: montos: «2», «4,5» y «1,250.00» se guardan como 2.00, 4.50 y 1250.00 — ["2.00","4.50","1250.00"]
+  074_organizador_pagos-valores-dolar_1440.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [organizador 1440] VERIFICAR: montos de Pagos con punto decimal, sin «$2,00» — $5,010.50 $0.00 $5,010.50 $1,250.00 | viejos: 
+  075_vocal_invitacion_390.png · axe 0 · carga 1186ms · cls 0 · desborde 0
+  076_vocal_invitacion-llena_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 390] aceptar la invitación y entrar
+  077_vocal_inicio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 390] abrir un partido para registrar en vivo
+  078_vocal_en-vivo_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [vocal 1440] iniciar sesión (vocal.auditoria@prueba.ec) — 172 ms
+  079_vocal_inicio_1440.png · axe 0 · carga -ms · cls 0.006 · desborde 0
+OK   [vocal 1440] abrir un partido para registrar en vivo
+  080_vocal_en-vivo_1440.png · axe 0 · carga -ms · cls 0.006 · desborde 0
+  081_dirigente_invitacion_390.png · axe 0 · carga 1179ms · cls 0 · desborde 0
+  082_dirigente_invitacion-llena_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [dirigente 390] aceptar la invitación y entrar
+  083_dirigente_inicio_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  084_dirigente_tab-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  085_dirigente_tab-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  086_dirigente_tab-suspensiones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  087_dirigente_tab-pagos_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  088_dirigente_tab-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+OK   [dirigente 390] VERIFICAR: dirigente: sin botón «Editar» en la nómina
+OK   [dirigente 1440] iniciar sesión (dir.auditoria@prueba.ec) — 178 ms
+  089_dirigente_inicio_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  090_dirigente_tab-posiciones_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  091_dirigente_tab-goleadores_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  092_dirigente_tab-suspensiones_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  093_dirigente_tab-pagos_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+  094_dirigente_tab-llaves_1440.png · axe 0 · carga -ms · cls 0.019 · desborde 0
+OK   [dirigente 1440] VERIFICAR: dirigente: sin botón «Editar» en la nómina
+  095_publico_inicio_390.png · axe 0 · carga 1212ms · cls 0 · desborde 0
+  096_publico_boton-resultados_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  097_publico_boton-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  098_publico_boton-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  099_publico_boton-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  100_publico_boton-tarjetas_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  101_publico_boton-suspensiones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  102_publico_inicio_1440.png · axe 0 · carga 1271ms · cls 0.08 · desborde 0
+  103_publico_boton-resultados_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  104_publico_boton-posiciones_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  105_publico_boton-llaves_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  106_publico_boton-goleadores_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  107_publico_boton-tarjetas_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  108_publico_boton-suspensiones_1440.png · axe 0 · carga -ms · cls 0.08 · desborde 0
+  109_aficionado_inicio_390.png · axe 0 · carga 1238ms · cls 0 · desborde 0
+  110_aficionado_boton-resultados_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  111_aficionado_boton-posiciones_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  112_aficionado_boton-llaves_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  113_aficionado_boton-goleadores_390.png · axe 0 · carga -ms · cls 0 · desborde 0
+  114_aficionado_inicio_1440.png · axe 0 · carga 1284ms · cls 0.079 · desborde 0
+  115_aficionado_boton-resultados_1440.png · axe 0 · carga -ms · cls 0.079 · desborde 0
+  116_aficionado_boton-posiciones_1440.png · axe 0 · carga -ms · cls 0.079 · desborde 0
+  117_aficionado_boton-llaves_1440.png · axe 0 · carga -ms · cls 0.079 · desborde 0
+  118_aficionado_boton-goleadores_1440.png · axe 0 · carga -ms · cls 0.079 · desborde 0
+
+118 pantallas · 3 pasos no completados
