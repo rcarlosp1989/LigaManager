@@ -305,7 +305,7 @@ for (const ancho of [390, 1440]) {
 
     // Montos con formato de dólar
     await ir(page, `/campeonatos/${P.campA}?tab=pagos`); await esperar(page)
-    await page.getByRole('button', { name: 'Valores del campeonato' }).click(); await esperar(page)
+    await page.getByRole('button', { name: /Valores del campeonato|Configurar valores/ }).click(); await esperar(page)
     await page.getByLabel('Tarjeta amarilla').fill('2')
     await page.getByLabel('Tarjeta roja').fill('4,5')
     await page.getByLabel('Inscripción del equipo').fill('1,250.00')
