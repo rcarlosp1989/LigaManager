@@ -1467,3 +1467,10 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Los montos de Pagos se mostraban con coma decimal («$2,00») y se leían como doscientos. Ahora usan el formato del dólar: «$2.00», «$1,234.50», en pantallas, campos y recibos PDF.
 - Los campos aceptan el monto escrito de cualquier forma («2», «2.50», «2,50», «1,234.50»); un valor ambiguo como «12.345» pide revisarlo.
 - Los valores guardados no cambian: ya estaban bien en la base de datos.
+
+## 2026-11-12 — Los cobros sin abonos siguen los valores vigentes
+
+**Estado:** aplicada en la rama `mejora/cobros-siguen-valores`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Los cobros automáticos (inscripción, refuerzo, arbitraje, tarjetas) guardaban el valor del momento en que se generaron, y un valor mal escrito quedaba en todos (amarillas de $200 en vez de $2).
+- Ahora, si la liga cambia un valor, se corrigen los cobros que aún no tienen abonos. Los que ya tienen abonos se mantienen, para no alterar lo pagado. Si el valor se deja vacío, desaparecen los cobros sin abonos de ese concepto.
