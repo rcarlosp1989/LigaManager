@@ -302,6 +302,23 @@ for (const ancho of [390, 1440]) {
     const lineas = await page.getByText(/^desde el /).evaluateAll(es => es.map(e => Math.round(e.getBoundingClientRect().height)))
     R('«desde el …» en una sola línea', lineas.length > 0 && lineas.every(h => h <= 20), JSON.stringify(lineas))
     await revisar(page, rol, ancho, 'dirigentes-fecha', { teclado: false })
+
+    // Montos con formato de dólar
+    await ir(page, `/campeonatos/${P.campA}?tab=pagos`); await esperar(page)
+    await page.getByRole('button', { name: 'Valores del campeonato' }).click(); await esperar(page)
+    await page.getByLabel('Tarjeta amarilla').fill('2')
+    await page.getByLabel('Tarjeta roja').fill('4,5')
+    await page.getByLabel('Inscripción del equipo').fill('1,250.00')
+    await page.getByRole('button', { name: 'Guardar valores' }).click(); await esperar(page)
+    await page.getByRole('button', { name: 'Valores del campeonato' }).click(); await esperar(page)
+    const vals = [await page.getByLabel('Tarjeta amarilla').inputValue(), await page.getByLabel('Tarjeta roja').inputValue(), await page.getByLabel('Inscripción del equipo').inputValue()]
+    R('montos: «2», «4,5» y «1,250.00» se guardan como 2.00, 4.50 y 1250.00', JSON.stringify(vals) === '["2.00","4.50","1250.00"]', JSON.stringify(vals))
+    await revisar(page, rol, ancho, 'pagos-valores-dolar', { teclado: false })
+    await page.keyboard.press('Escape'); await esperar(page)
+    const cuerpo = await page.locator('main').innerText()
+    const viejos = cuerpo.match(/\$\d{1,3}(\.\d{3})*,\d{2}\b/g) || []
+    const nuevos = cuerpo.match(/\$\d{1,3}(,\d{3})*\.\d{2}\b/g) || []
+    R('montos de Pagos con punto decimal, sin «$2,00»', viejos.length === 0 && nuevos.length > 0, `${nuevos.slice(0, 4).join(' ')} | viejos: ${viejos.slice(0, 3).join(' ')}`)
   }
   await ctx.close()
 }

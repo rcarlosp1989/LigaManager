@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-consistencia' ] } }
+on: { push: { branches: [ 'ci/verificar-dolares' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -157,4 +157,4 @@ jobs:
           cp ../auditoria.txt ../../api.log . 2>/dev/null || true
           git init -q -b r && git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "auditoria ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-consistencia
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-dolares
