@@ -5,7 +5,10 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import BotonExportar from '../../components/BotonExportar'
 import TablaDesplazable from '../../components/TablaDesplazable'
-import { ClipboardList, User } from 'lucide-react'
+import { ClipboardList, Pencil, User } from 'lucide-react'
+import { EditarJugadorModal } from '../../components/EditarJugador'
+import { puedeEditarJugadores } from '../../utils/jugador'
+import { useAuth } from '../../context/AuthContext'
 import { textoDocumento } from '../../utils/documento'
 import FotoJugador from '../../components/FotoJugador'
 
@@ -27,6 +30,10 @@ export default function TabNomina({
   idEquipoPropio = null,
 }) {
   const fid = useId()
+  const { user } = useAuth()
+  // Editar desde la nómina: solo organizador y administrador (nunca el dirigente).
+  const puedeEditar = !idEquipoPropio && puedeEditarJugadores(user?.rol)
+  const [editando, setEditando] = useState(null)
   const [idEquipo, setIdEquipo] = useState(idEquipoPropio ? String(idEquipoPropio) : '')
 
   const { data: equipos = [], isError: errorEquipos, refetch: recargarEquipos, isFetching: cargandoEquipos } = useQuery({
@@ -125,6 +132,7 @@ export default function TabNomina({
                   {[...(conDocumento ? ['Documento'] : []), 'Posición', 'Edad', 'En el equipo desde'].map(h => (
                     <th key={h} scope="col" className="px-3 py-2 text-center text-xs uppercase tracking-wider">{h}</th>
                   ))}
+                  {puedeEditar && <th scope="col" className="px-3 py-2 text-right text-xs uppercase tracking-wider"><span className="sr-only">Acciones</span></th>}
                 </tr>
               </thead>
               <tbody>
@@ -149,6 +157,15 @@ export default function TabNomina({
                     <td className="px-3 py-2 text-gray-400 text-center">{j.posicion ?? 'Sin posición'}</td>
                     <td className="px-3 py-2 text-gray-400 text-center">{j.edad}</td>
                     <td className="px-3 py-2 text-gray-500 text-center text-xs">{j.fechaDesde}</td>
+                    {puedeEditar && (
+                      <td className="px-3 py-2 text-right">
+                        <button type="button" onClick={() => setEditando(j.idJugador)}
+                          className="inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1.5 rounded px-2 text-sm text-gray-400 hover:text-brand-300"
+                          aria-label={`Editar a ${j.nombre} ${j.apellido}`}>
+                          <Pencil size={14} aria-hidden="true" />Editar
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -158,6 +175,10 @@ export default function TabNomina({
             Total: <span className="font-semibold text-white">{jugadores.length}</span> {jugadores.length === 1 ? 'jugador' : 'jugadores'}
           </p>
         </div>
+      )}
+
+      {puedeEditar && editando && (
+        <EditarJugadorModal idJugador={editando} onCerrar={() => setEditando(null)} onGuardado={() => refetch()} />
       )}
     </div>
   )

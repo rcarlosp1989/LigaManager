@@ -1474,3 +1474,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 - Los cobros automáticos (inscripción, refuerzo, arbitraje, tarjetas) guardaban el valor del momento en que se generaron, y un valor mal escrito quedaba en todos (amarillas de $200 en vez de $2).
 - Ahora, si la liga cambia un valor, se corrigen los cobros que aún no tienen abonos. Los que ya tienen abonos se mantienen, para no alterar lo pagado. Si el valor se deja vacío, desaparecen los cobros sin abonos de ese concepto.
+
+## 2026-11-12 — Editar jugadores desde la nómina de Reportes
+
+**Estado:** aplicada en la rama `mejora/editar-desde-nomina`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Reportes › Nómina: botón «Editar» en cada jugador (mismo formulario que la página Jugadores); al guardar, la nómina se actualiza.
+- Solo organizador y administrador ven el botón (también en la página Jugadores). El dirigente ve su nómina sin edición.
+- El API rechaza (403) editar un jugador o su dorsal desde cualquier otro rol.
