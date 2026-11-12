@@ -159,7 +159,7 @@ function FormValores({ camp, valores, onGuardado, onCancelar }) {
 
   return (
     <form className="space-y-5" onSubmit={enviar}>
-      <p className="text-sm text-gray-400">Deje vacío lo que su liga no cobra. Los cambios no alteran los cobros ya generados.</p>
+      <p className="text-sm text-gray-400">Deje vacío lo que su liga no cobra. Si cambia un valor, se corrigen los cobros que aún no tienen abonos; los que ya tienen abonos se mantienen.</p>
       <div className="grid gap-4 sm:grid-cols-2">
         {CAMPOS_VALORES.map(([k, nombre, ayuda]) => (
           <div key={k}>

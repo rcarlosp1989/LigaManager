@@ -169,7 +169,13 @@ public class PagoService
                 continue;
             }
             if (e.Pago.Descripcion != f.Descripcion) e.Pago.Descripcion = f.Descripcion;
-            if (!e.ConAbonos && e.Pago.IdEquipo != f.IdEquipo) e.Pago.IdEquipo = f.IdEquipo;
+            if (!e.ConAbonos)
+            {
+                // Sin abonos, el cobro sigue el valor vigente: si la liga corrige un valor, se corrige el cobro.
+                if (f.Monto <= 0) { _db.Pagos.Remove(e.Pago); continue; }
+                if (e.Pago.Monto != f.Monto) e.Pago.Monto = f.Monto;
+                if (e.Pago.IdEquipo != f.IdEquipo) e.Pago.IdEquipo = f.IdEquipo;
+            }
         }
         foreach (var (clave, f) in fuentes)
         {
