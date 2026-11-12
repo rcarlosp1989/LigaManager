@@ -166,7 +166,7 @@ function FormValores({ camp, valores, onGuardado, onCancelar }) {
             <label htmlFor={`${fid}-${k}`} className={etiqueta}>{nombre}</label>
             <div className="relative">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-              <input id={`${fid}-${k}`} className="input-field pl-7 text-right tabular-nums" inputMode="decimal" placeholder="0,00"
+              <input id={`${fid}-${k}`} className="input-field pl-7 text-right tabular-nums" inputMode="decimal" placeholder="0.00"
                 value={campos[k]} onChange={e => setCampos(c => ({ ...c, [k]: e.target.value }))} aria-describedby={`${fid}-${k}-ayuda`} />
             </div>
             <p id={`${fid}-${k}-ayuda`} className="mt-1 text-xs text-gray-500">{ayuda}</p>
@@ -247,7 +247,7 @@ function FormCobro({ camp, datos, onGuardado, onCancelar, idEquipo }) {
           <label htmlFor={`${fid}-monto`} className={etiqueta}>Valor</label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-            <input id={`${fid}-monto`} className="input-field pl-7 text-right tabular-nums" inputMode="decimal" placeholder="0,00" value={monto} onChange={e => setMonto(e.target.value)} />
+            <input id={`${fid}-monto`} className="input-field pl-7 text-right tabular-nums" inputMode="decimal" placeholder="0.00" value={monto} onChange={e => setMonto(e.target.value)} />
           </div>
         </div>
         <div>

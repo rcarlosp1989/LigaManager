@@ -22,23 +22,33 @@ export const ETIQUETAS = {
 export const METODOS = [['EFECTIVO', 'Efectivo'], ['TRANSFERENCIA', 'Transferencia'], ['DEPOSITO', 'Depósito'], ['OTRO', 'Otro']]
 export const nombreMetodo = (m) => METODOS.find(([k]) => k === m)?.[1] ?? m
 
-// 1234.5 → «$1.234,50». 0 → «$0,00».
+// Formato del dólar en Ecuador: 1234.5 → «$1,234.50». 0 → «$0.00».
 export function dinero(n) {
   const [ent, dec] = Math.abs(Number(n) || 0).toFixed(2).split('.')
-  return `${Number(n) < 0 ? '-' : ''}$${ent.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`
+  return `${Number(n) < 0 ? '-' : ''}$${ent.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${dec}`
 }
 
-// Texto que escribe el usuario («12,50», «12.5», «1.234,50») → número, o NaN.
+// Texto que escribe el usuario → número, o NaN. Acepta punto o coma como decimal:
+// «2», «2.5», «2,50», «1,234.50», «1.234,50», «1,234» (miles), «$ 12.00».
 export function leerMonto(texto) {
   let s = String(texto ?? '').trim().replace(/\$/g, '').replace(/\s/g, '')
   if (s === '') return NaN
-  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.')
+  const punto = s.lastIndexOf('.'), coma = s.lastIndexOf(',')
+  if (punto >= 0 && coma >= 0) {
+    // Con ambos signos, el último es el decimal.
+    s = punto > coma ? s.replace(/,/g, '') : s.replace(/\./g, '').replace(',', '.')
+  } else if (coma >= 0) {
+    // Solo coma: decimal si le siguen 1 o 2 cifras al final («2,5», «2,50»); si no, separa miles («1,234»).
+    s = /^\d+,\d{1,2}$/.test(s) ? s.replace(',', '.') : s.replace(/,(?=\d{3}(\D|$))/g, '')
+  } else if ((s.match(/\./g) || []).length > 1) {
+    s = s.replace(/\.(?=\d{3}(\D|$))/g, '')    // «1.234.567» como miles
+  }
   if (!/^\d+(\.\d{1,2})?$/.test(s)) return NaN
   return Number(s)
 }
 
-// Monto para mostrar en un campo de texto: 12.5 → «12,50»; 0 → «».
-export const montoEnCampo = (n) => (Number(n) ? Number(n).toFixed(2).replace('.', ',') : '')
+// Monto para mostrar en un campo de texto: 12.5 → «12.50»; 0 → «».
+export const montoEnCampo = (n) => (Number(n) ? Number(n).toFixed(2) : '')
 
 // Fecha de hoy en Ecuador, 'yyyy-MM-dd'.
 export function hoyEcuador() {

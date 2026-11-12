@@ -1459,3 +1459,11 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - **#13 «Mantenimiento»** pasa a llamarse «Estadios y oficiales» (menú, título y pestaña del navegador). La dirección no cambia.
 - **#14 Verbos:** «Quitar» para sacar de una lista (equipo del campeonato o del grupo, acceso); «Eliminar» para borrar.
 - **#15 Validación:** todos los formularios muestran mensajes propios en español debajo del campo, marcan el campo (aria-invalid), llevan el foco al primero y lo anuncian al lector de pantalla; sin burbujas del navegador (`utils/validacion.js`, una sola instalación en `main.jsx`).
+
+## 2026-11-11 — Montos con formato de dólar
+
+**Estado:** aplicada en la rama `mejora/formato-dolares`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Los montos de Pagos se mostraban con coma decimal («$2,00») y se leían como doscientos. Ahora usan el formato del dólar: «$2.00», «$1,234.50», en pantallas, campos y recibos PDF.
+- Los campos aceptan el monto escrito de cualquier forma («2», «2.50», «2,50», «1,234.50»); un valor ambiguo como «12.345» pide revisarlo.
+- Los valores guardados no cambian: ya estaban bien en la base de datos.
