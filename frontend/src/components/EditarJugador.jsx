@@ -10,29 +10,10 @@ import CampoFoto from './CampoFoto'
 import { documentoValido } from '../utils/documento'
 import { achicarImagen, LADO_FOTO } from '../utils/imagen'
 import { useAviso, mensajeDeError } from '../feedback/contextos'
+import { posiciones, calcularEdad } from '../utils/jugador'
 
 // Edición de un jugador: el formulario (lo usa la página Jugadores) y una ventana que lo
 // carga, guarda y avisa (la usa la nómina de Reportes). Solo organizador y administrador.
-
-export const puedeEditarJugadores = (rol) => rol === 'Organizador' || rol === 'Admin'
-
-export const posiciones = [
-  'Arquero', 'Defensa central', 'Lateral izquierdo', 'Lateral derecho',
-  'Mediocentro', 'Mediocentro ofensivo', 'Pivote', 'Extremo izquierdo',
-  'Extremo derecho', 'Delantero centro'
-]
-
-export function calcularEdad(fechaNac) {
-  if (!fechaNac) return null
-  const hoy = new Date()
-  const nacimiento = new Date(fechaNac)
-  let edad = hoy.getFullYear() - nacimiento.getFullYear()
-  const aunNoCumple = hoy.getMonth() < nacimiento.getMonth() ||
-    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() < nacimiento.getDate())
-  if (aunNoCumple) edad--
-  return edad
-}
-
 
 // ── Formulario editar jugador ─────────────────────────────────────────────────
 
