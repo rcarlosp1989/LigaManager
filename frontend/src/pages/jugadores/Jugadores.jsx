@@ -16,7 +16,8 @@ import { achicarImagen, LADO_FOTO } from '../../utils/imagen'
 import FotoJugador from '../../components/FotoJugador'
 import CampoFoto from '../../components/CampoFoto'
 
-import EditarJugadorForm, { posiciones, calcularEdad, puedeEditarJugadores } from '../../components/EditarJugador'
+import EditarJugadorForm from '../../components/EditarJugador'
+import { posiciones, calcularEdad, puedeEditarJugadores } from '../../utils/jugador'
 import { useAuth } from '../../context/AuthContext'
 
 // ── Formulario crear jugador ──────────────────────────────────────────────────
