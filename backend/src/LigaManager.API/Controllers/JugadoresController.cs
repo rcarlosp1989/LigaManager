@@ -44,7 +44,9 @@ public class JugadoresController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.IdJugador }, result.Data);
     }
 
+    // Editar jugadores: solo organizador y administrador.
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Organizador,Admin")]
     public async Task<IActionResult> Update(int id, [FromForm] UpdateJugadorForm form)
     {
         var fotoUrl = await SavePhotoAsync(form.Foto);
@@ -57,6 +59,7 @@ public class JugadoresController : ControllerBase
     }
 
     [HttpPatch("{id:int}/dorsal")]
+    [Authorize(Roles = "Organizador,Admin")]
     public async Task<IActionResult> UpdateDorsal(int id, [FromBody] UpdateDorsalRequest request)
     {
         var result = await _service.UpdateDorsalAsync(id, request);
