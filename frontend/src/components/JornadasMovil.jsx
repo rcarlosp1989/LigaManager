@@ -14,7 +14,7 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
   useEffect(() => { elegida.current?.scrollIntoView({ block: 'nearest', inline: 'center' }) }, [idActual])
   return (
     <nav aria-label="Jornadas" className="sticky top-0 z-10 -mx-4 mb-3 border-b border-gray-800 bg-gray-950/95 px-4 py-2 backdrop-blur">
-      <ul className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+      <ul className="relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {jornadas.map(j => {
           const actual = String(j.idJornada) === String(idActual)
           const completa = j.total > 0 && j.jugados === j.total
@@ -22,7 +22,7 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
             <li key={j.idJornada} className="shrink-0">
               <button type="button" ref={actual ? elegida : null} onClick={() => onElegir(j.idJornada)}
                 aria-current={actual ? 'true' : undefined}
-                className={`flex h-[52px] min-w-16 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 ${
+                className={`relative flex h-[52px] min-w-16 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 ${
                   actual ? 'bg-brand-400 text-gray-950' : 'border border-gray-800 bg-gray-900 text-gray-400'}`}>
                 <span className={`text-xs ${actual ? 'font-bold' : 'font-medium'}`}><span className="sr-only">Jornada </span>J{j.numero}</span>
                 <span className={`text-[10px] ${actual ? 'font-semibold' : ''}`}>
