@@ -22,12 +22,11 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
             <li key={j.idJornada} className="shrink-0">
               <button type="button" ref={actual ? elegida : null} onClick={() => onElegir(j.idJornada)}
                 aria-current={actual ? 'true' : undefined}
-                aria-label={`Jornada ${j.numero}${completa ? ', jugada' : j.fecha ? `, ${diaCorto(j.fecha)}` : ''}`}
                 className={`flex h-[52px] min-w-16 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 ${
                   actual ? 'bg-brand-400 text-gray-950' : 'border border-gray-800 bg-gray-900 text-gray-400'}`}>
-                <span className={`text-xs ${actual ? 'font-bold' : 'font-medium'}`}>J{j.numero}</span>
+                <span className={`text-xs ${actual ? 'font-bold' : 'font-medium'}`}><span className="sr-only">Jornada </span>J{j.numero}</span>
                 <span className={`text-[10px] ${actual ? 'font-semibold' : ''}`}>
-                  {completa ? <Check size={12} aria-hidden="true" /> : (j.fecha ? diaCorto(j.fecha) : '—')}
+                  {completa ? <><Check size={12} aria-hidden="true" /><span className="sr-only">, jugada</span></> : (j.fecha ? diaCorto(j.fecha) : <span aria-hidden="true">—</span>)}
                 </span>
               </button>
             </li>
@@ -120,10 +119,9 @@ export function MarcadorPartido({ p, idEquipoPropio, enVivo = false, extra }) {
         <Equipo nombre={local} logoUrl={p.logoLocal} propio={idEquipoPropio != null && p.idEquipoLocal === idEquipoPropio}
           atenuado={gl != null && p.jugado && gl < gv} />
         {conMarcador ? (
-          <p className={`flex items-center gap-2.5 font-display text-4xl tabular-nums ${enVivo ? 'text-brand-300' : 'text-white'}`}
-            aria-label={`${gl} a ${gv}`}>
+          <p className={`flex items-center gap-2.5 font-display text-4xl tabular-nums ${enVivo ? 'text-brand-300' : 'text-white'}`}>
             <span className={p.jugado && gl < gv ? 'text-gray-400' : ''}>{gl}</span>
-            <span className="text-2xl text-gray-600" aria-hidden="true">–</span>
+            <span className="text-2xl text-gray-600" aria-hidden="true">–</span><span className="sr-only"> a </span>
             <span className={p.jugado && gv < gl ? 'text-gray-400' : ''}>{gv}</span>
           </p>
         ) : (
