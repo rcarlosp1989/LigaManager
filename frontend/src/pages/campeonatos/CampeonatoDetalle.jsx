@@ -1206,7 +1206,8 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle, movil = false 
           </button>
         </TituloJornada>
       )}
-      <div className={`items-center gap-2 pr-3 hover:bg-gray-800/30 transition-colors ${movil ? 'hidden' : 'flex'}`}>
+      {!movil && (
+      <div className="flex items-center gap-2 pr-3 hover:bg-gray-800/30 transition-colors">
         <button
           type="button"
           onClick={onToggle}
@@ -1234,6 +1235,7 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle, movil = false 
           className="text-gray-600 hover:text-red-400 transition-colors text-xs px-1"
         >Eliminar</button>
       </div>
+      )}
 
       {(expanded || movil) && (
         <div id={panelId} className={movil ? 'space-y-3' : 'border-t border-gray-800 p-4 space-y-3'}>
