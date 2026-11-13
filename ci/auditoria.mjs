@@ -426,7 +426,7 @@ for (const [k, token] of tokens) {
         paso(rol, ancho, 'VERIFICAR: público celular: la barra queda fija abajo', !!alto && Math.abs(alto.y + alto.height - 844) < 4, JSON.stringify(alto))
         await barra.getByRole('button', { name: 'Posiciones' }).click().catch(() => {}); await esperar(page)
         await revisar(page, rol, ancho, 'barra-posiciones', { teclado: false })
-        paso(rol, ancho, 'VERIFICAR: público celular: «Posiciones» de la barra muestra la tabla', (await page.getByRole('table').count()) > 0)
+        paso(rol, ancho, 'VERIFICAR: público celular: «Posiciones» de la barra muestra la tabla (o su aviso sin partidos)', (await page.getByRole('table').count()) > 0 || (await page.getByText('Aún no hay partidos jugados').count()) > 0)
         await barra.getByRole('button', { name: 'Estadísticas' }).click().catch(() => {}); await esperar(page)
         await revisar(page, rol, ancho, 'barra-estadisticas', { teclado: false })
         const sub = await page.getByRole('group', { name: 'Estadísticas' }).getByRole('button').allInnerTexts().catch(() => [])
