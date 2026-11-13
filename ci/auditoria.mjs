@@ -242,8 +242,8 @@ for (const ancho of [390, 1440]) {
           const acciones = await page.getByRole('button', { name: /Planilla/ }).count()
           paso(rol, ancho, 'VERIFICAR: celular: el organizador conserva sus botones bajo cada tarjeta', acciones > 0, String(acciones))
         } else {
-          const cols = await page.locator('[data-marcador]').evaluateAll(es => new Set(es.map(e => Math.round(e.getBoundingClientRect().left))).size)
-          paso(rol, ancho, 'VERIFICAR: PC: tira de jornadas y tarjetas en dos columnas', chips > 1 && titulos === 1 && cols === Math.min(2, marcadores), `chips=${chips} titulos=${titulos} marcadores=${marcadores} columnas=${cols}`)
+          const cols = await page.locator('main section ul').first().evaluate(u => getComputedStyle(u).gridTemplateColumns.split(' ').length).catch(() => 0)
+          paso(rol, ancho, 'VERIFICAR: PC: tira de jornadas y tarjetas en dos columnas', chips > 1 && titulos === 1 && marcadores > 0 && cols === 2, `chips=${chips} titulos=${titulos} marcadores=${marcadores} columnas=${cols}`)
           await tira.getByRole('button', { name: 'Ver jornadas siguientes' }).click().catch(() => {})
           paso(rol, ancho, 'VERIFICAR: PC: flechas para mover la tira', (await tira.getByRole('button', { name: /Ver jornadas/ }).count()) === 2)
         }
