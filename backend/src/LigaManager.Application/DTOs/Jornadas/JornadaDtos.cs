@@ -9,7 +9,10 @@ public record JornadaListDto(
     string Instancia,
     string? Grupo,
     int    TotalPartidos,
-    string? EquipoLibre
+    string? EquipoLibre,
+    // Para la tira de jornadas del celular: día del primer partido (yyyy-MM-dd) y cuántos se jugaron.
+    string? Fecha = null,
+    int    Jugados = 0
 );
 
 public record JornadaDetalleDto(

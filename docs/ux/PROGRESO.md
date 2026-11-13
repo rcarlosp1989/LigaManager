@@ -1482,3 +1482,13 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Reportes › Nómina: botón «Editar» en cada jugador (mismo formulario que la página Jugadores); al guardar, la nómina se actualiza.
 - Solo organizador y administrador ven el botón (también en la página Jugadores). El dirigente ve su nómina sin edición.
 - El API rechaza (403) editar un jugador o su dorsal desde cualquier otro rol.
+
+## 2026-11-13 — Jornadas en el celular, estilo app (opción A)
+
+**Estado:** aplicada en la rama `mejora/jornadas-movil`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- En el celular (menos de 640 px), las jornadas se eligen en una tira deslizable (J1, J2…, con el día o ✓ si ya se jugó) y se muestra una sola jornada a la vez.
+- Cada partido es una tarjeta «marcador»: los dos equipos frente a frente con su escudo, el marcador grande al medio y el estado (FINAL, EN VIVO, DESIERTO, POR JUGAR con la hora). Los partidos se agrupan por día.
+- Aplica a la página pública, al dirigente (su equipo resaltado) y al organizador (conserva Planilla, Acta, Marcar jugado, Editar y Eliminar bajo cada tarjeta).
+- Página pública en el celular: barra inferior Partidos · Posiciones · Llaves · Estadísticas (goleadores, tarjetas y suspensiones), como en una app.
+- En computadora no cambia nada. El API de jornadas suma `fecha` (primer partido) y `jugados`.
