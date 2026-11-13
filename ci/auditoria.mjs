@@ -226,6 +226,25 @@ for (const ancho of [390, 1440]) {
     if (t === 'Jornadas') {
       const jornada = page.getByRole('button', { name: /Jornada \d/ })
       if (await clic(page, jornada, rol, ancho, 'abrir la primera jornada')) await revisar(page, rol, ancho, 'jornada-abierta')
+      {
+        const tira = page.getByRole('navigation', { name: 'Jornadas' })
+        const chips = await tira.getByRole('button').count().catch(() => 0)
+        const titulos = await page.getByRole('heading', { name: /^JORNADA \d/ }).count()
+        const marcadores = await page.locator('[data-marcador]').count()
+        if (ancho < 500) {
+          paso(rol, ancho, 'VERIFICAR: celular: tira de jornadas y una sola jornada con tarjetas marcador', chips > 1 && titulos === 1 && marcadores > 0, `chips=${chips} titulos=${titulos} marcadores=${marcadores}`)
+          const antes = await page.getByRole('heading', { name: /^JORNADA \d/ }).innerText().catch(() => '')
+          await tira.getByRole('button').nth(1).click().catch(() => {}); await esperar(page)
+          const despues = await page.getByRole('heading', { name: /^JORNADA \d/ }).innerText().catch(() => '')
+          paso(rol, ancho, 'VERIFICAR: celular: tocar otra jornada en la tira la muestra', antes !== despues && despues !== '', `${antes} → ${despues}`)
+          await revisar(page, rol, ancho, 'jornadas-movil-otra')
+          await tira.getByRole('button').first().click().catch(() => {}); await esperar(page)
+          const acciones = await page.getByRole('button', { name: /Planilla/ }).count()
+          paso(rol, ancho, 'VERIFICAR: celular: el organizador conserva sus botones bajo cada tarjeta', acciones > 0, String(acciones))
+        } else {
+          paso(rol, ancho, 'VERIFICAR: computadora: jornadas como antes (sin tira)', chips === 0, `chips=${chips}`)
+        }
+      }
       const xs = await page.locator('button[aria-label^="Eliminar "]').evaluateAll(bs => bs.filter(b => b.offsetParent && b.textContent.trim() === '✕').map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)] }))
       paso(rol, ancho, 'VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)', xs.length > 0 && xs.every(([w, h]) => w >= (ancho < 500 ? 44 : 24) && h >= (ancho < 500 ? 44 : 24)), JSON.stringify(xs.slice(0, 6)))
       const planilla = page.getByRole('button', { name: /Planilla|Registrar|Resultado/i })
@@ -371,6 +390,15 @@ if (P.dirigente) {
       const b = page.getByRole('button', { name: t, exact: true })
       if (await b.count()) { await b.first().click(); await revisar(page, rol, ancho, `tab-${t.toLowerCase().replace(' ', '-')}`, { teclado: false }) }
     }
+    {
+      const bj = page.getByRole('button', { name: 'Jornadas', exact: true })
+      if (await bj.count()) { await bj.first().click(); await esperar(page) }
+      const chips = await page.getByRole('navigation', { name: 'Jornadas' }).getByRole('button').count().catch(() => 0)
+      const marc = await page.locator('[data-marcador]').count()
+      if (ancho < 500) paso(rol, ancho, 'VERIFICAR: dirigente celular: tira de jornadas y tarjetas marcador', chips > 0 && marc > 0, `chips=${chips} marcadores=${marc}`)
+      else paso(rol, ancho, 'VERIFICAR: dirigente computadora: jornadas como antes', chips === 0, `chips=${chips}`)
+      await revisar(page, rol, ancho, 'jornadas-tarjetas', { teclado: false })
+    }
     const nom = page.getByRole('button', { name: 'Nómina', exact: true })
     if (await nom.count()) { await nom.first().click(); await esperar(page) }
     paso(rol, ancho, 'VERIFICAR: dirigente: sin botón «Editar» en la nómina', (await page.getByRole('button', { name: /^Editar a / }).count()) === 0)
@@ -386,6 +414,28 @@ for (const [k, token] of tokens) {
     const rol = k.toLowerCase().includes('aficion') ? 'aficionado' : 'publico'
     const t0 = await ir(page, `/publico/${token}`)
     await revisar(page, rol, ancho, 'inicio', { t0 })
+    {
+      const barra = page.getByRole('navigation', { name: 'Secciones' })
+      const enBarra = await barra.getByRole('button').allInnerTexts().catch(() => [])
+      const chips = await page.getByRole('navigation', { name: 'Jornadas' }).getByRole('button').count().catch(() => 0)
+      const marc = await page.locator('li[data-marcador], [data-marcador]').count()
+      const pestanasArriba = await page.getByRole('button', { name: 'Resultados', exact: true }).isVisible().catch(() => false)
+      if (ancho < 500) {
+        paso(rol, ancho, 'VERIFICAR: público celular: barra inferior, tira de jornadas y tarjetas marcador', enBarra.join('|').includes('Partidos') && enBarra.join('|').includes('Posiciones') && chips > 0 && marc > 0 && !pestanasArriba, `${enBarra.join('|')} chips=${chips} marcadores=${marc} arriba=${pestanasArriba}`)
+        const alto = await barra.boundingBox().catch(() => null)
+        paso(rol, ancho, 'VERIFICAR: público celular: la barra queda fija abajo', !!alto && Math.abs(alto.y + alto.height - 844) < 4, JSON.stringify(alto))
+        await barra.getByRole('button', { name: 'Posiciones' }).click().catch(() => {}); await esperar(page)
+        await revisar(page, rol, ancho, 'barra-posiciones', { teclado: false })
+        paso(rol, ancho, 'VERIFICAR: público celular: «Posiciones» de la barra muestra la tabla', (await page.getByRole('table').count()) > 0)
+        await barra.getByRole('button', { name: 'Estadísticas' }).click().catch(() => {}); await esperar(page)
+        await revisar(page, rol, ancho, 'barra-estadisticas', { teclado: false })
+        const sub = await page.getByRole('group', { name: 'Estadísticas' }).getByRole('button').allInnerTexts().catch(() => [])
+        paso(rol, ancho, 'VERIFICAR: público celular: «Estadísticas» abre goleadores' + (rol === 'publico' ? ' con tarjetas y suspensiones a un toque' : ''), rol === 'publico' ? sub.join('|') === 'Goleadores|Tarjetas|Suspensiones' : sub.length === 0, sub.join('|'))
+        await barra.getByRole('button', { name: 'Partidos' }).click().catch(() => {}); await esperar(page)
+      } else {
+        paso(rol, ancho, 'VERIFICAR: público computadora: sin barra inferior ni tira; pestañas arriba', enBarra.length === 0 && chips === 0 && pestanasArriba, `barra=${enBarra.length} chips=${chips} arriba=${pestanasArriba}`)
+      }
+    }
     for (const b of (await page.getByRole('button').all()).slice(0, 12)) {
       const txt = (await b.innerText().catch(() => '')).trim()
       if (!txt || txt.length > 20 || /^(x|×)$/i.test(txt)) continue

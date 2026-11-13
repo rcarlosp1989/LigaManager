@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-editar-jugador' ] } }
+on: { push: { branches: [ 'ci/verificar-jornadas-movil' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -119,6 +119,8 @@ jobs:
           python3 ci/prueba_pagos.py datos.json > pagos_prueba.txt 2>&1 || c=$?
           echo "::notice title=pagos::$(grep -c '^OK ' pagos_prueba.txt || true) OK · $(grep -vE '^OK ' pagos_prueba.txt | tail -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           python3 ci/prueba_editar_jugador.py datos.json > editar_prueba.txt 2>&1 || c=$?
+          python3 ci/prueba_jornadas_lista.py datos.json > jornadas_prueba.txt 2>&1 || c=$?
+          echo "::notice title=jornadas::$(grep -c '^OK ' jornadas_prueba.txt || true) OK · $(grep -vE '^OK ' jornadas_prueba.txt | tail -20 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=editar::$(grep -c '^OK ' editar_prueba.txt || true) OK · $(grep -vE '^OK ' editar_prueba.txt | tail -40 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=eliminatoria::$(grep -c '^OK ' elim_prueba.txt || true) OK · $(grep -vE '^OK ' elim_prueba.txt | tail -30 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
           echo "::notice title=envivo::$(grep -c '^OK ' envivo.txt || true) OK · $(grep -vE '^OK ' envivo.txt | tail -25 | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')"
@@ -159,4 +161,4 @@ jobs:
           cp ../auditoria.txt ../../api.log . 2>/dev/null || true
           git init -q -b r && git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "auditoria ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-editar-jugador
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-jornadas-movil
