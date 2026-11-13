@@ -1148,7 +1148,7 @@ function JornadaCard({ jornada, idCampeonato }) {
             partidos={partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))}
             enlace={enlaceFlyer?.tokenAficionados ? `${window.location.origin}/publico/${enlaceFlyer.tokenAficionados}` : null} />
         )}
-        <button type="button" onClick={eliminarJornada} aria-label={`Eliminar la jornada ${jornada.numero}`}
+        <button type="button" onClick={eliminarJornada} aria-label={`Eliminar jornada ${jornada.numero}`}
           className="inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1.5 rounded px-2 text-sm text-gray-400 hover:text-red-400">
           <Trash2 size={15} aria-hidden="true" />Eliminar jornada
         </button>
