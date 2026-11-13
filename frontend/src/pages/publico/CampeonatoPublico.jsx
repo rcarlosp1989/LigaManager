@@ -18,14 +18,25 @@ import MarcaLiga from '../../components/MarcaLiga'
 import BotonFlyer from '../../components/BotonFlyer'
 import { useTitulo } from '../../utils/titulo'
 import CuadroLlaves from '../../components/CuadroLlaves'
+import { TiraJornadas, TituloJornada, PartidosPorDia, TarjetaMarcador } from '../../components/JornadasMovil'
+import { jornadaActual as jornadaEnCurso } from '../../utils/jornadas'
+import { useEsCelular } from '../../utils/pantalla'
 
 const TABS = [
   { key: 'resultados', label: 'Resultados', Icono: CalendarDays },
   { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
   { key: 'llaves', label: 'Llaves', Icono: GitFork, llaves: true },
-  { key: 'goleadores', label: 'Goleadores', Icono: Balon },
-  { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical, completo: true },
-  { key: 'suspensiones', label: 'Suspensiones', Icono: Ban, completo: true },
+  { key: 'goleadores', label: 'Goleadores', Icono: Balon, estadistica: true },
+  { key: 'tarjetas', label: 'Tarjetas', Icono: RectangleVertical, completo: true, estadistica: true },
+  { key: 'suspensiones', label: 'Suspensiones', Icono: Ban, completo: true, estadistica: true },
+]
+
+// Barra inferior del celular: como una app. «Estadísticas» reúne goleadores, tarjetas y suspensiones.
+const BARRA = [
+  { key: 'resultados', label: 'Partidos', Icono: CalendarDays },
+  { key: 'posiciones', label: 'Posiciones', Icono: ChartColumn },
+  { key: 'llaves', label: 'Llaves', Icono: GitFork },
+  { key: 'estadisticas', label: 'Estadísticas', Icono: Balon },
 ]
 
 const ESTADOS = { Planificado: 'Planificado', EnCurso: 'En curso', Finalizado: 'Finalizado' }
@@ -51,6 +62,11 @@ export default function CampeonatoPublico() {
   const enlaceFlyer = camp?.aficionados ? `${window.location.origin}${base}`
     : camp?.enlaceAficionados ? `${window.location.origin}/publico/${camp.enlaceAficionados}` : null
   const noExiste = q.isError && q.error?.response?.status === 404
+  const esCelular = useEsCelular()
+  const estadisticas = tabs.filter(t => t.estadistica)
+  const barra = BARRA.filter(b => b.key !== 'llaves' || conLlaves)
+  const enBarra = (b) => b.key === 'estadisticas' ? estadisticas.some(t => t.key === tab) : b.key === tab
+  const elegirBarra = (b) => setTab(b.key === 'estadisticas' ? (estadisticas.some(t => t.key === tab) ? tab : 'goleadores') : b.key)
 
   return (
     <div className="min-h-dvh bg-gray-950 text-white">
@@ -58,7 +74,7 @@ export default function CampeonatoPublico() {
         <MarcaLiga tamano="sm" />
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-5 sm:px-6">
+      <main className="mx-auto max-w-5xl px-4 pb-28 pt-5 sm:px-6 sm:pb-16">
         {q.isLoading ? (
           <p className="py-10 text-center text-gray-400">Cargando el campeonato...</p>
         ) : noExiste ? (
@@ -76,7 +92,18 @@ export default function CampeonatoPublico() {
               </p>
             </section>
 
-            <div className="mb-4 flex gap-1 overflow-x-auto border-b border-gray-800">
+            {esCelular && estadisticas.some(t => t.key === tab) && estadisticas.length > 1 && (
+              <div role="group" aria-label="Estadísticas" className="mb-4 flex gap-2 overflow-x-auto">
+                {estadisticas.map(t => (
+                  <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-pressed={tab === t.key}
+                    className={`h-9 shrink-0 rounded-full px-4 text-sm ${tab === t.key ? 'bg-gray-100 font-semibold text-gray-950' : 'border border-gray-700 text-gray-300'}`}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className={`mb-4 gap-1 overflow-x-auto border-b border-gray-800 ${esCelular ? 'hidden' : 'flex'}`}>
               {tabs.map(t => (
                 <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-current={tab === t.key ? 'true' : undefined}
                   className={`-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
@@ -105,6 +132,21 @@ export default function CampeonatoPublico() {
           </>
         )}
       </main>
+
+      {esCelular && camp && (
+        <nav aria-label="Secciones" className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-800 bg-gray-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+          <ul className="grid" style={{ gridTemplateColumns: `repeat(${barra.length}, minmax(0, 1fr))` }}>
+            {barra.map(b => (
+              <li key={b.key}>
+                <button type="button" onClick={() => elegirBarra(b)} aria-current={enBarra(b) ? 'page' : undefined}
+                  className={`flex min-h-[60px] w-full flex-col items-center justify-center gap-1 text-[11px] ${enBarra(b) ? 'font-semibold text-brand-400' : 'text-gray-400'}`}>
+                  <b.Icono size={22} aria-hidden="true" />{b.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </div>
   )
 }
@@ -118,10 +160,12 @@ function jornadaActual(jornadas) {
 function Resultados({ base, campeonato, enlace }) {
   const q = useQuery({ queryKey: ['publico-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
   const [abiertas, setAbiertas] = useState(null)   // null = todavía la jornada en curso
+  const esCelular = useEsCelular()
   if (q.isLoading) return <p className="py-10 text-center text-sm text-gray-500">Cargando resultados...</p>
   if (q.isError) return <EstadoError mensaje="No se pudieron cargar los resultados." onReintentar={q.refetch} reintentando={q.isFetching} />
   const jornadas = q.data.filter(j => j.partidos.length > 0)
   if (jornadas.length === 0) return <EmptyState icon={CalendarDays} title="Sin partidos todavía" description="La organización aún no publicó el calendario." />
+  if (esCelular) return <ResultadosMovil jornadas={jornadas} campeonato={campeonato} enlace={enlace} />
   const abiertasAhora = abiertas ?? new Set([jornadaActual(jornadas)])
   const alternar = (id) => {
     const nuevas = new Set(abiertasAhora)
@@ -163,5 +207,30 @@ function Resultados({ base, campeonato, enlace }) {
         )
       })}
     </ul>
+  )
+}
+
+// Celular: tira de jornadas arriba y la jornada elegida en tarjetas de marcador, por día.
+function ResultadosMovil({ jornadas, campeonato, enlace }) {
+  const resumen = jornadas.map(j => ({
+    idJornada: j.idJornada, numero: j.numero, total: j.partidos.length,
+    jugados: j.partidos.filter(p => p.jugado).length,
+    fecha: j.partidos.map(p => p.fecha).sort()[0],
+  }))
+  const [elegida, setElegida] = useState(() => jornadaEnCurso(resumen))
+  const j = jornadas.find(x => x.idJornada === elegida) ?? jornadas[0]
+  const r = resumen.find(x => x.idJornada === j.idJornada)
+  return (
+    <div>
+      <TiraJornadas jornadas={resumen} idActual={j.idJornada} onElegir={setElegida} />
+      <TituloJornada numero={j.numero} instancia={j.instancia} grupo={j.grupo} jugados={r.jugados} total={r.total} />
+      <PartidosPorDia partidos={j.partidos} render={p => <TarjetaMarcador key={p.idPartido} p={p} />} />
+      {j.partidos.some(p => !p.jugado) && (
+        <div className="mt-4 flex justify-end">
+          <BotonFlyer campeonato={campeonato} jornada={j} enlace={enlace}
+            partidos={j.partidos.map(p => ({ fecha: p.fecha, local: p.local, visitante: p.visitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))} />
+        </div>
+      )}
+    </div>
   )
 }

@@ -8,6 +8,9 @@ import EstadoError from '../../components/EstadoError'
 import EmptyState from '../../components/EmptyState'
 import LogoEquipo from '../../components/LogoEquipo'
 import FilaPartido from '../../components/FilaPartido'
+import { TiraJornadas, TituloJornada, PartidosPorDia, TarjetaMarcador } from '../../components/JornadasMovil'
+import { jornadaActual } from '../../utils/jornadas'
+import { useEsCelular } from '../../utils/pantalla'
 import PanelEnVivo from '../../components/PanelEnVivo'
 import { Balon } from '../../components/IconoEvento'
 import { formatearRango } from '../../utils/fechas'
@@ -176,10 +179,12 @@ function Jornadas({ base, idEquipoPropio, camp }) {
   const [abiertas, setAbiertas] = useState(() => new Set())   // se pueden abrir varias
   const alternar = (id) => setAbiertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n })
   const q = useQuery({ queryKey: ['dirigente-jornadas', base], queryFn: () => api.get(`${base}/jornadas`).then(r => r.data) })
+  const esCelular = useEsCelular()
 
   if (q.isLoading) return <p className="py-10 text-center text-sm text-gray-500">Cargando jornadas...</p>
   if (q.isError) return <EstadoError mensaje="No se pudieron cargar las jornadas." onReintentar={q.refetch} reintentando={q.isFetching} />
   if (q.data.length === 0) return <EmptyState icon={CalendarDays} title="Sin jornadas" description="El organizador todavía no armó el calendario." />
+  if (esCelular) return <JornadasMovil base={base} jornadas={q.data} idEquipoPropio={idEquipoPropio} camp={camp} />
 
   return (
     <ul className="space-y-2">
@@ -206,7 +211,22 @@ function Jornadas({ base, idEquipoPropio, camp }) {
   )
 }
 
-function DetalleJornada({ base, idJornada, idEquipoPropio, camp }) {
+// Celular: tira de jornadas y la jornada elegida en tarjetas de marcador (su equipo resaltado).
+function JornadasMovil({ base, jornadas, idEquipoPropio, camp }) {
+  const resumen = jornadas.map(j => ({ idJornada: j.idJornada, numero: j.numero, fecha: j.fecha, jugados: j.jugados ?? 0, total: j.totalPartidos }))
+  const [elegida, setElegida] = useState(() => jornadaActual(resumen))
+  const j = jornadas.find(x => x.idJornada === elegida) ?? jornadas[0]
+  return (
+    <div>
+      <TiraJornadas jornadas={resumen} idActual={j.idJornada} onElegir={setElegida} />
+      <TituloJornada numero={j.numero} instancia={j.instancia} grupo={j.grupo} jugados={j.jugados ?? 0} total={j.totalPartidos} />
+      {j.equipoLibre && <p className="mb-3 text-xs text-amber-300">Libre en esta jornada: {j.equipoLibre}</p>}
+      <DetalleJornada key={j.idJornada} base={base} idJornada={j.idJornada} idEquipoPropio={idEquipoPropio} camp={camp} movil />
+    </div>
+  )
+}
+
+function DetalleJornada({ base, idJornada, idEquipoPropio, camp, movil = false }) {
   const q = useQuery({
     queryKey: ['dirigente-jornada', base, idJornada],
     queryFn: () => api.get(`${base}/jornadas/${idJornada}`).then(r => r.data),
@@ -215,10 +235,12 @@ function DetalleJornada({ base, idJornada, idEquipoPropio, camp }) {
   if (q.isError) return <div className="px-4 pb-3"><EstadoError compacto mensaje="No se pudieron cargar los partidos." onReintentar={q.refetch} reintentando={q.isFetching} /></div>
   if (q.data.partidos.length === 0) return <p className="px-4 pb-3 text-sm text-gray-500">Sin partidos en esta jornada.</p>
   return (
-    <div className="space-y-2 px-3 pb-3">
-      <ul className="space-y-2">
-        {q.data.partidos.map(p => <FilaPartido key={p.idPartido} p={p} idEquipoPropio={idEquipoPropio} />)}
-      </ul>
+    <div className={movil ? 'space-y-3' : 'space-y-2 px-3 pb-3'}>
+      {movil
+        ? <PartidosPorDia partidos={q.data.partidos} render={p => <TarjetaMarcador key={p.idPartido} p={p} idEquipoPropio={idEquipoPropio} />} />
+        : <ul className="space-y-2">
+            {q.data.partidos.map(p => <FilaPartido key={p.idPartido} p={p} idEquipoPropio={idEquipoPropio} />)}
+          </ul>}
       {q.data.partidos.some(p => !p.jugado) && (
         <div className="flex justify-end">
           <BotonFlyer campeonato={camp.nombre} jornada={q.data}
