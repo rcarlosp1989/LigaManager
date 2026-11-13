@@ -421,6 +421,8 @@ for (const [k, token] of tokens) {
       const marc = await page.locator('li[data-marcador], [data-marcador]').count()
       const pestanasArriba = await page.getByRole('button', { name: 'Resultados', exact: true }).isVisible().catch(() => false)
       if (ancho < 500) {
+        const anchoPagina = await page.evaluate(() => document.documentElement.scrollWidth)
+        paso(rol, ancho, 'VERIFICAR: público celular: la página no se ensancha (sin desplazamiento lateral)', anchoPagina <= 391, String(anchoPagina))
         paso(rol, ancho, 'VERIFICAR: público celular: barra inferior, tira de jornadas y tarjetas marcador', enBarra.join('|').includes('Partidos') && enBarra.join('|').includes('Posiciones') && chips > 0 && marc > 0 && !pestanasArriba, `${enBarra.join('|')} chips=${chips} marcadores=${marc} arriba=${pestanasArriba}`)
         const alto = await barra.boundingBox().catch(() => null)
         paso(rol, ancho, 'VERIFICAR: público celular: la barra queda fija abajo', !!alto && Math.abs(alto.y + alto.height - 844) < 4, JSON.stringify(alto))
