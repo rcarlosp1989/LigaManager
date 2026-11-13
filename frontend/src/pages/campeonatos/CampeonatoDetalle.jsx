@@ -1,4 +1,4 @@
-import { useState, useEffect, useId, useRef } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../../services/api'
@@ -25,7 +25,6 @@ import BotonFlyer from '../../components/BotonFlyer'
 import BotonActa from '../../components/BotonActa'
 import { TiraJornadas, TituloJornada, PartidosPorDia, MarcadorPartido } from '../../components/JornadasMovil'
 import { jornadaActual } from '../../utils/jornadas'
-import { useEsCelular } from '../../utils/pantalla'
 
 // «2026-10-12 15:00» (del servidor) → «2026-10-12T15:00», lo que pide un campo de fecha y hora.
 const aFechaHoraLocal = (f) => (f ? f.replace(' ', 'T').slice(0, 16) : '')
@@ -42,20 +41,6 @@ function EstadoBadge({ estado }) {
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[estado] ?? styles.Planificado}`}>
       {labels[estado] ?? estado}
-    </span>
-  )
-}
-
-function PartidoBadge({ estado }) {
-  const styles = {
-    Programado: 'bg-blue-900/30 text-blue-400',
-    Pendiente:  'bg-yellow-900/30 text-yellow-400',
-    Finalizado: 'bg-green-900/30 text-green-400',
-    Desierto:   'bg-gray-700/40 text-gray-300',
-  }
-  return (
-    <span className={`text-xs px-2 py-0.5 rounded font-medium ${styles[estado] ?? styles.Programado}`}>
-      {estado}
     </span>
   )
 }
@@ -748,7 +733,7 @@ function EquipoSelector({ id, idCampeonato, value, onChange, excluir }) {
 
 const ETIQUETA_EVENTO = { GOL: 'Gol', GOL_EN_CONTRA: 'Gol en contra', TARJETA_AMARILLA: 'Tarjeta amarilla', TARJETA_ROJA: 'Tarjeta roja' }
 
-function PartidoCard({ partido, idCampeonato, jornada, movil = false }) {
+function PartidoCard({ partido, idCampeonato, jornada }) {
   const fid = useId()
   const queryClient = useQueryClient()
   const aviso = useAviso()
@@ -893,50 +878,14 @@ function PartidoCard({ partido, idCampeonato, jornada, movil = false }) {
 
   const enVivo = partido.estadoRegistro === 'EnVivo' && !partido.jugado
   return (
-    <div className={movil
-      ? `rounded-2xl border px-4 py-3.5 ${enVivo ? 'border-brand-400 bg-brand-900/40' : 'border-gray-800 bg-gray-900'}`
-      : 'border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors'}>
-      {movil && (
-        <div className="mb-3">
-          <MarcadorPartido p={partido} enVivo={enVivo}
-            extra={partido.perdidaReglamento ? 'Resultado por reglamento' : null} />
-        </div>
-      )}
-      <div className={`flex-wrap items-center justify-between gap-2 mb-3 ${movil ? 'hidden' : 'flex'}`}>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 grow min-w-0">
-          <span className="flex items-center gap-2 text-white font-medium text-sm">
-            <LogoEquipo nombre={partido.equipoLocal} logoUrl={partido.logoLocal} tamano={24} />
-            {partido.equipoLocal}
-          </span>
-          {partido.jugado && !partido.desierto && (
-            <span className="text-white font-display text-sm">
-              {partido.golesLocal ?? 0} - {partido.golesVisitante ?? 0}
-            </span>
-          )}
-          {partido.perdidaReglamento && <span className="text-amber-400 text-xs italic">por reglamento</span>}
-          {partido.desierto && <span className="text-gray-500 text-xs italic">desierto</span>}
-          {!partido.jugado && <span className="text-gray-600 text-xs">vs</span>}
-          <span className="flex items-center gap-2 text-white font-medium text-sm">
-            <LogoEquipo nombre={partido.equipoVisitante} logoUrl={partido.logoVisitante} tamano={24} />
-            {partido.equipoVisitante}
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          {partido.grupo && (
-            <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
-              {/^grupo\b/i.test(partido.grupo) ? partido.grupo : `Grupo ${partido.grupo}`}
-            </span>
-          )}
-          <PartidoBadge estado={partido.estado} />
-          <span className="text-gray-500 text-xs whitespace-nowrap">{formatearFecha(partido.fecha)}</span>
-        </div>
+    <div className={`flex h-full flex-col rounded-2xl border px-4 py-3.5 ${enVivo ? 'border-brand-400 bg-brand-900/40' : 'border-gray-800 bg-gray-900'}`}>
+      <div className="mb-3">
+        <MarcadorPartido p={partido} enVivo={enVivo}
+          extra={partido.perdidaReglamento ? 'Resultado por reglamento' : null} />
       </div>
-
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-gray-500">
-        {movil && partido.grupo && <span className="text-gray-400">{/^grupo\b/i.test(partido.grupo) ? partido.grupo : `Grupo ${partido.grupo}`}</span>}
-        {movil && partido.estadio ? null : partido.estadio
-          ? <span className="inline-flex items-center gap-1"><MapPin size={13} aria-hidden="true" />{partido.estadio}</span>
-          : <span className="inline-flex items-center gap-1 text-gray-400"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
+        {partido.grupo && <span className="text-gray-400">{/^grupo\b/i.test(partido.grupo) ? partido.grupo : `Grupo ${partido.grupo}`}</span>}
+        {!partido.estadio && <span className="inline-flex items-center gap-1 text-gray-400"><MapPin size={13} aria-hidden="true" />Sin estadio</span>}
         {partido.arbitro
           ? <span className="inline-flex items-center gap-1"><User size={13} aria-hidden="true" />{partido.arbitro}</span>
           : partido.jugado
@@ -958,8 +907,13 @@ function PartidoCard({ partido, idCampeonato, jornada, movil = false }) {
         </div>
       )}
 
+      {/* Goles y tarjetas plegados: la tarjeta queda limpia; el detalle completo está en «Ver resumen». */}
       {partido.eventos?.length > 0 && (
-        <div className="mb-3 space-y-1">
+        <details className="mb-3 group">
+          <summary className="inline-flex min-h-9 pointer-coarse:min-h-11 cursor-pointer items-center gap-1 rounded text-xs text-gray-400 hover:text-gray-200">
+            Eventos ({partido.eventos.length})<span aria-hidden="true" className="transition-transform group-open:rotate-180">▾</span>
+          </summary>
+        <div className="mt-1 space-y-1">
           {partido.eventos.map(ev => (
             <div key={ev.idEvento} className="flex items-center justify-between text-xs text-gray-400 bg-gray-800/40 rounded px-2 py-1">
               <span><IconoEvento tipo={ev.tipoEvento} className="mr-0.5" /> {ev.jugador} {ev.tipoEvento === 'GOL_EN_CONTRA' && <span className="text-amber-500">(en contra)</span>} <span className="text-gray-600">min. {ev.minuto}</span>{ev.registradoPor && <span className="text-gray-600"> · registrado por {ev.registradoPor}</span>}</span>
@@ -971,9 +925,10 @@ function PartidoCard({ partido, idCampeonato, jornada, movil = false }) {
             </div>
           ))}
         </div>
+        </details>
       )}
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="mt-auto flex gap-2 flex-wrap">
         {/* Orden: lo más usado primero; «Eliminar» al final y en rojo. Todos con el mismo alto y letra. */}
         {/* Jugado: el modo en vivo solo muestra el resumen. */}
         <Link
@@ -1119,26 +1074,18 @@ function PartidoCard({ partido, idCampeonato, jornada, movil = false }) {
 
 // ── Card de Jornada ───────────────────────────────────────────────────────────
 
-function JornadaCard({ jornada, idCampeonato, expanded, onToggle, movil = false }) {
+// La jornada elegida en la tira: título con sus acciones y sus partidos en tarjetas por día.
+function JornadaCard({ jornada, idCampeonato }) {
   const queryClient = useQueryClient()
   const aviso = useAviso()
   const { confirmar } = useDialogos()
-  const tarjeta = useRef(null)
-  const panelId = useId()
-
-  // Si la jornada llega abierta desde la dirección (al recargar o volver), se lleva a la vista.
-  useEffect(() => {
-    if (expanded && !movil) tarjeta.current?.scrollIntoView({ block: 'start' })
-    // Solo al montar.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
   const [showPartidoModal, setShowPartidoModal] = useState(false)
   const [partidoError, setPartidoError] = useState('')
 
   const { data: jornadaDetalle, isLoading: cargandoDetalle, isError: errorDetalle, refetch: recargarDetalle, isFetching: recargandoDetalle } = useQuery({
     queryKey: ['jornada', jornada.idJornada],
     queryFn:  () => api.get(`/jornadas/${jornada.idJornada}`).then(r => r.data),
-    enabled:  expanded || movil,
+    enabled:  true,
   })
 
   const agregarPartidoMutation = useMutation({
@@ -1177,100 +1124,55 @@ function JornadaCard({ jornada, idCampeonato, expanded, onToggle, movil = false 
   const { data: campFlyer } = useQuery({
     queryKey: ['campeonato', idCampeonato],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}`).then(r => r.data),
-    enabled:  expanded || movil,
+    enabled:  true,
   })
   const { data: enlaceFlyer } = useQuery({
     queryKey: ['enlace-publico', Number(idCampeonato)],
     queryFn:  () => api.get(`/campeonatos/${idCampeonato}/enlace-publico`).then(r => r.data),
-    enabled:  expanded || movil,
+    enabled:  true,
   })
   const porJugar = partidos.some(p => !p.jugado)
 
-  const tarjetasPartidos = () => (
-    <PartidosPorDia partidos={partidos} render={p => (
-      <li key={p.idPartido}>
-        <PartidoCard partido={p} idCampeonato={idCampeonato} movil
-          jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia }} />
-      </li>
-    )} />
-  )
-
+  const datosJornada = { numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia }
   return (
-    <div ref={tarjeta} className={movil ? '' : 'border border-gray-800 rounded-lg overflow-hidden scroll-mt-4'}>
-      {movil && (
-        <TituloJornada numero={jornada.numero} instancia={jornada.instancia} grupo={jornada.grupo}
-          jugados={jornada.jugados ?? 0} total={jornada.totalPartidos}>
-          <button type="button" onClick={eliminarJornada} aria-label={`Eliminar la jornada ${jornada.numero}`}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded px-2 text-sm text-gray-400 hover:text-red-400">
-            <Trash2 size={15} aria-hidden="true" />Eliminar
-          </button>
-        </TituloJornada>
-      )}
-      {!movil && (
-      <div className="flex items-center gap-2 pr-3 hover:bg-gray-800/30 transition-colors">
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={expanded}
-          aria-controls={panelId}
-          className="flex flex-1 min-w-0 items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-2 focus-visible:outline-brand-400 rounded-lg"
-        >
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-          <span className="text-white font-medium">Jornada {jornada.numero}</span>
-          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{jornada.instancia}</span>
-          {jornada.grupo && <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">Grupo {jornada.grupo}</span>}
-          <span className="text-xs text-gray-600">{jornada.totalPartidos} partido{jornada.totalPartidos !== 1 ? 's' : ''}</span>
-          {jornada.equipoLibre && (
-            <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-900/20 border border-amber-800/50 px-2 py-0.5 rounded">
-              <Armchair size={12} aria-hidden="true" />Libre: {jornada.equipoLibre}
-            </span>
-          )}
-        </span>
-          <span className="text-gray-500 text-sm" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
+    <div>
+      <TituloJornada numero={jornada.numero} instancia={jornada.instancia} grupo={jornada.grupo}
+        jugados={jornada.jugados ?? 0} total={jornada.totalPartidos}>
+        <button type="button" onClick={() => setShowPartidoModal(true)}
+          className="inline-flex min-h-9 pointer-coarse:min-h-11 items-center rounded-lg border border-dashed border-gray-600 px-3 text-sm text-gray-300 hover:border-gray-400 hover:text-white">
+          + Agregar partido
         </button>
-        <button
-          type="button"
-          onClick={eliminarJornada}
-          aria-label={`Eliminar la jornada ${jornada.numero}`}
-          className="text-gray-600 hover:text-red-400 transition-colors text-xs px-1"
-        >Eliminar</button>
-      </div>
-      )}
+        {porJugar && campFlyer && (
+          <BotonFlyer campeonato={campFlyer.nombre}
+            jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia, grupo: jornadaDetalle?.grupo ?? jornada.grupo }}
+            partidos={partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))}
+            enlace={enlaceFlyer?.tokenAficionados ? `${window.location.origin}/publico/${enlaceFlyer.tokenAficionados}` : null} />
+        )}
+        <button type="button" onClick={eliminarJornada} aria-label={`Eliminar la jornada ${jornada.numero}`}
+          className="inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1.5 rounded px-2 text-sm text-gray-400 hover:text-red-400">
+          <Trash2 size={15} aria-hidden="true" />Eliminar jornada
+        </button>
+      </TituloJornada>
 
-      {(expanded || movil) && (
-        <div id={panelId} className={movil ? 'space-y-3' : 'border-t border-gray-800 p-4 space-y-3'}>
-          {jornadaDetalle?.equipoLibre && (
-            <p className="flex items-center gap-1.5 text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
-              <Armchair size={13} aria-hidden="true" className="shrink-0" />{jornadaDetalle.equipoLibre} queda libre en esta jornada.
-            </p>
-          )}
-          {cargandoDetalle ? (
-            <p className="text-gray-500 text-sm text-center py-4">Cargando partidos...</p>
-          ) : errorDetalle ? (
-            <EstadoError compacto mensaje="No se pudieron cargar los partidos de esta jornada."
-              onReintentar={recargarDetalle} reintentando={recargandoDetalle} />
-          ) : partidos.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-4">No hay partidos en esta jornada.</p>
-          ) : movil ? tarjetasPartidos() : (
-            partidos.map(p => (
-              <PartidoCard key={p.idPartido} partido={p} idCampeonato={idCampeonato}
-                jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia }} />
-            ))
-          )}
-          {porJugar && campFlyer && (
-            <div className="flex justify-end">
-              <BotonFlyer campeonato={campFlyer.nombre}
-                jornada={{ numero: jornada.numero, instancia: jornadaDetalle?.instancia ?? jornada.instancia, grupo: jornadaDetalle?.grupo ?? jornada.grupo }}
-                partidos={partidos.map(p => ({ fecha: p.fecha, local: p.equipoLocal, visitante: p.equipoVisitante, logoLocal: p.logoLocal, logoVisitante: p.logoVisitante, estadio: p.estadio }))}
-                enlace={enlaceFlyer?.tokenAficionados ? `${window.location.origin}/publico/${enlaceFlyer.tokenAficionados}` : null} />
-            </div>
-          )}
-          <button
-            onClick={() => setShowPartidoModal(true)}
-            className="w-full border border-dashed border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300 text-sm py-2 rounded-lg transition-colors"
-          >+ Agregar partido</button>
-        </div>
-      )}
+      <div className="space-y-3">
+        {jornadaDetalle?.equipoLibre && (
+          <p className="flex items-center gap-1.5 text-amber-400 text-xs bg-amber-900/20 border border-amber-800/50 rounded px-3 py-2">
+            <Armchair size={13} aria-hidden="true" className="shrink-0" />{jornadaDetalle.equipoLibre} queda libre en esta jornada.
+          </p>
+        )}
+        {cargandoDetalle ? (
+          <p className="text-gray-500 text-sm text-center py-4">Cargando partidos...</p>
+        ) : errorDetalle ? (
+          <EstadoError compacto mensaje="No se pudieron cargar los partidos de esta jornada."
+            onReintentar={recargarDetalle} reintentando={recargandoDetalle} />
+        ) : partidos.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-4">No hay partidos en esta jornada.</p>
+        ) : (
+          <PartidosPorDia partidos={partidos} columnas={2} render={p => (
+            <li key={p.idPartido}><PartidoCard partido={p} idCampeonato={idCampeonato} jornada={datosJornada} /></li>
+          )} />
+        )}
+      </div>
 
       <Modal isOpen={showPartidoModal}
              onClose={() => { setShowPartidoModal(false); setPartidoError('') }}
@@ -1580,17 +1482,12 @@ export default function CampeonatoDetalle() {
   const [params, setParams] = useSearchParams()
   const tab = TABS_DETALLE.some(([clave]) => clave === params.get('tab')) ? params.get('tab') : 'equipos'
   const jornadaAbierta = params.get('jornada')
-  const esCelular = useEsCelular()
   const setTab = (clave) => setParams(clave === 'equipos' ? {} : { tab: clave }, { replace: true })
   // Última pestaña visitada de cada grupo: volver a un grupo abre donde se quedó.
   const [ultimaDeGrupo, setUltimaDeGrupo] = useState({})
   const elegirTab = (clave) => { setUltimaDeGrupo(u => ({ ...u, [grupoDeTab(clave)[0]]: clave })); setTab(clave) }
   const [grupoActual, , tabsDelGrupo] = grupoDeTab(tab)
   const [verInfo, setVerInfo] = useState(false)
-  const alternarJornada = (idJornada) => setParams(
-    jornadaAbierta === String(idJornada) ? { tab: 'jornadas' } : { tab: 'jornadas', jornada: String(idJornada) },
-    { replace: true },
-  )
   const [showAgregar, setShowAgregar]           = useState(false)
   const [equiposSel, setEquiposSel]             = useState([])
   const [showJornadaModal, setShowJornadaModal] = useState(false)
@@ -1934,26 +1831,18 @@ export default function CampeonatoDetalle() {
               <p className="text-gray-600 text-xs mt-1">Cree jornadas manualmente o genere el calendario desde la pestaña Grupos.</p>
             </div>
           ) : (
-            esCelular ? (() => {
-              const resumen = jornadas.map(j => ({ idJornada: j.idJornada, numero: j.numero, fecha: j.fecha, jugados: j.jugados ?? 0, total: j.totalPartidos }))
+            (() => {
+              const resumen = jornadas.map(j => ({ idJornada: j.idJornada, numero: j.numero, instancia: j.instancia, fecha: j.fecha, jugados: j.jugados ?? 0, total: j.totalPartidos }))
               const elegida = jornadas.find(j => String(j.idJornada) === jornadaAbierta)
                 ?? jornadas.find(j => j.idJornada === jornadaActual(resumen)) ?? jornadas[0]
               return (
                 <div>
                   <TiraJornadas jornadas={resumen} idActual={elegida.idJornada}
                     onElegir={(idJ) => setParams({ tab: 'jornadas', jornada: String(idJ) }, { replace: true })} />
-                  <JornadaCard key={elegida.idJornada} jornada={elegida} idCampeonato={id} expanded movil onToggle={() => {}} />
+                  <JornadaCard key={elegida.idJornada} jornada={elegida} idCampeonato={id} />
                 </div>
               )
-            })() : (
-            <div className="space-y-3">
-              {jornadas.map(j => (
-                <JornadaCard key={j.idJornada} jornada={j} idCampeonato={id}
-                  expanded={jornadaAbierta === String(j.idJornada)}
-                  onToggle={() => alternarJornada(j.idJornada)} />
-              ))}
-            </div>
-            )
+            })()
           )}
         </div>
       )}

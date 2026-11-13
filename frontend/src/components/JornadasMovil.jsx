@@ -1,20 +1,32 @@
 import { useEffect, useRef } from 'react'
-import { Check, MapPin } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import LogoEquipo from './LogoEquipo'
 import { diaCorto, diaDe, horaDe } from '../utils/fechas'
 
-// Vista de jornadas para el celular (opción A, «marcador»): una tira de jornadas que se desliza
-// y una tarjeta por partido con los dos equipos frente a frente y el marcador al medio.
-// La usan la página pública, el dirigente y el organizador; en computadora no se usa.
+// Vista de jornadas (opción A, «marcador»): una tira de jornadas que se desliza y una tarjeta
+// por partido con los dos equipos frente a frente y el marcador al medio. La usan la página
+// pública, el dirigente y el organizador, en celular (una columna) y en PC (dos o tres).
 
-// Tira de jornadas. jornadas: [{ idJornada, numero, fecha, jugados, total }].
+// Nombre corto de la jornada en la tira: «J4», o la ronda en la eliminatoria («Semi», «Final»).
+const RONDAS = [[/octavos/i, '8vos'], [/cuartos/i, '4tos'], [/semi/i, 'Semi'], [/tercer/i, '3.er'], [/^final/i, 'Final']]
+function corto(j) {
+  return RONDAS.find(([re]) => re.test(j.instancia ?? ''))?.[1] ?? `J${j.numero}`
+}
+
+// Tira de jornadas. jornadas: [{ idJornada, numero, instancia, fecha, jugados, total }].
 export function TiraJornadas({ jornadas, idActual, onElegir }) {
   const elegida = useRef(null)
+  const lista = useRef(null)
+  const mover = (lado) => lista.current?.scrollBy({ left: lado * lista.current.clientWidth * 0.8, behavior: 'smooth' })
   // La jornada elegida siempre a la vista (al abrir y al cambiar).
   useEffect(() => { elegida.current?.scrollIntoView({ block: 'nearest', inline: 'center' }) }, [idActual])
   return (
-    <nav aria-label="Jornadas" className="sticky top-0 z-10 -mx-4 mb-3 border-b border-gray-800 bg-gray-950/95 px-4 py-2 backdrop-blur">
-      <ul className="relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+    <nav aria-label="Jornadas" className="sticky top-0 z-10 -mx-4 mb-3 flex items-center gap-2 border-b border-gray-800 bg-gray-950/95 px-4 py-2 backdrop-blur sm:mx-0 sm:mb-4 sm:rounded-xl sm:border sm:px-2">
+      <button type="button" onClick={() => mover(-1)} aria-label="Ver jornadas anteriores"
+        className="hidden h-[52px] w-9 shrink-0 items-center justify-center rounded-xl border border-gray-800 text-gray-300 hover:border-gray-600 sm:flex">
+        <ChevronLeft size={18} aria-hidden="true" />
+      </button>
+      <ul ref={lista} className="relative flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:pb-0">
         {jornadas.map(j => {
           const actual = String(j.idJornada) === String(idActual)
           const completa = j.total > 0 && j.jugados === j.total
@@ -24,7 +36,7 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
                 aria-current={actual ? 'true' : undefined}
                 className={`relative flex h-[52px] min-w-16 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 ${
                   actual ? 'bg-brand-400 text-gray-950' : 'border border-gray-800 bg-gray-900 text-gray-400'}`}>
-                <span className={`text-xs ${actual ? 'font-bold' : 'font-medium'}`}><span className="sr-only">Jornada </span>J{j.numero}</span>
+                <span className={`text-xs ${actual ? 'font-bold' : 'font-medium'}`}><span className="sr-only">Jornada {j.numero}: </span>{corto(j)}</span>
                 <span className={`text-[10px] ${actual ? 'font-semibold' : ''}`}>
                   {completa ? <><Check size={12} aria-hidden="true" /><span className="sr-only">, jugada</span></> : (j.fecha ? diaCorto(j.fecha) : <span aria-hidden="true">—</span>)}
                 </span>
@@ -33,6 +45,10 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
           )
         })}
       </ul>
+      <button type="button" onClick={() => mover(1)} aria-label="Ver jornadas siguientes"
+        className="hidden h-[52px] w-9 shrink-0 items-center justify-center rounded-xl border border-gray-800 text-gray-300 hover:border-gray-600 sm:flex">
+        <ChevronRight size={18} aria-hidden="true" />
+      </button>
     </nav>
   )
 }
@@ -40,21 +56,23 @@ export function TiraJornadas({ jornadas, idActual, onElegir }) {
 // Encabezado de la jornada elegida: «JORNADA 4» y «Fase regular · 2 de 3 jugados».
 export function TituloJornada({ numero, instancia, grupo, jugados, total, children }) {
   return (
-    <div className="mb-3 flex items-start justify-between gap-3">
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-x-3 gap-y-2 sm:mb-4">
       <div className="min-w-0">
-        <h2 className="font-display text-2xl tracking-wide text-white">JORNADA {numero}</h2>
+        <h2 className="font-display text-2xl tracking-wide text-white sm:text-3xl">JORNADA {numero}</h2>
         <p className="text-xs text-gray-400">
           {instancia}{grupo ? ` · ${/^grupo\b/i.test(grupo) ? grupo : `Grupo ${grupo}`}` : ''}
           {total > 0 && ` · ${jugados === total ? (total === 1 ? '1 partido jugado' : `${total} partidos jugados`) : `${jugados} de ${total} jugados`}`}
         </p>
       </div>
-      {children}
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
   )
 }
 
 // Partidos agrupados por día, con el título del día encima. render(partido) dibuja cada uno.
-export function PartidosPorDia({ partidos, render }) {
+// columnas: cuántas tarjetas por fila en PC (3 la pública y el dirigente; 2 el organizador).
+const REJILLA = { 2: 'grid gap-3 lg:grid-cols-2 lg:gap-4', 3: 'grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4' }
+export function PartidosPorDia({ partidos, render, columnas = 3 }) {
   const grupos = []
   for (const p of partidos) {
     const d = diaDe(p.fecha)
@@ -67,7 +85,7 @@ export function PartidosPorDia({ partidos, render }) {
       {grupos.map(g => (
         <section key={g.clave || 'sin-fecha'} aria-label={g.titulo}>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">{g.titulo}</h3>
-          <ul className="space-y-3">{g.partidos.map(render)}</ul>
+          <ul className={REJILLA[columnas]}>{g.partidos.map(render)}</ul>
         </section>
       ))}
     </div>
