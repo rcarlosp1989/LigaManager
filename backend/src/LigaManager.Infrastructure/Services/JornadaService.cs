@@ -317,7 +317,9 @@ public class JornadaService : IJornadaService
                 j.Instancia.Nombre,
                 j.Grupo != null ? j.Grupo.Nombre : null,
                 j.Partidos.Count,
-                equipoLibre
+                equipoLibre,
+                j.Partidos.Count > 0 ? j.Partidos.Min(p => p.Fecha).ToString("yyyy-MM-dd") : null,
+                j.Partidos.Count(p => p.Jugado)
             ));
         }
         return result;

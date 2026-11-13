@@ -39,3 +39,24 @@ export function anioDe(valor) {
 
 // Fecha y hora de un partido en el formato del formulario: «2026-10-29T13:30».
 export const fechaHoraCompleta = (valor) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(valor ?? '')
+
+const DIAS_LARGOS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+
+// Día de un partido para agrupar: clave «2026-10-11» y título «sábado 11 oct».
+export function diaDe(valor) {
+  const p = partes(valor)
+  if (!p) return { clave: '', titulo: 'Sin fecha' }
+  return { clave: `${p.anio}-${p.mes}-${p.dia}`, titulo: `${DIAS_LARGOS[p.fecha.getDay()]} ${p.dia} ${MESES[p.mes]}` }
+}
+
+// «10:00», o '' si no trae hora (o es 00:00).
+export function horaDe(valor) {
+  const p = partes(valor)
+  return p?.hora && !(p.hora === '00' && p.minuto === '00') ? `${p.hora}:${p.minuto}` : ''
+}
+
+// «11 oct», para la tira de jornadas.
+export function diaCorto(valor) {
+  const p = partes(valor)
+  return p ? `${p.dia} ${MESES[p.mes]}` : ''
+}
