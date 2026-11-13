@@ -224,7 +224,7 @@ for (const ancho of [390, 1440]) {
     if (GRUPO[t] && !(await nav.getByRole('button', { name: t, exact: true }).isVisible().catch(() => false))) await nav.getByRole('button', { name: GRUPO[t], exact: true }).click().catch(() => {})
     if (await clic(page, nav.getByRole('button', { name: t, exact: true }), rol, ancho, `pestaña ${t}`)) await revisar(page, rol, ancho, `campeonato-${t.toLowerCase()}`, { t0: t1, teclado: t === 'Jornadas' })
     if (t === 'Jornadas') {
-      const jornada = page.getByRole('button', { name: /Jornada \d/ })
+      const jornada = page.getByRole('navigation', { name: 'Jornadas' }).getByRole('button', { name: /Jornada \d/ })
       if (await clic(page, jornada, rol, ancho, 'abrir la primera jornada')) await revisar(page, rol, ancho, 'jornada-abierta')
       {
         const tira = page.getByRole('navigation', { name: 'Jornadas' })
@@ -242,9 +242,13 @@ for (const ancho of [390, 1440]) {
           const acciones = await page.getByRole('button', { name: /Planilla/ }).count()
           paso(rol, ancho, 'VERIFICAR: celular: el organizador conserva sus botones bajo cada tarjeta', acciones > 0, String(acciones))
         } else {
-          paso(rol, ancho, 'VERIFICAR: computadora: jornadas como antes (sin tira)', chips === 0, `chips=${chips}`)
+          const cols = await page.locator('[data-marcador]').evaluateAll(es => new Set(es.map(e => Math.round(e.getBoundingClientRect().left))).size)
+          paso(rol, ancho, 'VERIFICAR: PC: tira de jornadas y tarjetas en dos columnas', chips > 1 && titulos === 1 && cols === Math.min(2, marcadores), `chips=${chips} titulos=${titulos} marcadores=${marcadores} columnas=${cols}`)
+          await tira.getByRole('button', { name: 'Ver jornadas siguientes' }).click().catch(() => {})
+          paso(rol, ancho, 'VERIFICAR: PC: flechas para mover la tira', (await tira.getByRole('button', { name: /Ver jornadas/ }).count()) === 2)
         }
       }
+      for (const d of await page.locator('details').all()) await d.evaluate(e => { e.open = true })
       const xs = await page.locator('button[aria-label^="Eliminar "]').evaluateAll(bs => bs.filter(b => b.offsetParent && b.textContent.trim() === '✕').map(b => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)] }))
       paso(rol, ancho, 'VERIFICAR: botones ✕ de eventos de al menos 24 px (44 en táctil)', xs.length > 0 && xs.every(([w, h]) => w >= (ancho < 500 ? 44 : 24) && h >= (ancho < 500 ? 44 : 24)), JSON.stringify(xs.slice(0, 6)))
       const planilla = page.getByRole('button', { name: /Planilla|Registrar|Resultado/i })
@@ -396,7 +400,7 @@ if (P.dirigente) {
       const chips = await page.getByRole('navigation', { name: 'Jornadas' }).getByRole('button').count().catch(() => 0)
       const marc = await page.locator('[data-marcador]').count()
       if (ancho < 500) paso(rol, ancho, 'VERIFICAR: dirigente celular: tira de jornadas y tarjetas marcador', chips > 0 && marc > 0, `chips=${chips} marcadores=${marc}`)
-      else paso(rol, ancho, 'VERIFICAR: dirigente computadora: jornadas como antes', chips === 0, `chips=${chips}`)
+      else paso(rol, ancho, 'VERIFICAR: dirigente PC: tira de jornadas y tarjetas marcador', chips > 0 && marc > 0, `chips=${chips} marcadores=${marc}`)
       await revisar(page, rol, ancho, 'jornadas-tarjetas', { teclado: false })
     }
     const nom = page.getByRole('button', { name: 'Nómina', exact: true })
@@ -435,7 +439,8 @@ for (const [k, token] of tokens) {
         paso(rol, ancho, 'VERIFICAR: público celular: «Estadísticas» abre goleadores' + (rol === 'publico' ? ' con tarjetas y suspensiones a un toque' : ''), rol === 'publico' ? sub.join('|') === 'Goleadores|Tarjetas|Suspensiones' : sub.length === 0, sub.join('|'))
         await barra.getByRole('button', { name: 'Partidos' }).click().catch(() => {}); await esperar(page)
       } else {
-        paso(rol, ancho, 'VERIFICAR: público computadora: sin barra inferior ni tira; pestañas arriba', enBarra.length === 0 && chips === 0 && pestanasArriba, `barra=${enBarra.length} chips=${chips} arriba=${pestanasArriba}`)
+        const cols = await page.locator('[data-marcador]').evaluateAll(es => new Set(es.map(e => Math.round(e.getBoundingClientRect().left))).size)
+        paso(rol, ancho, 'VERIFICAR: público PC: pestañas arriba, sin barra inferior; tira y tarjetas en columnas', enBarra.length === 0 && chips > 0 && pestanasArriba && marc > 0 && cols === Math.min(3, marc), `barra=${enBarra.length} chips=${chips} arriba=${pestanasArriba} marcadores=${marc} columnas=${cols}`)
       }
     }
     for (const b of (await page.getByRole('button').all()).slice(0, 12)) {
