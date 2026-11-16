@@ -33,14 +33,14 @@ function Ultimos({ forma }) {
 // Orden de columnas: J · GF:GC · +/- · PTS | G · E · P | Últimas. En el celular se ve sin deslizar hasta
 // los puntos; el resto aparece al deslizar, con el puesto y el equipo fijos.
 export default function TablaPosiciones({ posiciones, logos, conForma = false }) {
-  const celda = 'px-2 sm:px-3 py-2 text-center tabular-nums'
+  const celda = 'px-1.5 sm:px-3 py-2 text-center tabular-nums'
   return (
     <TablaDesplazable>
-      <table className={`tabla w-full text-sm ${conForma ? 'min-w-[600px]' : 'min-w-[460px]'}`}>
+      <table className={`tabla w-full text-sm [--ancho-fija-1:2rem] sm:[--ancho-fija-1:2.75rem] ${conForma ? 'min-w-[580px]' : 'min-w-[440px]'}`}>
         <thead>
           <tr className="border-b border-gray-800 text-xs uppercase tracking-wider">
-            <th scope="col" className="fija w-11 min-w-11 px-2 sm:px-3 py-2 text-left">#</th>
-            <th scope="col" className="fija fija-2 fija-borde px-2 sm:px-3 py-2 text-left">Equipo</th>
+            <th scope="col" className="fija w-8 min-w-8 px-1.5 sm:w-11 sm:min-w-11 sm:px-3 py-2 text-left">#</th>
+            <th scope="col" className="fija fija-2 fija-borde px-1.5 sm:px-3 py-2 text-left">Equipo</th>
             <th scope="col" className={celda}><abbr title="Jugados" className="no-underline">J</abbr></th>
             <th scope="col" className={celda}><abbr title="Goles a favor y en contra" className="no-underline">GF:GC</abbr></th>
             <th scope="col" className={celda}><abbr title="Diferencia de goles" className="no-underline">+/-</abbr></th>
@@ -54,11 +54,11 @@ export default function TablaPosiciones({ posiciones, logos, conForma = false })
         <tbody>
           {posiciones.map(p => (
             <tr key={p.idEquipo} className={`border-b border-gray-800/50 ${p.clasificado ? 'fila-destacada' : ''}`}>
-              <td className="fija w-11 min-w-11 px-2 sm:px-3 py-2"><Puesto n={p.posicion} clasificado={p.clasificado} /></td>
-              <th scope="row" className="fija fija-2 fija-borde px-2 sm:px-3 py-2 text-left font-medium text-white">
-                <span className="flex items-center gap-2" title={p.equipo}>
-                  <LogoEquipo nombre={p.equipo} logoUrl={logos?.get(p.idEquipo)} tamano={22} />
-                  <span className="min-w-0 max-w-[7.5rem] truncate sm:max-w-[16rem]">{p.equipo}</span>
+              <td className="fija w-8 min-w-8 px-1.5 sm:w-11 sm:min-w-11 sm:px-3 py-2"><Puesto n={p.posicion} clasificado={p.clasificado} /></td>
+              <th scope="row" className="fija fija-2 fija-borde px-1.5 sm:px-3 py-2 text-left font-medium text-white">
+                <span className="flex items-center gap-1.5 sm:gap-2" title={p.equipo}>
+                  <LogoEquipo nombre={p.equipo} logoUrl={logos?.get(p.idEquipo)} tamano={20} />
+                  <span className="min-w-0 max-w-[6.5rem] truncate sm:max-w-[16rem]">{p.equipo}</span>
                 </span>
               </th>
               <td className={`${celda} text-gray-300`}>{p.pj}</td>
