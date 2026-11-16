@@ -36,7 +36,7 @@ export default function TablaPosiciones({ posiciones, logos, conForma = false })
   const celda = 'px-1.5 sm:px-3 py-2 text-center tabular-nums'
   return (
     <TablaDesplazable>
-      <table className={`tabla w-full text-sm [--ancho-fija-1:2rem] sm:[--ancho-fija-1:2.75rem] ${conForma ? 'min-w-[580px]' : 'min-w-[440px]'}`}>
+      <table className={`tabla w-full text-sm [--ancho-fija-1:2rem] sm:[--ancho-fija-1:2.75rem] ${conForma ? 'sm:min-w-[580px]' : 'sm:min-w-[440px]'}`}>
         <thead>
           <tr className="border-b border-gray-800 text-xs uppercase tracking-wider">
             <th scope="col" className="fija w-8 min-w-8 px-1.5 sm:w-11 sm:min-w-11 sm:px-3 py-2 text-left">#</th>
