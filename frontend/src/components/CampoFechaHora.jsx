@@ -10,12 +10,8 @@ import { fechaHoraCompleta } from '../utils/fechas'
 const HORAS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'))
 const MINUTOS = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'))
 
-const nombreHora = (h) => {
-  const n = Number(h)
-  if (n === 0) return '00 (medianoche)'
-  if (n === 12) return '12 (mediodía)'
-  return n < 12 ? `${h} (${n} de la mañana)` : `${h} (${n - 12} de la tarde)`
-}
+// Corto, en 24 horas: «10 am», «14 pm» (de 00 am a 11 am y de 12 pm a 23 pm).
+const nombreHora = (h) => `${h} ${Number(h) < 12 ? 'am' : 'pm'}`
 
 export default function CampoFechaHora({ id, value, onChange, required = false, leyenda = 'Fecha y hora' }) {
   const uid = useId()
@@ -39,7 +35,7 @@ export default function CampoFechaHora({ id, value, onChange, required = false, 
         <div className="flex items-center gap-1.5">
           <label className="block min-w-0 flex-1 sm:flex-none">
             <span className="sr-only">Hora (formato de 24 horas)</span>
-            <select id={`${base}-hora`} className="input-field sm:w-56" value={hora} required={required}
+            <select id={`${base}-hora`} className="input-field sm:w-32" value={hora} required={required}
               onChange={e => poner(fecha, e.target.value, minuto)}>
               <option value="">Hora</option>
               {HORAS.map(h => <option key={h} value={h}>{nombreHora(h)}</option>)}
@@ -56,7 +52,7 @@ export default function CampoFechaHora({ id, value, onChange, required = false, 
           </label>
         </div>
       </div>
-      <p className="mt-1 text-xs text-gray-500">Horario de 24 horas: 13 es la 1 de la tarde.</p>
+      <p className="mt-1 text-xs text-gray-500">Horario de 24 horas: 14 pm son las 2 de la tarde.</p>
       {madrugada && (
         <div role="alert" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
           <span>Ese horario es de madrugada ({hora}:{minuto}). ¿Es correcto?</span>
