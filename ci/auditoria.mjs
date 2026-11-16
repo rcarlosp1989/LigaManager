@@ -310,6 +310,42 @@ for (const ancho of [390, 1440]) {
     R('«Reportes de este campeonato» abre Reportes con ese campeonato', page.url().includes(`campeonato=${P.campA}`) && sel === String(P.campA), `${page.url()} sel=${sel}`)
     await revisar(page, rol, ancho, 'reportes-desde-campeonato', { teclado: false })
 
+    // ── Hora corta y tablas ──
+    {
+      const V = (t, ok, d = '') => paso(rol, ancho, 'VERIFICAR: ' + t, ok, d)
+      await ir(page, `/campeonatos/${P.campA}?tab=jornadas`); await esperar(page)
+      const tabla = page.locator('table').first()
+      const heads = (await tabla.locator('thead th').allInnerTexts().catch(() => [])).map(x => x.trim().toUpperCase())
+      V('posiciones: columnas # · Equipo · J · GF:GC · +/- · PTS · G · E · P', heads.slice(0, 9).join('|') === '#|EQUIPO|J|GF:GC|+/-|PTS|G|E|P', heads.join('|'))
+      const pts = await tabla.locator('thead th', { hasText: 'PTS' }).boundingBox().catch(() => null)
+      if (ancho < 500) V('posiciones celular: los puntos se ven sin deslizar', !!pts && pts.x + pts.width <= ancho, JSON.stringify(pts))
+      const gfgc = await tabla.locator('tbody tr').first().locator('td').nth(2).innerText().catch(() => '')
+      V('posiciones: GF:GC con dos puntos', /^\d+:\d+$/.test(gfgc.trim()), gfgc)
+      await revisar(page, rol, ancho, 'tabla-posiciones-nueva', { teclado: false })
+      const editar = page.getByRole('button', { name: 'Editar', exact: true }).first()
+      if (await editar.count()) {
+        await editar.click(); await esperar(page)
+        const ops = await page.locator('select[id$="-hora"] option').allInnerTexts().catch(() => [])
+        V('hora: la lista dice «10 am» y «14 pm», sin «de la mañana»', ops.includes('10 am') && ops.includes('14 pm') && ops.includes('00 am') && ops.includes('12 pm') && !ops.some(o => /mañana|tarde/.test(o)), ops.slice(0, 4).join('|') + '…' + ops.slice(-2).join('|'))
+        await revisar(page, rol, ancho, 'editar-partido-hora', { teclado: false })
+        await page.keyboard.press('Escape'); await esperar(page)
+      } else V('hora: hay un partido para editar', false)
+      await ir(page, `/reportes?campeonato=${P.campA}&tab=tarjetas`); await esperar(page)
+      if (await page.locator('table').count()) {
+        const anchoT = await page.locator('table').first().evaluate(t => [t.scrollWidth, t.parentElement.clientWidth])
+        if (ancho < 500) V('tarjetas celular: la tabla por jugador cabe sin deslizar', anchoT[0] <= anchoT[1] + 1, anchoT.join(' ≤ '))
+        await revisar(page, rol, ancho, 'tarjetas-tabla', { teclado: false })
+      }
+      await ir(page, `/reportes?campeonato=${P.campA}&tab=suspensiones`); await esperar(page)
+      const tarjetasS = await page.locator('main ul li', { has: page.locator('text=Partidos') }).count()
+      const tablaS = await page.locator('table', { has: page.locator('th', { hasText: 'Motivo' }) }).count()
+      if (tarjetasS + tablaS > 0) {
+        if (ancho < 500) V('suspensiones celular: una tarjeta por sanción', tarjetasS > 0 && tablaS === 0, `tarjetas=${tarjetasS} tablas=${tablaS}`)
+        else V('suspensiones PC: tabla', tablaS > 0 && tarjetasS === 0, `tarjetas=${tarjetasS} tablas=${tablaS}`)
+      }
+      await revisar(page, rol, ancho, 'suspensiones-vista', { teclado: false })
+    }
+
     // Editar jugador desde la nómina (organizador)
     await ir(page, `/reportes?campeonato=${P.campA}&tab=nomina`); await esperar(page)
     await page.getByLabel('Equipo', { exact: true }).selectOption({ index: 1 }); await esperar(page)
