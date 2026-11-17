@@ -86,7 +86,11 @@ for ruta, filas in (("goleadores", lambda d: d), ("tarjetas", lambda d: d["porJu
     if ruta != "suspensiones":
         esperar(f"{ruta}: el jugador aparece como «Carlos De la Cruz»", nuestro and nuestro[0]["jugador"] == "Carlos De la Cruz", str(nuestro))
         org_fila = [x for x in filas(o) if x["idJugador"] == jug["idJugador"]]
-        esperar(f"{ruta}: el organizador lo sigue viendo completo y con foto", org_fila and org_fila[0]["jugador"] == completo and org_fila[0].get("fotoUrl"), str(org_fila))
+        esperar(f"{ruta}: el organizador también lo ve corto, y con foto", org_fila and org_fila[0]["jugador"] == "Carlos De la Cruz" and org_fila[0].get("fotoUrl"), str(org_fila))
+
+# Eventos de un partido (vista del organizador): también con nombre corto.
+evs = [e for jj in llamar("GET", f"/campeonatos/{A}/jornadas", org1)[1] for p in llamar("GET", f"/jornadas/{jj['idJornada']}", org1)[1]["partidos"] for e in p.get("eventos", []) if e.get("idJugador") == jug["idJugador"]]
+esperar("eventos del partido: «Carlos De la Cruz» también para el organizador", evs and all(e["jugador"] == "Carlos De la Cruz" for e in evs), str(evs[:2]))
 
 s, _ = llamar("GET", f"{P}/equipos/{local}")
 esperar("no hay nóminas públicas (404)", s == 404, str(s))
