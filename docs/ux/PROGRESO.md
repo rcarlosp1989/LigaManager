@@ -1504,3 +1504,10 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Tabla de posiciones (enlaces públicos, grupos y Reportes): columnas J · GF:GC · +/- · PTS | G · E · P | Últimas. En el celular se ven los puntos sin deslizar. Últimos resultados en español (G/E/P) en círculos con borde.
 - Tarjetas: en el celular el equipo va bajo el jugador y la tabla cabe sin deslizar (Acum., amarillas, rojas, total).
 - Suspensiones: en el celular, una tarjeta por sanción (jugador, equipo, motivo, fecha, partidos cumplidos y estado). «En riesgo» con el equipo bajo el nombre.
+
+## 2026-11-16 — Nombre corto del jugador en las tablas
+
+**Estado:** aplicada en la rama `mejora/nombre-corto`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Goleadores, tarjetas, suspensiones, «en riesgo» y los eventos de cada partido muestran solo el primer nombre y el primer apellido («Carlos Andrés Mendoza Pérez» → «Carlos Mendoza»; respeta «De la Cruz», «Del Pezo»), también para el organizador. Antes solo se acortaba en los enlaces públicos y para el dirigente.
+- La nómina, la planilla, el acta y la página Jugadores siguen con el nombre completo.
