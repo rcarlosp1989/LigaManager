@@ -1495,3 +1495,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - En las tarjetas del organizador, los goles y tarjetas quedan plegados en «Eventos (n)» (con su ✕ para borrar); el detalle completo está en «Ver resumen».
 - Las jornadas de eliminatoria se nombran en la tira por su ronda («Semi», «Final»…).
 - El API de jornadas suma `fecha` (primer partido) y `jugados`.
+
+## 2026-11-16 — Hora corta y tablas legibles en el celular
+
+**Estado:** aplicada en la rama `mejora/hora-y-tablas`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Hora del partido: la lista muestra «10 am», «14 pm» (de 00 am a 11 am y de 12 pm a 23 pm) en lugar de «10 (10 de la mañana)». Campo más angosto; ayuda: «14 pm son las 2 de la tarde».
+- Tabla de posiciones (enlaces públicos, grupos y Reportes): columnas J · GF:GC · +/- · PTS | G · E · P | Últimas. En el celular se ven los puntos sin deslizar. Últimos resultados en español (G/E/P) en círculos con borde.
+- Tarjetas: en el celular el equipo va bajo el jugador y la tabla cabe sin deslizar (Acum., amarillas, rojas, total).
+- Suspensiones: en el celular, una tarjeta por sanción (jugador, equipo, motivo, fecha, partidos cumplidos y estado). «En riesgo» con el equipo bajo el nombre.

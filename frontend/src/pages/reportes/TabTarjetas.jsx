@@ -58,30 +58,40 @@ export default function TabTarjetas({ idCampeonato, base = `/campeonatos/${idCam
         </p>
         <div className="border border-gray-800 rounded-lg overflow-hidden">
           <TablaDesplazable>
-            <table className="tabla w-full text-sm min-w-[500px]">
+            <table className="tabla w-full text-sm sm:min-w-[500px]">
               <thead>
                 <tr className="border-b border-gray-800">
-                  <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
+                  <th scope="col" className="fija fija-borde px-2 sm:px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
                   {['Equipo', 'Acumuladas', 'TARJETA_AMARILLA', 'TARJETA_ROJA', 'Total'].map(h => (
-                    <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'}`}>{encabezado(h)}</th>
+                    <th key={h} scope="col" className={`px-2 sm:px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'hidden sm:table-cell text-left' : 'text-center'}`}>
+                      {h === 'Acumuladas' ? <><span className="sm:hidden" aria-hidden="true">Acum.</span><span className="sr-only sm:not-sr-only">Acumuladas</span></>
+                        : h === 'Total' ? <><span className="sm:hidden" aria-hidden="true">Tot</span><span className="sr-only sm:not-sr-only">Total</span></>
+                        : encabezado(h)}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {porJugador.map(j => (
                   <tr key={j.idJugador} className="border-b border-gray-800/50">
-                    <th scope="row" className="fija fija-borde px-3 py-2 text-left font-medium text-white">
-                      <span className="flex items-center gap-2" title={j.jugador}><FotoJugador nombre={j.jugador} fotoUrl={j.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[9rem] truncate sm:max-w-[14rem]">{j.jugador}</span></span>
+                    <th scope="row" className="fija fija-borde px-2 sm:px-3 py-2 text-left font-medium text-white">
+                      <span className="flex items-center gap-2" title={j.jugador}>
+                        <FotoJugador nombre={j.jugador} fotoUrl={j.fotoUrl} tamano={24} />
+                        <span className="min-w-0 max-w-[6.5rem] sm:max-w-[14rem]">
+                          <span className="block truncate">{j.jugador}</span>
+                          <span className="block truncate text-xs font-normal text-gray-400 sm:hidden">{j.equipo}</span>
+                        </span>
+                      </span>
                     </th>
-                    <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{j.equipo}</td>
-                    <td className="px-3 py-2 text-center"><Acumuladas valor={j.amarillasAcumuladas ?? 0} limite={limite} /></td>
-                    <td className="px-3 py-2 text-center"><ConteoTarjetas valor={j.amarillas} tipo="amarilla" /></td>
-                    <td className="px-3 py-2 text-center"
+                    <td className="hidden sm:table-cell px-3 py-2 text-gray-400 whitespace-nowrap">{j.equipo}</td>
+                    <td className="px-2 sm:px-3 py-2 text-center"><Acumuladas valor={j.amarillasAcumuladas ?? 0} limite={limite} /></td>
+                    <td className="px-2 sm:px-3 py-2 text-center"><ConteoTarjetas valor={j.amarillas} tipo="amarilla" /></td>
+                    <td className="px-2 sm:px-3 py-2 text-center"
                       title={j.rojasPorDobleAmarilla > 0 ? `Incluye ${j.rojasPorDobleAmarilla} por doble amarilla` : undefined}>
                       <ConteoTarjetas valor={j.rojas} tipo="roja" />
-                      {j.rojasPorDobleAmarilla > 0 && <span className="ml-1 align-middle text-[10px] text-gray-500">({j.rojasPorDobleAmarilla} DA)</span>}
+                      {j.rojasPorDobleAmarilla > 0 && <span className="ml-1 block align-middle text-[10px] text-gray-400 sm:inline">({j.rojasPorDobleAmarilla} DA)</span>}
                     </td>
-                    <td className="px-3 py-2 text-white font-semibold text-center tabular-nums">{j.total}</td>
+                    <td className="px-2 sm:px-3 py-2 text-white font-semibold text-center tabular-nums">{j.total}</td>
                   </tr>
                 ))}
               </tbody>

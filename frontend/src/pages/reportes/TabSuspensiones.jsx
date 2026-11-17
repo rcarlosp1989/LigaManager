@@ -8,6 +8,7 @@ import TablaDesplazable from '../../components/TablaDesplazable'
 import FotoJugador from '../../components/FotoJugador'
 import NotaResponsabilidad from '../../components/NotaResponsabilidad'
 import { Avance, ConteoTarjetas } from '../../components/Indicadores'
+import { useEsCelular } from '../../utils/pantalla'
 
 function hoy() {
   return new Date().toISOString().slice(0, 10)
@@ -113,11 +114,21 @@ function AgregarSancionForm({ idCampeonato, onCerrar }) {
 }
 
 // soloLectura: el dirigente ve las sanciones, pero no las agrega ni las borra.
+function EstadoSancion({ estado }) {
+  return (
+    <span className={`shrink-0 text-xs px-2 py-0.5 rounded ${
+      estado === 'Suspendido' ? 'bg-red-900/30 text-red-400'
+        : estado === 'Anulada' ? 'bg-gray-800 text-gray-400' : 'bg-green-900/30 text-green-400'
+    }`} title={estado === 'Anulada' ? 'Se borró al empezar la fase eliminatoria, según la regla del campeonato.' : undefined}>{estado}</span>
+  )
+}
+
 export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${idCampeonato}`, soloLectura = false }) {
   const queryClient = useQueryClient()
   const aviso = useAviso()
   const { confirmar } = useDialogos()
   const [showForm, setShowForm] = useState(false)
+  const esCelular = useEsCelular()
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['estadisticas-suspensiones', idCampeonato, base],
@@ -166,6 +177,34 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
 
         {sanciones.length === 0 ? (
           <p className="text-gray-600 text-sm">Sin sanciones registradas.</p>
+        ) : esCelular ? (
+          // Celular: una tarjeta por sanción, sin deslizar.
+          <ul className="space-y-2">
+            {sanciones.map((s, i) => (
+              <li key={`${s.idJugador}-${s.idPartidoSancion ?? 'manual'}-${i}`} className="rounded-xl border border-gray-800 bg-gray-900 px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <FotoJugador nombre={s.jugador} fotoUrl={s.fotoUrl} tamano={32} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-white break-words">{s.jugador}</p>
+                      <EstadoSancion estado={s.estado} />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {s.equipo} · {s.motivo}{s.fechaPartidoSancion ? ` · ${s.fechaPartidoSancion}` : ''}
+                      {s.manual && <span className="ml-1.5 text-[10px] text-brand-400 border border-brand-700/50 rounded px-1 py-0.5 align-middle">Comisión</span>}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-xs text-gray-400">Partidos <Avance hecho={s.partidosCumplidos} total={s.partidosSancion} /></span>
+                      {s.manual && !soloLectura && (
+                        <button onClick={() => eliminar(s)} className="min-h-9 px-2 text-sm text-gray-400 hover:text-red-400"
+                          aria-label={`Eliminar la sanción de ${s.jugador}`}>✕</button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
             <TablaDesplazable>
@@ -191,12 +230,7 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
                       </td>
                       <td className="px-3 py-2 text-gray-500 text-center text-xs">{s.fechaPartidoSancion}</td>
                       <td className="px-3 py-2 text-center"><Avance hecho={s.partidosCumplidos} total={s.partidosSancion} /></td>
-                      <td className="px-3 py-2 text-center">
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          s.estado === 'Suspendido' ? 'bg-red-900/30 text-red-400'
-                            : s.estado === 'Anulada' ? 'bg-gray-800 text-gray-400' : 'bg-green-900/30 text-green-400'
-                        }`} title={s.estado === 'Anulada' ? 'Se borró al empezar la fase eliminatoria, según la regla del campeonato.' : undefined}>{s.estado}</span>
-                      </td>
+                      <td className="px-3 py-2 text-center"><EstadoSancion estado={s.estado} /></td>
                       <td className="px-3 py-2 text-center">
                         {s.manual && !soloLectura && (
                           <button
@@ -222,12 +256,12 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
         ) : (
           <div className="border border-gray-800 rounded-lg overflow-hidden">
             <TablaDesplazable>
-              <table className="tabla w-full text-sm min-w-[380px]">
+              <table className="tabla w-full text-sm sm:min-w-[380px]">
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th scope="col" className="fija fija-borde px-3 py-2 text-left text-xs uppercase tracking-wider">Jugador</th>
                     {['Equipo', 'Amarillas acumuladas'].map(h => (
-                      <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'text-left' : 'text-center'}`}>{h}</th>
+                      <th key={h} scope="col" className={`px-3 py-2 text-xs uppercase tracking-wider ${h === 'Equipo' ? 'hidden sm:table-cell text-left' : 'text-center'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -235,9 +269,10 @@ export default function TabSuspensiones({ idCampeonato, base = `/campeonatos/${i
                   {enRiesgo.map(r => (
                     <tr key={r.idJugador} className="border-b border-gray-800/50">
                       <th scope="row" className="fija fija-borde px-3 py-2 text-left font-medium text-white">
-                        <span className="flex items-center gap-2" title={r.jugador}><FotoJugador nombre={r.jugador} fotoUrl={r.fotoUrl} tamano={28} /><span className="min-w-0 max-w-[9rem] truncate sm:max-w-[16rem]">{r.jugador}</span></span>
+                        <span className="flex items-center gap-2" title={r.jugador}><FotoJugador nombre={r.jugador} fotoUrl={r.fotoUrl} tamano={28} />
+                          <span className="min-w-0 max-w-[11rem] sm:max-w-[16rem]"><span className="block truncate">{r.jugador}</span><span className="block truncate text-xs font-normal text-gray-400 sm:hidden">{r.equipo}</span></span></span>
                       </th>
-                      <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{r.equipo}</td>
+                      <td className="hidden sm:table-cell px-3 py-2 text-gray-400 whitespace-nowrap">{r.equipo}</td>
                       <td className="px-3 py-2 text-center"><ConteoTarjetas valor={r.amarillasAcumuladas} tipo="amarilla" /></td>
                     </tr>
                   ))}
