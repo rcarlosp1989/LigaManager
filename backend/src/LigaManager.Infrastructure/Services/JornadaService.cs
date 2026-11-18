@@ -46,7 +46,7 @@ public class JornadaService : IJornadaService
         p.Eventos.Select(e => new EventoPartidoDto(
             e.IdEvento,
             e.TipoEvento,
-            $"{e.Jugador.Persona.Nombre} {e.Jugador.Persona.Apellido}",
+            NombreCorto.De(e.Jugador.Persona.Nombre, e.Jugador.Persona.Apellido),
             e.IdJugador,
             e.Minuto,
             e.UsuarioRegistro?.Nombre,

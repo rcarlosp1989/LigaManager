@@ -22,10 +22,10 @@ public class EstadisticasService : IEstadisticasService
         _reglas = reglas.Value;
     }
 
-    // Nombre del jugador en los reportes. Para el dirigente y el enlace público, solo primer
-    // nombre y primer apellido.
-    private string NombreJugador(Persona p)
-        => _acceso.EsDirigenteActual || _acceso.EsLecturaPublica ? NombreCorto.De(p.Nombre, p.Apellido) : $"{p.Nombre} {p.Apellido}";
+    // Nombre del jugador en los reportes (goleadores, tarjetas, suspensiones): primer nombre y
+    // primer apellido para todos, para que las tablas se lean bien en el celular. La nómina, la
+    // planilla y el acta siguen con el nombre completo.
+    private static string NombreJugador(Persona p) => NombreCorto.De(p.Nombre, p.Apellido);
 
     // ── Módulo A: Posiciones con forma ───────────────────────────────────────
 
