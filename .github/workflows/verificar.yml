@@ -1,5 +1,5 @@
 name: verificar
-on: { push: { branches: [ 'ci/verificar-nombre-corto' ] } }
+on: { push: { branches: [ 'ci/verificar-respaldo' ] } }
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -10,6 +10,11 @@ jobs:
         env: { MYSQL_ROOT_PASSWORD: root }
         ports: [ '3306:3306' ]
         options: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-retries=20
+      prueba:
+        image: mysql:8.0
+        env: { MYSQL_ROOT_PASSWORD: prueba }
+        ports: [ '3307:3306' ]
+        options: --health-cmd="mysqladmin ping -pprueba" --health-interval=5s --health-retries=30
     env:
       CONN: "Server=127.0.0.1;Port=3306;Database=liga_prueba;User=root;Password=root;"
       CORREOS: ${{ github.workspace }}/correos
@@ -135,6 +140,23 @@ jobs:
           echo pruebas=$c
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
+      - name: Respaldo (script real contra la base de prueba)
+        run: |
+          set -o pipefail
+          r=0
+          CLAVE="clave-de-prueba-muy-larga-1234567890" URL="mysql://root:root@127.0.0.1:3306/liga_prueba" RESUMEN=respaldo_resumen.md \
+            bash .github/scripts/respaldo.sh > respaldo_salida.txt 2> respaldo_err.txt || r=$?
+          ARCH=$(tail -n 1 respaldo_salida.txt)
+          ok=0; detalle=""
+          if [ $r -eq 0 ] && [ -f "$ARCH" ]; then
+            echo "clave-de-prueba-muy-larga-1234567890" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --decrypt "$ARCH" 2>/dev/null | gunzip > vuelta.sql
+            tail -n 1 vuelta.sql | grep -q -- "-- Dump completed" && grep -q "CREATE DEFINER=.* TRIGGER" vuelta.sql && ok=1
+            ! gpg --batch --pinentry-mode loopback --passphrase "otra-clave-equivocada-123456789" --decrypt "$ARCH" > /dev/null 2>&1 || ok=0
+            detalle="$(cat respaldo_resumen.md | tr '\n' ' ' | head -c 600)"
+          fi
+          CLAVE="corta" URL="mysql://root:root@127.0.0.1:3306/liga_prueba" bash .github/scripts/respaldo.sh > /dev/null 2> corta_err.txt && corta=0 || corta=1
+          grep -q "muy corta" corta_err.txt || corta=0
+          echo "::notice title=respaldo::script=$r ida-y-vuelta=$ok rechaza-clave-corta=$corta · $(tr '\n' ' ' < respaldo_err.txt | head -c 300) · $detalle"
       - name: Preparar invitaciones y enlaces
         run: python3 ci/auditoria_prep.py datos.json
       - name: Compilar y servir el frontend real
@@ -161,4 +183,4 @@ jobs:
           cp ../auditoria.txt ../../api.log . 2>/dev/null || true
           git init -q -b r && git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "auditoria ${{ github.sha }}"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-nombre-corto
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:refs/heads/ci/capturas-respaldo
