@@ -1505,6 +1505,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Tarjetas: en el celular el equipo va bajo el jugador y la tabla cabe sin deslizar (Acum., amarillas, rojas, total).
 - Suspensiones: en el celular, una tarjeta por sanción (jugador, equipo, motivo, fecha, partidos cumplidos y estado). «En riesgo» con el equipo bajo el nombre.
 
+## 2026-11-16 — Nombre corto del jugador en las tablas
+
+**Estado:** aplicada en la rama `mejora/nombre-corto`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
+
+- Goleadores, tarjetas, suspensiones, «en riesgo» y los eventos de cada partido muestran solo el primer nombre y el primer apellido («Carlos Andrés Mendoza Pérez» → «Carlos Mendoza»; respeta «De la Cruz», «Del Pezo»), también para el organizador. Antes solo se acortaba en los enlaces públicos y para el dirigente.
+- La nómina, la planilla, el acta y la página Jugadores siguen con el nombre completo.
 ## 2026-11-18 — Respaldo externo semanal de la base de datos (Etapa 1)
 
 **Estado:** aplicada en la rama `mejora/respaldo-externo`. Pendiente de que Roberto la apruebe y configure dos secretos en GitHub. Sin script de base de datos.
