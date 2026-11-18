@@ -1511,3 +1511,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 
 - Goleadores, tarjetas, suspensiones, «en riesgo» y los eventos de cada partido muestran solo el primer nombre y el primer apellido («Carlos Andrés Mendoza Pérez» → «Carlos Mendoza»; respeta «De la Cruz», «Del Pezo»), también para el organizador. Antes solo se acortaba en los enlaces públicos y para el dirigente.
 - La nómina, la planilla, el acta y la página Jugadores siguen con el nombre completo.
+
+## 2026-11-18 — Respaldo externo diario de la base de datos (Etapa 1)
+
+**Estado:** aplicada en la rama `mejora/respaldo-externo`. Pendiente de que Roberto la apruebe y configure dos secretos en GitHub. Sin script de base de datos.
+
+- Workflow «Respaldo diario» (`.github/workflows/respaldo.yml`): todos los días a las 03:00 (Ecuador) y a pedido, copia la base de Railway con mysqldump (con disparadores), comprueba que esté completa, la restaura en una base vacía y cuenta filas de las tablas principales, y la guarda cifrada (AES-256) como artefacto por 30 días.
+- La lógica está en `.github/scripts/respaldo.sh`, que también se prueba en la verificación contra la base de prueba.
+- Secretos: `RESPALDO_DB_URL` (MYSQL_PUBLIC_URL de Railway) y `RESPALDO_CLAVE` (frase de 24+ caracteres, guardada también fuera de GitHub).
+- El plan actual de Railway no permite programar copias en su panel (requiere Pro); este respaldo funciona con cualquier plan.
