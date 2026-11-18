@@ -1,0 +1,80 @@
+# Respaldo externo de la base de datos de producción (Railway → GitHub, cifrado).
+#
+# Cada domingo a las 03:00 (hora de Ecuador) y cuando se pida a mano (Actions → Respaldo
+# semanal → Run workflow), el script .github/scripts/respaldo.sh:
+#   1. copia la base con mysqldump por la conexión pública de Railway;
+#   2. comprueba que la copia esté completa;
+#   3. la restaura en una base vacía y cuenta las filas de las tablas principales;
+#   4. la cifra con AES-256 con una frase que solo está en los secretos de GitHub.
+# La copia cifrada queda como artefacto del workflow durante 90 días. Si algo falla, el
+# workflow falla y GitHub avisa por correo.
+#
+# Secretos (Settings → Secrets and variables → Actions → New repository secret):
+#   RESPALDO_DB_URL   la variable MYSQL_PUBLIC_URL del servicio MySQL en Railway
+#                     (mysql://usuario:clave@host:puerto/base)
+#   RESPALDO_CLAVE    frase larga y aleatoria para cifrar. Guárdela también fuera de
+#                     GitHub (gestor de contraseñas): sin ella, las copias no se pueden abrir.
+#
+# Para abrir una copia: descargue el artefacto, descomprima el .zip y ejecute
+#   gpg --decrypt ligamanager-AAAA-MM-DD.sql.gz.gpg | gunzip > respaldo.sql
+
+name: Respaldo semanal
+
+on:
+  schedule:
+    - cron: '0 8 * * 0'      # domingo 08:00 UTC = 03:00 en Ecuador
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: respaldo
+  cancel-in-progress: false
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      prueba:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: prueba
+        ports: ['3307:3306']
+        options: --health-cmd="mysqladmin ping -pprueba" --health-interval=5s --health-retries=30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revisar secretos
+        env:
+          URL: ${{ secrets.RESPALDO_DB_URL }}
+          CLAVE: ${{ secrets.RESPALDO_CLAVE }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$CLAVE" ]; then
+            echo "::error::Faltan los secretos RESPALDO_DB_URL o RESPALDO_CLAVE."
+            exit 1
+          fi
+
+      - name: Instalar cliente de MySQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mysql-client > /dev/null
+          mysqldump --version
+
+      - name: Copiar, probar y cifrar
+        env:
+          URL: ${{ secrets.RESPALDO_DB_URL }}
+          CLAVE: ${{ secrets.RESPALDO_CLAVE }}
+        run: |
+          ARCHIVO=$(bash .github/scripts/respaldo.sh | tail -n 1)
+          echo "ARCHIVO=$ARCHIVO" >> "$GITHUB_ENV"
+          echo "NOMBRE=$(basename "$ARCHIVO" .sql.gz.gpg)" >> "$GITHUB_ENV"
+
+      - name: Guardar la copia cifrada
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NOMBRE }}
+          path: ${{ env.ARCHIVO }}
+          retention-days: 90
+          if-no-files-found: error

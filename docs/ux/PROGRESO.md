@@ -1504,3 +1504,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Tabla de posiciones (enlaces públicos, grupos y Reportes): columnas J · GF:GC · +/- · PTS | G · E · P | Últimas. En el celular se ven los puntos sin deslizar. Últimos resultados en español (G/E/P) en círculos con borde.
 - Tarjetas: en el celular el equipo va bajo el jugador y la tabla cabe sin deslizar (Acum., amarillas, rojas, total).
 - Suspensiones: en el celular, una tarjeta por sanción (jugador, equipo, motivo, fecha, partidos cumplidos y estado). «En riesgo» con el equipo bajo el nombre.
+
+## 2026-11-18 — Respaldo externo semanal de la base de datos (Etapa 1)
+
+**Estado:** aplicada en la rama `mejora/respaldo-externo`. Pendiente de que Roberto la apruebe y configure dos secretos en GitHub. Sin script de base de datos.
+
+- Workflow «Respaldo semanal» (`.github/workflows/respaldo.yml`): cada domingo 03:00 (Ecuador) y a pedido, copia la base de Railway con mysqldump (con disparadores), comprueba que esté completa, la restaura en una base vacía y cuenta filas de las tablas principales, y la guarda cifrada (AES-256) como artefacto por 90 días.
+- La lógica está en `.github/scripts/respaldo.sh`, que también se prueba en la verificación contra la base de prueba.
+- Secretos: `RESPALDO_DB_URL` (MYSQL_PUBLIC_URL de Railway) y `RESPALDO_CLAVE` (frase de 24+ caracteres, guardada también fuera de GitHub).
+- Complementa las copias automáticas diarias y semanales del panel de Railway.
