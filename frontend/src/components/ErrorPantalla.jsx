@@ -26,7 +26,7 @@ export default class ErrorPantalla extends Component {
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <button type="button" onClick={() => window.location.reload()} className="btn-primary min-h-11 px-5">Recargar</button>
-            <a href="/" className="btn-secondary inline-flex min-h-11 items-center px-5">Ir al inicio</a>
+            <a href="/" className="btn-secundario inline-flex min-h-11 items-center px-5">Ir al inicio</a>
           </div>
         </div>
       </main>
