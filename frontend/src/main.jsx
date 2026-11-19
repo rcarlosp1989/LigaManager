@@ -11,6 +11,8 @@ import App from './App.jsx'
 import { instalarValidacion } from './utils/validacion'
 import AvisosProvider from './components/AvisosProvider'
 import DialogosProvider from './components/DialogosProvider'
+import ErrorPantalla from './components/ErrorPantalla'
+import { instalarReporteErrores } from './utils/reportarError'
 
 // Los errores 4xx (no encontrado, sin permiso, datos inválidos) no mejoran al reintentar:
 // se muestran de inmediato. Los de red o servidor se reintentan hasta 3 veces.
@@ -27,9 +29,11 @@ const queryClient = new QueryClient({
 })
 
 instalarValidacion()
+instalarReporteErrores()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ErrorPantalla>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AvisosProvider>
@@ -39,6 +43,7 @@ createRoot(document.getElementById('root')).render(
         </AvisosProvider>
       </BrowserRouter>
     </QueryClientProvider>
+    </ErrorPantalla>
   </StrictMode>,
 )
 

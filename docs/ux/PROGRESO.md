@@ -1505,20 +1505,27 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - Tarjetas: en el celular el equipo va bajo el jugador y la tabla cabe sin deslizar (Acum., amarillas, rojas, total).
 - Suspensiones: en el celular, una tarjeta por sanción (jugador, equipo, motivo, fecha, partidos cumplidos y estado). «En riesgo» con el equipo bajo el nombre.
 
-<<<<<<< HEAD
 ## 2026-11-16 — Nombre corto del jugador en las tablas
 
 **Estado:** aplicada en la rama `mejora/nombre-corto`. Pendiente de que Roberto la apruebe. Sin script de base de datos.
 
 - Goleadores, tarjetas, suspensiones, «en riesgo» y los eventos de cada partido muestran solo el primer nombre y el primer apellido («Carlos Andrés Mendoza Pérez» → «Carlos Mendoza»; respeta «De la Cruz», «Del Pezo»), también para el organizador. Antes solo se acortaba en los enlaces públicos y para el dirigente.
 - La nómina, la planilla, el acta y la página Jugadores siguen con el nombre completo.
-=======
-## 2026-11-18 — Respaldo externo semanal de la base de datos (Etapa 1)
+
+## 2026-11-18 — Respaldo externo diario de la base de datos (Etapa 1)
 
 **Estado:** aplicada en la rama `mejora/respaldo-externo`. Pendiente de que Roberto la apruebe y configure dos secretos en GitHub. Sin script de base de datos.
 
-- Workflow «Respaldo semanal» (`.github/workflows/respaldo.yml`): cada domingo 03:00 (Ecuador) y a pedido, copia la base de Railway con mysqldump (con disparadores), comprueba que esté completa, la restaura en una base vacía y cuenta filas de las tablas principales, y la guarda cifrada (AES-256) como artefacto por 90 días.
+- Workflow «Respaldo diario» (`.github/workflows/respaldo.yml`): todos los días a las 03:00 (Ecuador) y a pedido, copia la base de Railway con mysqldump (con disparadores), comprueba que esté completa, la restaura en una base vacía y cuenta filas de las tablas principales, y la guarda cifrada (AES-256) como artefacto por 30 días.
 - La lógica está en `.github/scripts/respaldo.sh`, que también se prueba en la verificación contra la base de prueba.
 - Secretos: `RESPALDO_DB_URL` (MYSQL_PUBLIC_URL de Railway) y `RESPALDO_CLAVE` (frase de 24+ caracteres, guardada también fuera de GitHub).
-- Complementa las copias automáticas diarias y semanales del panel de Railway.
->>>>>>> mejora/respaldo-externo
+- El plan actual de Railway no permite programar copias en su panel (requiere Pro); este respaldo funciona con cualquier plan.
+
+## 2026-11-19 — Avisos de errores y chequeo de salud (Etapa 2)
+
+**Estado:** aplicada en la rama `mejora/avisos-errores`. Pendiente de que Roberto la apruebe y agregue la variable `Avisos__Correo` en Railway. Sin script de base de datos.
+
+- Errores internos del servidor (500): además del registro de Railway, un correo al administrador (Brevo) con la ruta, el tipo, el usuario (rol e id) y la pila. El mismo error avisa como máximo una vez por hora (el siguiente correo dice cuántas veces se repitió) y hay un tope de 20 correos al día.
+- Errores de la pantalla: el navegador los manda a `POST /api/errores-pantalla` (sin sesión obligatoria; 20 por IP cada 10 minutos; ignora extensiones, falta de señal y ruido conocido) y llegan por el mismo correo.
+- Si una pantalla se rompe, en lugar de quedar en blanco muestra «Algo salió mal» con «Recargar» e «Ir al inicio».
+- `GET /api/salud`: 200 si el servidor y la base responden; 503 si la base no contesta. Para el chequeo de Railway y el monitor externo (UptimeRobot).

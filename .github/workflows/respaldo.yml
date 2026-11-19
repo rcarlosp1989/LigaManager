@@ -1,12 +1,12 @@
 # Respaldo externo de la base de datos de producción (Railway → GitHub, cifrado).
 #
-# Cada domingo a las 03:00 (hora de Ecuador) y cuando se pida a mano (Actions → Respaldo
-# semanal → Run workflow), el script .github/scripts/respaldo.sh:
+# Todos los días a las 03:00 (hora de Ecuador) y cuando se pida a mano (Actions → Respaldo
+# diario → Run workflow), el script .github/scripts/respaldo.sh:
 #   1. copia la base con mysqldump por la conexión pública de Railway;
 #   2. comprueba que la copia esté completa;
 #   3. la restaura en una base vacía y cuenta las filas de las tablas principales;
 #   4. la cifra con AES-256 con una frase que solo está en los secretos de GitHub.
-# La copia cifrada queda como artefacto del workflow durante 90 días. Si algo falla, el
+# La copia cifrada queda como artefacto del workflow durante 30 días. Si algo falla, el
 # workflow falla y GitHub avisa por correo.
 #
 # Secretos (Settings → Secrets and variables → Actions → New repository secret):
@@ -18,11 +18,11 @@
 # Para abrir una copia: descargue el artefacto, descomprima el .zip y ejecute
 #   gpg --decrypt ligamanager-AAAA-MM-DD.sql.gz.gpg | gunzip > respaldo.sql
 
-name: Respaldo semanal
+name: Respaldo diario
 
 on:
   schedule:
-    - cron: '0 8 * * 0'      # domingo 08:00 UTC = 03:00 en Ecuador
+    - cron: '0 8 * * *'      # todos los días 08:00 UTC = 03:00 en Ecuador
   workflow_dispatch:
 
 permissions:
@@ -76,5 +76,5 @@ jobs:
         with:
           name: ${{ env.NOMBRE }}
           path: ${{ env.ARCHIVO }}
-          retention-days: 90
+          retention-days: 30
           if-no-files-found: error

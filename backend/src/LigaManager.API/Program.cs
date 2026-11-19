@@ -55,6 +55,9 @@ builder.Services.AddScoped<IAlmacenImagenes, AlmacenImagenesBd>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<LigaManager.API.Seguridad.LimiteIntentos>();
 
+// ── Avisos de errores en producción (correo a Avisos__Correo, ver Monitoreo/AvisoErrores.cs) ──
+builder.Services.AddSingleton<LigaManager.API.Monitoreo.AvisoErrores>();
+
 // Railway pasa la petición por su proxy: la IP real del visitante llega en X-Forwarded-For.
 // Se toma solo el último valor (el que agrega el proxy), así no se puede falsificar.
 builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(opt =>
@@ -268,8 +271,18 @@ app.Use(async (ctx, next) =>
             return;
         }
         if (peticion is null)
+        {
             ctx.RequestServices.GetRequiredService<ILogger<Program>>()
                 .LogError(ex, "Error no controlado en {Metodo} {Ruta}", ctx.Request.Method, ctx.Request.Path);
+            // Aviso por correo al administrador (con límites; nunca lanza).
+            var usuario = ctx.User.Identity?.IsAuthenticated == true
+                ? $"{ctx.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "usuario"} #{ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "?"}"
+                : null;
+            var raiz = ex.GetBaseException();
+            ctx.RequestServices.GetRequiredService<LigaManager.API.Monitoreo.AvisoErrores>().Registrar(new(
+                "Servidor", raiz.GetType().Name, raiz.Message, ex.ToString(),
+                ctx.Request.Path, ctx.Request.Method, usuario, ctx.Request.Headers.UserAgent.ToString()));
+        }
         ctx.Response.StatusCode  = peticion?.StatusCode ?? 500;
         ctx.Response.ContentType = "application/json";
         await ctx.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Copia, comprueba, restaura de prueba y cifra la base de datos.
-# Lo usa el workflow «Respaldo semanal» (y las pruebas, con una base local).
+# Lo usa el workflow «Respaldo diario» (y las pruebas, con una base local).
 #
 # Variables de entrada:
 #   URL            mysql://usuario:clave@host:puerto/base  (la base a copiar)
