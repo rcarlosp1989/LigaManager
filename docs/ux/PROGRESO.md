@@ -1520,3 +1520,12 @@ GitHub Actions, con la base de pruebas con la misma regla que producción (`uq_p
 - La lógica está en `.github/scripts/respaldo.sh`, que también se prueba en la verificación contra la base de prueba.
 - Secretos: `RESPALDO_DB_URL` (MYSQL_PUBLIC_URL de Railway) y `RESPALDO_CLAVE` (frase de 24+ caracteres, guardada también fuera de GitHub).
 - El plan actual de Railway no permite programar copias en su panel (requiere Pro); este respaldo funciona con cualquier plan.
+
+## 2026-11-19 — Avisos de errores y chequeo de salud (Etapa 2)
+
+**Estado:** aplicada en la rama `mejora/avisos-errores`. Pendiente de que Roberto la apruebe y agregue la variable `Avisos__Correo` en Railway. Sin script de base de datos.
+
+- Errores internos del servidor (500): además del registro de Railway, un correo al administrador (Brevo) con la ruta, el tipo, el usuario (rol e id) y la pila. El mismo error avisa como máximo una vez por hora (el siguiente correo dice cuántas veces se repitió) y hay un tope de 20 correos al día.
+- Errores de la pantalla: el navegador los manda a `POST /api/errores-pantalla` (sin sesión obligatoria; 20 por IP cada 10 minutos; ignora extensiones, falta de señal y ruido conocido) y llegan por el mismo correo.
+- Si una pantalla se rompe, en lugar de quedar en blanco muestra «Algo salió mal» con «Recargar» e «Ir al inicio».
+- `GET /api/salud`: 200 si el servidor y la base responden; 503 si la base no contesta. Para el chequeo de Railway y el monitor externo (UptimeRobot).
